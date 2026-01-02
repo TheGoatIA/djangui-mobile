@@ -6,20 +6,36 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../transactions/presentation/bloc/transactions_bloc.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<AuthBloc>(),
-      child: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state.status == AuthStatus.unauthenticated) {
-            context.go(RouteConstants.login);
-          }
-        },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => getIt<AuthBloc>()),
+        BlocProvider(
+          create: (context) =>
+              getIt<TransactionsBloc>()..add(const GetTransactionsRequested()),
+        ),
+      ],
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state.status == AuthStatus.unauthenticated) {
+                context.go(RouteConstants.login);
+              }
+            },
+          ),
+          BlocListener<TransactionsBloc, TransactionsState>(
+            listener: (context, state) {
+              // Handle potential global transaction errors here
+            },
+          ),
+        ],
         child: Scaffold(
           backgroundColor: AppColors.background,
           appBar: _buildAppBar(context),
@@ -32,7 +48,11 @@ class DashboardPage extends StatelessWidget {
                 const SizedBox(height: 24),
                 _buildQuickActions(context),
                 const SizedBox(height: 32),
-                _buildSectionHeader(context, "Activités Récentes", () {}),
+                _buildSectionHeader(
+                  context,
+                  "Activités Récentes",
+                  () => context.push(RouteConstants.transactions),
+                ),
                 const SizedBox(height: 16),
                 _buildRecentActivities(context),
               ],
@@ -166,6 +186,7 @@ class DashboardPage extends StatelessWidget {
               Icons.add_circle_outline,
               'Investir',
               AppColors.primary,
+              onTap: () => context.push(RouteConstants.transactions + '/add'),
             ),
             _buildActionItem(
               Icons.arrow_circle_down_outlined,
@@ -184,23 +205,33 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildActionItem(IconData icon, String label, Color color) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
+  Widget _buildActionItem(
+    IconData icon,
+    String label,
+    Color color, {
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(icon, color: color),
           ),
-          child: Icon(icon, color: color),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w500),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: AppTextStyles.bodySmall.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -222,66 +253,96 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildRecentActivities(BuildContext context) {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: 3,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.swap_horiz, color: AppColors.primary),
+    return BlocBuilder<TransactionsBloc, TransactionsState>(
+      builder: (context, state) {
+        if (state.status == TransactionsStatus.loading &&
+            state.transactions.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state.transactions.isEmpty) {
+          return Center(
+            child: Text(
+              'Aucune activité récente',
+              style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+            ),
+          );
+        }
+
+        final recentTransactions = state.transactions.take(3).toList();
+
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: recentTransactions.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final t = recentTransactions[index];
+            final isIncome = t.type == 'income';
+            final color = isIncome ? AppColors.success : AppColors.error;
+
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Cotisation Mensuelle',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Tontine "Famille"',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: Row(
                 children: [
-                  Text(
-                    '-10,000 F',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.error,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+                      color: color,
+                      size: 20,
                     ),
                   ),
-                  Text(
-                    'Hier',
-                    style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t.description,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          t.category,
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${isIncome ? '+' : '-'}${t.amount.toStringAsFixed(0)} F',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Aujourd\'hui', // TODO: Format date
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
