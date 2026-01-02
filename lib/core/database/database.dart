@@ -41,12 +41,24 @@ class Budgets extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Users, Transactions, Budgets])
+class Goals extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  RealColumn get targetAmount => real()();
+  RealColumn get currentAmount => real()();
+  DateTimeColumn get deadline => dateTime()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DriftDatabase(tables: [Users, Transactions, Budgets, Goals])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(() async {

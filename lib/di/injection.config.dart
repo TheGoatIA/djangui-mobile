@@ -35,6 +35,18 @@ import 'package:djangui/features/budgets/domain/repositories/budget_repository.d
     as _i674;
 import 'package:djangui/features/budgets/presentation/bloc/budgets_bloc.dart'
     as _i339;
+import 'package:djangui/features/goals/data/datasources/goal_api_service.dart'
+    as _i615;
+import 'package:djangui/features/goals/data/datasources/goal_local_datasource.dart'
+    as _i642;
+import 'package:djangui/features/goals/data/datasources/goal_remote_datasource.dart'
+    as _i912;
+import 'package:djangui/features/goals/data/repositories/goal_repository_impl.dart'
+    as _i511;
+import 'package:djangui/features/goals/domain/repositories/goal_repository.dart'
+    as _i824;
+import 'package:djangui/features/goals/presentation/bloc/goals_bloc.dart'
+    as _i424;
 import 'package:djangui/features/transactions/data/datasources/transaction_api_service.dart'
     as _i70;
 import 'package:djangui/features/transactions/data/datasources/transaction_local_datasource.dart'
@@ -76,10 +88,15 @@ extension GetItInjectableX on _i174.GetIt {
         () => registerModule.transactionApiService);
     gh.lazySingleton<_i876.BudgetApiService>(
         () => registerModule.budgetApiService);
+    gh.lazySingleton<_i615.GoalApiService>(() => registerModule.goalApiService);
     gh.lazySingleton<_i730.AppDatabase>(() => registerModule.database);
     gh.lazySingleton<_i959.BudgetRemoteDataSource>(
         () => _i959.BudgetRemoteDataSourceImpl(gh<_i876.BudgetApiService>()));
     gh.lazySingleton<_i574.NetworkInfo>(() => _i574.NetworkInfoImpl());
+    gh.lazySingleton<_i642.GoalLocalDataSource>(
+        () => _i642.GoalLocalDataSourceImpl(gh<_i730.AppDatabase>()));
+    gh.lazySingleton<_i912.GoalRemoteDataSource>(
+        () => _i912.GoalRemoteDataSourceImpl(gh<_i615.GoalApiService>()));
     gh.lazySingleton<_i1046.AuthRemoteDataSource>(
         () => _i1046.AuthRemoteDataSourceImpl(gh<_i651.AuthApiService>()));
     gh.lazySingleton<_i1040.TransactionLocalDataSource>(
@@ -106,11 +123,18 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i492.TransactionsBloc(gh<_i461.TransactionRepository>()));
     gh.factory<_i339.BudgetsBloc>(
         () => _i339.BudgetsBloc(gh<_i674.BudgetRepository>()));
+    gh.lazySingleton<_i824.GoalRepository>(() => _i511.GoalRepositoryImpl(
+          gh<_i912.GoalRemoteDataSource>(),
+          gh<_i642.GoalLocalDataSource>(),
+          gh<_i574.NetworkInfo>(),
+        ));
     gh.lazySingleton<_i1012.AuthRepository>(() => _i29.AuthRepositoryImpl(
           gh<_i1046.AuthRemoteDataSource>(),
           gh<_i520.AuthLocalDataSource>(),
           gh<_i574.NetworkInfo>(),
         ));
+    gh.factory<_i424.GoalsBloc>(
+        () => _i424.GoalsBloc(gh<_i824.GoalRepository>()));
     gh.factory<_i48.AuthBloc>(() => _i48.AuthBloc(gh<_i1012.AuthRepository>()));
     return this;
   }

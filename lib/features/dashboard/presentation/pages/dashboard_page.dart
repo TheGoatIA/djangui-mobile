@@ -358,6 +358,8 @@ class DashboardPage extends StatelessWidget {
       onTap: (index) {
         if (index == 2) {
           context.push(RouteConstants.budgets);
+        } else if (index == 3) {
+          context.push(RouteConstants.goals);
         }
       },
       items: const [
@@ -372,6 +374,10 @@ class DashboardPage extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.pie_chart_outline),
           label: 'Budgets',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.flag_outlined),
+          label: 'Objectifs',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),
