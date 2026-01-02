@@ -355,6 +355,11 @@ class DashboardPage extends StatelessWidget {
       showUnselectedLabels: true,
       type: BottomNavigationBarType.fixed,
       currentIndex: 0,
+      onTap: (index) {
+        if (index == 2) {
+          context.push(RouteConstants.budgets);
+        }
+      },
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home_filled),
@@ -365,8 +370,8 @@ class DashboardPage extends StatelessWidget {
           label: 'Tontines',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.analytics_outlined),
-          label: 'Analyses',
+          icon: Icon(Icons.pie_chart_outline),
+          label: 'Budgets',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),

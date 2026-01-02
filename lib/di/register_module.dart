@@ -7,6 +7,7 @@ import '../core/network/api_client.dart';
 import '../core/database/database.dart';
 import '../features/auth/data/datasources/auth_api_service.dart';
 import '../features/transactions/data/datasources/transaction_api_service.dart';
+import '../features/budgets/data/datasources/budget_api_service.dart';
 import 'injection.dart';
 
 @module
@@ -27,6 +28,10 @@ abstract class RegisterModule {
   @lazySingleton
   TransactionApiService get transactionApiService =>
       TransactionApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  BudgetApiService get budgetApiService =>
+      BudgetApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
   AppDatabase get database => AppDatabase();

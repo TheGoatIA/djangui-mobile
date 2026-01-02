@@ -23,6 +23,18 @@ import 'package:djangui/features/auth/data/repositories/auth_repository_impl.dar
 import 'package:djangui/features/auth/domain/repositories/auth_repository.dart'
     as _i1012;
 import 'package:djangui/features/auth/presentation/bloc/auth_bloc.dart' as _i48;
+import 'package:djangui/features/budgets/data/datasources/budget_api_service.dart'
+    as _i876;
+import 'package:djangui/features/budgets/data/datasources/budget_local_datasource.dart'
+    as _i999;
+import 'package:djangui/features/budgets/data/datasources/budget_remote_datasource.dart'
+    as _i959;
+import 'package:djangui/features/budgets/data/repositories/budget_repository_impl.dart'
+    as _i45;
+import 'package:djangui/features/budgets/domain/repositories/budget_repository.dart'
+    as _i674;
+import 'package:djangui/features/budgets/presentation/bloc/budgets_bloc.dart'
+    as _i339;
 import 'package:djangui/features/transactions/data/datasources/transaction_api_service.dart'
     as _i70;
 import 'package:djangui/features/transactions/data/datasources/transaction_local_datasource.dart'
@@ -62,12 +74,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i651.AuthApiService>(() => registerModule.authApiService);
     gh.lazySingleton<_i70.TransactionApiService>(
         () => registerModule.transactionApiService);
+    gh.lazySingleton<_i876.BudgetApiService>(
+        () => registerModule.budgetApiService);
     gh.lazySingleton<_i730.AppDatabase>(() => registerModule.database);
+    gh.lazySingleton<_i959.BudgetRemoteDataSource>(
+        () => _i959.BudgetRemoteDataSourceImpl(gh<_i876.BudgetApiService>()));
     gh.lazySingleton<_i574.NetworkInfo>(() => _i574.NetworkInfoImpl());
     gh.lazySingleton<_i1046.AuthRemoteDataSource>(
         () => _i1046.AuthRemoteDataSourceImpl(gh<_i651.AuthApiService>()));
     gh.lazySingleton<_i1040.TransactionLocalDataSource>(
         () => _i1040.TransactionLocalDataSourceImpl(gh<_i730.AppDatabase>()));
+    gh.lazySingleton<_i999.BudgetLocalDataSource>(
+        () => _i999.BudgetLocalDataSourceImpl(gh<_i730.AppDatabase>()));
     gh.lazySingleton<_i231.TransactionRemoteDataSource>(() =>
         _i231.TransactionRemoteDataSourceImpl(
             gh<_i70.TransactionApiService>()));
@@ -79,8 +97,15 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.lazySingleton<_i520.AuthLocalDataSource>(
         () => _i520.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()));
+    gh.lazySingleton<_i674.BudgetRepository>(() => _i45.BudgetRepositoryImpl(
+          gh<_i959.BudgetRemoteDataSource>(),
+          gh<_i999.BudgetLocalDataSource>(),
+          gh<_i574.NetworkInfo>(),
+        ));
     gh.factory<_i492.TransactionsBloc>(
         () => _i492.TransactionsBloc(gh<_i461.TransactionRepository>()));
+    gh.factory<_i339.BudgetsBloc>(
+        () => _i339.BudgetsBloc(gh<_i674.BudgetRepository>()));
     gh.lazySingleton<_i1012.AuthRepository>(() => _i29.AuthRepositoryImpl(
           gh<_i1046.AuthRemoteDataSource>(),
           gh<_i520.AuthLocalDataSource>(),

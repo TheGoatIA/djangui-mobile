@@ -29,12 +29,24 @@ class Transactions extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Users, Transactions])
+class Budgets extends Table {
+  TextColumn get id => text()();
+  TextColumn get category => text()();
+  RealColumn get limitAmount => real()();
+  RealColumn get spentAmount => real()();
+  DateTimeColumn get startDate => dateTime()();
+  DateTimeColumn get endDate => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DriftDatabase(tables: [Users, Transactions, Budgets])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(() async {
