@@ -14,6 +14,7 @@ import '../features/goals/presentation/pages/goal_list_page.dart';
 import '../features/goals/presentation/pages/add_goal_page.dart';
 import '../features/challenges/presentation/pages/challenges_page.dart';
 import '../features/coach/presentation/pages/coach_chat_page.dart';
+import '../features/insights/presentation/pages/insights_page.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
@@ -78,6 +79,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.coach,
       builder: (context, state) => const CoachChatPage(),
+    ),
+    GoRoute(
+      path: RouteConstants.insights,
+      builder: (context, state) => const InsightsPage(),
     ),
   ],
 );

@@ -11,6 +11,7 @@ import '../features/budgets/data/datasources/budget_api_service.dart';
 import '../features/goals/data/datasources/goal_api_service.dart';
 import '../features/challenges/data/datasources/challenge_api_service.dart';
 import '../features/coach/data/datasources/coach_api_service.dart';
+import '../features/insights/data/datasources/insight_api_service.dart';
 import 'injection.dart';
 
 @module
@@ -47,6 +48,10 @@ abstract class RegisterModule {
   @lazySingleton
   CoachApiService get coachApiService =>
       CoachApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  InsightApiService get insightApiService =>
+      InsightApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
   AppDatabase get database => AppDatabase();

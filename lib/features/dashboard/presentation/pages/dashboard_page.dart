@@ -189,9 +189,10 @@ class DashboardPage extends StatelessWidget {
               onTap: () => context.push(RouteConstants.transactions + '/add'),
             ),
             _buildActionItem(
-              Icons.arrow_circle_down_outlined,
-              'Retirer',
+              Icons.bar_chart_outlined,
+              'Analyses',
               AppColors.secondary,
+              onTap: () => context.push(RouteConstants.insights),
             ),
             _buildActionItem(
               Icons.qr_code_scanner,
