@@ -368,6 +368,8 @@ class DashboardPage extends StatelessWidget {
           context.push(RouteConstants.budgets);
         } else if (index == 3) {
           context.push(RouteConstants.goals);
+        } else if (index == 4) {
+          context.push(RouteConstants.profile);
         }
       },
       items: const [
