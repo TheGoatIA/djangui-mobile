@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -18,6 +19,15 @@ class SplashPage extends StatelessWidget {
         listener: (context, state) {
           // Add a small delay for branding
           Future.delayed(const Duration(seconds: 2), () {
+            final prefs = getIt<SharedPreferences>();
+            final hasSeenOnboarding =
+                prefs.getBool('hasSeenOnboarding') ?? false;
+
+            if (!hasSeenOnboarding) {
+              context.go(RouteConstants.onBoarding);
+              return;
+            }
+
             if (state.status == AuthStatus.authenticated) {
               context.go(RouteConstants.dashboard);
             } else if (state.status == AuthStatus.unauthenticated) {

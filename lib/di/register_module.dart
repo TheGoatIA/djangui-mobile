@@ -1,6 +1,7 @@
 import 'package:chopper/chopper.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/network/api_client.dart';
 import '../core/database/database.dart';
@@ -14,6 +15,9 @@ abstract class RegisterModule {
 
   @lazySingleton
   ChopperClient get chopperClient => DjanguiApiClient.create();
+
+  @preResolve
+  Future<SharedPreferences> get prefs => SharedPreferences.getInstance();
 
   @lazySingleton
   AuthApiService get authApiService =>
