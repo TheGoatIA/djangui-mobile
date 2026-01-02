@@ -69,12 +69,24 @@ class Challenges extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Users, Transactions, Budgets, Goals, Challenges])
+class ChatMessages extends Table {
+  TextColumn get id => text()();
+  TextColumn get content => text()();
+  TextColumn get sender => text()();
+  DateTimeColumn get timestamp => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DriftDatabase(
+  tables: [Users, Transactions, Budgets, Goals, Challenges, ChatMessages],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(() async {

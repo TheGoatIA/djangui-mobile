@@ -198,7 +198,12 @@ class DashboardPage extends StatelessWidget {
               'Scanner',
               AppColors.accent,
             ),
-            _buildActionItem(Icons.more_horiz, 'Plus', Colors.blueGrey),
+            _buildActionItem(
+              Icons.smart_toy_outlined,
+              'Coach IA',
+              Colors.indigo,
+              onTap: () => context.push(RouteConstants.coach),
+            ),
           ],
         ),
       ],

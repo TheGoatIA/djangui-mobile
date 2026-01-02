@@ -47,6 +47,16 @@ import 'package:djangui/features/challenges/domain/repositories/challenge_reposi
     as _i1021;
 import 'package:djangui/features/challenges/presentation/bloc/challenges_bloc.dart'
     as _i983;
+import 'package:djangui/features/coach/data/datasources/coach_api_service.dart'
+    as _i522;
+import 'package:djangui/features/coach/data/datasources/coach_local_datasource.dart'
+    as _i493;
+import 'package:djangui/features/coach/data/datasources/coach_remote_datasource.dart'
+    as _i186;
+import 'package:djangui/features/coach/data/repositories/coach_repository_impl.dart'
+    as _i364;
+import 'package:djangui/features/coach/domain/repositories/coach_repository.dart'
+    as _i745;
 import 'package:djangui/features/goals/data/datasources/goal_api_service.dart'
     as _i615;
 import 'package:djangui/features/goals/data/datasources/goal_local_datasource.dart'
@@ -103,12 +113,16 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i615.GoalApiService>(() => registerModule.goalApiService);
     gh.lazySingleton<_i181.ChallengeApiService>(
         () => registerModule.challengeApiService);
+    gh.lazySingleton<_i522.CoachApiService>(
+        () => registerModule.coachApiService);
     gh.lazySingleton<_i730.AppDatabase>(() => registerModule.database);
     gh.lazySingleton<_i959.BudgetRemoteDataSource>(
         () => _i959.BudgetRemoteDataSourceImpl(gh<_i876.BudgetApiService>()));
     gh.lazySingleton<_i540.ChallengeRemoteDataSource>(() =>
         _i540.ChallengeRemoteDataSourceImpl(gh<_i181.ChallengeApiService>()));
     gh.lazySingleton<_i574.NetworkInfo>(() => _i574.NetworkInfoImpl());
+    gh.lazySingleton<_i493.CoachLocalDataSource>(
+        () => _i493.CoachLocalDataSourceImpl(gh<_i730.AppDatabase>()));
     gh.lazySingleton<_i209.ChallengeLocalDataSource>(
         () => _i209.ChallengeLocalDataSourceImpl(gh<_i730.AppDatabase>()));
     gh.lazySingleton<_i642.GoalLocalDataSource>(
@@ -138,6 +152,13 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.lazySingleton<_i520.AuthLocalDataSource>(
         () => _i520.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()));
+    gh.lazySingleton<_i186.CoachRemoteDataSource>(
+        () => _i186.CoachRemoteDataSourceImpl(gh<_i522.CoachApiService>()));
+    gh.lazySingleton<_i745.CoachRepository>(() => _i364.CoachRepositoryImpl(
+          gh<_i186.CoachRemoteDataSource>(),
+          gh<_i493.CoachLocalDataSource>(),
+          gh<_i574.NetworkInfo>(),
+        ));
     gh.lazySingleton<_i674.BudgetRepository>(() => _i45.BudgetRepositoryImpl(
           gh<_i959.BudgetRemoteDataSource>(),
           gh<_i999.BudgetLocalDataSource>(),

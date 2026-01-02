@@ -1,0 +1,24 @@
+import 'package:injectable/injectable.dart';
+import 'coach_api_service.dart';
+import '../models/chat_message_model.dart';
+
+abstract class CoachRemoteDataSource {
+  Future<ChatMessageModel> sendMessage(String text);
+}
+
+@LazySingleton(as: CoachRemoteDataSource)
+class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
+  final CoachApiService _apiService;
+
+  CoachRemoteDataSourceImpl(this._apiService);
+
+  @override
+  Future<ChatMessageModel> sendMessage(String text) async {
+    final response = await _apiService.sendMessage({'text': text});
+    if (response.isSuccessful && response.body != null) {
+      return response.body!;
+    } else {
+      throw Exception('Failed to get coach response');
+    }
+  }
+}
