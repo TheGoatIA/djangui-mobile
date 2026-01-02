@@ -35,6 +35,18 @@ import 'package:djangui/features/budgets/domain/repositories/budget_repository.d
     as _i674;
 import 'package:djangui/features/budgets/presentation/bloc/budgets_bloc.dart'
     as _i339;
+import 'package:djangui/features/challenges/data/datasources/challenge_api_service.dart'
+    as _i181;
+import 'package:djangui/features/challenges/data/datasources/challenge_local_datasource.dart'
+    as _i209;
+import 'package:djangui/features/challenges/data/datasources/challenge_remote_datasource.dart'
+    as _i540;
+import 'package:djangui/features/challenges/data/repositories/challenge_repository_impl.dart'
+    as _i558;
+import 'package:djangui/features/challenges/domain/repositories/challenge_repository.dart'
+    as _i1021;
+import 'package:djangui/features/challenges/presentation/bloc/challenges_bloc.dart'
+    as _i983;
 import 'package:djangui/features/goals/data/datasources/goal_api_service.dart'
     as _i615;
 import 'package:djangui/features/goals/data/datasources/goal_local_datasource.dart'
@@ -89,12 +101,24 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i876.BudgetApiService>(
         () => registerModule.budgetApiService);
     gh.lazySingleton<_i615.GoalApiService>(() => registerModule.goalApiService);
+    gh.lazySingleton<_i181.ChallengeApiService>(
+        () => registerModule.challengeApiService);
     gh.lazySingleton<_i730.AppDatabase>(() => registerModule.database);
     gh.lazySingleton<_i959.BudgetRemoteDataSource>(
         () => _i959.BudgetRemoteDataSourceImpl(gh<_i876.BudgetApiService>()));
+    gh.lazySingleton<_i540.ChallengeRemoteDataSource>(() =>
+        _i540.ChallengeRemoteDataSourceImpl(gh<_i181.ChallengeApiService>()));
     gh.lazySingleton<_i574.NetworkInfo>(() => _i574.NetworkInfoImpl());
+    gh.lazySingleton<_i209.ChallengeLocalDataSource>(
+        () => _i209.ChallengeLocalDataSourceImpl(gh<_i730.AppDatabase>()));
     gh.lazySingleton<_i642.GoalLocalDataSource>(
         () => _i642.GoalLocalDataSourceImpl(gh<_i730.AppDatabase>()));
+    gh.lazySingleton<_i1021.ChallengeRepository>(
+        () => _i558.ChallengeRepositoryImpl(
+              gh<_i540.ChallengeRemoteDataSource>(),
+              gh<_i209.ChallengeLocalDataSource>(),
+              gh<_i574.NetworkInfo>(),
+            ));
     gh.lazySingleton<_i912.GoalRemoteDataSource>(
         () => _i912.GoalRemoteDataSourceImpl(gh<_i615.GoalApiService>()));
     gh.lazySingleton<_i1046.AuthRemoteDataSource>(
@@ -121,6 +145,8 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i492.TransactionsBloc>(
         () => _i492.TransactionsBloc(gh<_i461.TransactionRepository>()));
+    gh.factory<_i983.ChallengesBloc>(
+        () => _i983.ChallengesBloc(gh<_i1021.ChallengeRepository>()));
     gh.factory<_i339.BudgetsBloc>(
         () => _i339.BudgetsBloc(gh<_i674.BudgetRepository>()));
     gh.lazySingleton<_i824.GoalRepository>(() => _i511.GoalRepositoryImpl(

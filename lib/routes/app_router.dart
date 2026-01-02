@@ -12,6 +12,7 @@ import '../features/budgets/presentation/pages/budget_list_page.dart';
 import '../features/budgets/presentation/pages/add_budget_page.dart';
 import '../features/goals/presentation/pages/goal_list_page.dart';
 import '../features/goals/presentation/pages/add_goal_page.dart';
+import '../features/challenges/presentation/pages/challenges_page.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
@@ -68,6 +69,10 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(path: 'add', builder: (context, state) => const AddGoalPage()),
       ],
+    ),
+    GoRoute(
+      path: RouteConstants.challenges,
+      builder: (context, state) => const ChallengesPage(),
     ),
   ],
 );

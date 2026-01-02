@@ -53,12 +53,28 @@ class Goals extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Users, Transactions, Budgets, Goals])
+class Challenges extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  TextColumn get description => text()();
+  TextColumn get type => text()();
+  RealColumn get targetValue => real()();
+  RealColumn get currentValue => real()();
+  IntColumn get points => integer()();
+  DateTimeColumn get startDate => dateTime()();
+  DateTimeColumn get endDate => dateTime()();
+  BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DriftDatabase(tables: [Users, Transactions, Budgets, Goals, Challenges])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(() async {

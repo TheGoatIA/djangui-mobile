@@ -9,6 +9,7 @@ import '../features/auth/data/datasources/auth_api_service.dart';
 import '../features/transactions/data/datasources/transaction_api_service.dart';
 import '../features/budgets/data/datasources/budget_api_service.dart';
 import '../features/goals/data/datasources/goal_api_service.dart';
+import '../features/challenges/data/datasources/challenge_api_service.dart';
 import 'injection.dart';
 
 @module
@@ -37,6 +38,10 @@ abstract class RegisterModule {
   @lazySingleton
   GoalApiService get goalApiService =>
       GoalApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  ChallengeApiService get challengeApiService =>
+      ChallengeApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
   AppDatabase get database => AppDatabase();

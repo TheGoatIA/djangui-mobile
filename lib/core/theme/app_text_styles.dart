@@ -50,4 +50,10 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w500,
   );
+
+  static const TextStyle labelSmall = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 10,
+    fontWeight: FontWeight.w500,
+  );
 }

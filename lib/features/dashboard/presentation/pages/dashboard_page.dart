@@ -356,7 +356,9 @@ class DashboardPage extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       currentIndex: 0,
       onTap: (index) {
-        if (index == 2) {
+        if (index == 1) {
+          context.push(RouteConstants.challenges);
+        } else if (index == 2) {
           context.push(RouteConstants.budgets);
         } else if (index == 3) {
           context.push(RouteConstants.goals);
@@ -368,8 +370,8 @@ class DashboardPage extends StatelessWidget {
           label: 'Accueil',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.account_balance),
-          label: 'Tontines',
+          icon: Icon(Icons.emoji_events_outlined),
+          label: 'Défis',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.pie_chart_outline),

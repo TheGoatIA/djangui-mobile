@@ -9,4 +9,5 @@ class RouteConstants {
   static const String goals = '/goals';
   static const String coach = '/coach';
   static const String profile = '/profile';
+  static const String challenges = '/challenges';
 }

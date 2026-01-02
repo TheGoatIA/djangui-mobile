@@ -1361,6 +1361,522 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   }
 }
 
+class $ChallengesTable extends Challenges
+    with TableInfo<$ChallengesTable, Challenge> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChallengesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetValueMeta =
+      const VerificationMeta('targetValue');
+  @override
+  late final GeneratedColumn<double> targetValue = GeneratedColumn<double>(
+      'target_value', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _currentValueMeta =
+      const VerificationMeta('currentValue');
+  @override
+  late final GeneratedColumn<double> currentValue = GeneratedColumn<double>(
+      'current_value', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _pointsMeta = const VerificationMeta('points');
+  @override
+  late final GeneratedColumn<int> points = GeneratedColumn<int>(
+      'points', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _startDateMeta =
+      const VerificationMeta('startDate');
+  @override
+  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
+      'start_date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _endDateMeta =
+      const VerificationMeta('endDate');
+  @override
+  late final GeneratedColumn<DateTime> endDate = GeneratedColumn<DateTime>(
+      'end_date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _isCompletedMeta =
+      const VerificationMeta('isCompleted');
+  @override
+  late final GeneratedColumn<bool> isCompleted = GeneratedColumn<bool>(
+      'is_completed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_completed" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        title,
+        description,
+        type,
+        targetValue,
+        currentValue,
+        points,
+        startDate,
+        endDate,
+        isCompleted
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'challenges';
+  @override
+  VerificationContext validateIntegrity(Insertable<Challenge> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('target_value')) {
+      context.handle(
+          _targetValueMeta,
+          targetValue.isAcceptableOrUnknown(
+              data['target_value']!, _targetValueMeta));
+    } else if (isInserting) {
+      context.missing(_targetValueMeta);
+    }
+    if (data.containsKey('current_value')) {
+      context.handle(
+          _currentValueMeta,
+          currentValue.isAcceptableOrUnknown(
+              data['current_value']!, _currentValueMeta));
+    } else if (isInserting) {
+      context.missing(_currentValueMeta);
+    }
+    if (data.containsKey('points')) {
+      context.handle(_pointsMeta,
+          points.isAcceptableOrUnknown(data['points']!, _pointsMeta));
+    } else if (isInserting) {
+      context.missing(_pointsMeta);
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(_startDateMeta,
+          startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta));
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
+    }
+    if (data.containsKey('end_date')) {
+      context.handle(_endDateMeta,
+          endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta));
+    } else if (isInserting) {
+      context.missing(_endDateMeta);
+    }
+    if (data.containsKey('is_completed')) {
+      context.handle(
+          _isCompletedMeta,
+          isCompleted.isAcceptableOrUnknown(
+              data['is_completed']!, _isCompletedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Challenge map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Challenge(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      targetValue: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}target_value'])!,
+      currentValue: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}current_value'])!,
+      points: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}points'])!,
+      startDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_date'])!,
+      endDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}end_date'])!,
+      isCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_completed'])!,
+    );
+  }
+
+  @override
+  $ChallengesTable createAlias(String alias) {
+    return $ChallengesTable(attachedDatabase, alias);
+  }
+}
+
+class Challenge extends DataClass implements Insertable<Challenge> {
+  final String id;
+  final String title;
+  final String description;
+  final String type;
+  final double targetValue;
+  final double currentValue;
+  final int points;
+  final DateTime startDate;
+  final DateTime endDate;
+  final bool isCompleted;
+  const Challenge(
+      {required this.id,
+      required this.title,
+      required this.description,
+      required this.type,
+      required this.targetValue,
+      required this.currentValue,
+      required this.points,
+      required this.startDate,
+      required this.endDate,
+      required this.isCompleted});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    map['description'] = Variable<String>(description);
+    map['type'] = Variable<String>(type);
+    map['target_value'] = Variable<double>(targetValue);
+    map['current_value'] = Variable<double>(currentValue);
+    map['points'] = Variable<int>(points);
+    map['start_date'] = Variable<DateTime>(startDate);
+    map['end_date'] = Variable<DateTime>(endDate);
+    map['is_completed'] = Variable<bool>(isCompleted);
+    return map;
+  }
+
+  ChallengesCompanion toCompanion(bool nullToAbsent) {
+    return ChallengesCompanion(
+      id: Value(id),
+      title: Value(title),
+      description: Value(description),
+      type: Value(type),
+      targetValue: Value(targetValue),
+      currentValue: Value(currentValue),
+      points: Value(points),
+      startDate: Value(startDate),
+      endDate: Value(endDate),
+      isCompleted: Value(isCompleted),
+    );
+  }
+
+  factory Challenge.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Challenge(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String>(json['description']),
+      type: serializer.fromJson<String>(json['type']),
+      targetValue: serializer.fromJson<double>(json['targetValue']),
+      currentValue: serializer.fromJson<double>(json['currentValue']),
+      points: serializer.fromJson<int>(json['points']),
+      startDate: serializer.fromJson<DateTime>(json['startDate']),
+      endDate: serializer.fromJson<DateTime>(json['endDate']),
+      isCompleted: serializer.fromJson<bool>(json['isCompleted']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String>(description),
+      'type': serializer.toJson<String>(type),
+      'targetValue': serializer.toJson<double>(targetValue),
+      'currentValue': serializer.toJson<double>(currentValue),
+      'points': serializer.toJson<int>(points),
+      'startDate': serializer.toJson<DateTime>(startDate),
+      'endDate': serializer.toJson<DateTime>(endDate),
+      'isCompleted': serializer.toJson<bool>(isCompleted),
+    };
+  }
+
+  Challenge copyWith(
+          {String? id,
+          String? title,
+          String? description,
+          String? type,
+          double? targetValue,
+          double? currentValue,
+          int? points,
+          DateTime? startDate,
+          DateTime? endDate,
+          bool? isCompleted}) =>
+      Challenge(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        description: description ?? this.description,
+        type: type ?? this.type,
+        targetValue: targetValue ?? this.targetValue,
+        currentValue: currentValue ?? this.currentValue,
+        points: points ?? this.points,
+        startDate: startDate ?? this.startDate,
+        endDate: endDate ?? this.endDate,
+        isCompleted: isCompleted ?? this.isCompleted,
+      );
+  Challenge copyWithCompanion(ChallengesCompanion data) {
+    return Challenge(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      description:
+          data.description.present ? data.description.value : this.description,
+      type: data.type.present ? data.type.value : this.type,
+      targetValue:
+          data.targetValue.present ? data.targetValue.value : this.targetValue,
+      currentValue: data.currentValue.present
+          ? data.currentValue.value
+          : this.currentValue,
+      points: data.points.present ? data.points.value : this.points,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      endDate: data.endDate.present ? data.endDate.value : this.endDate,
+      isCompleted:
+          data.isCompleted.present ? data.isCompleted.value : this.isCompleted,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Challenge(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('type: $type, ')
+          ..write('targetValue: $targetValue, ')
+          ..write('currentValue: $currentValue, ')
+          ..write('points: $points, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('isCompleted: $isCompleted')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, title, description, type, targetValue,
+      currentValue, points, startDate, endDate, isCompleted);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Challenge &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.type == this.type &&
+          other.targetValue == this.targetValue &&
+          other.currentValue == this.currentValue &&
+          other.points == this.points &&
+          other.startDate == this.startDate &&
+          other.endDate == this.endDate &&
+          other.isCompleted == this.isCompleted);
+}
+
+class ChallengesCompanion extends UpdateCompanion<Challenge> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String> description;
+  final Value<String> type;
+  final Value<double> targetValue;
+  final Value<double> currentValue;
+  final Value<int> points;
+  final Value<DateTime> startDate;
+  final Value<DateTime> endDate;
+  final Value<bool> isCompleted;
+  final Value<int> rowid;
+  const ChallengesCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.type = const Value.absent(),
+    this.targetValue = const Value.absent(),
+    this.currentValue = const Value.absent(),
+    this.points = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.endDate = const Value.absent(),
+    this.isCompleted = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ChallengesCompanion.insert({
+    required String id,
+    required String title,
+    required String description,
+    required String type,
+    required double targetValue,
+    required double currentValue,
+    required int points,
+    required DateTime startDate,
+    required DateTime endDate,
+    this.isCompleted = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        title = Value(title),
+        description = Value(description),
+        type = Value(type),
+        targetValue = Value(targetValue),
+        currentValue = Value(currentValue),
+        points = Value(points),
+        startDate = Value(startDate),
+        endDate = Value(endDate);
+  static Insertable<Challenge> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<String>? type,
+    Expression<double>? targetValue,
+    Expression<double>? currentValue,
+    Expression<int>? points,
+    Expression<DateTime>? startDate,
+    Expression<DateTime>? endDate,
+    Expression<bool>? isCompleted,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (type != null) 'type': type,
+      if (targetValue != null) 'target_value': targetValue,
+      if (currentValue != null) 'current_value': currentValue,
+      if (points != null) 'points': points,
+      if (startDate != null) 'start_date': startDate,
+      if (endDate != null) 'end_date': endDate,
+      if (isCompleted != null) 'is_completed': isCompleted,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ChallengesCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? title,
+      Value<String>? description,
+      Value<String>? type,
+      Value<double>? targetValue,
+      Value<double>? currentValue,
+      Value<int>? points,
+      Value<DateTime>? startDate,
+      Value<DateTime>? endDate,
+      Value<bool>? isCompleted,
+      Value<int>? rowid}) {
+    return ChallengesCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      type: type ?? this.type,
+      targetValue: targetValue ?? this.targetValue,
+      currentValue: currentValue ?? this.currentValue,
+      points: points ?? this.points,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      isCompleted: isCompleted ?? this.isCompleted,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (targetValue.present) {
+      map['target_value'] = Variable<double>(targetValue.value);
+    }
+    if (currentValue.present) {
+      map['current_value'] = Variable<double>(currentValue.value);
+    }
+    if (points.present) {
+      map['points'] = Variable<int>(points.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<DateTime>(startDate.value);
+    }
+    if (endDate.present) {
+      map['end_date'] = Variable<DateTime>(endDate.value);
+    }
+    if (isCompleted.present) {
+      map['is_completed'] = Variable<bool>(isCompleted.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChallengesCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('type: $type, ')
+          ..write('targetValue: $targetValue, ')
+          ..write('currentValue: $currentValue, ')
+          ..write('points: $points, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('isCompleted: $isCompleted, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1368,12 +1884,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TransactionsTable transactions = $TransactionsTable(this);
   late final $BudgetsTable budgets = $BudgetsTable(this);
   late final $GoalsTable goals = $GoalsTable(this);
+  late final $ChallengesTable challenges = $ChallengesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [users, transactions, budgets, goals];
+      [users, transactions, budgets, goals, challenges];
 }
 
 typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
@@ -2089,6 +2606,247 @@ typedef $$GoalsTableProcessedTableManager = ProcessedTableManager<
     (Goal, BaseReferences<_$AppDatabase, $GoalsTable, Goal>),
     Goal,
     PrefetchHooks Function()>;
+typedef $$ChallengesTableCreateCompanionBuilder = ChallengesCompanion Function({
+  required String id,
+  required String title,
+  required String description,
+  required String type,
+  required double targetValue,
+  required double currentValue,
+  required int points,
+  required DateTime startDate,
+  required DateTime endDate,
+  Value<bool> isCompleted,
+  Value<int> rowid,
+});
+typedef $$ChallengesTableUpdateCompanionBuilder = ChallengesCompanion Function({
+  Value<String> id,
+  Value<String> title,
+  Value<String> description,
+  Value<String> type,
+  Value<double> targetValue,
+  Value<double> currentValue,
+  Value<int> points,
+  Value<DateTime> startDate,
+  Value<DateTime> endDate,
+  Value<bool> isCompleted,
+  Value<int> rowid,
+});
+
+class $$ChallengesTableFilterComposer
+    extends Composer<_$AppDatabase, $ChallengesTable> {
+  $$ChallengesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get targetValue => $composableBuilder(
+      column: $table.targetValue, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get currentValue => $composableBuilder(
+      column: $table.currentValue, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get points => $composableBuilder(
+      column: $table.points, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startDate => $composableBuilder(
+      column: $table.startDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get endDate => $composableBuilder(
+      column: $table.endDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => ColumnFilters(column));
+}
+
+class $$ChallengesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChallengesTable> {
+  $$ChallengesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get targetValue => $composableBuilder(
+      column: $table.targetValue, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get currentValue => $composableBuilder(
+      column: $table.currentValue,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get points => $composableBuilder(
+      column: $table.points, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startDate => $composableBuilder(
+      column: $table.startDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get endDate => $composableBuilder(
+      column: $table.endDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ChallengesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChallengesTable> {
+  $$ChallengesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<double> get targetValue => $composableBuilder(
+      column: $table.targetValue, builder: (column) => column);
+
+  GeneratedColumn<double> get currentValue => $composableBuilder(
+      column: $table.currentValue, builder: (column) => column);
+
+  GeneratedColumn<int> get points =>
+      $composableBuilder(column: $table.points, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endDate =>
+      $composableBuilder(column: $table.endDate, builder: (column) => column);
+
+  GeneratedColumn<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => column);
+}
+
+class $$ChallengesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ChallengesTable,
+    Challenge,
+    $$ChallengesTableFilterComposer,
+    $$ChallengesTableOrderingComposer,
+    $$ChallengesTableAnnotationComposer,
+    $$ChallengesTableCreateCompanionBuilder,
+    $$ChallengesTableUpdateCompanionBuilder,
+    (Challenge, BaseReferences<_$AppDatabase, $ChallengesTable, Challenge>),
+    Challenge,
+    PrefetchHooks Function()> {
+  $$ChallengesTableTableManager(_$AppDatabase db, $ChallengesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ChallengesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChallengesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ChallengesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String> description = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<double> targetValue = const Value.absent(),
+            Value<double> currentValue = const Value.absent(),
+            Value<int> points = const Value.absent(),
+            Value<DateTime> startDate = const Value.absent(),
+            Value<DateTime> endDate = const Value.absent(),
+            Value<bool> isCompleted = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChallengesCompanion(
+            id: id,
+            title: title,
+            description: description,
+            type: type,
+            targetValue: targetValue,
+            currentValue: currentValue,
+            points: points,
+            startDate: startDate,
+            endDate: endDate,
+            isCompleted: isCompleted,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String title,
+            required String description,
+            required String type,
+            required double targetValue,
+            required double currentValue,
+            required int points,
+            required DateTime startDate,
+            required DateTime endDate,
+            Value<bool> isCompleted = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChallengesCompanion.insert(
+            id: id,
+            title: title,
+            description: description,
+            type: type,
+            targetValue: targetValue,
+            currentValue: currentValue,
+            points: points,
+            startDate: startDate,
+            endDate: endDate,
+            isCompleted: isCompleted,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ChallengesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ChallengesTable,
+    Challenge,
+    $$ChallengesTableFilterComposer,
+    $$ChallengesTableOrderingComposer,
+    $$ChallengesTableAnnotationComposer,
+    $$ChallengesTableCreateCompanionBuilder,
+    $$ChallengesTableUpdateCompanionBuilder,
+    (Challenge, BaseReferences<_$AppDatabase, $ChallengesTable, Challenge>),
+    Challenge,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2101,4 +2859,6 @@ class $AppDatabaseManager {
       $$BudgetsTableTableManager(_db, _db.budgets);
   $$GoalsTableTableManager get goals =>
       $$GoalsTableTableManager(_db, _db.goals);
+  $$ChallengesTableTableManager get challenges =>
+      $$ChallengesTableTableManager(_db, _db.challenges);
 }
