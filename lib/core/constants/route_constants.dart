@@ -4,6 +4,7 @@ class RouteConstants {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
+  static const String shareGoal = '/share/goal';
   static const String onBoarding = '/onboarding';
   static const String dashboard = '/dashboard';
   static const String transactions = '/transactions';

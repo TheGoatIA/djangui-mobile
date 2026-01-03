@@ -11,6 +11,7 @@ import '../bloc/goals_event.dart';
 import '../bloc/goals_state.dart';
 import '../../data/models/goal_model.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/services/share_service.dart';
 
 class GoalListPage extends StatelessWidget {
   const GoalListPage({super.key});
@@ -102,7 +103,30 @@ class _GoalItem extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Icon(Icons.more_vert, color: Colors.grey[400], size: 20),
+              PopupMenuButton(
+                icon: Icon(Icons.more_vert, color: Colors.grey[400], size: 20),
+                onSelected: (value) {
+                  if (value == 'share') {
+                    getIt<ShareService>().shareGoal(goal);
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'share',
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.share,
+                          size: 20,
+                          color: Colors.black54,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(AppLocalizations.of(context)!.share),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 16),

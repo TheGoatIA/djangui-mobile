@@ -158,6 +158,12 @@ abstract class AppLocalizations {
   /// **'Email envoyé avec succès'**
   String get emailSent;
 
+  /// No description provided for @share.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager'**
+  String get share;
+
   /// No description provided for @comingSoon.
   ///
   /// In fr, this message translates to:

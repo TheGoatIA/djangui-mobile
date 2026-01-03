@@ -9,6 +9,7 @@ import '../features/auth/presentation/pages/onboarding_page.dart';
 import '../features/auth/presentation/pages/register_page.dart';
 import '../features/auth/presentation/pages/forgot_password_page.dart';
 import '../features/auth/presentation/pages/reset_password_page.dart';
+import '../features/goals/presentation/pages/goal_import_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/transactions/presentation/pages/transaction_list_page.dart';
 import '../features/transactions/presentation/pages/add_transaction_page.dart';
@@ -55,6 +56,13 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final token = state.uri.queryParameters['token'] ?? '';
         return ResetPasswordPage(token: token);
+      },
+    ),
+    GoRoute(
+      path: RouteConstants.shareGoal,
+      builder: (context, state) {
+        final data = state.uri.queryParameters['data'] ?? '';
+        return GoalImportPage(dataToken: data);
       },
     ),
     GoRoute(

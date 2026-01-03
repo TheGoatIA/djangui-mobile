@@ -40,6 +40,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get emailSent => 'Email envoyé avec succès';
 
   @override
+  String get share => 'Partager';
+
+  @override
   String get comingSoon => 'Bientôt disponible';
 
   @override

@@ -40,6 +40,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailSent => 'Email sent successfully';
 
   @override
+  String get share => 'Share';
+
+  @override
   String get comingSoon => 'Coming Soon';
 
   @override
