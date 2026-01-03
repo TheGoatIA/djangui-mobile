@@ -82,14 +82,36 @@ class ChatMessages extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class Investments extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get type => text()();
+  RealColumn get initialAmount => real()();
+  RealColumn get currentAmount => real()();
+  RealColumn get roi => real()();
+  DateTimeColumn get date => dateTime()();
+  TextColumn get notes => text().withDefault(const Constant(''))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(
-  tables: [Users, Transactions, Budgets, Goals, Challenges, ChatMessages],
+  tables: [
+    Users,
+    Transactions,
+    Budgets,
+    Goals,
+    Challenges,
+    ChatMessages,
+    Investments,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(() async {

@@ -6,6 +6,7 @@ class RouteConstants {
   static const String dashboard = '/dashboard';
   static const String transactions = '/transactions';
   static const String budgets = '/budgets';
+  static const String investments = '/investments';
   static const String goals = '/goals';
   static const String coach = '/coach';
   static const String profile = '/profile';

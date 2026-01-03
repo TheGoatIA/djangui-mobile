@@ -12,6 +12,8 @@ import '../features/budgets/presentation/pages/budget_list_page.dart';
 import '../features/budgets/presentation/pages/add_budget_page.dart';
 import '../features/goals/presentation/pages/goal_list_page.dart';
 import '../features/goals/presentation/pages/add_goal_page.dart';
+import '../features/investments/presentation/pages/investments_page.dart';
+import '../features/investments/presentation/pages/add_investment_page.dart';
 import '../features/challenges/presentation/pages/challenges_page.dart';
 import '../features/coach/presentation/pages/coach_chat_page.dart';
 import '../features/insights/presentation/pages/insights_page.dart';
@@ -71,6 +73,16 @@ final appRouter = GoRouter(
       builder: (context, state) => const GoalListPage(),
       routes: [
         GoRoute(path: 'add', builder: (context, state) => const AddGoalPage()),
+      ],
+    ),
+    GoRoute(
+      path: RouteConstants.investments,
+      builder: (context, state) => const InvestmentsPage(),
+      routes: [
+        GoRoute(
+          path: 'add',
+          builder: (context, state) => const AddInvestmentPage(),
+        ),
       ],
     ),
     GoRoute(

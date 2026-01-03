@@ -213,7 +213,7 @@ class DashboardPage extends StatelessWidget {
               Icons.add_circle_outline,
               'Investir',
               AppColors.primary,
-              onTap: () => context.push(RouteConstants.transactions + '/add'),
+              onTap: () => context.push(RouteConstants.investments + '/add'),
             ),
             _buildActionItem(
               Icons.bar_chart_outlined,
