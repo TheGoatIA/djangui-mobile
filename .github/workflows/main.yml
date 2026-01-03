@@ -19,6 +19,8 @@ jobs:
           cache: true
       - name: Install Dependencies
         run: flutter pub get
+      - name: Create .env from example
+        run: cp .env.example .env
       - name: Analyze Code
         run: flutter analyze
       - name: Run Tests
@@ -42,6 +44,8 @@ jobs:
           cache: true
       - name: Install Dependencies
         run: flutter pub get
+      - name: Create .env from example
+        run: cp .env.example .env
       - name: Build APK (Release)
         run: flutter build apk --release --no-tree-shaking
       - name: Upload APK
@@ -63,6 +67,8 @@ jobs:
           cache: true
       - name: Install Dependencies
         run: flutter pub get
+      - name: Create .env from example
+        run: cp .env.example .env
       - name: Build IPA (No-Codesign)
         run: flutter build ios --release --no-codesign
       - name: Upload IPA (Frameworks)

@@ -22,9 +22,12 @@ class ShareService {
     final base64Data = base64Encode(utf8.encode(jsonString));
     final deepLink = 'djangui://share/goal?data=$base64Data';
 
-    await Share.share(
-      'Rejoins mon objectif financier "${goal.name}" sur Djangui !\n\nClique ici pour l\'importer : $deepLink',
-      subject: 'Objectif Djangui: ${goal.name}',
+    await SharePlus.instance.share(
+      ShareParams(
+        text:
+            'Rejoins mon objectif financier "${goal.name}" sur Djangui !\n\nClique ici pour l\'importer : $deepLink',
+        subject: 'Objectif Djangui: ${goal.name}',
+      ),
     );
   }
 
