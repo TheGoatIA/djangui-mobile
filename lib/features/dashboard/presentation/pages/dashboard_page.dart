@@ -8,8 +8,11 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../transactions/presentation/bloc/transactions_bloc.dart';
+import '../../../transactions/data/models/transaction_model.dart';
 import '../../../gamification/presentation/widgets/gamification_header.dart';
 import '../../../gamification/presentation/widgets/level_up_dialog.dart';
+import '../../../../core/services/sms_service.dart';
+import 'package:uuid/uuid.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -142,7 +145,7 @@ class DashboardPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -213,7 +216,7 @@ class DashboardPage extends StatelessWidget {
               Icons.add_circle_outline,
               'Investir',
               AppColors.primary,
-              onTap: () => context.push(RouteConstants.investments + '/add'),
+              onTap: () => context.push('${RouteConstants.investments}/add'),
             ),
             _buildActionItem(
               Icons.bar_chart_outlined,
@@ -225,6 +228,61 @@ class DashboardPage extends StatelessWidget {
               Icons.qr_code_scanner,
               'Scanner',
               AppColors.accent,
+              onTap: () async {
+                final smsService = getIt<SMSService>();
+                final granted = await smsService.requestPermission();
+                if (granted) {
+                  // Show loading
+                  if (!context.mounted) return;
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Recherche de transactions SMS...'),
+                      ),
+                    );
+                  }
+
+                  final transactions = await smsService.getRecentTransactions();
+                  if (transactions.isNotEmpty) {
+                    // Automatically add the first one for demo or show a picker
+                    // For now, let's add them via TransactionsBloc
+                    if (!context.mounted) return;
+                    for (final t in transactions) {
+                      context.read<TransactionsBloc>().add(
+                        AddTransactionRequested(
+                          TransactionModel(
+                            id: const Uuid().v4(),
+                            amount: t.amount,
+                            type: 'expense',
+                            category: 'Automatique',
+                            description: t.description,
+                            date: t.date,
+                          ),
+                        ),
+                      );
+                    }
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${transactions.length} transactions importées !',
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Permission SMS requise pour cette fonctionnalité',
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
             ),
             _buildActionItem(
               Icons.smart_toy_outlined,
@@ -251,7 +309,7 @@ class DashboardPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(icon, color: color),
@@ -328,7 +386,7 @@ class DashboardPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(

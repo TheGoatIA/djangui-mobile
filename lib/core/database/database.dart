@@ -15,6 +15,7 @@ class Users extends Table {
   IntColumn get xp => integer().withDefault(const Constant(0))();
   IntColumn get level => integer().withDefault(const Constant(1))();
   TextColumn get badges => text().withDefault(const Constant('[]'))();
+  BoolColumn get isPremium => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -111,7 +112,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(() async {

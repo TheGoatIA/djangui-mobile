@@ -56,9 +56,19 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('[]'));
+  static const VerificationMeta _isPremiumMeta =
+      const VerificationMeta('isPremium');
+  @override
+  late final GeneratedColumn<bool> isPremium = GeneratedColumn<bool>(
+      'is_premium', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_premium" IN (0, 1))'),
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, email, firstName, lastName, avatar, xp, level, badges];
+      [id, email, firstName, lastName, avatar, xp, level, badges, isPremium];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -107,6 +117,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       context.handle(_badgesMeta,
           badges.isAcceptableOrUnknown(data['badges']!, _badgesMeta));
     }
+    if (data.containsKey('is_premium')) {
+      context.handle(_isPremiumMeta,
+          isPremium.isAcceptableOrUnknown(data['is_premium']!, _isPremiumMeta));
+    }
     return context;
   }
 
@@ -132,6 +146,8 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
           .read(DriftSqlType.int, data['${effectivePrefix}level'])!,
       badges: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}badges'])!,
+      isPremium: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_premium'])!,
     );
   }
 
@@ -150,6 +166,7 @@ class User extends DataClass implements Insertable<User> {
   final int xp;
   final int level;
   final String badges;
+  final bool isPremium;
   const User(
       {required this.id,
       required this.email,
@@ -158,7 +175,8 @@ class User extends DataClass implements Insertable<User> {
       this.avatar,
       required this.xp,
       required this.level,
-      required this.badges});
+      required this.badges,
+      required this.isPremium});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -172,6 +190,7 @@ class User extends DataClass implements Insertable<User> {
     map['xp'] = Variable<int>(xp);
     map['level'] = Variable<int>(level);
     map['badges'] = Variable<String>(badges);
+    map['is_premium'] = Variable<bool>(isPremium);
     return map;
   }
 
@@ -186,6 +205,7 @@ class User extends DataClass implements Insertable<User> {
       xp: Value(xp),
       level: Value(level),
       badges: Value(badges),
+      isPremium: Value(isPremium),
     );
   }
 
@@ -201,6 +221,7 @@ class User extends DataClass implements Insertable<User> {
       xp: serializer.fromJson<int>(json['xp']),
       level: serializer.fromJson<int>(json['level']),
       badges: serializer.fromJson<String>(json['badges']),
+      isPremium: serializer.fromJson<bool>(json['isPremium']),
     );
   }
   @override
@@ -215,6 +236,7 @@ class User extends DataClass implements Insertable<User> {
       'xp': serializer.toJson<int>(xp),
       'level': serializer.toJson<int>(level),
       'badges': serializer.toJson<String>(badges),
+      'isPremium': serializer.toJson<bool>(isPremium),
     };
   }
 
@@ -226,7 +248,8 @@ class User extends DataClass implements Insertable<User> {
           Value<String?> avatar = const Value.absent(),
           int? xp,
           int? level,
-          String? badges}) =>
+          String? badges,
+          bool? isPremium}) =>
       User(
         id: id ?? this.id,
         email: email ?? this.email,
@@ -236,6 +259,7 @@ class User extends DataClass implements Insertable<User> {
         xp: xp ?? this.xp,
         level: level ?? this.level,
         badges: badges ?? this.badges,
+        isPremium: isPremium ?? this.isPremium,
       );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -247,6 +271,7 @@ class User extends DataClass implements Insertable<User> {
       xp: data.xp.present ? data.xp.value : this.xp,
       level: data.level.present ? data.level.value : this.level,
       badges: data.badges.present ? data.badges.value : this.badges,
+      isPremium: data.isPremium.present ? data.isPremium.value : this.isPremium,
     );
   }
 
@@ -260,14 +285,15 @@ class User extends DataClass implements Insertable<User> {
           ..write('avatar: $avatar, ')
           ..write('xp: $xp, ')
           ..write('level: $level, ')
-          ..write('badges: $badges')
+          ..write('badges: $badges, ')
+          ..write('isPremium: $isPremium')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, email, firstName, lastName, avatar, xp, level, badges);
+  int get hashCode => Object.hash(
+      id, email, firstName, lastName, avatar, xp, level, badges, isPremium);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -279,7 +305,8 @@ class User extends DataClass implements Insertable<User> {
           other.avatar == this.avatar &&
           other.xp == this.xp &&
           other.level == this.level &&
-          other.badges == this.badges);
+          other.badges == this.badges &&
+          other.isPremium == this.isPremium);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -291,6 +318,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<int> xp;
   final Value<int> level;
   final Value<String> badges;
+  final Value<bool> isPremium;
   final Value<int> rowid;
   const UsersCompanion({
     this.id = const Value.absent(),
@@ -301,6 +329,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.xp = const Value.absent(),
     this.level = const Value.absent(),
     this.badges = const Value.absent(),
+    this.isPremium = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   UsersCompanion.insert({
@@ -312,6 +341,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.xp = const Value.absent(),
     this.level = const Value.absent(),
     this.badges = const Value.absent(),
+    this.isPremium = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         email = Value(email),
@@ -326,6 +356,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<int>? xp,
     Expression<int>? level,
     Expression<String>? badges,
+    Expression<bool>? isPremium,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -337,6 +368,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (xp != null) 'xp': xp,
       if (level != null) 'level': level,
       if (badges != null) 'badges': badges,
+      if (isPremium != null) 'is_premium': isPremium,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -350,6 +382,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       Value<int>? xp,
       Value<int>? level,
       Value<String>? badges,
+      Value<bool>? isPremium,
       Value<int>? rowid}) {
     return UsersCompanion(
       id: id ?? this.id,
@@ -360,6 +393,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       xp: xp ?? this.xp,
       level: level ?? this.level,
       badges: badges ?? this.badges,
+      isPremium: isPremium ?? this.isPremium,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -391,6 +425,9 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (badges.present) {
       map['badges'] = Variable<String>(badges.value);
     }
+    if (isPremium.present) {
+      map['is_premium'] = Variable<bool>(isPremium.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -408,6 +445,7 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('xp: $xp, ')
           ..write('level: $level, ')
           ..write('badges: $badges, ')
+          ..write('isPremium: $isPremium, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2706,6 +2744,7 @@ typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
   Value<int> xp,
   Value<int> level,
   Value<String> badges,
+  Value<bool> isPremium,
   Value<int> rowid,
 });
 typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
@@ -2717,6 +2756,7 @@ typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
   Value<int> xp,
   Value<int> level,
   Value<String> badges,
+  Value<bool> isPremium,
   Value<int> rowid,
 });
 
@@ -2751,6 +2791,9 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<String> get badges => $composableBuilder(
       column: $table.badges, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isPremium => $composableBuilder(
+      column: $table.isPremium, builder: (column) => ColumnFilters(column));
 }
 
 class $$UsersTableOrderingComposer
@@ -2785,6 +2828,9 @@ class $$UsersTableOrderingComposer
 
   ColumnOrderings<String> get badges => $composableBuilder(
       column: $table.badges, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isPremium => $composableBuilder(
+      column: $table.isPremium, builder: (column) => ColumnOrderings(column));
 }
 
 class $$UsersTableAnnotationComposer
@@ -2819,6 +2865,9 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<String> get badges =>
       $composableBuilder(column: $table.badges, builder: (column) => column);
+
+  GeneratedColumn<bool> get isPremium =>
+      $composableBuilder(column: $table.isPremium, builder: (column) => column);
 }
 
 class $$UsersTableTableManager extends RootTableManager<
@@ -2852,6 +2901,7 @@ class $$UsersTableTableManager extends RootTableManager<
             Value<int> xp = const Value.absent(),
             Value<int> level = const Value.absent(),
             Value<String> badges = const Value.absent(),
+            Value<bool> isPremium = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               UsersCompanion(
@@ -2863,6 +2913,7 @@ class $$UsersTableTableManager extends RootTableManager<
             xp: xp,
             level: level,
             badges: badges,
+            isPremium: isPremium,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -2874,6 +2925,7 @@ class $$UsersTableTableManager extends RootTableManager<
             Value<int> xp = const Value.absent(),
             Value<int> level = const Value.absent(),
             Value<String> badges = const Value.absent(),
+            Value<bool> isPremium = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               UsersCompanion.insert(
@@ -2885,6 +2937,7 @@ class $$UsersTableTableManager extends RootTableManager<
             xp: xp,
             level: level,
             badges: badges,
+            isPremium: isPremium,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

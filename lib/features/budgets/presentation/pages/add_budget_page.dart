@@ -97,10 +97,12 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                     hint: '0.00',
                     keyboardType: TextInputType.number,
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return AppLocalizations.of(context)!.requiredField;
-                      if (double.tryParse(value) == null)
+                      }
+                      if (double.tryParse(value) == null) {
                         return AppLocalizations.of(context)!.invalidNumber;
+                      }
                       return null;
                     },
                   ),

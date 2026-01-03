@@ -18,4 +18,16 @@ class ApiConstants {
 
   // Goals
   static const String goals = '$apiVersion/goals';
+
+  // AI & Automation
+  static const String ocrScan = '$apiVersion/ocr/scan';
+  static const String smsParse = '$apiVersion/sms/parse';
+  static const String reportNarrative = '$apiVersion/reports/narrative';
+
+  // Investments
+  static const String investments = '$apiVersion/investments';
+
+  // Payments
+  static const String notchPayInit = '$apiVersion/payments/init/notchpay';
+  static const String stripeCheckout = '$apiVersion/payments/checkout/stripe';
 }

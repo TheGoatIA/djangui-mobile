@@ -26,14 +26,18 @@ class SplashPage extends StatelessWidget {
                 prefs.getBool('hasSeenOnboarding') ?? false;
 
             if (!hasSeenOnboarding) {
-              context.go(RouteConstants.onBoarding);
+              if (context.mounted) {
+                context.go(RouteConstants.onBoarding);
+              }
               return;
             }
 
-            if (state.status == AuthStatus.authenticated) {
-              context.go(RouteConstants.dashboard);
-            } else if (state.status == AuthStatus.unauthenticated) {
-              context.go(RouteConstants.login);
+            if (context.mounted) {
+              if (state.status == AuthStatus.authenticated) {
+                context.go(RouteConstants.dashboard);
+              } else if (state.status == AuthStatus.unauthenticated) {
+                context.go(RouteConstants.login);
+              }
             }
           });
         },

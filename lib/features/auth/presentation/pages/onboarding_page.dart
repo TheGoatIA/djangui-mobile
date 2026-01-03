@@ -51,11 +51,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
         curve: Curves.easeInOut,
       );
     } else {
+      final router = GoRouter.of(context);
       final prefs = getIt<SharedPreferences>();
       await prefs.setBool('hasSeenOnboarding', true);
-      if (mounted) {
-        context.go(RouteConstants.login);
-      }
+      if (!mounted) return;
+      router.go(RouteConstants.login);
     }
   }
 
@@ -69,11 +69,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
               alignment: Alignment.topRight,
               child: TextButton(
                 onPressed: () async {
+                  final router = GoRouter.of(context);
                   final prefs = getIt<SharedPreferences>();
                   await prefs.setBool('hasSeenOnboarding', true);
-                  if (mounted) {
-                    context.go(RouteConstants.login);
-                  }
+                  if (!mounted) return;
+                  router.go(RouteConstants.login);
                 },
                 child: Text(
                   AppLocalizations.of(context)!.skip,
@@ -139,7 +139,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         decoration: BoxDecoration(
                           color: _currentPage == index
                               ? AppColors.primary
-                              : AppColors.primary.withOpacity(0.3),
+                              : AppColors.primary.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),

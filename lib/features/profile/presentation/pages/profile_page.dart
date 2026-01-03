@@ -6,6 +6,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/settings/presentation/bloc/settings_bloc.dart';
 import '../../../gamification/presentation/widgets/badges_list.dart';
+import '../../../../core/constants/route_constants.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -40,6 +42,10 @@ class ProfilePage extends StatelessWidget {
                 const SizedBox(height: 24),
                 if (user != null && user.badges.isNotEmpty) ...[
                   BadgesList(badgeIds: user.badges),
+                  const SizedBox(height: 24),
+                ],
+                if (user != null && !user.isPremium) ...[
+                  _buildPremiumBanner(context),
                   const SizedBox(height: 24),
                 ],
                 _buildSettingsSection(context),
@@ -98,7 +104,7 @@ class ProfilePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -163,7 +169,7 @@ class ProfilePage extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppColors.primary.withOpacity(0.1),
+          color: AppColors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: AppColors.primary, size: 20),
@@ -234,53 +240,111 @@ class ProfilePage extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.theme),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildThemeOption(
-              context,
-              dialogContext,
-              ThemeMode.light,
-              AppLocalizations.of(context)!.lightTheme,
-              currentMode,
-            ),
-            _buildThemeOption(
-              context,
-              dialogContext,
-              ThemeMode.dark,
-              AppLocalizations.of(context)!.darkTheme,
-              currentMode,
-            ),
-            _buildThemeOption(
-              context,
-              dialogContext,
-              ThemeMode.system,
-              AppLocalizations.of(context)!.systemTheme,
-              currentMode,
-            ),
-          ],
+        content: RadioGroup<ThemeMode>(
+          groupValue: currentMode,
+          onChanged: (value) {
+            if (value != null) {
+              context.read<SettingsBloc>().add(ThemeChanged(value));
+              Navigator.pop(dialogContext);
+            }
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildThemeOption(
+                context,
+                ThemeMode.light,
+                AppLocalizations.of(context)!.lightTheme,
+              ),
+              _buildThemeOption(
+                context,
+                ThemeMode.dark,
+                AppLocalizations.of(context)!.darkTheme,
+              ),
+              _buildThemeOption(
+                context,
+                ThemeMode.system,
+                AppLocalizations.of(context)!.systemTheme,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildThemeOption(
-    BuildContext context,
-    BuildContext dialogContext,
-    ThemeMode mode,
-    String label,
-    ThemeMode currentMode,
-  ) {
+  Widget _buildPremiumBanner(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.primary, Color(0xFF8E44AD)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.star_rounded, color: Colors.white, size: 30),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Passez au Premium',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Débloquez l\'IA et les rapports avancés',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => context.push(RouteConstants.subscription),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Découvrir les offres'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThemeOption(BuildContext context, ThemeMode mode, String label) {
     return RadioListTile<ThemeMode>(
       title: Text(label),
       value: mode,
-      groupValue: currentMode,
-      onChanged: (value) {
-        if (value != null) {
-          context.read<SettingsBloc>().add(ThemeChanged(value));
-          Navigator.pop(dialogContext);
-        }
-      },
       activeColor: AppColors.primary,
     );
   }

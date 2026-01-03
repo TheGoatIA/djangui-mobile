@@ -10,6 +10,8 @@ import '../../../../di/injection.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/transactions_bloc.dart';
 import '../../data/models/transaction_model.dart';
+import '../../../../core/services/ocr_service.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddTransactionPage extends StatefulWidget {
   const AddTransactionPage({super.key});
@@ -24,6 +26,70 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   final _descriptionController = TextEditingController();
   final _categoryController = TextEditingController();
   String _type = 'expense';
+  bool _isScanning = false;
+
+  Future<void> _onScanReceipt() async {
+    final ocrService = getIt<OCRService>();
+
+    // Show picker source selection
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Prendre une photo'),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choisir depuis la galerie'),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (source == null) return;
+
+    final image = await ocrService.pickImage(source);
+    if (image == null) return;
+
+    setState(() => _isScanning = true);
+
+    try {
+      final result = await ocrService.scanReceipt(image);
+
+      setState(() {
+        if (result.amount != null) {
+          _amountController.text = result.amount!.toStringAsFixed(0);
+        }
+        if (result.description != null) {
+          _descriptionController.text = result.description!;
+        }
+        if (result.category != null) {
+          _categoryController.text = result.category!;
+        }
+        _isScanning = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Reçu analysé avec succès !')),
+        );
+      }
+    } catch (e) {
+      setState(() => _isScanning = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors de l\'analyse du reçu')),
+        );
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -77,6 +143,25 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           backgroundColor: AppColors.background,
           appBar: AppBar(
             title: Text(AppLocalizations.of(context)!.addTransactionTitle),
+            actions: [
+              if (_isScanning)
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                )
+              else
+                IconButton(
+                  icon: const Icon(Icons.qr_code_scanner),
+                  onPressed: _onScanReceipt,
+                  tooltip: 'Scanner un reçu',
+                ),
+            ],
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -114,10 +199,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     hint: AppLocalizations.of(context)!.amountHint,
                     keyboardType: TextInputType.number,
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return AppLocalizations.of(context)!.requiredField;
-                      if (double.tryParse(value) == null)
+                      }
+                      if (double.tryParse(value) == null) {
                         return AppLocalizations.of(context)!.invalidNumber;
+                      }
                       return null;
                     },
                   ),

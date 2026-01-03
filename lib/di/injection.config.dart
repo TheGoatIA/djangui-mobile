@@ -12,6 +12,9 @@ import 'package:chopper/chopper.dart' as _i31;
 import 'package:djangui/core/database/database.dart' as _i730;
 import 'package:djangui/core/network/network_info.dart' as _i574;
 import 'package:djangui/core/services/notification_service.dart' as _i275;
+import 'package:djangui/core/services/ocr_service.dart' as _i282;
+import 'package:djangui/core/services/payment_service.dart' as _i29;
+import 'package:djangui/core/services/sms_service.dart' as _i252;
 import 'package:djangui/di/register_module.dart' as _i153;
 import 'package:djangui/features/auth/data/datasources/auth_api_service.dart'
     as _i651;
@@ -72,6 +75,10 @@ import 'package:djangui/features/goals/domain/repositories/goal_repository.dart'
     as _i824;
 import 'package:djangui/features/goals/presentation/bloc/goals_bloc.dart'
     as _i424;
+import 'package:djangui/features/insights/data/datasources/ai_api_service.dart'
+    as _i391;
+import 'package:djangui/features/insights/data/datasources/ai_remote_datasource.dart'
+    as _i947;
 import 'package:djangui/features/insights/data/datasources/insight_api_service.dart'
     as _i88;
 import 'package:djangui/features/insights/data/repositories/insight_repository_impl.dart'
@@ -80,8 +87,18 @@ import 'package:djangui/features/insights/domain/repositories/insight_repository
     as _i129;
 import 'package:djangui/features/insights/presentation/bloc/insights_bloc.dart'
     as _i689;
+import 'package:djangui/features/investments/data/datasources/investment_api_service.dart'
+    as _i758;
+import 'package:djangui/features/investments/data/repositories/investment_repository_impl.dart'
+    as _i656;
+import 'package:djangui/features/investments/domain/repositories/investment_repository.dart'
+    as _i499;
+import 'package:djangui/features/investments/presentation/bloc/investments_bloc.dart'
+    as _i2;
 import 'package:djangui/features/settings/presentation/bloc/settings_bloc.dart'
     as _i754;
+import 'package:djangui/features/subscription/data/datasources/payment_api_service.dart'
+    as _i816;
 import 'package:djangui/features/transactions/data/datasources/transaction_api_service.dart'
     as _i70;
 import 'package:djangui/features/transactions/data/datasources/transaction_local_datasource.dart'
@@ -132,6 +149,11 @@ extension GetItInjectableX on _i174.GetIt {
         () => registerModule.coachApiService);
     gh.lazySingleton<_i88.InsightApiService>(
         () => registerModule.insightApiService);
+    gh.lazySingleton<_i391.AiApiService>(() => registerModule.aiApiService);
+    gh.lazySingleton<_i758.InvestmentApiService>(
+        () => registerModule.investmentApiService);
+    gh.lazySingleton<_i816.PaymentApiService>(
+        () => registerModule.paymentApiService);
     gh.lazySingleton<_i730.AppDatabase>(() => registerModule.database);
     gh.factory<_i754.SettingsBloc>(
         () => _i754.SettingsBloc(gh<_i460.SharedPreferences>()));
@@ -140,8 +162,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i540.ChallengeRemoteDataSource>(() =>
         _i540.ChallengeRemoteDataSourceImpl(gh<_i181.ChallengeApiService>()));
     gh.lazySingleton<_i574.NetworkInfo>(() => _i574.NetworkInfoImpl());
+    gh.lazySingleton<_i29.PaymentService>(
+        () => _i29.PaymentService(gh<_i816.PaymentApiService>()));
     gh.factory<_i689.InsightsBloc>(
         () => _i689.InsightsBloc(gh<_i129.InsightRepository>()));
+    gh.lazySingleton<_i499.InvestmentRepository>(
+        () => _i656.InvestmentRepositoryImpl(
+              gh<_i730.AppDatabase>(),
+              gh<_i758.InvestmentApiService>(),
+            ));
+    gh.factory<_i2.InvestmentsBloc>(
+        () => _i2.InvestmentsBloc(gh<_i499.InvestmentRepository>()));
     gh.lazySingleton<_i586.InsightRepository>(() => _i586.InsightRepositoryImpl(
           gh<_i88.InsightApiService>(),
           gh<_i574.NetworkInfo>(),
@@ -169,6 +200,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i231.TransactionRemoteDataSource>(() =>
         _i231.TransactionRemoteDataSourceImpl(
             gh<_i70.TransactionApiService>()));
+    gh.lazySingleton<_i282.OCRService>(
+        () => _i282.OCRService(gh<_i391.AiApiService>()));
+    gh.lazySingleton<_i252.SMSService>(
+        () => _i252.SMSService(gh<_i391.AiApiService>()));
+    gh.lazySingleton<_i947.AIRemoteDataSource>(
+        () => _i947.AIRemoteDataSource(gh<_i391.AiApiService>()));
     gh.lazySingleton<_i461.TransactionRepository>(
         () => _i406.TransactionRepositoryImpl(
               gh<_i231.TransactionRemoteDataSource>(),

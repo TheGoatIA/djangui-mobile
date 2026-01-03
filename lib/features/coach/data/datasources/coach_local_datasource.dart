@@ -1,5 +1,4 @@
 import 'package:injectable/injectable.dart';
-import 'package:drift/drift.dart';
 import '../../../../core/database/database.dart';
 import '../models/chat_message_model.dart';
 

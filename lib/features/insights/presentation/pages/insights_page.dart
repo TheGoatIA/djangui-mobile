@@ -9,6 +9,7 @@ import '../bloc/insights_event.dart';
 import '../bloc/insights_state.dart';
 import '../../data/models/insight_model.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../data/datasources/ai_remote_datasource.dart';
 
 class InsightsPage extends StatelessWidget {
   const InsightsPage({super.key});
@@ -37,6 +38,8 @@ class InsightsPage extends StatelessWidget {
                 children: [
                   _buildPeriodSelector(context, state.period),
                   const SizedBox(height: 24),
+                  _buildAINarrativeCard(context),
+                  const SizedBox(height: 32),
                   _buildSectionTitle(
                     AppLocalizations.of(context)!.spendingDistribution,
                   ),
@@ -111,7 +114,7 @@ class InsightsPage extends StatelessWidget {
           context.read<InsightsBloc>().add(GetInsightsRequested(period: value));
         }
       },
-      selectedColor: AppColors.primary.withOpacity(0.2),
+      selectedColor: AppColors.primary.withValues(alpha: 0.2),
       labelStyle: TextStyle(
         color: isSelected ? AppColors.primary : Colors.grey[600],
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -131,7 +134,7 @@ class InsightsPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -173,7 +176,7 @@ class InsightsPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -197,7 +200,7 @@ class InsightsPage extends StatelessWidget {
                     dotData: FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                     ),
                   ),
                 ],
@@ -215,7 +218,7 @@ class InsightsPage extends StatelessWidget {
       children: [
         _buildSectionTitle(AppLocalizations.of(context)!.categoryDetails),
         const SizedBox(height: 16),
-        ...distribution.map((item) => _buildCategoryItem(item)).toList(),
+        ...distribution.map((item) => _buildCategoryItem(item)),
       ],
     );
   }
@@ -244,6 +247,58 @@ class InsightsPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAINarrativeCard(BuildContext context) {
+    return FutureBuilder<String>(
+      future: getIt<AIRemoteDataSource>().getNarrativeReport(),
+      builder: (context, snapshot) {
+        final isLoading = snapshot.connectionState == ConnectionState.waiting;
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.primary.withValues(alpha: 0.1), Colors.white],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.auto_awesome,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Analyse IA',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (isLoading)
+                const LinearProgressIndicator(minHeight: 2)
+              else
+                Text(
+                  snapshot.data ?? 'Analyse indisponible',
+                  style: AppTextStyles.bodyMedium.copyWith(height: 1.5),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 

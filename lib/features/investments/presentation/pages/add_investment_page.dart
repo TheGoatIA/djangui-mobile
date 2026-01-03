@@ -82,7 +82,7 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 decoration: _inputDecoration('Type d\'actif'),
                 items: const [
                   DropdownMenuItem(
