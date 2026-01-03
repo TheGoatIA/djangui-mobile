@@ -405,4 +405,31 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get googleSignIn => 'Continuer avec Google';
+
+  @override
+  String get phoneLogin => 'Connexion par numéro';
+
+  @override
+  String get phoneNumber => 'Numéro de téléphone';
+
+  @override
+  String get enterPhone => 'Entrez votre numéro';
+
+  @override
+  String get verify => 'Vérifier';
+
+  @override
+  String get enterOtp => 'Entrez le code reçu';
+
+  @override
+  String get otpCode => 'Code SMS';
+
+  @override
+  String get resendCode => 'Renvoyer le code';
+
+  @override
+  String get phoneLinkedSuccess => 'Numéro lié avec succès';
+
+  @override
+  String get invalidPhone => 'Numéro invalide';
 }

@@ -142,5 +142,14 @@
     "yearly": "Annuel",
     "noDataAvailable": "Aucune donnée disponible",
     "orContinueWith": "Ou continuer avec",
-    "googleSignIn": "Continuer avec Google"
+    "googleSignIn": "Continuer avec Google",
+    "phoneLogin": "Connexion par numéro",
+    "phoneNumber": "Numéro de téléphone",
+    "enterPhone": "Entrez votre numéro",
+    "verify": "Vérifier",
+    "enterOtp": "Entrez le code reçu",
+    "otpCode": "Code SMS",
+    "resendCode": "Renvoyer le code",
+    "phoneLinkedSuccess": "Numéro lié avec succès",
+    "invalidPhone": "Numéro invalide"
 }

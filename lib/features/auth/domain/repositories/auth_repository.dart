@@ -8,6 +8,19 @@ import '../../data/models/register_request.dart';
 abstract class AuthRepository {
   Future<Either<Failure, AuthResponse>> login(LoginRequest request);
   Future<Either<Failure, AuthResponse>> signInWithGoogle();
+  Future<Either<Failure, void>> verifyPhoneNumber(
+    String phoneNumber, {
+    required Function(String verificationId) onCodeSent,
+    required Function(String errorMessage) onVerificationFailed,
+  });
+  Future<Either<Failure, AuthResponse>> signInWithPhoneNumber(
+    String verificationId,
+    String smsCode,
+  );
+  Future<Either<Failure, void>> linkPhoneNumber(
+    String verificationId,
+    String smsCode,
+  );
   Future<Either<Failure, AuthResponse>> register(RegisterRequest request);
   Future<Either<Failure, void>> logout();
   Future<bool> isAuthenticated();

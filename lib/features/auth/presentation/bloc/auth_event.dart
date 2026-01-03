@@ -61,3 +61,43 @@ class AuthResetPasswordRequested extends AuthEvent {
 }
 
 class AuthGoogleSignInRequested extends AuthEvent {}
+
+class _AuthInternalCodeSent extends AuthEvent {
+  const _AuthInternalCodeSent();
+}
+
+class _AuthInternalError extends AuthEvent {
+  final String message;
+  const _AuthInternalError(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+class AuthPhoneVerificationRequested extends AuthEvent {
+  final String phoneNumber;
+  const AuthPhoneVerificationRequested(this.phoneNumber);
+  @override
+  List<Object?> get props => [phoneNumber];
+}
+
+class AuthPhoneSignInRequested extends AuthEvent {
+  final String verificationId;
+  final String smsCode;
+  const AuthPhoneSignInRequested({
+    required this.verificationId,
+    required this.smsCode,
+  });
+  @override
+  List<Object?> get props => [verificationId, smsCode];
+}
+
+class AuthLinkPhoneRequested extends AuthEvent {
+  final String verificationId;
+  final String smsCode;
+  const AuthLinkPhoneRequested({
+    required this.verificationId,
+    required this.smsCode,
+  });
+  @override
+  List<Object?> get props => [verificationId, smsCode];
+}

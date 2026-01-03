@@ -11,6 +11,7 @@ import '../models/login_request.dart';
 import '../models/register_request.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -24,6 +25,100 @@ class AuthRepositoryImpl implements AuthRepository {
     this._localDataSource,
     this._networkInfo,
   );
+
+  @override
+  Future<Either<Failure, void>> verifyPhoneNumber(
+    String phoneNumber, {
+    required Function(String verificationId) onCodeSent,
+    required Function(String errorMessage) onVerificationFailed,
+  }) async {
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          // Auto-verification handled in signInWithPhoneNumber if possible
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          onVerificationFailed(e.message ?? 'Verification failed');
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          onCodeSent(verificationId);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AuthResponse>> signInWithPhoneNumber(
+    String verificationId,
+    String smsCode,
+  ) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+
+    try {
+      final PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
+
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+      final String? idToken = await userCredential.user?.getIdToken();
+
+      if (idToken == null) return Left(AuthFailure('No ID Token found'));
+
+      final response = await _remoteDataSource.firebaseLogin(idToken);
+      await _localDataSource.saveTokens(
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+      );
+      await _localDataSource.saveUser(response.user);
+      return Right(response);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> linkPhoneNumber(
+    String verificationId,
+    String smsCode,
+  ) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+
+    try {
+      final PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
+
+      // Link with current Firebase user if any, or just get token
+      final User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        // If not signed in to Firebase, sign in first to get token
+        final result = await FirebaseAuth.instance.signInWithCredential(
+          credential,
+        );
+        final idToken = await result.user?.getIdToken();
+        if (idToken != null) {
+          await _remoteDataSource.linkPhone(idToken);
+        }
+      } else {
+        await currentUser.linkWithCredential(credential);
+        final idToken = await currentUser.getIdToken();
+        if (idToken != null) {
+          await _remoteDataSource.linkPhone(idToken);
+        }
+      }
+      return const Right(null);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
 
   @override
   Future<Either<Failure, AuthResponse>> signInWithGoogle() async {
@@ -40,7 +135,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (idToken == null) return Left(AuthFailure('No ID Token found'));
 
-      final response = await _remoteDataSource.googleLogin(idToken);
+      final response = await _remoteDataSource.firebaseLogin(idToken);
       await _localDataSource.saveTokens(
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,

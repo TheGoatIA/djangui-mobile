@@ -175,12 +175,42 @@ class _LoginPageState extends State<LoginPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(
-                            Icons.login,
+                            Icons.g_mobiledata,
                             color: Colors.blue,
-                          ), // Placeholder for Google Icon
+                            size: 28,
+                          ),
                           const SizedBox(width: 12),
                           Text(
-                            "Continuer avec Google",
+                            AppLocalizations.of(context)!.googleSignIn,
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton(
+                      onPressed: () {
+                        context.push(RouteConstants.phoneLogin);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        side: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.phone_android_outlined,
+                            color: Colors.green,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            AppLocalizations.of(context)!.phoneLogin,
                             style: AppTextStyles.bodyLarge.copyWith(
                               fontWeight: FontWeight.bold,
                             ),

@@ -402,4 +402,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get googleSignIn => 'Continue with Google';
+
+  @override
+  String get phoneLogin => 'Phone Login';
+
+  @override
+  String get phoneNumber => 'Phone Number';
+
+  @override
+  String get enterPhone => 'Enter your phone number';
+
+  @override
+  String get verify => 'Verify';
+
+  @override
+  String get enterOtp => 'Enter verification code';
+
+  @override
+  String get otpCode => 'SMS Code';
+
+  @override
+  String get resendCode => 'Resend Code';
+
+  @override
+  String get phoneLinkedSuccess => 'Phone linked successfully';
+
+  @override
+  String get invalidPhone => 'Invalid phone number';
 }

@@ -6,7 +6,8 @@ class ApiConstants {
   static const String register = '/auth/register';
   static const String refresh = '/auth/refresh';
   static const String logout = '/auth/logout';
-  static const String googleAuth = '/auth/google';
+  static const String firebaseAuth = '/auth/firebase';
+  static const String linkPhone = '/auth/link-phone';
   static const String fcmToken = '/auth/fcm-token';
   static const String forgotPassword = '/auth/forgot-password';
   static const String resetPassword = '/auth/reset-password';

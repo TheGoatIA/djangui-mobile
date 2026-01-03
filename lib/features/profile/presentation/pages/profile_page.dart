@@ -141,6 +141,26 @@ class ProfilePage extends StatelessWidget {
             },
           ),
           const Divider(height: 1),
+          _buildSettingsTile(
+            Icons.phone_android_outlined,
+            AppLocalizations.of(context)!.phoneNumber,
+            trailing: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                final phone = state.authResponse?.user.phoneNumber;
+                return Text(
+                  phone ?? '',
+                  style: const TextStyle(color: Colors.grey),
+                );
+              },
+            ),
+            onTap: () {
+              final authState = context.read<AuthBloc>().state;
+              if (authState.authResponse?.user.phoneNumber == null) {
+                context.push(RouteConstants.phoneLogin);
+              }
+            },
+          ),
+          const Divider(height: 1),
           BlocBuilder<SettingsBloc, SettingsState>(
             builder: (context, state) {
               return _buildSettingsTile(

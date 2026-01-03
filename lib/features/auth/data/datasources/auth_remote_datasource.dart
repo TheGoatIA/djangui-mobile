@@ -7,7 +7,8 @@ import '../models/register_request.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponse> login(LoginRequest request);
-  Future<AuthResponse> googleLogin(String token);
+  Future<AuthResponse> firebaseLogin(String idToken);
+  Future<void> linkPhone(String idToken);
   Future<AuthResponse> register(RegisterRequest request);
   Future<void> forgotPassword(String email);
   Future<void> resetPassword(String token, String newPassword);
@@ -21,12 +22,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this._apiService);
 
   @override
-  Future<AuthResponse> googleLogin(String token) async {
-    final response = await _apiService.googleLogin({'token': token});
+  Future<AuthResponse> firebaseLogin(String idToken) async {
+    final response = await _apiService.firebaseLogin({'idToken': idToken});
     if (response.isSuccessful && response.body != null) {
       return response.body!;
     } else {
-      throw Exception(response.error?.toString() ?? 'Google login failed');
+      throw Exception(response.error?.toString() ?? 'Firebase login failed');
+    }
+  }
+
+  @override
+  Future<void> linkPhone(String idToken) async {
+    final response = await _apiService.linkPhone({'idToken': idToken});
+    if (!response.isSuccessful) {
+      throw Exception(response.error?.toString() ?? 'Link phone failed');
     }
   }
 

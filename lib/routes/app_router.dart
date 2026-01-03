@@ -9,6 +9,8 @@ import '../features/auth/presentation/pages/onboarding_page.dart';
 import '../features/auth/presentation/pages/register_page.dart';
 import '../features/auth/presentation/pages/forgot_password_page.dart';
 import '../features/auth/presentation/pages/reset_password_page.dart';
+import '../features/auth/presentation/pages/phone_login_page.dart';
+import '../features/auth/presentation/pages/otp_verification_page.dart';
 import '../features/goals/presentation/pages/goal_import_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/transactions/presentation/pages/transaction_list_page.dart';
@@ -63,6 +65,21 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final data = state.uri.queryParameters['data'] ?? '';
         return GoalImportPage(dataToken: data);
+      },
+    ),
+    GoRoute(
+      path: RouteConstants.phoneLogin,
+      builder: (context, state) => const PhoneLoginPage(),
+    ),
+    GoRoute(
+      path: RouteConstants.otpVerification,
+      builder: (context, state) {
+        final extras = state.extra as Map<String, dynamic>;
+        return OtpVerificationPage(
+          phoneNumber: extras['phoneNumber'] as String,
+          verificationId: extras['verificationId'] as String,
+          isLinking: extras['isLinking'] as bool? ?? false,
+        );
       },
     ),
     GoRoute(

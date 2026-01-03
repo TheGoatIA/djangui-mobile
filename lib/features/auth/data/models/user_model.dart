@@ -10,6 +10,7 @@ class UserModel {
   final String firstName;
   final String lastName;
   final String? avatar;
+  final String? phoneNumber;
   final bool isPremium;
 
   final double? monthlyIncome;
@@ -29,6 +30,7 @@ class UserModel {
     required this.firstName,
     required this.lastName,
     this.avatar,
+    this.phoneNumber,
     this.isPremium = false,
     this.monthlyIncome,
     this.currency,

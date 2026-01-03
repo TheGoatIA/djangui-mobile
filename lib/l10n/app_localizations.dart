@@ -871,6 +871,60 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Continuer avec Google'**
   String get googleSignIn;
+
+  /// No description provided for @phoneLogin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion par numéro'**
+  String get phoneLogin;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de téléphone'**
+  String get phoneNumber;
+
+  /// No description provided for @enterPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez votre numéro'**
+  String get enterPhone;
+
+  /// No description provided for @verify.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier'**
+  String get verify;
+
+  /// No description provided for @enterOtp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez le code reçu'**
+  String get enterOtp;
+
+  /// No description provided for @otpCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code SMS'**
+  String get otpCode;
+
+  /// No description provided for @resendCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer le code'**
+  String get resendCode;
+
+  /// No description provided for @phoneLinkedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro lié avec succès'**
+  String get phoneLinkedSuccess;
+
+  /// No description provided for @invalidPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro invalide'**
+  String get invalidPhone;
 }
 
 class _AppLocalizationsDelegate

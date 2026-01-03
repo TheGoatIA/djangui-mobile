@@ -21,6 +21,92 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthForgotPasswordRequested>(_onAuthForgotPasswordRequested);
     on<AuthResetPasswordRequested>(_onAuthResetPasswordRequested);
     on<AuthGoogleSignInRequested>(_onAuthGoogleSignInRequested);
+    on<AuthPhoneVerificationRequested>(_onAuthPhoneVerificationRequested);
+    on<AuthPhoneSignInRequested>(_onAuthPhoneSignInRequested);
+    on<AuthLinkPhoneRequested>(_onAuthLinkPhoneRequested);
+    on<_AuthInternalCodeSent>(_onAuthInternalCodeSent);
+    on<_AuthInternalError>(_onAuthInternalError);
+  }
+
+  String? _verificationId;
+
+  void _onAuthInternalCodeSent(
+    _AuthInternalCodeSent event,
+    Emitter<AuthState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        status: AuthStatus.codeSent,
+        verificationId: _verificationId,
+      ),
+    );
+  }
+
+  void _onAuthInternalError(_AuthInternalError event, Emitter<AuthState> emit) {
+    emit(state.copyWith(status: AuthStatus.error, errorMessage: event.message));
+  }
+
+  Future<void> _onAuthPhoneVerificationRequested(
+    AuthPhoneVerificationRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.verifyPhoneNumber(
+      event.phoneNumber,
+      onCodeSent: (verificationId) {
+        _verificationId = verificationId;
+        add(const _AuthInternalCodeSent());
+      },
+      onVerificationFailed: (errorMessage) {
+        add(_AuthInternalError(errorMessage));
+      },
+    );
+
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (_) => null, // Wait for callbacks
+    );
+  }
+
+  Future<void> _onAuthPhoneSignInRequested(
+    AuthPhoneSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.signInWithPhoneNumber(
+      event.verificationId,
+      event.smsCode,
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (response) => emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          authResponse: response,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onAuthLinkPhoneRequested(
+    AuthLinkPhoneRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.linkPhoneNumber(
+      event.verificationId,
+      event.smsCode,
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (_) => emit(state.copyWith(status: AuthStatus.phoneLinked)),
+    );
   }
 
   Future<void> _onAuthGoogleSignInRequested(
