@@ -1,4 +1,6 @@
-# Uncomment this line to define a global platform for your project
+# Standard Flutter Podfile boilerplate
+require File.expand_path(File.join('Flutter', 'podhelper.rb'), File.dirname(__FILE__))
+
 platform :ios, '13.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
@@ -9,11 +11,6 @@ project 'Runner', {
   'Release' => :release,
   'Profile' => :profile,
 }
-
-def flutter_install_all_ios_pods(main_target_directory)
-  return nil unless File.exist?(File.join(main_target_directory, 'Generated.xcconfig'))
-  flutter_install_ios_plugin_pods(main_target_directory)
-end
 
 target 'Runner' do
   use_frameworks!
@@ -37,11 +34,11 @@ post_install do |installer|
       # Set Deployment Target
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
       
-      # Fix for architectures
-      config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
-      
-      # Additional compiler flags if needed
+      # Additional compiler flags for permissions
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'PERMISSION_CAMERA=1', 'PERMISSION_PHOTOS=1', 'PERMISSION_NOTIFICATIONS=1']
+      
+      # Fix for IPP / IOKit missing headers on some runners
+      config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
     end
   end
 end

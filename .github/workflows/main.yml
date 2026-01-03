@@ -45,7 +45,7 @@ jobs:
       - name: Create .env from example
         run: cp .env.example .env
       - name: Build APK (Release)
-        run: flutter build apk --release --no-tree-shaking
+        run: flutter build apk --release --no-tree-shake-icons
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
