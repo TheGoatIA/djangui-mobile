@@ -21,6 +21,14 @@ class Users extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class SyncRequests extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get table => text()(); // 'transactions', 'goals', etc.
+  TextColumn get action => text()(); // 'create', 'update', 'delete'
+  TextColumn get payload => text()(); // JSON string of the object
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 class Transactions extends Table {
   TextColumn get id => text()();
   RealColumn get amount => real()();
@@ -106,13 +114,14 @@ class Investments extends Table {
     Challenges,
     ChatMessages,
     Investments,
+    SyncRequests,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(() async {

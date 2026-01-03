@@ -7,6 +7,7 @@ import 'di/injection.dart';
 import 'routes/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/sync_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'features/settings/presentation/bloc/settings_bloc.dart';
 
@@ -15,6 +16,7 @@ void main() async {
   await dotenv.load(fileName: ".env");
   await configureDependencies();
   await getIt<NotificationService>().initialize();
+  getIt<SyncService>().initialize(); // Start sync listener
   runApp(const MyApp());
 }
 

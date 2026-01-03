@@ -16,6 +16,7 @@ import 'package:djangui/core/services/ocr_service.dart' as _i282;
 import 'package:djangui/core/services/payment_service.dart' as _i29;
 import 'package:djangui/core/services/share_service.dart' as _i69;
 import 'package:djangui/core/services/sms_service.dart' as _i252;
+import 'package:djangui/core/services/sync_service.dart' as _i316;
 import 'package:djangui/di/register_module.dart' as _i153;
 import 'package:djangui/features/auth/data/datasources/auth_api_service.dart'
     as _i651;
@@ -115,6 +116,7 @@ import 'package:djangui/features/transactions/presentation/bloc/transactions_blo
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:logger/logger.dart' as _i974;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -207,12 +209,6 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i252.SMSService(gh<_i391.AiApiService>()));
     gh.lazySingleton<_i947.AIRemoteDataSource>(
         () => _i947.AIRemoteDataSource(gh<_i391.AiApiService>()));
-    gh.lazySingleton<_i461.TransactionRepository>(
-        () => _i406.TransactionRepositoryImpl(
-              gh<_i231.TransactionRemoteDataSource>(),
-              gh<_i1040.TransactionLocalDataSource>(),
-              gh<_i574.NetworkInfo>(),
-            ));
     gh.lazySingleton<_i520.AuthLocalDataSource>(
         () => _i520.AuthLocalDataSourceImpl(
               gh<_i558.FlutterSecureStorage>(),
@@ -230,10 +226,20 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i999.BudgetLocalDataSource>(),
           gh<_i574.NetworkInfo>(),
         ));
-    gh.factory<_i492.TransactionsBloc>(
-        () => _i492.TransactionsBloc(gh<_i461.TransactionRepository>()));
+    gh.lazySingleton<_i316.SyncService>(() => _i316.SyncService(
+          gh<_i730.AppDatabase>(),
+          gh<_i231.TransactionRemoteDataSource>(),
+          gh<_i974.Logger>(),
+        ));
     gh.factory<_i983.ChallengesBloc>(
         () => _i983.ChallengesBloc(gh<_i1021.ChallengeRepository>()));
+    gh.lazySingleton<_i461.TransactionRepository>(
+        () => _i406.TransactionRepositoryImpl(
+              gh<_i231.TransactionRemoteDataSource>(),
+              gh<_i1040.TransactionLocalDataSource>(),
+              gh<_i574.NetworkInfo>(),
+              gh<_i730.AppDatabase>(),
+            ));
     gh.factory<_i339.BudgetsBloc>(
         () => _i339.BudgetsBloc(gh<_i674.BudgetRepository>()));
     gh.lazySingleton<_i824.GoalRepository>(() => _i511.GoalRepositoryImpl(
@@ -250,6 +256,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i424.GoalsBloc(gh<_i824.GoalRepository>()));
     gh.factory<_i1005.CoachBloc>(
         () => _i1005.CoachBloc(gh<_i745.CoachRepository>()));
+    gh.factory<_i492.TransactionsBloc>(
+        () => _i492.TransactionsBloc(gh<_i461.TransactionRepository>()));
     gh.factory<_i48.AuthBloc>(() => _i48.AuthBloc(gh<_i1012.AuthRepository>()));
     return this;
   }

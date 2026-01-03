@@ -2710,6 +2710,301 @@ class InvestmentsCompanion extends UpdateCompanion<Investment> {
   }
 }
 
+class $SyncRequestsTable extends SyncRequests
+    with TableInfo<$SyncRequestsTable, SyncRequest> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncRequestsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _tableMeta = const VerificationMeta('table');
+  @override
+  late final GeneratedColumn<String> table = GeneratedColumn<String>(
+      'table', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _actionMeta = const VerificationMeta('action');
+  @override
+  late final GeneratedColumn<String> action = GeneratedColumn<String>(
+      'action', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _payloadMeta =
+      const VerificationMeta('payload');
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+      'payload', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [id, table, action, payload, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_requests';
+  @override
+  VerificationContext validateIntegrity(Insertable<SyncRequest> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('table')) {
+      context.handle(
+          _tableMeta, table.isAcceptableOrUnknown(data['table']!, _tableMeta));
+    } else if (isInserting) {
+      context.missing(_tableMeta);
+    }
+    if (data.containsKey('action')) {
+      context.handle(_actionMeta,
+          action.isAcceptableOrUnknown(data['action']!, _actionMeta));
+    } else if (isInserting) {
+      context.missing(_actionMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(_payloadMeta,
+          payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SyncRequest map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncRequest(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      table: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}table'])!,
+      action: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}action'])!,
+      payload: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $SyncRequestsTable createAlias(String alias) {
+    return $SyncRequestsTable(attachedDatabase, alias);
+  }
+}
+
+class SyncRequest extends DataClass implements Insertable<SyncRequest> {
+  final int id;
+  final String table;
+  final String action;
+  final String payload;
+  final DateTime createdAt;
+  const SyncRequest(
+      {required this.id,
+      required this.table,
+      required this.action,
+      required this.payload,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['table'] = Variable<String>(table);
+    map['action'] = Variable<String>(action);
+    map['payload'] = Variable<String>(payload);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  SyncRequestsCompanion toCompanion(bool nullToAbsent) {
+    return SyncRequestsCompanion(
+      id: Value(id),
+      table: Value(table),
+      action: Value(action),
+      payload: Value(payload),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory SyncRequest.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncRequest(
+      id: serializer.fromJson<int>(json['id']),
+      table: serializer.fromJson<String>(json['table']),
+      action: serializer.fromJson<String>(json['action']),
+      payload: serializer.fromJson<String>(json['payload']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'table': serializer.toJson<String>(table),
+      'action': serializer.toJson<String>(action),
+      'payload': serializer.toJson<String>(payload),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  SyncRequest copyWith(
+          {int? id,
+          String? table,
+          String? action,
+          String? payload,
+          DateTime? createdAt}) =>
+      SyncRequest(
+        id: id ?? this.id,
+        table: table ?? this.table,
+        action: action ?? this.action,
+        payload: payload ?? this.payload,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  SyncRequest copyWithCompanion(SyncRequestsCompanion data) {
+    return SyncRequest(
+      id: data.id.present ? data.id.value : this.id,
+      table: data.table.present ? data.table.value : this.table,
+      action: data.action.present ? data.action.value : this.action,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncRequest(')
+          ..write('id: $id, ')
+          ..write('table: $table, ')
+          ..write('action: $action, ')
+          ..write('payload: $payload, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, table, action, payload, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncRequest &&
+          other.id == this.id &&
+          other.table == this.table &&
+          other.action == this.action &&
+          other.payload == this.payload &&
+          other.createdAt == this.createdAt);
+}
+
+class SyncRequestsCompanion extends UpdateCompanion<SyncRequest> {
+  final Value<int> id;
+  final Value<String> table;
+  final Value<String> action;
+  final Value<String> payload;
+  final Value<DateTime> createdAt;
+  const SyncRequestsCompanion({
+    this.id = const Value.absent(),
+    this.table = const Value.absent(),
+    this.action = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  SyncRequestsCompanion.insert({
+    this.id = const Value.absent(),
+    required String table,
+    required String action,
+    required String payload,
+    this.createdAt = const Value.absent(),
+  })  : table = Value(table),
+        action = Value(action),
+        payload = Value(payload);
+  static Insertable<SyncRequest> custom({
+    Expression<int>? id,
+    Expression<String>? table,
+    Expression<String>? action,
+    Expression<String>? payload,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (table != null) 'table': table,
+      if (action != null) 'action': action,
+      if (payload != null) 'payload': payload,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  SyncRequestsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? table,
+      Value<String>? action,
+      Value<String>? payload,
+      Value<DateTime>? createdAt}) {
+    return SyncRequestsCompanion(
+      id: id ?? this.id,
+      table: table ?? this.table,
+      action: action ?? this.action,
+      payload: payload ?? this.payload,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (table.present) {
+      map['table'] = Variable<String>(table.value);
+    }
+    if (action.present) {
+      map['action'] = Variable<String>(action.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncRequestsCompanion(')
+          ..write('id: $id, ')
+          ..write('table: $table, ')
+          ..write('action: $action, ')
+          ..write('payload: $payload, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2720,6 +3015,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ChallengesTable challenges = $ChallengesTable(this);
   late final $ChatMessagesTable chatMessages = $ChatMessagesTable(this);
   late final $InvestmentsTable investments = $InvestmentsTable(this);
+  late final $SyncRequestsTable syncRequests = $SyncRequestsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2731,7 +3027,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         goals,
         challenges,
         chatMessages,
-        investments
+        investments,
+        syncRequests
       ];
 }
 
@@ -4121,6 +4418,173 @@ typedef $$InvestmentsTableProcessedTableManager = ProcessedTableManager<
     (Investment, BaseReferences<_$AppDatabase, $InvestmentsTable, Investment>),
     Investment,
     PrefetchHooks Function()>;
+typedef $$SyncRequestsTableCreateCompanionBuilder = SyncRequestsCompanion
+    Function({
+  Value<int> id,
+  required String table,
+  required String action,
+  required String payload,
+  Value<DateTime> createdAt,
+});
+typedef $$SyncRequestsTableUpdateCompanionBuilder = SyncRequestsCompanion
+    Function({
+  Value<int> id,
+  Value<String> table,
+  Value<String> action,
+  Value<String> payload,
+  Value<DateTime> createdAt,
+});
+
+class $$SyncRequestsTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncRequestsTable> {
+  $$SyncRequestsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get table => $composableBuilder(
+      column: $table.table, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get action => $composableBuilder(
+      column: $table.action, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$SyncRequestsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncRequestsTable> {
+  $$SyncRequestsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get table => $composableBuilder(
+      column: $table.table, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get action => $composableBuilder(
+      column: $table.action, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SyncRequestsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncRequestsTable> {
+  $$SyncRequestsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get table =>
+      $composableBuilder(column: $table.table, builder: (column) => column);
+
+  GeneratedColumn<String> get action =>
+      $composableBuilder(column: $table.action, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$SyncRequestsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $SyncRequestsTable,
+    SyncRequest,
+    $$SyncRequestsTableFilterComposer,
+    $$SyncRequestsTableOrderingComposer,
+    $$SyncRequestsTableAnnotationComposer,
+    $$SyncRequestsTableCreateCompanionBuilder,
+    $$SyncRequestsTableUpdateCompanionBuilder,
+    (
+      SyncRequest,
+      BaseReferences<_$AppDatabase, $SyncRequestsTable, SyncRequest>
+    ),
+    SyncRequest,
+    PrefetchHooks Function()> {
+  $$SyncRequestsTableTableManager(_$AppDatabase db, $SyncRequestsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncRequestsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncRequestsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncRequestsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> table = const Value.absent(),
+            Value<String> action = const Value.absent(),
+            Value<String> payload = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              SyncRequestsCompanion(
+            id: id,
+            table: table,
+            action: action,
+            payload: payload,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String table,
+            required String action,
+            required String payload,
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              SyncRequestsCompanion.insert(
+            id: id,
+            table: table,
+            action: action,
+            payload: payload,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SyncRequestsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $SyncRequestsTable,
+    SyncRequest,
+    $$SyncRequestsTableFilterComposer,
+    $$SyncRequestsTableOrderingComposer,
+    $$SyncRequestsTableAnnotationComposer,
+    $$SyncRequestsTableCreateCompanionBuilder,
+    $$SyncRequestsTableUpdateCompanionBuilder,
+    (
+      SyncRequest,
+      BaseReferences<_$AppDatabase, $SyncRequestsTable, SyncRequest>
+    ),
+    SyncRequest,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4139,4 +4603,6 @@ class $AppDatabaseManager {
       $$ChatMessagesTableTableManager(_db, _db.chatMessages);
   $$InvestmentsTableTableManager get investments =>
       $$InvestmentsTableTableManager(_db, _db.investments);
+  $$SyncRequestsTableTableManager get syncRequests =>
+      $$SyncRequestsTableTableManager(_db, _db.syncRequests);
 }
