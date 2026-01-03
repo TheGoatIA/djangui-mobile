@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
@@ -9,6 +10,7 @@ import '../bloc/budgets_bloc.dart';
 import '../bloc/budgets_event.dart';
 import '../bloc/budgets_state.dart';
 import '../../data/models/budget_model.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class BudgetListPage extends StatelessWidget {
   const BudgetListPage({super.key});
@@ -20,7 +22,7 @@ class BudgetListPage extends StatelessWidget {
           getIt<BudgetsBloc>()..add(const GetBudgetsRequested()),
       child: Scaffold(
         backgroundColor: AppColors.background,
-        appBar: AppBar(title: const Text('Budgets')),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.myBudgets)),
         body: BlocBuilder<BudgetsBloc, BudgetsState>(
           builder: (context, state) {
             if (state.status == BudgetsStatus.loading &&
@@ -33,14 +35,10 @@ class BudgetListPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.pie_chart_outline,
-                      size: 64,
-                      color: Colors.grey[400],
-                    ),
+                    Image.asset(AppAssets.emptyBudget, width: 150, height: 150),
                     const SizedBox(height: 16),
                     Text(
-                      'Aucun budget défini',
+                      AppLocalizations.of(context)!.noBudgetDefined,
                       style: AppTextStyles.bodyLarge.copyWith(
                         color: Colors.grey,
                       ),
@@ -131,11 +129,11 @@ class _BudgetItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Dépensé: ${budget.spentAmount.toStringAsFixed(0)} F',
+                '${AppLocalizations.of(context)!.spentLabel}: ${budget.spentAmount.toStringAsFixed(0)} F',
                 style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
               ),
               Text(
-                'Limite: ${budget.limitAmount.toStringAsFixed(0)} F',
+                '${AppLocalizations.of(context)!.limitLabel}: ${budget.limitAmount.toStringAsFixed(0)} F',
                 style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
               ),
             ],

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../di/injection.dart';
 
 class OnboardingPage extends StatefulWidget {
@@ -18,26 +20,29 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingContent> _contents = [
-    OnboardingContent(
-      title: 'Bienvenue sur Djangui',
-      description:
-          'La solution moderne pour gérer vos tontines et épargner en groupe en toute sécurité.',
-      icon: Icons.account_balance_wallet_outlined,
-    ),
-    OnboardingContent(
-      title: 'Épargne Collective',
-      description:
-          'Créez ou rejoignez des tontines avec vos proches et suivez les cotisations en temps réel.',
-      icon: Icons.groups_outlined,
-    ),
-    OnboardingContent(
-      title: 'Sécurité Maximale',
-      description:
-          'Vos fonds sont protégés et chaque transaction est transparente pour tous les membres.',
-      icon: Icons.security_outlined,
-    ),
-  ];
+  late List<OnboardingContent> _contents;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _contents = [
+      OnboardingContent(
+        title: AppLocalizations.of(context)!.onboardingTitle1,
+        description: AppLocalizations.of(context)!.onboardingDesc1,
+        image: AppAssets.onboarding1,
+      ),
+      OnboardingContent(
+        title: AppLocalizations.of(context)!.onboardingTitle2,
+        description: AppLocalizations.of(context)!.onboardingDesc2,
+        image: AppAssets.onboarding2,
+      ),
+      OnboardingContent(
+        title: AppLocalizations.of(context)!.onboardingTitle3,
+        description: AppLocalizations.of(context)!.onboardingDesc3,
+        image: AppAssets.onboarding3,
+      ),
+    ];
+  }
 
   void _onNext() async {
     if (_currentPage < _contents.length - 1) {
@@ -71,7 +76,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   }
                 },
                 child: Text(
-                  'Passer',
+                  AppLocalizations.of(context)!.skip,
                   style: AppTextStyles.labelLarge.copyWith(color: Colors.grey),
                 ),
               ),
@@ -91,17 +96,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(32),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            _contents[index].icon,
-                            size: 100,
-                            color: AppColors.primary,
-                          ),
+                        Image.asset(
+                          _contents[index].image,
+                          height: 250,
+                          fit: BoxFit.contain,
                         ),
                         const SizedBox(height: 60),
                         Text(
@@ -150,8 +148,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   const SizedBox(height: 48),
                   AppButton(
                     text: _currentPage == _contents.length - 1
-                        ? 'Commencer'
-                        : 'Suivant',
+                        ? AppLocalizations.of(context)!.start
+                        : AppLocalizations.of(context)!.next,
                     onPressed: _onNext,
                   ),
                   const SizedBox(height: 20),
@@ -168,11 +166,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
 class OnboardingContent {
   final String title;
   final String description;
-  final IconData icon;
+  final String image;
 
   OnboardingContent({
     required this.title,
     required this.description,
-    required this.icon,
+    required this.image,
   });
 }

@@ -7,6 +7,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../di/injection.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../bloc/transactions_bloc.dart';
 import '../../data/models/transaction_model.dart';
 
@@ -57,19 +58,26 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           if (state.status == TransactionsStatus.success) {
             context.pop(true);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Transaction ajoutée avec succès')),
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.successTransaction),
+              ),
             );
           } else if (state.status == TransactionsStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.errorMessage ?? 'Erreur lors de l\'ajout'),
+                content: Text(
+                  state.errorMessage ??
+                      AppLocalizations.of(context)!.errorTransaction,
+                ),
               ),
             );
           }
         },
         child: Scaffold(
           backgroundColor: AppColors.background,
-          appBar: AppBar(title: const Text('Ajouter une transaction')),
+          appBar: AppBar(
+            title: Text(AppLocalizations.of(context)!.addTransactionTitle),
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Form(
@@ -77,19 +85,22 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Type de transaction', style: AppTextStyles.bodyMedium),
+                  Text(
+                    AppLocalizations.of(context)!.transactionType,
+                    style: AppTextStyles.bodyMedium,
+                  ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
                       _TypeButton(
-                        label: 'Dépense',
+                        label: AppLocalizations.of(context)!.expense,
                         isSelected: _type == 'expense',
                         onTap: () => setState(() => _type = 'expense'),
                         color: AppColors.error,
                       ),
                       const SizedBox(width: 12),
                       _TypeButton(
-                        label: 'Revenu',
+                        label: AppLocalizations.of(context)!.income,
                         isSelected: _type == 'income',
                         onTap: () => setState(() => _type = 'income'),
                         color: AppColors.success,
@@ -99,40 +110,40 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   const SizedBox(height: 24),
                   AppTextField(
                     controller: _amountController,
-                    label: 'Montant',
-                    hint: '0.00',
+                    label: AppLocalizations.of(context)!.amountLabel,
+                    hint: AppLocalizations.of(context)!.amountHint,
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty)
-                        return 'Champs requis';
+                        return AppLocalizations.of(context)!.requiredField;
                       if (double.tryParse(value) == null)
-                        return 'Nombre invalide';
+                        return AppLocalizations.of(context)!.invalidNumber;
                       return null;
                     },
                   ),
                   const SizedBox(height: 20),
                   AppTextField(
                     controller: _categoryController,
-                    label: 'Catégorie',
-                    hint: 'ex: Alimentation, Salaire...',
+                    label: AppLocalizations.of(context)!.categoryLabel,
+                    hint: AppLocalizations.of(context)!.categoryHint,
                     validator: (value) => (value == null || value.isEmpty)
-                        ? 'Champs requis'
+                        ? AppLocalizations.of(context)!.requiredField
                         : null,
                   ),
                   const SizedBox(height: 20),
                   AppTextField(
                     controller: _descriptionController,
-                    label: 'Description',
-                    hint: 'ex: Courses du mois',
+                    label: AppLocalizations.of(context)!.descriptionLabel,
+                    hint: AppLocalizations.of(context)!.descriptionHint,
                     validator: (value) => (value == null || value.isEmpty)
-                        ? 'Champs requis'
+                        ? AppLocalizations.of(context)!.requiredField
                         : null,
                   ),
                   const SizedBox(height: 40),
                   BlocBuilder<TransactionsBloc, TransactionsState>(
                     builder: (context, state) {
                       return AppButton(
-                        text: 'Enregistrer',
+                        text: AppLocalizations.of(context)!.saveAction,
                         isLoading: state.status == TransactionsStatus.loading,
                         onPressed: () => _onSave(context),
                       );

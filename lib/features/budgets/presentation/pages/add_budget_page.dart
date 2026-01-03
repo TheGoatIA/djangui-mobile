@@ -10,6 +10,7 @@ import '../bloc/budgets_bloc.dart';
 import '../bloc/budgets_event.dart';
 import '../bloc/budgets_state.dart';
 import '../../data/models/budget_model.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class AddBudgetPage extends StatefulWidget {
   const AddBudgetPage({super.key});
@@ -54,13 +55,16 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
           if (state.status == BudgetsStatus.success) {
             context.pop();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Budget créé avec succès')),
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.successBudget),
+              ),
             );
           } else if (state.status == BudgetsStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  state.errorMessage ?? 'Erreur lors de la création',
+                  state.errorMessage ??
+                      AppLocalizations.of(context)!.errorBudget,
                 ),
               ),
             );
@@ -68,7 +72,9 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
         },
         child: Scaffold(
           backgroundColor: AppColors.background,
-          appBar: AppBar(title: const Text('Définir un budget')),
+          appBar: AppBar(
+            title: Text(AppLocalizations.of(context)!.addBudgetTitle),
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Form(
@@ -78,23 +84,23 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                 children: [
                   AppTextField(
                     controller: _categoryController,
-                    label: 'Catégorie',
-                    hint: 'ex: Alimentation, Transport...',
+                    label: AppLocalizations.of(context)!.categoryLabel,
+                    hint: AppLocalizations.of(context)!.categoryHint,
                     validator: (value) => (value == null || value.isEmpty)
-                        ? 'Champs requis'
+                        ? AppLocalizations.of(context)!.requiredField
                         : null,
                   ),
                   const SizedBox(height: 20),
                   AppTextField(
                     controller: _limitController,
-                    label: 'Limite mensuelle',
+                    label: AppLocalizations.of(context)!.monthlyLimitLabel,
                     hint: '0.00',
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty)
-                        return 'Champs requis';
+                        return AppLocalizations.of(context)!.requiredField;
                       if (double.tryParse(value) == null)
-                        return 'Nombre invalide';
+                        return AppLocalizations.of(context)!.invalidNumber;
                       return null;
                     },
                   ),
@@ -102,7 +108,7 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                   BlocBuilder<BudgetsBloc, BudgetsState>(
                     builder: (context, state) {
                       return AppButton(
-                        text: 'Créer le budget',
+                        text: AppLocalizations.of(context)!.createBudgetAction,
                         isLoading: state.status == BudgetsStatus.loading,
                         onPressed: () => _onSave(context),
                       );

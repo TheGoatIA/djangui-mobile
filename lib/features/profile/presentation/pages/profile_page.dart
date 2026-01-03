@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../../features/settings/presentation/bloc/settings_bloc.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -12,7 +14,7 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Profil'),
+        title: Text(AppLocalizations.of(context)!.profile),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
@@ -101,15 +103,19 @@ class ProfilePage extends StatelessWidget {
         children: [
           _buildSettingsTile(
             Icons.notifications_outlined,
-            'Notifications',
+            AppLocalizations.of(context)!.notifications,
             onTap: () {},
           ),
           const Divider(height: 1),
-          _buildSettingsTile(Icons.security_outlined, 'Sécurité', onTap: () {}),
+          _buildSettingsTile(
+            Icons.security_outlined,
+            AppLocalizations.of(context)!.security,
+            onTap: () {},
+          ),
           const Divider(height: 1),
           _buildSettingsTile(
             Icons.language_outlined,
-            'Langue',
+            AppLocalizations.of(context)!.language,
             trailing: const Text(
               'Français',
               style: TextStyle(color: Colors.grey),
@@ -117,9 +123,24 @@ class ProfilePage extends StatelessWidget {
             onTap: () {},
           ),
           const Divider(height: 1),
+          BlocBuilder<SettingsBloc, SettingsState>(
+            builder: (context, state) {
+              return _buildSettingsTile(
+                Icons.brightness_6_outlined,
+                AppLocalizations.of(context)!.theme,
+                trailing: Text(
+                  _getThemeName(context, state.themeMode),
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                onTap: () =>
+                    _showThemeSelectionDialog(context, state.themeMode),
+              );
+            },
+          ),
+          const Divider(height: 1),
           _buildSettingsTile(
             Icons.help_outline,
-            'Aide & Support',
+            AppLocalizations.of(context)!.helpSupport,
             onTap: () {},
           ),
         ],
@@ -156,14 +177,12 @@ class ProfilePage extends StatelessWidget {
           showDialog(
             context: context,
             builder: (dialogContext) => AlertDialog(
-              title: const Text('Déconnexion'),
-              content: const Text(
-                'Êtes-vous sûr de vouloir vous déconnecter ?',
-              ),
+              title: Text(AppLocalizations.of(context)!.logout),
+              content: Text(AppLocalizations.of(context)!.confirmLogout),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext),
-                  child: const Text('Annuler'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 TextButton(
                   onPressed: () {
@@ -191,6 +210,73 @@ class ProfilePage extends StatelessWidget {
           style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
         ),
       ),
+    );
+  }
+
+  String _getThemeName(BuildContext context, ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.light:
+        return AppLocalizations.of(context)!.lightTheme;
+      case ThemeMode.dark:
+        return AppLocalizations.of(context)!.darkTheme;
+      case ThemeMode.system:
+        return AppLocalizations.of(context)!.systemTheme;
+    }
+  }
+
+  void _showThemeSelectionDialog(BuildContext context, ThemeMode currentMode) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.theme),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildThemeOption(
+              context,
+              dialogContext,
+              ThemeMode.light,
+              AppLocalizations.of(context)!.lightTheme,
+              currentMode,
+            ),
+            _buildThemeOption(
+              context,
+              dialogContext,
+              ThemeMode.dark,
+              AppLocalizations.of(context)!.darkTheme,
+              currentMode,
+            ),
+            _buildThemeOption(
+              context,
+              dialogContext,
+              ThemeMode.system,
+              AppLocalizations.of(context)!.systemTheme,
+              currentMode,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context,
+    BuildContext dialogContext,
+    ThemeMode mode,
+    String label,
+    ThemeMode currentMode,
+  ) {
+    return RadioListTile<ThemeMode>(
+      title: Text(label),
+      value: mode,
+      groupValue: currentMode,
+      onChanged: (value) {
+        if (value != null) {
+          context.read<SettingsBloc>().add(ThemeChanged(value));
+          Navigator.pop(dialogContext);
+        }
+      },
+      activeColor: AppColors.primary,
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
@@ -50,7 +51,7 @@ class DashboardPage extends StatelessWidget {
                 const SizedBox(height: 32),
                 _buildSectionHeader(
                   context,
-                  "Activités Récentes",
+                  AppLocalizations.of(context)!.recentActivities,
                   () => context.push(RouteConstants.transactions),
                 ),
                 const SizedBox(height: 16),
@@ -125,7 +126,7 @@ class DashboardPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Solde Total',
+            AppLocalizations.of(context)!.totalBalance,
             style: AppTextStyles.labelLarge.copyWith(color: Colors.white70),
           ),
           const SizedBox(height: 8),
@@ -253,7 +254,10 @@ class DashboardPage extends StatelessWidget {
           title,
           style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
         ),
-        TextButton(onPressed: onSeeAll, child: const Text('Voir tout')),
+        TextButton(
+          onPressed: onSeeAll,
+          child: Text(AppLocalizations.of(context)!.seeAll),
+        ),
       ],
     );
   }
@@ -269,7 +273,7 @@ class DashboardPage extends StatelessWidget {
         if (state.transactions.isEmpty) {
           return Center(
             child: Text(
-              'Aucune activité récente',
+              AppLocalizations.of(context)!.noRecentActivities,
               style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
             ),
           );
@@ -372,26 +376,26 @@ class DashboardPage extends StatelessWidget {
           context.push(RouteConstants.profile);
         }
       },
-      items: const [
+      items: [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home_filled),
-          label: 'Accueil',
+          icon: const Icon(Icons.home_filled),
+          label: AppLocalizations.of(context)!.dashboard,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.emoji_events_outlined),
-          label: 'Défis',
+          icon: const Icon(Icons.emoji_events_outlined),
+          label: AppLocalizations.of(context)!.challenges,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.pie_chart_outline),
-          label: 'Budgets',
+          icon: const Icon(Icons.pie_chart_outline),
+          label: AppLocalizations.of(context)!.budgets,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.flag_outlined),
-          label: 'Objectifs',
+          icon: const Icon(Icons.flag_outlined),
+          label: AppLocalizations.of(context)!.goals,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          label: 'Profil',
+          icon: const Icon(Icons.person_outline),
+          label: AppLocalizations.of(context)!.profile,
         ),
       ],
     );

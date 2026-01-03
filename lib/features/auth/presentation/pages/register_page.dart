@@ -7,6 +7,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../di/injection.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -43,7 +44,10 @@ class _RegisterPageState extends State<RegisterPage> {
           } else if (state.status == AuthStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.errorMessage ?? 'Une erreur est survenue'),
+                content: Text(
+                  state.errorMessage ??
+                      AppLocalizations.of(context)!.genericError,
+                ),
               ),
             );
           }
@@ -66,14 +70,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'Créer un compte',
+                      AppLocalizations.of(context)!.createAccount,
                       style: AppTextStyles.headlineMedium.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Rejoignez Djangui et commencez à épargner intelligemment.',
+                      AppLocalizations.of(context)!.registerSubtitle,
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: Colors.grey,
                       ),
@@ -83,55 +87,63 @@ class _RegisterPageState extends State<RegisterPage> {
                       children: [
                         Expanded(
                           child: AppTextField(
-                            label: 'Prénom',
-                            hint: 'Jean',
+                            label: AppLocalizations.of(context)!.firstName,
+                            hint: AppLocalizations.of(context)!.firstNameHint,
                             controller: _firstNameController,
-                            validator: (value) =>
-                                value?.isEmpty ?? true ? 'Champ requis' : null,
+                            validator: (value) => value?.isEmpty ?? true
+                                ? AppLocalizations.of(context)!.requiredField
+                                : null,
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: AppTextField(
-                            label: 'Nom',
-                            hint: 'Dupont',
+                            label: AppLocalizations.of(context)!.lastName,
+                            hint: AppLocalizations.of(context)!.lastNameHint,
                             controller: _lastNameController,
-                            validator: (value) =>
-                                value?.isEmpty ?? true ? 'Champ requis' : null,
+                            validator: (value) => value?.isEmpty ?? true
+                                ? AppLocalizations.of(context)!.requiredField
+                                : null,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
                     AppTextField(
-                      label: 'Email',
-                      hint: 'jean.dupont@email.com',
+                      label: AppLocalizations.of(context)!.email,
+                      hint: AppLocalizations.of(context)!.emailHint,
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: Icons.email_outlined,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre email';
+                          return AppLocalizations.of(context)!.enterEmailError;
                         }
                         if (!value.contains('@')) {
-                          return 'Veuillez entrer un email valide';
+                          return AppLocalizations.of(
+                            context,
+                          )!.invalidEmailError;
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 24),
                     AppTextField(
-                      label: 'Mot de passe',
+                      label: AppLocalizations.of(context)!.password,
                       hint: '********',
                       controller: _passwordController,
                       isPassword: true,
                       prefixIcon: Icons.lock_outline,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre mot de passe';
+                          return AppLocalizations.of(
+                            context,
+                          )!.enterPasswordError;
                         }
                         if (value.length < 6) {
-                          return 'Le mot de passe doit contenir au moins 6 caractères';
+                          return AppLocalizations.of(
+                            context,
+                          )!.passwordLengthError;
                         }
                         return null;
                       },
@@ -140,7 +152,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     BlocBuilder<AuthBloc, AuthState>(
                       builder: (context, state) {
                         return AppButton(
-                          text: "S'inscrire",
+                          text: AppLocalizations.of(context)!.register,
                           isLoading: state.status == AuthStatus.loading,
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
@@ -161,12 +173,16 @@ class _RegisterPageState extends State<RegisterPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Vous avez déjà un compte ?"),
+                        Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.alreadyHaveAccountQuestion,
+                        ),
                         TextButton(
                           onPressed: () => context.pop(),
-                          child: const Text(
-                            "Se connecter",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          child: Text(
+                            AppLocalizations.of(context)!.loginAction,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],

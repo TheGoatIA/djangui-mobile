@@ -7,6 +7,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../di/injection.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
 
 class LoginPage extends StatefulWidget {
@@ -39,7 +40,10 @@ class _LoginPageState extends State<LoginPage> {
           } else if (state.status == AuthStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.errorMessage ?? 'Une erreur est survenue'),
+                content: Text(
+                  state.errorMessage ??
+                      AppLocalizations.of(context)!.genericError,
+                ),
               ),
             );
           }
@@ -55,48 +59,54 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     const SizedBox(height: 40),
                     Text(
-                      'Bon retour !',
+                      AppLocalizations.of(context)!.welcomeBack,
                       style: AppTextStyles.headlineMedium.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Connectez-vous pour gérer votre tontine digitalisée.',
+                      AppLocalizations.of(context)!.loginSubtitle,
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: Colors.grey,
                       ),
                     ),
                     const SizedBox(height: 48),
                     AppTextField(
-                      label: 'Email',
-                      hint: 'votre@email.com',
+                      label: AppLocalizations.of(context)!.email,
+                      hint: AppLocalizations.of(context)!.emailHint,
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: Icons.email_outlined,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre email';
+                          return AppLocalizations.of(context)!.enterEmailError;
                         }
                         if (!value.contains('@')) {
-                          return 'Veuillez entrer un email valide';
+                          return AppLocalizations.of(
+                            context,
+                          )!.invalidEmailError;
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 24),
                     AppTextField(
-                      label: 'Mot de passe',
+                      label: AppLocalizations.of(context)!.password,
                       hint: '********',
                       controller: _passwordController,
                       isPassword: true,
                       prefixIcon: Icons.lock_outline,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre mot de passe';
+                          return AppLocalizations.of(
+                            context,
+                          )!.enterPasswordError;
                         }
                         if (value.length < 6) {
-                          return 'Le mot de passe doit contenir au moins 6 caractères';
+                          return AppLocalizations.of(
+                            context,
+                          )!.passwordLengthError;
                         }
                         return null;
                       },
@@ -108,14 +118,16 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () {
                           // TODO: Forgot password
                         },
-                        child: const Text('Mot de passe oublié ?'),
+                        child: Text(
+                          AppLocalizations.of(context)!.forgotPassword,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
                     BlocBuilder<AuthBloc, AuthState>(
                       builder: (context, state) {
                         return AppButton(
-                          text: 'Se connecter',
+                          text: AppLocalizations.of(context)!.loginAction,
                           isLoading: state.status == AuthStatus.loading,
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
@@ -134,13 +146,13 @@ class _LoginPageState extends State<LoginPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Vous n'avez pas de compte ?"),
+                        Text(AppLocalizations.of(context)!.noAccountQuestion),
                         TextButton(
                           onPressed: () =>
                               context.push(RouteConstants.register),
-                          child: const Text(
-                            "S'inscrire",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          child: Text(
+                            AppLocalizations.of(context)!.register,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],

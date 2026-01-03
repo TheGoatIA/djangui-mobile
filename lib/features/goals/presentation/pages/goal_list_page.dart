@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
@@ -9,6 +10,7 @@ import '../bloc/goals_bloc.dart';
 import '../bloc/goals_event.dart';
 import '../bloc/goals_state.dart';
 import '../../data/models/goal_model.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class GoalListPage extends StatelessWidget {
   const GoalListPage({super.key});
@@ -19,7 +21,7 @@ class GoalListPage extends StatelessWidget {
       create: (context) => getIt<GoalsBloc>()..add(const GetGoalsRequested()),
       child: Scaffold(
         backgroundColor: AppColors.background,
-        appBar: AppBar(title: const Text('Mes Objectifs')),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.myGoals)),
         body: BlocBuilder<GoalsBloc, GoalsState>(
           builder: (context, state) {
             if (state.status == GoalsStatus.loading && state.goals.isEmpty) {
@@ -31,14 +33,10 @@ class GoalListPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.flag_outlined,
-                      size: 64,
-                      color: Colors.grey[400],
-                    ),
+                    Image.asset(AppAssets.emptyGoals, width: 150, height: 150),
                     const SizedBox(height: 16),
                     Text(
-                      'Aucun objectif défini',
+                      AppLocalizations.of(context)!.noGoalDefined,
                       style: AppTextStyles.bodyLarge.copyWith(
                         color: Colors.grey,
                       ),
@@ -145,8 +143,8 @@ class _GoalItem extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 daysRemaining > 0
-                    ? '$daysRemaining jours restants'
-                    : 'Echéance passée',
+                    ? AppLocalizations.of(context)!.daysRemaining(daysRemaining)
+                    : AppLocalizations.of(context)!.deadlinePassed,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: Colors.grey[600],
                 ),

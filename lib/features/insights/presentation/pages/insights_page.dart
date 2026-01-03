@@ -8,6 +8,7 @@ import '../bloc/insights_bloc.dart';
 import '../bloc/insights_event.dart';
 import '../bloc/insights_state.dart';
 import '../../data/models/insight_model.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class InsightsPage extends StatelessWidget {
   const InsightsPage({super.key});
@@ -19,7 +20,9 @@ class InsightsPage extends StatelessWidget {
           getIt<InsightsBloc>()..add(const GetInsightsRequested()),
       child: Scaffold(
         backgroundColor: AppColors.background,
-        appBar: AppBar(title: const Text('Analyses & Rapports')),
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.insightsTitle),
+        ),
         body: BlocBuilder<InsightsBloc, InsightsState>(
           builder: (context, state) {
             if (state.status == InsightsStatus.loading &&
@@ -34,15 +37,19 @@ class InsightsPage extends StatelessWidget {
                 children: [
                   _buildPeriodSelector(context, state.period),
                   const SizedBox(height: 24),
-                  _buildSectionTitle('Répartition des Dépenses'),
+                  _buildSectionTitle(
+                    AppLocalizations.of(context)!.spendingDistribution,
+                  ),
                   const SizedBox(height: 16),
-                  _buildPieChartCard(state.distribution),
+                  _buildPieChartCard(state.distribution, context),
                   const SizedBox(height: 32),
-                  _buildSectionTitle('Tendance des Dépenses'),
+                  _buildSectionTitle(
+                    AppLocalizations.of(context)!.spendingTrends,
+                  ),
                   const SizedBox(height: 16),
-                  _buildLineChartCard(state.trends),
+                  _buildLineChartCard(state.trends, context),
                   const SizedBox(height: 32),
-                  _buildTopCategories(state.distribution),
+                  _buildTopCategories(state.distribution, context),
                 ],
               ),
             );
@@ -64,11 +71,26 @@ class InsightsPage extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildPeriodChip(context, 'Hebdomadaire', 'weekly', currentPeriod),
+          _buildPeriodChip(
+            context,
+            AppLocalizations.of(context)!.weekly,
+            'weekly',
+            currentPeriod,
+          ),
           const SizedBox(width: 8),
-          _buildPeriodChip(context, 'Mensuel', 'monthly', currentPeriod),
+          _buildPeriodChip(
+            context,
+            AppLocalizations.of(context)!.monthly,
+            'monthly',
+            currentPeriod,
+          ),
           const SizedBox(width: 8),
-          _buildPeriodChip(context, 'Annuel', 'yearly', currentPeriod),
+          _buildPeriodChip(
+            context,
+            AppLocalizations.of(context)!.yearly,
+            'yearly',
+            currentPeriod,
+          ),
         ],
       ),
     );
@@ -97,7 +119,10 @@ class InsightsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPieChartCard(List<CategoryDistributionModel> data) {
+  Widget _buildPieChartCard(
+    List<CategoryDistributionModel> data,
+    BuildContext context,
+  ) {
     return Container(
       height: 250,
       padding: const EdgeInsets.all(20),
@@ -113,7 +138,7 @@ class InsightsPage extends StatelessWidget {
         ],
       ),
       child: data.isEmpty
-          ? const Center(child: Text('Aucune donnée disponible'))
+          ? Center(child: Text(AppLocalizations.of(context)!.noDataAvailable))
           : PieChart(
               PieChartData(
                 sectionsSpace: 4,
@@ -136,7 +161,10 @@ class InsightsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLineChartCard(List<SpendingTrendModel> trends) {
+  Widget _buildLineChartCard(
+    List<SpendingTrendModel> trends,
+    BuildContext context,
+  ) {
     return Container(
       height: 250,
       padding: const EdgeInsets.all(20),
@@ -152,7 +180,7 @@ class InsightsPage extends StatelessWidget {
         ],
       ),
       child: trends.isEmpty
-          ? const Center(child: Text('Aucune donnée disponible'))
+          ? Center(child: Text(AppLocalizations.of(context)!.noDataAvailable))
           : LineChart(
               LineChartData(
                 gridData: FlGridData(show: false),
@@ -178,11 +206,14 @@ class InsightsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTopCategories(List<CategoryDistributionModel> distribution) {
+  Widget _buildTopCategories(
+    List<CategoryDistributionModel> distribution,
+    BuildContext context,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Détail par Catégorie'),
+        _buildSectionTitle(AppLocalizations.of(context)!.categoryDetails),
         const SizedBox(height: 16),
         ...distribution.map((item) => _buildCategoryItem(item)).toList(),
       ],

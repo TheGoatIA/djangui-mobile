@@ -3,11 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
 import '../bloc/transactions_bloc.dart';
 import '../../data/models/transaction_model.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class TransactionListPage extends StatelessWidget {
   const TransactionListPage({super.key});
@@ -20,7 +22,7 @@ class TransactionListPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: const Text('Transactions'),
+          title: Text(AppLocalizations.of(context)!.transactions),
           actions: [
             IconButton(
               onPressed: () => context.read<TransactionsBloc>().add(
@@ -40,7 +42,10 @@ class TransactionListPage extends StatelessWidget {
             if (state.status == TransactionsStatus.error &&
                 state.transactions.isEmpty) {
               return Center(
-                child: Text(state.errorMessage ?? 'Une erreur est survenue'),
+                child: Text(
+                  state.errorMessage ??
+                      AppLocalizations.of(context)!.genericError,
+                ),
               );
             }
 
@@ -49,14 +54,14 @@ class TransactionListPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.receipt_long_outlined,
-                      size: 64,
-                      color: Colors.grey[400],
+                    Image.asset(
+                      AppAssets.emptyTransactions,
+                      width: 150,
+                      height: 150,
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Aucune transaction',
+                      AppLocalizations.of(context)!.noRecentActivities,
                       style: AppTextStyles.bodyLarge.copyWith(
                         color: Colors.grey,
                       ),

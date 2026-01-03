@@ -11,6 +11,7 @@
 import 'package:chopper/chopper.dart' as _i31;
 import 'package:djangui/core/database/database.dart' as _i730;
 import 'package:djangui/core/network/network_info.dart' as _i574;
+import 'package:djangui/core/services/notification_service.dart' as _i275;
 import 'package:djangui/di/register_module.dart' as _i153;
 import 'package:djangui/features/auth/data/datasources/auth_api_service.dart'
     as _i651;
@@ -79,6 +80,8 @@ import 'package:djangui/features/insights/domain/repositories/insight_repository
     as _i129;
 import 'package:djangui/features/insights/presentation/bloc/insights_bloc.dart'
     as _i689;
+import 'package:djangui/features/settings/presentation/bloc/settings_bloc.dart'
+    as _i754;
 import 'package:djangui/features/transactions/data/datasources/transaction_api_service.dart'
     as _i70;
 import 'package:djangui/features/transactions/data/datasources/transaction_local_datasource.dart'
@@ -112,6 +115,8 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.prefs,
       preResolve: true,
     );
+    gh.lazySingleton<_i275.NotificationService>(
+        () => _i275.NotificationService());
     gh.lazySingleton<_i558.FlutterSecureStorage>(
         () => registerModule.secureStorage);
     gh.lazySingleton<_i31.ChopperClient>(() => registerModule.chopperClient);
@@ -128,6 +133,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i88.InsightApiService>(
         () => registerModule.insightApiService);
     gh.lazySingleton<_i730.AppDatabase>(() => registerModule.database);
+    gh.factory<_i754.SettingsBloc>(
+        () => _i754.SettingsBloc(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i959.BudgetRemoteDataSource>(
         () => _i959.BudgetRemoteDataSourceImpl(gh<_i876.BudgetApiService>()));
     gh.lazySingleton<_i540.ChallengeRemoteDataSource>(() =>

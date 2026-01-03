@@ -8,6 +8,7 @@ import '../bloc/coach_event.dart';
 import '../bloc/coach_state.dart';
 import '../../data/models/chat_message_model.dart';
 import 'package:intl/intl.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class CoachChatPage extends StatefulWidget {
   const CoachChatPage({super.key});
@@ -46,13 +47,13 @@ class _CoachChatPageState extends State<CoachChatPage> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: const Column(
+          title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Coach IA'),
+              Text(AppLocalizations.of(context)!.coachTitle),
               Text(
-                'En ligne',
-                style: TextStyle(fontSize: 12, color: Colors.green),
+                AppLocalizations.of(context)!.online,
+                style: const TextStyle(fontSize: 12, color: Colors.green),
               ),
             ],
           ),
@@ -93,7 +94,7 @@ class _CoachChatPageState extends State<CoachChatPage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Comment puis-je vous aider aujourd\'hui ?',
+                            AppLocalizations.of(context)!.coachWelcomeMessage,
                             style: AppTextStyles.bodyLarge.copyWith(
                               color: Colors.grey,
                             ),
@@ -136,8 +137,8 @@ class _CoachChatPageState extends State<CoachChatPage> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: const Text(
-          'IA réfléchit...',
+        child: Text(
+          AppLocalizations.of(context)!.coachThinking,
           style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
         ),
       ),
@@ -168,8 +169,8 @@ class _CoachChatPageState extends State<CoachChatPage> {
                 ),
                 child: TextField(
                   controller: _messageController,
-                  decoration: const InputDecoration(
-                    hintText: 'Posez votre question...',
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.typeQuestionHint,
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 20,

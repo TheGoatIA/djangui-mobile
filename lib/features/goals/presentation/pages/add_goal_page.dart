@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -46,7 +47,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
       context.read<GoalsBloc>().add(AddGoalRequested(goal));
     } else if (_selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez sélectionner une date')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.selectDateError)),
       );
     }
   }
@@ -72,13 +73,15 @@ class _AddGoalPageState extends State<AddGoalPage> {
           if (state.status == GoalsStatus.success) {
             context.pop();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Objectif créé avec succès')),
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.successGoal),
+              ),
             );
           } else if (state.status == GoalsStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  state.errorMessage ?? 'Erreur lors de la création',
+                  state.errorMessage ?? AppLocalizations.of(context)!.errorGoal,
                 ),
               ),
             );
@@ -86,7 +89,9 @@ class _AddGoalPageState extends State<AddGoalPage> {
         },
         child: Scaffold(
           backgroundColor: AppColors.background,
-          appBar: AppBar(title: const Text('Nouvel Objectif')),
+          appBar: AppBar(
+            title: Text(AppLocalizations.of(context)!.addGoalTitle),
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Form(
@@ -96,23 +101,23 @@ class _AddGoalPageState extends State<AddGoalPage> {
                 children: [
                   AppTextField(
                     controller: _nameController,
-                    label: 'Nom de l\'objectif',
-                    hint: 'ex: Nouvel iPhone, Voyage...',
+                    label: AppLocalizations.of(context)!.goalNameLabel,
+                    hint: AppLocalizations.of(context)!.goalNameHint,
                     validator: (value) => (value == null || value.isEmpty)
-                        ? 'Champs requis'
+                        ? AppLocalizations.of(context)!.requiredField
                         : null,
                   ),
                   const SizedBox(height: 20),
                   AppTextField(
                     controller: _amountController,
-                    label: 'Montant cible',
+                    label: AppLocalizations.of(context)!.targetAmountLabel,
                     hint: '0.00',
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty)
-                        return 'Champs requis';
+                        return AppLocalizations.of(context)!.requiredField;
                       if (double.tryParse(value) == null)
-                        return 'Nombre invalide';
+                        return AppLocalizations.of(context)!.invalidNumber;
                       return null;
                     },
                   ),
@@ -133,7 +138,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                         children: [
                           Text(
                             _selectedDate == null
-                                ? 'Date d\'échéance'
+                                ? AppLocalizations.of(context)!.deadlineLabel
                                 : DateFormat(
                                     'dd/MM/yyyy',
                                   ).format(_selectedDate!),
@@ -156,7 +161,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                   BlocBuilder<GoalsBloc, GoalsState>(
                     builder: (context, state) {
                       return AppButton(
-                        text: 'Sauvegarder',
+                        text: AppLocalizations.of(context)!.saveGoalAction,
                         isLoading: state.status == GoalsStatus.loading,
                         onPressed: () => _onSave(context),
                       );

@@ -7,6 +7,7 @@ import '../bloc/challenges_bloc.dart';
 import '../bloc/challenges_event.dart';
 import '../bloc/challenges_state.dart';
 import '../../data/models/challenge_model.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class ChallengesPage extends StatelessWidget {
   const ChallengesPage({super.key});
@@ -18,7 +19,9 @@ class ChallengesPage extends StatelessWidget {
           getIt<ChallengesBloc>()..add(const GetChallengesRequested()),
       child: Scaffold(
         backgroundColor: AppColors.background,
-        appBar: AppBar(title: const Text('Défis & Récompenses')),
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.challengesTitle),
+        ),
         body: BlocBuilder<ChallengesBloc, ChallengesState>(
           builder: (context, state) {
             if (state.status == ChallengesStatus.loading &&
@@ -38,7 +41,7 @@ class ChallengesPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Aucun défi disponible pour le moment',
+                      AppLocalizations.of(context)!.noChallenges,
                       style: AppTextStyles.bodyLarge.copyWith(
                         color: Colors.grey,
                       ),
@@ -143,7 +146,7 @@ class _ChallengeCard extends StatelessWidget {
                     const Icon(Icons.star, color: Colors.amber, size: 14),
                     const SizedBox(width: 4),
                     Text(
-                      '${challenge.points} pts',
+                      AppLocalizations.of(context)!.points(challenge.points),
                       style: AppTextStyles.labelSmall.copyWith(
                         color: Colors.amber[800],
                         fontWeight: FontWeight.bold,
@@ -159,7 +162,7 @@ class _ChallengeCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Progression',
+                AppLocalizations.of(context)!.progress,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: Colors.grey[600],
                 ),
@@ -194,7 +197,9 @@ class _ChallengeCard extends StatelessWidget {
                   Icon(Icons.timer_outlined, size: 14, color: Colors.grey[400]),
                   const SizedBox(width: 6),
                   Text(
-                    daysLeft > 0 ? '$daysLeft jours restants' : 'Terminé',
+                    daysLeft > 0
+                        ? AppLocalizations.of(context)!.daysRemaining(daysLeft)
+                        : AppLocalizations.of(context)!.finished,
                     style: AppTextStyles.labelSmall.copyWith(
                       color: Colors.grey[600],
                     ),
@@ -206,7 +211,7 @@ class _ChallengeCard extends StatelessWidget {
                   onPressed: () {
                     // Action de participation ou mise à jour
                   },
-                  child: const Text('Relever le défi'),
+                  child: Text(AppLocalizations.of(context)!.acceptChallenge),
                 )
               else if (challenge.isCompleted)
                 Row(
@@ -218,7 +223,7 @@ class _ChallengeCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Complété',
+                      AppLocalizations.of(context)!.completed,
                       style: AppTextStyles.labelSmall.copyWith(
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
