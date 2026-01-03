@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "323526784336",
+    "project_id": "djangui-9872c",
+    "storage_bucket": "djangui-9872c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323526784336:android:ae3419b9ec952b57ca6855",
+        "android_client_info": {
+          "package_name": "cm.tbg.djangui"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDL-ecmy4eV7nwl6LdhmXUEiT8bdc9FWgM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
