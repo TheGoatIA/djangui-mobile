@@ -9,16 +9,26 @@ class TransactionModel extends Equatable {
   final double amount;
   final String type; // 'income' or 'expense'
   final String category;
+  final String? subcategory;
   final String description;
+  final String? merchant;
   final DateTime date;
+  final List<String> tags;
+  final bool isRecurring;
+  final String? linkedGoalId;
 
   const TransactionModel({
     required this.id,
     required this.amount,
     required this.type,
     required this.category,
+    this.subcategory,
     required this.description,
+    this.merchant,
     required this.date,
+    this.tags = const [],
+    this.isRecurring = false,
+    this.linkedGoalId,
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) =>
@@ -27,5 +37,17 @@ class TransactionModel extends Equatable {
   Map<String, dynamic> toJson() => _$TransactionModelToJson(this);
 
   @override
-  List<Object?> get props => [id, amount, type, category, description, date];
+  List<Object?> get props => [
+    id,
+    amount,
+    type,
+    category,
+    subcategory,
+    description,
+    merchant,
+    date,
+    tags,
+    isRecurring,
+    linkedGoalId,
+  ];
 }

@@ -41,7 +41,9 @@ class ProfilePage extends StatelessWidget {
                 _buildProfileHeader(name, user?.email ?? ''),
                 const SizedBox(height: 24),
                 if (user != null && user.badges.isNotEmpty) ...[
-                  BadgesList(badgeIds: user.badges),
+                  BadgesList(
+                    badgeIds: user.badges.map((e) => e.toString()).toList(),
+                  ),
                   const SizedBox(height: 24),
                 ],
                 if (user != null && !user.isPremium) ...[

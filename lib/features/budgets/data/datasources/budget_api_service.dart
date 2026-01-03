@@ -8,8 +8,8 @@ abstract class BudgetApiService extends ChopperService {
   static BudgetApiService create([ChopperClient? client]) =>
       _$BudgetApiService(client);
 
-  @Get()
-  Future<Response<List<BudgetModel>>> getBudgets();
+  @Get(path: '/current')
+  Future<Response<BudgetModel>> getCurrentBudget();
 
   @Post()
   Future<Response<BudgetModel>> createBudget(@Body() BudgetModel budget);

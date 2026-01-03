@@ -53,18 +53,18 @@ final class _$GoalApiService extends GoalApiService {
   }
 
   @override
-  Future<Response<GoalModel>> updateGoalAmount(
+  Future<Response<void>> contributeToGoal(
     String id,
     Map<String, dynamic> body,
   ) {
-    final Uri $url = Uri.parse('/goals/${id}');
+    final Uri $url = Uri.parse('/goals/${id}/contribute');
     final $body = body;
     final Request $request = Request(
-      'PATCH',
+      'POST',
       $url,
       client.baseUrl,
       body: $body,
     );
-    return client.send<GoalModel, GoalModel>($request);
+    return client.send<void, void>($request);
   }
 }

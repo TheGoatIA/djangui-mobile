@@ -17,8 +17,8 @@ abstract class GoalApiService extends ChopperService {
   @Delete(path: '/{id}')
   Future<Response<void>> deleteGoal(@Path('id') String id);
 
-  @Patch(path: '/{id}')
-  Future<Response<GoalModel>> updateGoalAmount(
+  @Post(path: '/{id}/contribute')
+  Future<Response<void>> contributeToGoal(
     @Path('id') String id,
     @Body() Map<String, dynamic> body,
   );

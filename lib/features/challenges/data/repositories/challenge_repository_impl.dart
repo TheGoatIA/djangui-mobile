@@ -49,12 +49,41 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
   }
 
   @override
-  Future<Either<Failure, ChallengeModel>> joinChallenge(String id) async {
+  Future<Either<Failure, List<dynamic>>> getUserChallenges() async {
+    // Try local cache first if offline
+    if (!await _networkInfo.isConnected) {
+      final localChallenges = _localDataSource.getUserChallenges();
+      if (localChallenges.isNotEmpty) {
+        return Right(localChallenges);
+      }
+      return Left(NetworkFailure());
+    }
+
+    // Fetch from remote and cache
+    try {
+      final result = await _remoteDataSource.getUserChallenges();
+      // Cache the result
+      _localDataSource.saveUserChallenges(
+        result.map((e) => e as Map<String, dynamic>).toList(),
+      );
+      return Right(result);
+    } catch (e) {
+      // Fallback to cache on error
+      final localChallenges = _localDataSource.getUserChallenges();
+      if (localChallenges.isNotEmpty) {
+        return Right(localChallenges);
+      }
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> joinChallenge(String id) async {
     if (await _networkInfo.isConnected) {
       try {
-        final challenge = await _remoteDataSource.joinChallenge(id);
-        await _localDataSource.saveChallenge(challenge);
-        return Right(challenge);
+        await _remoteDataSource.joinChallenge(id);
+        // We might want to refresh challenges or user challenges here
+        return const Right(null);
       } catch (e) {
         return Left(ServerFailure(e.toString()));
       }
@@ -64,15 +93,19 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
   }
 
   @override
-  Future<Either<Failure, ChallengeModel>> updateProgress(
-    String id,
-    double value,
-  ) async {
+  Future<Either<Failure, void>> validateWeek({
+    required String userChallengeId,
+    required int weekNumber,
+    required double amount,
+  }) async {
     if (await _networkInfo.isConnected) {
       try {
-        final challenge = await _remoteDataSource.updateProgress(id, value);
-        await _localDataSource.saveChallenge(challenge);
-        return Right(challenge);
+        await _remoteDataSource.validateWeek(
+          userChallengeId,
+          weekNumber,
+          amount,
+        );
+        return const Right(null);
       } catch (e) {
         return Left(ServerFailure(e.toString()));
       }

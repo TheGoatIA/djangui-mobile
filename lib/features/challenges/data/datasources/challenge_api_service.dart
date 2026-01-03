@@ -1,22 +1,23 @@
 import 'package:chopper/chopper.dart';
+import 'package:djangui/core/constants/api_constants.dart';
 import '../models/challenge_model.dart';
 
 part 'challenge_api_service.chopper.dart';
 
-@ChopperApi(baseUrl: '/challenges')
+@ChopperApi()
 abstract class ChallengeApiService extends ChopperService {
   static ChallengeApiService create([ChopperClient? client]) =>
       _$ChallengeApiService(client);
 
-  @Get()
+  @Get(path: ApiConstants.challenges)
   Future<Response<List<ChallengeModel>>> getChallenges();
 
-  @Post(path: '/{id}/join')
-  Future<Response<ChallengeModel>> joinChallenge(@Path('id') String id);
+  @Get(path: ApiConstants.myChallenges)
+  Future<Response<List<dynamic>>> getUserChallenges();
 
-  @Patch(path: '/{id}/progress')
-  Future<Response<ChallengeModel>> updateProgress(
-    @Path('id') String id,
-    @Body() Map<String, dynamic> body,
-  );
+  @Post(path: '${ApiConstants.challenges}/join')
+  Future<Response<dynamic>> joinChallenge(@Body() Map<String, dynamic> body);
+
+  @Post(path: ApiConstants.validateWeek)
+  Future<Response<dynamic>> validateWeek(@Body() Map<String, dynamic> body);
 }

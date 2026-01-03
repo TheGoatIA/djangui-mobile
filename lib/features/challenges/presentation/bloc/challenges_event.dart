@@ -25,15 +25,19 @@ class JoinChallengeRequested extends ChallengesEvent {
   List<Object?> get props => [id];
 }
 
-class UpdateChallengeProgressRequested extends ChallengesEvent {
-  final String id;
-  final double value;
+class GetUserChallengesRequested extends ChallengesEvent {}
 
-  const UpdateChallengeProgressRequested({
-    required this.id,
-    required this.value,
+class ValidateWeekRequested extends ChallengesEvent {
+  final String userChallengeId;
+  final int weekNumber;
+  final double amount;
+
+  const ValidateWeekRequested({
+    required this.userChallengeId,
+    required this.weekNumber,
+    required this.amount,
   });
 
   @override
-  List<Object?> get props => [id, value];
+  List<Object?> get props => [userChallengeId, weekNumber, amount];
 }

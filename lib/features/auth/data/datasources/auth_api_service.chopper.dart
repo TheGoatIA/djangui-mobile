@@ -84,4 +84,15 @@ final class _$AuthApiService extends AuthApiService {
     );
     return client.send<dynamic, dynamic>($request);
   }
+
+  @override
+  Future<Response<UserModel>> getProfile() {
+    final Uri $url = Uri.parse('/auth/me');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<UserModel, UserModel>($request);
+  }
 }

@@ -6,9 +6,14 @@ abstract class ChallengeRepository {
   Future<Either<Failure, List<ChallengeModel>>> getChallenges({
     bool forceRefresh = false,
   });
-  Future<Either<Failure, ChallengeModel>> joinChallenge(String id);
-  Future<Either<Failure, ChallengeModel>> updateProgress(
-    String id,
-    double value,
-  );
+
+  Future<Either<Failure, List<dynamic>>> getUserChallenges();
+
+  Future<Either<Failure, void>> joinChallenge(String id);
+
+  Future<Either<Failure, void>> validateWeek({
+    required String userChallengeId,
+    required int weekNumber,
+    required double amount,
+  });
 }

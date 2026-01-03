@@ -1,20 +1,25 @@
 import 'package:chopper/chopper.dart';
-import '../models/insight_model.dart';
+import 'package:djangui/core/constants/api_constants.dart';
 
 part 'insight_api_service.chopper.dart';
 
-@ChopperApi(baseUrl: '/insights')
+@ChopperApi()
 abstract class InsightApiService extends ChopperService {
   static InsightApiService create([ChopperClient? client]) =>
       _$InsightApiService(client);
 
-  @Get(path: '/distribution')
-  Future<Response<List<CategoryDistributionModel>>> getCategoryDistribution(
-    @Query('period') String period,
-  );
+  @Get(path: ApiConstants.reportAnalysis)
+  Future<Response<dynamic>> getSpendingAnalysis({
+    @Query('month') int? month,
+    @Query('year') int? year,
+  });
 
-  @Get(path: '/trends')
-  Future<Response<List<SpendingTrendModel>>> getSpendingTrends(
-    @Query('period') String period,
-  );
+  @Get(path: ApiConstants.reportDashboard)
+  Future<Response<dynamic>> getDashboardSummary();
+
+  @Get(path: ApiConstants.reportNarrative)
+  Future<Response<dynamic>> getNarrative({
+    @Query('month') int? month,
+    @Query('year') int? year,
+  });
 }

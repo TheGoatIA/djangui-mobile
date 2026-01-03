@@ -8,11 +8,19 @@ abstract class ChallengeLocalDataSource {
   Future<void> saveChallenges(List<ChallengeModel> challenges);
   Future<void> saveChallenge(ChallengeModel challenge);
   Future<void> clearChallenges();
+
+  // User challenges methods (in-memory cache)
+  List<Map<String, dynamic>> getUserChallenges();
+  void saveUserChallenges(List<Map<String, dynamic>> userChallenges);
+  void clearUserChallenges();
 }
 
 @LazySingleton(as: ChallengeLocalDataSource)
 class ChallengeLocalDataSourceImpl implements ChallengeLocalDataSource {
   final AppDatabase _database;
+
+  // In-memory cache for user challenges
+  List<Map<String, dynamic>> _userChallengesCache = [];
 
   ChallengeLocalDataSourceImpl(this._database);
 
@@ -84,5 +92,20 @@ class ChallengeLocalDataSourceImpl implements ChallengeLocalDataSource {
   @override
   Future<void> clearChallenges() async {
     await _database.delete(_database.challenges).go();
+  }
+
+  @override
+  List<Map<String, dynamic>> getUserChallenges() {
+    return List.from(_userChallengesCache);
+  }
+
+  @override
+  void saveUserChallenges(List<Map<String, dynamic>> userChallenges) {
+    _userChallengesCache = List.from(userChallenges);
+  }
+
+  @override
+  void clearUserChallenges() {
+    _userChallengesCache.clear();
   }
 }

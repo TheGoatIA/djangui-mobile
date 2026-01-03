@@ -18,14 +18,14 @@ final class _$BudgetApiService extends BudgetApiService {
   final Type definitionType = BudgetApiService;
 
   @override
-  Future<Response<List<BudgetModel>>> getBudgets() {
-    final Uri $url = Uri.parse('/budgets');
+  Future<Response<BudgetModel>> getCurrentBudget() {
+    final Uri $url = Uri.parse('/budgets/current');
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
     );
-    return client.send<List<BudgetModel>, BudgetModel>($request);
+    return client.send<BudgetModel, BudgetModel>($request);
   }
 
   @override

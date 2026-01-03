@@ -18,12 +18,22 @@ final class _$TransactionApiService extends TransactionApiService {
   final Type definitionType = TransactionApiService;
 
   @override
-  Future<Response<List<TransactionModel>>> getTransactions() {
+  Future<Response<List<TransactionModel>>> getTransactions({
+    String? type,
+    String? category,
+    int? page,
+  }) {
     final Uri $url = Uri.parse('/transactions');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'type': type,
+      'category': category,
+      'page': page,
+    };
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
+      parameters: $params,
     );
     return client.send<List<TransactionModel>, TransactionModel>($request);
   }
@@ -40,6 +50,25 @@ final class _$TransactionApiService extends TransactionApiService {
       body: $body,
     );
     return client.send<TransactionModel, TransactionModel>($request);
+  }
+
+  @override
+  Future<Response<dynamic>> createBulkTransaction(String file) {
+    final Uri $url = Uri.parse('/transactions/bulk');
+    final List<PartValue> $parts = <PartValue>[
+      PartValueFile<String>(
+        'file',
+        file,
+      )
+    ];
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      parts: $parts,
+      multipart: true,
+    );
+    return client.send<dynamic, dynamic>($request);
   }
 
   @override

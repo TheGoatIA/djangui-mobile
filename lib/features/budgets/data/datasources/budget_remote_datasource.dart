@@ -16,10 +16,16 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
 
   @override
   Future<List<BudgetModel>> getBudgets() async {
-    final response = await _apiService.getBudgets();
+    final response = await _apiService.getCurrentBudget();
     if (response.isSuccessful) {
-      return response.body ?? [];
+      // The API returns a single budget, assume list for compatibility
+      if (response.body != null) {
+        return [response.body!];
+      }
+      return [];
     } else {
+      // If 404 (no budget), return empty list?
+      if (response.statusCode == 404) return [];
       throw Exception('Failed to fetch budgets');
     }
   }

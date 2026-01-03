@@ -3,6 +3,7 @@ import '../../../../core/constants/api_constants.dart';
 import '../models/login_request.dart';
 import '../models/register_request.dart';
 import '../models/auth_response.dart';
+import '../models/user_model.dart';
 
 part 'auth_api_service.chopper.dart';
 
@@ -25,6 +26,9 @@ abstract class AuthApiService extends ChopperService {
 
   @Get(path: ApiConstants.verifyEmail)
   Future<Response<dynamic>> verifyEmail(@Query('token') String token);
+
+  @Get(path: ApiConstants.me)
+  Future<Response<UserModel>> getProfile();
 
   static AuthApiService create(ChopperClient client) =>
       _$AuthApiService(client);

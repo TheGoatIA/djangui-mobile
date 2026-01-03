@@ -29,29 +29,39 @@ final class _$ChallengeApiService extends ChallengeApiService {
   }
 
   @override
-  Future<Response<ChallengeModel>> joinChallenge(String id) {
-    final Uri $url = Uri.parse('/challenges/${id}/join');
+  Future<Response<List<dynamic>>> getUserChallenges() {
+    final Uri $url = Uri.parse('/challenges/my-challenges');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<List<dynamic>, List<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<dynamic>> joinChallenge(Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/challenges/join');
+    final $body = body;
     final Request $request = Request(
       'POST',
       $url,
       client.baseUrl,
+      body: $body,
     );
-    return client.send<ChallengeModel, ChallengeModel>($request);
+    return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<ChallengeModel>> updateProgress(
-    String id,
-    Map<String, dynamic> body,
-  ) {
-    final Uri $url = Uri.parse('/challenges/${id}/progress');
+  Future<Response<dynamic>> validateWeek(Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/challenges/validate-week');
     final $body = body;
     final Request $request = Request(
-      'PATCH',
+      'POST',
       $url,
       client.baseUrl,
       body: $body,
     );
-    return client.send<ChallengeModel, ChallengeModel>($request);
+    return client.send<dynamic, dynamic>($request);
   }
 }

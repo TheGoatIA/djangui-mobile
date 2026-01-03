@@ -107,4 +107,44 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
       return Left(ServerFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, void>> closeInvestment(String id) async {
+    try {
+      final response = await _apiService.closeInvestment(id);
+      if (response.isSuccessful) {
+        // Update local status? Or define what 'close' means locally.
+        // Assuming deletion or status update. Since we don't have status field in local DB yet (checked model),
+        // we might just re-sync or doing nothing locally if we re-fetch fully.
+        // If 'close' means sell/finish, maybe we should delete or mark as inactive.
+        // For now, let's trigger a refresh or just succeed.
+        // Best approach: Optimistically update if we had a status field, else just rely on fetch.
+        return const Right(null);
+      }
+      return Left(ServerFailure());
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateInvestmentValue(
+    String id,
+    double value,
+  ) async {
+    try {
+      final response = await _apiService.updateInvestmentValue(id, {
+        'currentAmount': value,
+      });
+      if (response.isSuccessful) {
+        // Update local
+        await (_db.update(_db.investments)..where((t) => t.id.equals(id)))
+            .write(InvestmentsCompanion(currentAmount: Value(value)));
+        return const Right(null);
+      }
+      return Left(ServerFailure());
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

@@ -4,8 +4,14 @@ import '../models/challenge_model.dart';
 
 abstract class ChallengeRemoteDataSource {
   Future<List<ChallengeModel>> getChallenges();
-  Future<ChallengeModel> joinChallenge(String id);
-  Future<ChallengeModel> updateProgress(String id, double value);
+  Future<List<dynamic>> getUserChallenges();
+  Future<dynamic> joinChallenge(String id);
+  Future<dynamic> validateWeek(
+    String userChallengeId,
+    int weekNumber,
+    double amount,
+  );
+  // Future<ChallengeModel> updateProgress(String id, double value); // Removed
 }
 
 @LazySingleton(as: ChallengeRemoteDataSource)
@@ -25,8 +31,18 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
   }
 
   @override
-  Future<ChallengeModel> joinChallenge(String id) async {
-    final response = await _apiService.joinChallenge(id);
+  Future<List<dynamic>> getUserChallenges() async {
+    final response = await _apiService.getUserChallenges();
+    if (response.isSuccessful) {
+      return response.body ?? [];
+    } else {
+      throw Exception('Failed to fetch user challenges');
+    }
+  }
+
+  @override
+  Future<dynamic> joinChallenge(String id) async {
+    final response = await _apiService.joinChallenge({'challengeId': id});
     if (response.isSuccessful && response.body != null) {
       return response.body!;
     } else {
@@ -35,14 +51,20 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
   }
 
   @override
-  Future<ChallengeModel> updateProgress(String id, double value) async {
-    final response = await _apiService.updateProgress(id, {
-      'currentValue': value,
+  Future<dynamic> validateWeek(
+    String userChallengeId,
+    int weekNumber,
+    double amount,
+  ) async {
+    final response = await _apiService.validateWeek({
+      'userChallengeId': userChallengeId,
+      'weekNumber': weekNumber,
+      'amount': amount,
     });
-    if (response.isSuccessful && response.body != null) {
-      return response.body!;
+    if (response.isSuccessful) {
+      return response.body;
     } else {
-      throw Exception('Failed to update challenge progress');
+      throw Exception('Failed to validate week');
     }
   }
 }

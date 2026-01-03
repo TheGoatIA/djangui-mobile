@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import '../../data/models/challenge_model.dart';
 import '../../domain/repositories/challenge_repository.dart';
 import 'challenges_event.dart';
 import 'challenges_state.dart';
@@ -11,8 +10,9 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
 
   ChallengesBloc(this._challengeRepository) : super(ChallengesState.initial()) {
     on<GetChallengesRequested>(_onGetChallengesRequested);
+    on<GetUserChallengesRequested>(_onGetUserChallengesRequested);
     on<JoinChallengeRequested>(_onJoinChallengeRequested);
-    on<UpdateChallengeProgressRequested>(_onUpdateChallengeProgressRequested);
+    on<ValidateWeekRequested>(_onValidateWeekRequested);
   }
 
   Future<void> _onGetChallengesRequested(
@@ -39,6 +39,28 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     );
   }
 
+  Future<void> _onGetUserChallengesRequested(
+    GetUserChallengesRequested event,
+    Emitter<ChallengesState> emit,
+  ) async {
+    emit(state.copyWith(status: ChallengesStatus.loading));
+    final result = await _challengeRepository.getUserChallenges();
+    result.fold<void>(
+      (failure) => emit(
+        state.copyWith(
+          status: ChallengesStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (userChallenges) => emit(
+        state.copyWith(
+          status: ChallengesStatus.success,
+          userChallenges: userChallenges,
+        ),
+      ),
+    );
+  }
+
   Future<void> _onJoinChallengeRequested(
     JoinChallengeRequested event,
     Emitter<ChallengesState> emit,
@@ -52,28 +74,23 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
           errorMessage: failure.message,
         ),
       ),
-      (challenge) {
-        final List<ChallengeModel> updatedList = state.challenges
-            .map((c) => c.id == challenge.id ? challenge : c)
-            .toList();
-        emit(
-          state.copyWith(
-            status: ChallengesStatus.success,
-            challenges: updatedList,
-          ),
-        );
+      (_) {
+        // Success, refresh challenges
+        add(const GetChallengesRequested(forceRefresh: true));
+        add(GetUserChallengesRequested());
       },
     );
   }
 
-  Future<void> _onUpdateChallengeProgressRequested(
-    UpdateChallengeProgressRequested event,
+  Future<void> _onValidateWeekRequested(
+    ValidateWeekRequested event,
     Emitter<ChallengesState> emit,
   ) async {
-    // Note: In a real app, we might not want to show loading for every small progress update
-    final result = await _challengeRepository.updateProgress(
-      event.id,
-      event.value,
+    // Optimistic loading? or just background? For now, standard loading.
+    final result = await _challengeRepository.validateWeek(
+      userChallengeId: event.userChallengeId,
+      weekNumber: event.weekNumber,
+      amount: event.amount,
     );
     result.fold<void>(
       (failure) => emit(
@@ -82,16 +99,9 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
           errorMessage: failure.message,
         ),
       ),
-      (challenge) {
-        final List<ChallengeModel> updatedList = state.challenges
-            .map((c) => c.id == challenge.id ? challenge : c)
-            .toList();
-        emit(
-          state.copyWith(
-            status: ChallengesStatus.success,
-            challenges: updatedList,
-          ),
-        );
+      (_) {
+        // Success
+        add(GetUserChallengesRequested());
       },
     );
   }

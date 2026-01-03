@@ -52,4 +52,31 @@ final class _$InvestmentApiService extends InvestmentApiService {
     );
     return client.send<void, void>($request);
   }
+
+  @override
+  Future<Response<void>> closeInvestment(String id) {
+    final Uri $url = Uri.parse('/investments/${id}/close');
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<void, void>($request);
+  }
+
+  @override
+  Future<Response<void>> updateInvestmentValue(
+    String id,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/investments/${id}/value');
+    final $body = body;
+    final Request $request = Request(
+      'PATCH',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<void, void>($request);
+  }
 }

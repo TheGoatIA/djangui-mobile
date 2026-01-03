@@ -17,6 +17,15 @@ abstract class InvestmentApiService extends ChopperService {
   @Delete(path: '${ApiConstants.investments}/{id}')
   Future<Response<void>> deleteInvestment(@Path('id') String id);
 
+  @Post(path: '${ApiConstants.investments}/{id}/close')
+  Future<Response<void>> closeInvestment(@Path('id') String id);
+
+  @Patch(path: '${ApiConstants.investments}/{id}/value')
+  Future<Response<void>> updateInvestmentValue(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
+
   static InvestmentApiService create(ChopperClient client) =>
       _$InvestmentApiService(client);
 }

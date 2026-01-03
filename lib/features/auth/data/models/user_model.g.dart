@@ -13,12 +13,12 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       lastName: json['lastName'] as String,
       avatar: json['avatar'] as String?,
       isPremium: json['isPremium'] as bool? ?? false,
+      monthlyIncome: (json['monthlyIncome'] as num?)?.toDouble(),
+      currency: json['currency'] as String?,
+      walletBalance: (json['walletBalance'] as num?)?.toDouble() ?? 0.0,
       xp: (json['xp'] as num?)?.toInt() ?? 0,
       level: (json['level'] as num?)?.toInt() ?? 1,
-      badges: (json['badges'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
+      badges: json['badges'] as List<dynamic>? ?? const [],
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -28,6 +28,9 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'lastName': instance.lastName,
       'avatar': instance.avatar,
       'isPremium': instance.isPremium,
+      'monthlyIncome': instance.monthlyIncome,
+      'currency': instance.currency,
+      'walletBalance': instance.walletBalance,
       'xp': instance.xp,
       'level': instance.level,
       'badges': instance.badges,

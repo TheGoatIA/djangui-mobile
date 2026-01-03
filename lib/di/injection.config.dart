@@ -170,8 +170,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i574.NetworkInfo>(() => _i574.NetworkInfoImpl());
     gh.lazySingleton<_i29.PaymentService>(
         () => _i29.PaymentService(gh<_i816.PaymentApiService>()));
-    gh.factory<_i689.InsightsBloc>(
-        () => _i689.InsightsBloc(gh<_i129.InsightRepository>()));
     gh.lazySingleton<_i499.InvestmentRepository>(
         () => _i656.InvestmentRepositoryImpl(
               gh<_i730.AppDatabase>(),
@@ -179,10 +177,6 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.factory<_i2.InvestmentsBloc>(
         () => _i2.InvestmentsBloc(gh<_i499.InvestmentRepository>()));
-    gh.lazySingleton<_i586.InsightRepository>(() => _i586.InsightRepositoryImpl(
-          gh<_i88.InsightApiService>(),
-          gh<_i574.NetworkInfo>(),
-        ));
     gh.lazySingleton<_i493.CoachLocalDataSource>(
         () => _i493.CoachLocalDataSourceImpl(gh<_i730.AppDatabase>()));
     gh.lazySingleton<_i209.ChallengeLocalDataSource>(
@@ -208,6 +202,10 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i70.TransactionApiService>()));
     gh.lazySingleton<_i947.AIRemoteDataSource>(
         () => _i947.AIRemoteDataSource(gh<_i391.AiApiService>()));
+    gh.lazySingleton<_i129.InsightRepository>(() => _i586.InsightRepositoryImpl(
+          gh<_i88.InsightApiService>(),
+          gh<_i574.NetworkInfo>(),
+        ));
     gh.lazySingleton<_i520.AuthLocalDataSource>(
         () => _i520.AuthLocalDataSourceImpl(
               gh<_i558.FlutterSecureStorage>(),
@@ -225,6 +223,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i999.BudgetLocalDataSource>(),
           gh<_i574.NetworkInfo>(),
         ));
+    gh.factory<_i689.InsightsBloc>(
+        () => _i689.InsightsBloc(gh<_i129.InsightRepository>()));
     gh.lazySingleton<_i316.SyncService>(() => _i316.SyncService(
           gh<_i730.AppDatabase>(),
           gh<_i231.TransactionRemoteDataSource>(),

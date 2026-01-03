@@ -85,9 +85,12 @@ class GoalRepositoryImpl implements GoalRepository {
   ) async {
     if (await _networkInfo.isConnected) {
       try {
-        final remoteGoal = await _remoteDataSource.updateGoalAmount(id, amount);
-        await _localDataSource.saveGoal(remoteGoal);
-        return Right(remoteGoal);
+        await _remoteDataSource.contributeToGoal(id, amount);
+        final updatedGoal = await _remoteDataSource.getGoals().then(
+          (goals) => goals.firstWhere((g) => g.id == id),
+        );
+        await _localDataSource.saveGoal(updatedGoal);
+        return Right(updatedGoal);
       } catch (e) {
         return Left(ServerFailure(e.toString()));
       }

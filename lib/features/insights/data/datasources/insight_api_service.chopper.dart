@@ -18,30 +18,51 @@ final class _$InsightApiService extends InsightApiService {
   final Type definitionType = InsightApiService;
 
   @override
-  Future<Response<List<CategoryDistributionModel>>> getCategoryDistribution(
-      String period) {
-    final Uri $url = Uri.parse('/insights/distribution');
-    final Map<String, dynamic> $params = <String, dynamic>{'period': period};
+  Future<Response<dynamic>> getSpendingAnalysis({
+    int? month,
+    int? year,
+  }) {
+    final Uri $url = Uri.parse('/reports/analysis');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'month': month,
+      'year': year,
+    };
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
       parameters: $params,
     );
-    return client.send<List<CategoryDistributionModel>,
-        CategoryDistributionModel>($request);
+    return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<List<SpendingTrendModel>>> getSpendingTrends(String period) {
-    final Uri $url = Uri.parse('/insights/trends');
-    final Map<String, dynamic> $params = <String, dynamic>{'period': period};
+  Future<Response<dynamic>> getDashboardSummary() {
+    final Uri $url = Uri.parse('/reports/dashboard');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<dynamic, dynamic>($request);
+  }
+
+  @override
+  Future<Response<dynamic>> getNarrative({
+    int? month,
+    int? year,
+  }) {
+    final Uri $url = Uri.parse('/reports/narrative');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'month': month,
+      'year': year,
+    };
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
       parameters: $params,
     );
-    return client.send<List<SpendingTrendModel>, SpendingTrendModel>($request);
+    return client.send<dynamic, dynamic>($request);
   }
 }
