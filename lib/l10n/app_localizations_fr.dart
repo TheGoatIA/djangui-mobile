@@ -399,4 +399,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noDataAvailable => 'Aucune donnée disponible';
+
+  @override
+  String get orContinueWith => 'Ou continuer avec';
+
+  @override
+  String get googleSignIn => 'Continuer avec Google';
 }

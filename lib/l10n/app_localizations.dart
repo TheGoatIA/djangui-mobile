@@ -859,6 +859,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucune donnée disponible'**
   String get noDataAvailable;
+
+  /// No description provided for @orContinueWith.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ou continuer avec'**
+  String get orContinueWith;
+
+  /// No description provided for @googleSignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Google'**
+  String get googleSignIn;
 }
 
 class _AppLocalizationsDelegate

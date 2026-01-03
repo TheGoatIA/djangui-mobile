@@ -139,6 +139,8 @@
     "categoryDetails": "Category Details",
     "weekly": "Weekly",
     "monthly": "Monthly",
-    "yearly": "Yearly",
-    "noDataAvailable": "No data available"
+    "yearly": "Annual",
+    "noDataAvailable": "No data available",
+    "orContinueWith": "Or continue with",
+    "googleSignIn": "Continue with Google"
 }

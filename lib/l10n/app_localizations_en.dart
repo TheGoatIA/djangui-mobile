@@ -392,8 +392,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get monthly => 'Monthly';
 
   @override
-  String get yearly => 'Yearly';
+  String get yearly => 'Annual';
 
   @override
   String get noDataAvailable => 'No data available';
+
+  @override
+  String get orContinueWith => 'Or continue with';
+
+  @override
+  String get googleSignIn => 'Continue with Google';
 }

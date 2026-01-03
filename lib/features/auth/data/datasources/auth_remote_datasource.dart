@@ -7,6 +7,7 @@ import '../models/register_request.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponse> login(LoginRequest request);
+  Future<AuthResponse> googleLogin(String token);
   Future<AuthResponse> register(RegisterRequest request);
   Future<void> forgotPassword(String email);
   Future<void> resetPassword(String token, String newPassword);
@@ -18,6 +19,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final AuthApiService _apiService;
 
   AuthRemoteDataSourceImpl(this._apiService);
+
+  @override
+  Future<AuthResponse> googleLogin(String token) async {
+    final response = await _apiService.googleLogin({'token': token});
+    if (response.isSuccessful && response.body != null) {
+      return response.body!;
+    } else {
+      throw Exception(response.error?.toString() ?? 'Google login failed');
+    }
+  }
 
   @override
   Future<AuthResponse> login(LoginRequest request) async {

@@ -140,5 +140,7 @@
     "weekly": "Hebdomadaire",
     "monthly": "Mensuel",
     "yearly": "Annuel",
-    "noDataAvailable": "Aucune donnée disponible"
+    "noDataAvailable": "Aucune donnée disponible",
+    "orContinueWith": "Ou continuer avec",
+    "googleSignIn": "Continuer avec Google"
 }

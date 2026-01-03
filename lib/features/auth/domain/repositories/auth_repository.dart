@@ -7,6 +7,7 @@ import '../../data/models/register_request.dart';
 
 abstract class AuthRepository {
   Future<Either<Failure, AuthResponse>> login(LoginRequest request);
+  Future<Either<Failure, AuthResponse>> signInWithGoogle();
   Future<Either<Failure, AuthResponse>> register(RegisterRequest request);
   Future<Either<Failure, void>> logout();
   Future<bool> isAuthenticated();

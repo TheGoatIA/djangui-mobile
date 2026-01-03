@@ -12,6 +12,9 @@ abstract class AuthApiService extends ChopperService {
   @Post(path: ApiConstants.login)
   Future<Response<AuthResponse>> login(@Body() LoginRequest body);
 
+  @Post(path: ApiConstants.googleAuth)
+  Future<Response<AuthResponse>> googleLogin(@Body() Map<String, dynamic> body);
+
   @Post(path: ApiConstants.register)
   Future<Response<AuthResponse>> register(@Body() RegisterRequest body);
 

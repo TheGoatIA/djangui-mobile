@@ -31,6 +31,19 @@ final class _$AuthApiService extends AuthApiService {
   }
 
   @override
+  Future<Response<AuthResponse>> googleLogin(Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/auth/google');
+    final $body = body;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<AuthResponse, AuthResponse>($request);
+  }
+
+  @override
   Future<Response<AuthResponse>> register(RegisterRequest body) {
     final Uri $url = Uri.parse('/auth/register');
     final $body = body;

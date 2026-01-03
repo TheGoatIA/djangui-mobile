@@ -10,17 +10,47 @@ import '../models/user_model.dart';
 import '../models/login_request.dart';
 import '../models/register_request.dart';
 
+import 'package:google_sign_in/google_sign_in.dart';
+
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
   final AuthLocalDataSource _localDataSource;
   final NetworkInfo _networkInfo;
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
   AuthRepositoryImpl(
     this._remoteDataSource,
     this._localDataSource,
     this._networkInfo,
   );
+
+  @override
+  Future<Either<Failure, AuthResponse>> signInWithGoogle() async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+
+    try {
+      await _googleSignIn.initialize();
+      final GoogleSignInAccount? googleUser = await _googleSignIn
+          .authenticate();
+      if (googleUser == null) return Left(AuthFailure('Sign in aborted'));
+
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+
+      if (idToken == null) return Left(AuthFailure('No ID Token found'));
+
+      final response = await _remoteDataSource.googleLogin(idToken);
+      await _localDataSource.saveTokens(
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+      );
+      await _localDataSource.saveUser(response.user);
+      return Right(response);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
 
   @override
   Future<Either<Failure, AuthResponse>> login(LoginRequest request) async {
