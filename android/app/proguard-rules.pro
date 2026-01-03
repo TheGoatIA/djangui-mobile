@@ -26,3 +26,12 @@
 # Ignore warnings
 -dontwarn javax.annotation.**
 -dontwarn retrofit2.Platform$Java8
+
+# Play Core (Deferred components / SplitCompat)
+-dontwarn com.google.android.play.core.**
+
+# MLKit Text Recognition (optional languages)
+-dontwarn com.google.mlkit.vision.text.chinese.**
+-dontwarn com.google.mlkit.vision.text.devanagari.**
+-dontwarn com.google.mlkit.vision.text.japanese.**
+-dontwarn com.google.mlkit.vision.text.korean.**
