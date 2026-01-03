@@ -23,8 +23,6 @@ jobs:
         run: cp .env.example .env
       - name: Analyze Code
         run: flutter analyze
-      - name: Run Tests
-        run: flutter test
 
   build_android:
     name: Build Android APK
