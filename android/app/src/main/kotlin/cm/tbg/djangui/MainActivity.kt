@@ -1,4 +1,4 @@
-package com.djangui.djangui
+package cm.tbg.djangui
 
 import io.flutter.embedding.android.FlutterActivity
 

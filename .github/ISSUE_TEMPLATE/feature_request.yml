@@ -1,0 +1,23 @@
+name: Feature Request
+description: Propose a new feature for Djangui.
+labels: [feature]
+body:
+  - type: textarea
+    id: vision
+    attributes:
+      label: Vision
+      description: Quelle est l'idée générale de cette fonctionnalité ?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexte / Problème
+      description: Quel problème cette fonctionnalité résout-elle ?
+    validations:
+      required: true
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Proposition d'Implémentation
+      description: Comment imaginez-vous son fonctionnement ?

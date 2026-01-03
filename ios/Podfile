@@ -1,0 +1,47 @@
+# Uncomment this line to define a global platform for your project
+platform :ios, '13.0'
+
+# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+ENV['COCOAPODS_DISABLE_STATS'] = '1'
+
+project 'Runner', {
+  'Debug' => :debug,
+  'Release' => :release,
+  'Profile' => :profile,
+}
+
+def flutter_install_all_ios_pods(main_target_directory)
+  return nil unless File.exist?(File.join(main_target_directory, 'Generated.xcconfig'))
+  flutter_install_ios_plugin_pods(main_target_directory)
+end
+
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  
+  target 'RunnerTests' do
+    inherit! :search_paths
+  end
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    
+    target.build_configurations.each do |config|
+      # Fix for Bitcode
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+      
+      # Set Deployment Target
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      
+      # Fix for architectures
+      config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
+      
+      # Additional compiler flags if needed
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'PERMISSION_CAMERA=1', 'PERMISSION_PHOTOS=1', 'PERMISSION_NOTIFICATIONS=1']
+    end
+  end
+end
