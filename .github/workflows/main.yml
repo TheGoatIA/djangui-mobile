@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -47,7 +47,7 @@ jobs:
       - name: Build APK (Release)
         run: flutter build apk --release --no-tree-shaking
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
@@ -70,7 +70,7 @@ jobs:
       - name: Build IPA (No-Codesign)
         run: flutter build ios --release --no-codesign
       - name: Upload IPA (Frameworks)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ios-build
           path: build/ios/iphoneos/Runner.app
