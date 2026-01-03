@@ -19,7 +19,7 @@ final class _$TransactionApiService extends TransactionApiService {
 
   @override
   Future<Response<List<TransactionModel>>> getTransactions() {
-    final Uri $url = Uri.parse('/v1/transactions');
+    final Uri $url = Uri.parse('/transactions');
     final Request $request = Request(
       'GET',
       $url,
@@ -31,7 +31,7 @@ final class _$TransactionApiService extends TransactionApiService {
   @override
   Future<Response<TransactionModel>> createTransaction(
       Map<String, dynamic> body) {
-    final Uri $url = Uri.parse('/v1/transactions');
+    final Uri $url = Uri.parse('/transactions');
     final $body = body;
     final Request $request = Request(
       'POST',
@@ -44,7 +44,7 @@ final class _$TransactionApiService extends TransactionApiService {
 
   @override
   Future<Response<void>> deleteTransaction(String id) {
-    final Uri $url = Uri.parse('/v1/transactions/${id}');
+    final Uri $url = Uri.parse('/transactions/${id}');
     final Request $request = Request(
       'DELETE',
       $url,

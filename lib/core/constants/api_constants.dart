@@ -1,33 +1,32 @@
 class ApiConstants {
-  static const String baseUrl = 'http://localhost:3000/api';
-  static const String apiVersion = '/v1';
+  // baseUrl should be retrieved from dotenv.env['API_BASE_URL'] in the NetworkModule
 
   // Auth
-  static const String login = '$apiVersion/auth/login';
-  static const String register = '$apiVersion/auth/register';
-  static const String refresh = '$apiVersion/auth/refresh';
-  static const String logout = '$apiVersion/auth/logout';
-  static const String googleAuth = '$apiVersion/auth/google';
-  static const String fcmToken = '$apiVersion/auth/fcm-token';
+  static const String login = '/auth/login';
+  static const String register = '/auth/register';
+  static const String refresh = '/auth/refresh';
+  static const String logout = '/auth/logout';
+  static const String googleAuth = '/auth/google';
+  static const String fcmToken = '/auth/fcm-token';
 
   // Transactions
-  static const String transactions = '$apiVersion/transactions';
+  static const String transactions = '/transactions';
 
   // Budgets
-  static const String budgets = '$apiVersion/budgets';
+  static const String budgets = '/budgets';
 
   // Goals
-  static const String goals = '$apiVersion/goals';
+  static const String goals = '/goals';
 
   // AI & Automation
-  static const String ocrScan = '$apiVersion/ocr/scan';
-  static const String smsParse = '$apiVersion/sms/parse';
-  static const String reportNarrative = '$apiVersion/reports/narrative';
+  static const String ocrScan = '/ocr/scan';
+  static const String smsParse = '/sms/parse';
+  static const String reportNarrative = '/reports/narrative';
 
   // Investments
-  static const String investments = '$apiVersion/investments';
+  static const String investments = '/investments';
 
   // Payments
-  static const String notchPayInit = '$apiVersion/payments/init/notchpay';
-  static const String stripeCheckout = '$apiVersion/payments/checkout/stripe';
+  static const String notchPayInit = '/payments/init/notchpay';
+  static const String stripeCheckout = '/payments/checkout/stripe';
 }

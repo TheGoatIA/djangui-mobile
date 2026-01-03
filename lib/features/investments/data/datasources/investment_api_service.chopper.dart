@@ -19,7 +19,7 @@ final class _$InvestmentApiService extends InvestmentApiService {
 
   @override
   Future<Response<List<InvestmentModel>>> getInvestments() {
-    final Uri $url = Uri.parse('/v1/investments');
+    final Uri $url = Uri.parse('/investments');
     final Request $request = Request(
       'GET',
       $url,
@@ -31,7 +31,7 @@ final class _$InvestmentApiService extends InvestmentApiService {
   @override
   Future<Response<InvestmentModel>> createInvestment(
       Map<String, dynamic> body) {
-    final Uri $url = Uri.parse('/v1/investments');
+    final Uri $url = Uri.parse('/investments');
     final $body = body;
     final Request $request = Request(
       'POST',
@@ -44,7 +44,7 @@ final class _$InvestmentApiService extends InvestmentApiService {
 
   @override
   Future<Response<void>> deleteInvestment(String id) {
-    final Uri $url = Uri.parse('/v1/investments/${id}');
+    final Uri $url = Uri.parse('/investments/${id}');
     final Request $request = Request(
       'DELETE',
       $url,

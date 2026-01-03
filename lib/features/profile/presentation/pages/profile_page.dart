@@ -124,14 +124,19 @@ class ProfilePage extends StatelessWidget {
             onTap: () {},
           ),
           const Divider(height: 1),
-          _buildSettingsTile(
-            Icons.language_outlined,
-            AppLocalizations.of(context)!.language,
-            trailing: const Text(
-              'Français',
-              style: TextStyle(color: Colors.grey),
-            ),
-            onTap: () {},
+          BlocBuilder<SettingsBloc, SettingsState>(
+            builder: (context, state) {
+              return _buildSettingsTile(
+                Icons.language_outlined,
+                AppLocalizations.of(context)!.language,
+                trailing: Text(
+                  state.locale.languageCode == 'fr' ? 'Français' : 'English',
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                onTap: () =>
+                    _showLanguageSelectionDialog(context, state.locale),
+              );
+            },
           ),
           const Divider(height: 1),
           BlocBuilder<SettingsBloc, SettingsState>(
@@ -152,7 +157,7 @@ class ProfilePage extends StatelessWidget {
           _buildSettingsTile(
             Icons.help_outline,
             AppLocalizations.of(context)!.helpSupport,
-            onTap: () {},
+            onTap: () => context.push(RouteConstants.about),
           ),
         ],
       ),
@@ -240,34 +245,40 @@ class ProfilePage extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.theme),
-        content: RadioGroup<ThemeMode>(
-          groupValue: currentMode,
-          onChanged: (value) {
-            if (value != null) {
-              context.read<SettingsBloc>().add(ThemeChanged(value));
-              Navigator.pop(dialogContext);
-            }
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildThemeOption(
-                context,
-                ThemeMode.light,
-                AppLocalizations.of(context)!.lightTheme,
-              ),
-              _buildThemeOption(
-                context,
-                ThemeMode.dark,
-                AppLocalizations.of(context)!.darkTheme,
-              ),
-              _buildThemeOption(
-                context,
-                ThemeMode.system,
-                AppLocalizations.of(context)!.systemTheme,
-              ),
-            ],
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildThemeOption(
+              context,
+              ThemeMode.light,
+              currentMode,
+              AppLocalizations.of(context)!.lightTheme,
+              (value) {
+                context.read<SettingsBloc>().add(ThemeChanged(value!));
+                Navigator.pop(dialogContext);
+              },
+            ),
+            _buildThemeOption(
+              context,
+              ThemeMode.dark,
+              currentMode,
+              AppLocalizations.of(context)!.darkTheme,
+              (value) {
+                context.read<SettingsBloc>().add(ThemeChanged(value!));
+                Navigator.pop(dialogContext);
+              },
+            ),
+            _buildThemeOption(
+              context,
+              ThemeMode.system,
+              currentMode,
+              AppLocalizations.of(context)!.systemTheme,
+              (value) {
+                context.read<SettingsBloc>().add(ThemeChanged(value!));
+                Navigator.pop(dialogContext);
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -341,11 +352,76 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildThemeOption(BuildContext context, ThemeMode mode, String label) {
-    return RadioListTile<ThemeMode>(
+  Widget _buildThemeOption(
+    BuildContext context,
+    ThemeMode mode,
+    ThemeMode groupValue,
+    String label,
+    ValueChanged<ThemeMode?> onChanged,
+  ) {
+    final isSelected = mode == groupValue;
+    return ListTile(
       title: Text(label),
-      value: mode,
-      activeColor: AppColors.primary,
+      leading: Icon(
+        isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+        color: isSelected ? AppColors.primary : Colors.grey,
+      ),
+      onTap: () => onChanged(mode),
+    );
+  }
+
+  void _showLanguageSelectionDialog(
+    BuildContext context,
+    Locale currentLocale,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.language),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildLanguageOption(
+              context,
+              'Français',
+              'fr',
+              currentLocale.languageCode,
+              (value) {
+                context.read<SettingsBloc>().add(LocaleChanged(Locale(value)));
+                Navigator.pop(dialogContext);
+              },
+            ),
+            _buildLanguageOption(
+              context,
+              'English',
+              'en',
+              currentLocale.languageCode,
+              (value) {
+                context.read<SettingsBloc>().add(LocaleChanged(Locale(value)));
+                Navigator.pop(dialogContext);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageOption(
+    BuildContext context,
+    String label,
+    String value,
+    String groupValue,
+    ValueChanged<String> onChanged,
+  ) {
+    final isSelected = value == groupValue;
+    return ListTile(
+      title: Text(label),
+      leading: Icon(
+        isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+        color: isSelected ? AppColors.primary : Colors.grey,
+      ),
+      onTap: () => onChanged(value),
     );
   }
 }

@@ -20,37 +20,101 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final button = ElevatedButton(
+    return _ScaleButton(
       onPressed: isLoading ? null : onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color ?? AppColors.primary,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 0,
-      ),
-      child: isLoading
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            )
-          : Text(
-              text,
-              style: AppTextStyles.labelLarge.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
+      child: Container(
+        width: isFullWidth ? double.infinity : null,
+        height: 56, // Fixed height for consistency
+        decoration: BoxDecoration(
+          color: isLoading
+              ? (color ?? AppColors.primary).withValues(alpha: 0.7)
+              : (color ?? AppColors.primary),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: (color ?? AppColors.primary).withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: isLoading
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                text,
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
+              ),
+      ),
     );
+  }
+}
 
-    if (isFullWidth) {
-      return SizedBox(width: double.infinity, child: button);
-    }
+class _ScaleButton extends StatefulWidget {
+  final VoidCallback? onPressed;
+  final Widget child;
 
-    return button;
+  const _ScaleButton({required this.child, this.onPressed});
+
+  @override
+  State<_ScaleButton> createState() => _ScaleButtonState();
+}
+
+class _ScaleButtonState extends State<_ScaleButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    if (widget.onPressed != null) _controller.forward();
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    if (widget.onPressed != null) _controller.reverse();
+    widget.onPressed?.call();
+  }
+
+  void _onTapCancel() {
+    if (widget.onPressed != null) _controller.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      child: ScaleTransition(scale: _scaleAnimation, child: widget.child),
+    );
   }
 }

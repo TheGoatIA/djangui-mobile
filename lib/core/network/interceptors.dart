@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'package:chopper/chopper.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../di/injection.dart';
 
 class AuthInterceptor implements RequestInterceptor {
+  final FlutterSecureStorage _storage = getIt<FlutterSecureStorage>();
+
   @override
   FutureOr<Request> onRequest(Request request) async {
-    // TODO: Get token from Secure Storage
-    final String? token = null;
+    final String? token = await _storage.read(key: 'auth_token');
 
     if (token != null) {
       final headers = Map<String, String>.from(request.headers);

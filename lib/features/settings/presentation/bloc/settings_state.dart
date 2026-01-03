@@ -2,13 +2,20 @@ part of 'settings_bloc.dart';
 
 class SettingsState extends Equatable {
   final ThemeMode themeMode;
+  final Locale locale;
 
-  const SettingsState({this.themeMode = ThemeMode.system});
+  const SettingsState({
+    this.themeMode = ThemeMode.system,
+    this.locale = const Locale('fr'),
+  });
 
-  SettingsState copyWith({ThemeMode? themeMode}) {
-    return SettingsState(themeMode: themeMode ?? this.themeMode);
+  SettingsState copyWith({ThemeMode? themeMode, Locale? locale}) {
+    return SettingsState(
+      themeMode: themeMode ?? this.themeMode,
+      locale: locale ?? this.locale,
+    );
   }
 
   @override
-  List<Object> get props => [themeMode];
+  List<Object> get props => [themeMode, locale];
 }

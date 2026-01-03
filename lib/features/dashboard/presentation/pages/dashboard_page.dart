@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -13,6 +14,7 @@ import '../../../gamification/presentation/widgets/gamification_header.dart';
 import '../../../gamification/presentation/widgets/level_up_dialog.dart';
 import '../../../../core/services/sms_service.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -73,22 +75,30 @@ class DashboardPage extends StatelessWidget {
                 const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: _buildBalanceCard(context),
+                  child: _buildBalanceCard(context)
+                      .animate()
+                      .fade(duration: 500.ms)
+                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
                 ),
                 const SizedBox(height: 24),
-                _buildQuickActions(context),
+                _buildQuickActions(context)
+                    .animate(delay: 200.ms)
+                    .fade(duration: 500.ms)
+                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
                 const SizedBox(height: 32),
                 _buildSectionHeader(
                   context,
                   AppLocalizations.of(context)!.recentActivities,
                   () => context.push(RouteConstants.transactions),
-                ),
+                ).animate(delay: 300.ms).fade(),
                 const SizedBox(height: 16),
-                _buildRecentActivities(context),
+                _buildRecentActivities(context)
+                    .animate(delay: 400.ms)
+                    .fade(duration: 500.ms)
+                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
               ],
             ),
           ),
-          bottomNavigationBar: _buildBottomNB(context),
         ),
       ),
     );
@@ -105,11 +115,17 @@ class DashboardPage extends StatelessWidget {
             'Bonjour,',
             style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
           ),
-          Text(
-            'Boris Gauty', // TODO: Get from AuthBloc
-            style: AppTextStyles.bodyLarge.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              final userName =
+                  state.authResponse?.user.fullName ?? 'Utilisateur';
+              return Text(
+                userName,
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -426,7 +442,7 @@ class DashboardPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Aujourd\'hui', // TODO: Format date
+                        DateFormat.yMMMd('fr').format(t.date),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: Colors.grey,
                         ),
@@ -439,49 +455,6 @@ class DashboardPage extends StatelessWidget {
           },
         );
       },
-    );
-  }
-
-  Widget _buildBottomNB(BuildContext context) {
-    return BottomNavigationBar(
-      selectedItemColor: AppColors.primary,
-      unselectedItemColor: Colors.grey,
-      showUnselectedLabels: true,
-      type: BottomNavigationBarType.fixed,
-      currentIndex: 0,
-      onTap: (index) {
-        if (index == 1) {
-          context.push(RouteConstants.challenges);
-        } else if (index == 2) {
-          context.push(RouteConstants.budgets);
-        } else if (index == 3) {
-          context.push(RouteConstants.goals);
-        } else if (index == 4) {
-          context.push(RouteConstants.profile);
-        }
-      },
-      items: [
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.home_filled),
-          label: AppLocalizations.of(context)!.dashboard,
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.emoji_events_outlined),
-          label: AppLocalizations.of(context)!.challenges,
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.pie_chart_outline),
-          label: AppLocalizations.of(context)!.budgets,
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.flag_outlined),
-          label: AppLocalizations.of(context)!.goals,
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.person_outline),
-          label: AppLocalizations.of(context)!.profile,
-        ),
-      ],
     );
   }
 }

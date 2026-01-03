@@ -7,10 +7,12 @@ import 'di/injection.dart';
 import 'routes/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/notification_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'features/settings/presentation/bloc/settings_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await configureDependencies();
   await getIt<NotificationService>().initialize();
   runApp(const MyApp());
@@ -31,6 +33,7 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: state.themeMode,
+            locale: state.locale,
             routerConfig: appRouter,
             localizationsDelegates: const [
               AppLocalizations.delegate,

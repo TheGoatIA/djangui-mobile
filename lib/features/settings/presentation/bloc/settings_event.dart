@@ -16,4 +16,13 @@ class ThemeChanged extends SettingsEvent {
   List<Object> get props => [themeMode];
 }
 
+class LocaleChanged extends SettingsEvent {
+  final Locale locale;
+
+  const LocaleChanged(this.locale);
+
+  @override
+  List<Object> get props => [locale];
+}
+
 class LoadSettings extends SettingsEvent {}

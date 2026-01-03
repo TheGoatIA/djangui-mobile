@@ -13,4 +13,5 @@ class RouteConstants {
   static const String challenges = '/challenges';
   static const String insights = '/insights';
   static const String subscription = '/subscription';
+  static const String about = '/about';
 }

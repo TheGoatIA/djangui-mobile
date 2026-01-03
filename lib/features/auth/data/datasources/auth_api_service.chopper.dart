@@ -19,7 +19,7 @@ final class _$AuthApiService extends AuthApiService {
 
   @override
   Future<Response<AuthResponse>> login(LoginRequest body) {
-    final Uri $url = Uri.parse('/v1/auth/login');
+    final Uri $url = Uri.parse('/auth/login');
     final $body = body;
     final Request $request = Request(
       'POST',
@@ -32,7 +32,7 @@ final class _$AuthApiService extends AuthApiService {
 
   @override
   Future<Response<AuthResponse>> register(RegisterRequest body) {
-    final Uri $url = Uri.parse('/v1/auth/register');
+    final Uri $url = Uri.parse('/auth/register');
     final $body = body;
     final Request $request = Request(
       'POST',

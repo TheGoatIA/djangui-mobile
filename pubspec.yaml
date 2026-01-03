@@ -92,6 +92,9 @@ dependencies:
   internet_connection_checker: ^3.0.1
   flutter_local_notifications: ^18.0.1
   google_fonts: ^6.3.3
+  flutter_animate: ^4.5.2
+  logger: ^2.6.2
+  flutter_dotenv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -126,7 +129,9 @@ flutter:
     - assets/images/placeholders/
     - assets/images/icons/
     - assets/images/animations/
+    - assets/images/animations/
     - assets/translations/
+    - .env
 
   fonts:
     - family: Outfit

@@ -20,7 +20,7 @@ final class _$PaymentApiService extends PaymentApiService {
   @override
   Future<Response<Map<String, dynamic>>> initializeNotchPay(
       Map<String, dynamic> body) {
-    final Uri $url = Uri.parse('/v1/payments/init/notchpay');
+    final Uri $url = Uri.parse('/payments/init/notchpay');
     final $body = body;
     final Request $request = Request(
       'POST',
@@ -34,7 +34,7 @@ final class _$PaymentApiService extends PaymentApiService {
   @override
   Future<Response<Map<String, dynamic>>> createStripeCheckout(
       Map<String, dynamic> body) {
-    final Uri $url = Uri.parse('/v1/payments/checkout/stripe');
+    final Uri $url = Uri.parse('/payments/checkout/stripe');
     final $body = body;
     final Request $request = Request(
       'POST',

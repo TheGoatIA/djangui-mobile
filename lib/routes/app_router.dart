@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../core/constants/route_constants.dart';
+import '../core/widgets/scaffold_with_navbar.dart';
+import '../core/widgets/custom_page_transition.dart';
 import '../features/auth/presentation/pages/splash_page.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/pages/onboarding_page.dart';
@@ -19,6 +21,7 @@ import '../features/coach/presentation/pages/coach_chat_page.dart';
 import '../features/insights/presentation/pages/insights_page.dart';
 import '../features/profile/presentation/pages/profile_page.dart';
 import '../features/subscription/presentation/pages/subscription_page.dart';
+import '../features/settings/presentation/pages/about_page.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
@@ -45,66 +48,145 @@ final appRouter = GoRouter(
       path: RouteConstants.onBoarding,
       builder: (context, state) => const OnboardingPage(),
     ),
-    GoRoute(
-      path: RouteConstants.dashboard,
-      builder: (context, state) => const DashboardPage(),
+
+    // StatefulShellRoute for Main Tab Navigation
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return ScaffoldWithNavBar(navigationShell: navigationShell);
+      },
+      branches: [
+        // Branch 0: Dashboard
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: RouteConstants.dashboard,
+              builder: (context, state) => const DashboardPage(),
+            ),
+          ],
+        ),
+
+        // Branch 1: Challenges
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: RouteConstants.challenges,
+              builder: (context, state) => const ChallengesPage(),
+            ),
+          ],
+        ),
+
+        // Branch 2: Budgets
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: RouteConstants.budgets,
+              builder: (context, state) => const BudgetListPage(),
+              routes: [
+                GoRoute(
+                  path: 'add',
+                  builder: (context, state) => const AddBudgetPage(),
+                ),
+              ],
+            ),
+          ],
+        ),
+
+        // Branch 3: Goals
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: RouteConstants.goals,
+              builder: (context, state) => const GoalListPage(),
+              routes: [
+                GoRoute(
+                  path: 'add',
+                  builder: (context, state) => const AddGoalPage(),
+                ),
+              ],
+            ),
+          ],
+        ),
+
+        // Branch 4: Profile
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: RouteConstants.profile,
+              builder: (context, state) => const ProfilePage(),
+            ),
+          ],
+        ),
+      ],
     ),
+
+    // Independent Routes (Full Screen)
     GoRoute(
       path: RouteConstants.transactions,
-      builder: (context, state) => const TransactionListPage(),
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const TransactionListPage(),
+      ),
       routes: [
         GoRoute(
           path: 'add',
-          builder: (context, state) => const AddTransactionPage(),
+          pageBuilder: (context, state) => buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: const AddTransactionPage(),
+          ),
         ),
-      ],
-    ),
-    GoRoute(
-      path: RouteConstants.budgets,
-      builder: (context, state) => const BudgetListPage(),
-      routes: [
-        GoRoute(
-          path: 'add',
-          builder: (context, state) => const AddBudgetPage(),
-        ),
-      ],
-    ),
-    GoRoute(
-      path: RouteConstants.goals,
-      builder: (context, state) => const GoalListPage(),
-      routes: [
-        GoRoute(path: 'add', builder: (context, state) => const AddGoalPage()),
       ],
     ),
     GoRoute(
       path: RouteConstants.investments,
-      builder: (context, state) => const InvestmentsPage(),
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const InvestmentsPage(),
+      ),
       routes: [
         GoRoute(
           path: 'add',
-          builder: (context, state) => const AddInvestmentPage(),
+          pageBuilder: (context, state) => buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: const AddInvestmentPage(),
+          ),
         ),
       ],
     ),
     GoRoute(
-      path: RouteConstants.challenges,
-      builder: (context, state) => const ChallengesPage(),
-    ),
-    GoRoute(
       path: RouteConstants.coach,
-      builder: (context, state) => const CoachChatPage(),
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const CoachChatPage(),
+      ),
     ),
     GoRoute(
       path: RouteConstants.insights,
-      builder: (context, state) => const InsightsPage(),
-    ),
-    GoRoute(
-      path: RouteConstants.profile,
-      builder: (context, state) => const ProfilePage(),
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const InsightsPage(),
+      ),
     ),
     GoRoute(
       path: RouteConstants.subscription,
-      builder: (context, state) => const SubscriptionPage(),
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const SubscriptionPage(),
+      ),
+    ),
+    GoRoute(
+      path: RouteConstants.about,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const AboutPage(),
+      ),
     ),
   ],
 );
