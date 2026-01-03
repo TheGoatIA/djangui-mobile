@@ -30,6 +30,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotPassword => 'Forgot Password?';
 
   @override
+  String get forgotPasswordSubtitle =>
+      'Enter your email to receive a reset link.';
+
+  @override
+  String get sendResetLink => 'Send Reset Link';
+
+  @override
+  String get emailSent => 'Email sent successfully';
+
+  @override
+  String get comingSoon => 'Coming Soon';
+
+  @override
   String get noAccount => 'No account yet? Register';
 
   @override

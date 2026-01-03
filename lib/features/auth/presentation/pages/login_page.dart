@@ -115,13 +115,7 @@ class _LoginPageState extends State<LoginPage> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                AppLocalizations.of(context)!.comingSoon,
-                              ),
-                            ),
-                          );
+                          context.push(RouteConstants.forgotPassword);
                         },
                         child: Text(
                           AppLocalizations.of(context)!.forgotPassword,

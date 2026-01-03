@@ -8,6 +8,9 @@ import '../models/register_request.dart';
 abstract class AuthRemoteDataSource {
   Future<AuthResponse> login(LoginRequest request);
   Future<AuthResponse> register(RegisterRequest request);
+  Future<void> forgotPassword(String email);
+  Future<void> resetPassword(String token, String newPassword);
+  Future<void> verifyEmail(String token);
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -33,6 +36,34 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return response.body!;
     } else {
       throw Exception(response.error?.toString() ?? 'Registration failed');
+    }
+  }
+
+  @override
+  Future<void> forgotPassword(String email) async {
+    final response = await _apiService.forgotPassword({'email': email});
+    if (!response.isSuccessful) {
+      throw Exception(response.error?.toString() ?? 'Forgot password failed');
+    }
+  }
+
+  @override
+  Future<void> resetPassword(String token, String newPassword) async {
+    final response = await _apiService.resetPassword(token, {
+      'password': newPassword,
+    });
+    if (!response.isSuccessful) {
+      throw Exception(response.error?.toString() ?? 'Reset password failed');
+    }
+  }
+
+  @override
+  Future<void> verifyEmail(String token) async {
+    final response = await _apiService.verifyEmail(token);
+    if (!response.isSuccessful) {
+      throw Exception(
+        response.error?.toString() ?? 'Email verification failed',
+      );
     }
   }
 }

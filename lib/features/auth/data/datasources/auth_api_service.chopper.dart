@@ -42,4 +42,46 @@ final class _$AuthApiService extends AuthApiService {
     );
     return client.send<AuthResponse, AuthResponse>($request);
   }
+
+  @override
+  Future<Response<dynamic>> forgotPassword(Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/auth/forgot-password');
+    final $body = body;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<dynamic, dynamic>($request);
+  }
+
+  @override
+  Future<Response<dynamic>> resetPassword(
+    String token,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/auth/reset-password/${token}');
+    final $body = body;
+    final Request $request = Request(
+      'PATCH',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<dynamic, dynamic>($request);
+  }
+
+  @override
+  Future<Response<dynamic>> verifyEmail(String token) {
+    final Uri $url = Uri.parse('/auth/verify-email');
+    final Map<String, dynamic> $params = <String, dynamic>{'token': token};
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
+    return client.send<dynamic, dynamic>($request);
+  }
 }

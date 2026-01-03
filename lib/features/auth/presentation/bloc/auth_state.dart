@@ -1,6 +1,14 @@
 part of 'auth_bloc.dart';
 
-enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
+enum AuthStatus {
+  initial,
+  loading,
+  authenticated,
+  unauthenticated,
+  error,
+  passwordResetEmailSent,
+  passwordResetSuccess,
+}
 
 class AuthState extends Equatable {
   final AuthStatus status;

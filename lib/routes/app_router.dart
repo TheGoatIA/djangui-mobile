@@ -7,6 +7,8 @@ import '../features/auth/presentation/pages/splash_page.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/pages/onboarding_page.dart';
 import '../features/auth/presentation/pages/register_page.dart';
+import '../features/auth/presentation/pages/forgot_password_page.dart';
+import '../features/auth/presentation/pages/reset_password_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/transactions/presentation/pages/transaction_list_page.dart';
 import '../features/transactions/presentation/pages/add_transaction_page.dart';
@@ -43,6 +45,17 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.register,
       builder: (context, state) => const RegisterPage(),
+    ),
+    GoRoute(
+      path: RouteConstants.forgotPassword,
+      builder: (context, state) => const ForgotPasswordPage(),
+    ),
+    GoRoute(
+      path: RouteConstants.resetPassword,
+      builder: (context, state) {
+        final token = state.uri.queryParameters['token'] ?? '';
+        return ResetPasswordPage(token: token);
+      },
     ),
     GoRoute(
       path: RouteConstants.onBoarding,

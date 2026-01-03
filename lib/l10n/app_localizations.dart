@@ -140,6 +140,30 @@ abstract class AppLocalizations {
   /// **'Mot de passe oublié ?'**
   String get forgotPassword;
 
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez votre email pour recevoir un lien de réinitialisation.'**
+  String get forgotPasswordSubtitle;
+
+  /// No description provided for @sendResetLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le lien'**
+  String get sendResetLink;
+
+  /// No description provided for @emailSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email envoyé avec succès'**
+  String get emailSent;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bientôt disponible'**
+  String get comingSoon;
+
   /// No description provided for @noAccount.
   ///
   /// In fr, this message translates to:

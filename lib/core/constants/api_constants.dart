@@ -8,6 +8,9 @@ class ApiConstants {
   static const String logout = '/auth/logout';
   static const String googleAuth = '/auth/google';
   static const String fcmToken = '/auth/fcm-token';
+  static const String forgotPassword = '/auth/forgot-password';
+  static const String resetPassword = '/auth/reset-password';
+  static const String verifyEmail = '/auth/verify-email';
 
   // Transactions
   static const String transactions = '/transactions';
