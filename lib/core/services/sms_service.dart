@@ -1,6 +1,6 @@
+import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:injectable/injectable.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:djangui/features/insights/data/datasources/ai_api_service.dart';
 
 class SMSTransaction {
   final double amount;
@@ -18,9 +18,7 @@ class SMSTransaction {
 
 @lazySingleton
 class SMSService {
-  final AiApiService _apiService;
-
-  SMSService(this._apiService);
+  final SmsQuery _query = SmsQuery();
 
   Future<bool> requestPermission() async {
     final status = await Permission.sms.request();
@@ -28,29 +26,65 @@ class SMSService {
   }
 
   Future<List<SMSTransaction>> getRecentTransactions() async {
-    // In a real app, use flutter_sms_inbox to query messages
-    // Here we simulate fetching messages and sending them to backend for parsing
+    if (!await requestPermission()) return [];
 
-    // Simulate raw SMS list (e.g. from MobileMoney, Orange Money)
-    final rawSmsList = [
-      "MobileMoney: Vous avez recu 25000 FCFA de Boris Gauty le 03/01/2026.",
-      "Orange Money: Paiement de 5000 FCFA pour Canal+ effectue le 02/01/2026.",
-    ];
+    final messages = await _query.querySms(
+      kinds: [SmsQueryKind.inbox],
+      count: 20, // Limit to recent
+    );
 
-    final response = await _apiService.parseSms({'messages': rawSmsList});
+    final transactions = <SMSTransaction>[];
 
-    if (response.isSuccessful && response.body != null) {
-      return response.body!
-          .map(
-            (t) => SMSTransaction(
-              amount: (t['amount'] as num).toDouble(),
-              description: t['description'] as String,
-              date: DateTime.parse(t['date'] as String),
-              sender: t['sender'] as String,
-            ),
-          )
-          .toList();
+    for (final msg in messages) {
+      final body = msg.body;
+      final sender = msg.address;
+      final date = msg.date;
+
+      if (body == null || sender == null || date == null) continue;
+
+      final transaction = _parseMessage(sender, body, date);
+      if (transaction != null) {
+        transactions.add(transaction);
+      }
     }
-    return [];
+
+    return transactions;
+  }
+
+  SMSTransaction? _parseMessage(String sender, String body, DateTime date) {
+    // Basic Parsing Logic for common providers in Cameroon/Africa
+    // Adjust based on real SMS formats.
+
+    // Example: "MobileMoney: Vous avez recu 25000 FCFA de Boris..."
+    // Example: "Orange Money: Paiement de 5000 FCFA..."
+
+    if (sender.contains('MobileMoney') ||
+        sender.contains('OrangeMoney') ||
+        body.contains('FCFA')) {
+      final amount = _extractAmount(body);
+      if (amount != null) {
+        return SMSTransaction(
+          amount: amount,
+          description: body, // Or extract cleaner description
+          date: date,
+          sender: sender,
+        );
+      }
+    }
+    return null;
+  }
+
+  double? _extractAmount(String text) {
+    // Regex to find amounts like 25000 FCFA, 5.000 F
+    final RegExp amountRegex = RegExp(r'(\d+[.,]?\d*)\s*(FCFA|F|XAF)');
+    final match = amountRegex.firstMatch(text);
+    if (match != null) {
+      String clean = match.group(1)!.replaceAll(',', '').replaceAll('.', '');
+      // Note: Be careful with decimals. usually FCFA has no decimal or it's a comma.
+      // E.g. 5,000 matches digits: 5,000. Clean -> 5000.
+      // E.g. 10.5 USD. Regex here catches "FCFA".
+      return double.tryParse(clean);
+    }
+    return null;
   }
 }

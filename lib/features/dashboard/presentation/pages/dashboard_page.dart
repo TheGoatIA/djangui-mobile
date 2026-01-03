@@ -241,8 +241,8 @@ class DashboardPage extends StatelessWidget {
               onTap: () => context.push(RouteConstants.insights),
             ),
             _buildActionItem(
-              Icons.qr_code_scanner,
-              'Scanner',
+              Icons.sms_outlined,
+              'Import SMS',
               AppColors.accent,
               onTap: () async {
                 final smsService = getIt<SMSService>();

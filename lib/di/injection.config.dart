@@ -138,6 +138,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i275.NotificationService>(
         () => _i275.NotificationService());
     gh.lazySingleton<_i282.OCRService>(() => _i282.OCRService());
+    gh.lazySingleton<_i69.ShareService>(() => _i69.ShareService());
+    gh.lazySingleton<_i252.SMSService>(() => _i252.SMSService());
     gh.lazySingleton<_i558.FlutterSecureStorage>(
         () => registerModule.secureStorage);
     gh.lazySingleton<_i31.ChopperClient>(() => registerModule.chopperClient);
@@ -159,7 +161,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i816.PaymentApiService>(
         () => registerModule.paymentApiService);
     gh.lazySingleton<_i730.AppDatabase>(() => registerModule.database);
-    gh.lazySingleton<_i69.ShareService>(() => _i69.ShareService());
     gh.factory<_i754.SettingsBloc>(
         () => _i754.SettingsBloc(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i959.BudgetRemoteDataSource>(
@@ -205,8 +206,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i231.TransactionRemoteDataSource>(() =>
         _i231.TransactionRemoteDataSourceImpl(
             gh<_i70.TransactionApiService>()));
-    gh.lazySingleton<_i252.SMSService>(
-        () => _i252.SMSService(gh<_i391.AiApiService>()));
     gh.lazySingleton<_i947.AIRemoteDataSource>(
         () => _i947.AIRemoteDataSource(gh<_i391.AiApiService>()));
     gh.lazySingleton<_i520.AuthLocalDataSource>(
