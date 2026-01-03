@@ -5,6 +5,7 @@ import '../models/chat_message_model.dart';
 abstract class CoachLocalDataSource {
   Future<List<ChatMessageModel>> getChatHistory();
   Future<void> saveMessage(ChatMessageModel message);
+  Future<void> saveMessages(List<ChatMessageModel> messages);
   Future<void> clearHistory();
 }
 
@@ -41,6 +42,25 @@ class CoachLocalDataSourceImpl implements CoachLocalDataSource {
             timestamp: message.timestamp,
           ),
         );
+  }
+
+  @override
+  Future<void> saveMessages(List<ChatMessageModel> messages) async {
+    await _database.batch((batch) {
+      batch.insertAllOnConflictUpdate(
+        _database.chatMessages,
+        messages
+            .map(
+              (message) => ChatMessagesCompanion.insert(
+                id: message.id,
+                content: message.text,
+                sender: message.sender,
+                timestamp: message.timestamp,
+              ),
+            )
+            .toList(),
+      );
+    });
   }
 
   @override

@@ -23,10 +23,18 @@ class CoachRepositoryImpl implements CoachRepository {
   @override
   Future<Either<Failure, List<ChatMessageModel>>> getChatHistory() async {
     try {
-      final history = await _localDataSource.getChatHistory();
-      return Right(history);
+      // Fetch from remote first to be up to date
+      if (await _networkInfo.isConnected) {
+        final remoteHistory = await _remoteDataSource.getChatHistory();
+        await _localDataSource.clearHistory();
+        await _localDataSource.saveMessages(remoteHistory);
+        return Right(remoteHistory);
+      } else {
+        final localHistory = await _localDataSource.getChatHistory();
+        return Right(localHistory);
+      }
     } catch (e) {
-      return Left(CacheFailure());
+      return Left(ServerFailure(e.toString()));
     }
   }
 

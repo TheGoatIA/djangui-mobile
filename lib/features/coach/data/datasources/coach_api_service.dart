@@ -8,8 +8,9 @@ abstract class CoachApiService extends ChopperService {
   static CoachApiService create([ChopperClient? client]) =>
       _$CoachApiService(client);
 
-  @Post(path: '/chat')
-  Future<Response<ChatMessageModel>> sendMessage(
-    @Body() Map<String, dynamic> body,
-  );
+  @Post(path: '/ask')
+  Future<Response<ChatMessageModel>> ask(@Body() Map<String, dynamic> body);
+
+  @Get(path: '/history')
+  Future<Response<List<ChatMessageModel>>> getChatHistory();
 }
