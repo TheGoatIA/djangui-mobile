@@ -8,6 +8,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../transactions/presentation/bloc/transactions_bloc.dart';
+import '../../../gamification/presentation/widgets/gamification_header.dart';
+import '../../../gamification/presentation/widgets/level_up_dialog.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -31,6 +33,25 @@ class DashboardPage extends StatelessWidget {
               }
             },
           ),
+          BlocListener<AuthBloc, AuthState>(
+            listenWhen: (previous, current) {
+              return previous.status == AuthStatus.authenticated &&
+                  current.status == AuthStatus.authenticated &&
+                  previous.authResponse?.user != null &&
+                  current.authResponse?.user != null &&
+                  current.authResponse!.user.level >
+                      previous.authResponse!.user.level;
+            },
+            listener: (context, state) {
+              showDialog(
+                context: context,
+                builder: (_) => LevelUpDialog(
+                  newLevel: state.authResponse!.user.level,
+                  onContinue: () => Navigator.of(context).pop(),
+                ),
+              );
+            },
+          ),
           BlocListener<TransactionsBloc, TransactionsState>(
             listener: (context, state) {
               // Handle potential global transaction errors here
@@ -41,11 +62,16 @@ class DashboardPage extends StatelessWidget {
           backgroundColor: AppColors.background,
           appBar: _buildAppBar(context),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.only(bottom: 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildBalanceCard(context),
+                const GamificationHeader(),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: _buildBalanceCard(context),
+                ),
                 const SizedBox(height: 24),
                 _buildQuickActions(context),
                 const SizedBox(height: 32),

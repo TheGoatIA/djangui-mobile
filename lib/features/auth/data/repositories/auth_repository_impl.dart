@@ -6,6 +6,7 @@ import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/auth_response.dart';
+import '../models/user_model.dart';
 import '../models/login_request.dart';
 import '../models/register_request.dart';
 
@@ -30,6 +31,7 @@ class AuthRepositoryImpl implements AuthRepository {
           accessToken: response.accessToken,
           refreshToken: response.refreshToken,
         );
+        await _localDataSource.saveUser(response.user);
         return Right(response);
       } catch (e) {
         return Left(AuthFailure(e.toString()));
@@ -50,12 +52,26 @@ class AuthRepositoryImpl implements AuthRepository {
           accessToken: response.accessToken,
           refreshToken: response.refreshToken,
         );
+        await _localDataSource.saveUser(response.user);
         return Right(response);
       } catch (e) {
         return Left(AuthFailure(e.toString()));
       }
     } else {
       return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserModel>> getCurrentUser() async {
+    try {
+      final user = await _localDataSource.getUser();
+      if (user != null) {
+        return Right(user);
+      }
+      return Left(CacheFailure());
+    } catch (e) {
+      return Left(CacheFailure());
     }
   }
 

@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../core/database/database.dart';
+import '../models/user_model.dart';
+import 'package:drift/drift.dart' as drift;
 
 abstract class AuthLocalDataSource {
   Future<void> saveTokens({
@@ -9,13 +13,16 @@ abstract class AuthLocalDataSource {
   Future<String?> getAccessToken();
   Future<String?> getRefreshToken();
   Future<void> clearTokens();
+  Future<void> saveUser(UserModel user);
+  Future<UserModel?> getUser();
 }
 
 @LazySingleton(as: AuthLocalDataSource)
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final FlutterSecureStorage _storage;
+  final AppDatabase _db;
 
-  AuthLocalDataSourceImpl(this._storage);
+  AuthLocalDataSourceImpl(this._storage, this._db);
 
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
@@ -43,5 +50,40 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> clearTokens() async {
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _refreshTokenKey);
+    await _db.delete(_db.users).go();
+  }
+
+  @override
+  Future<void> saveUser(UserModel user) async {
+    await _db
+        .into(_db.users)
+        .insertOnConflictUpdate(
+          UsersCompanion(
+            id: drift.Value(user.id),
+            email: drift.Value(user.email),
+            firstName: drift.Value(user.firstName),
+            lastName: drift.Value(user.lastName),
+            avatar: drift.Value(user.avatar),
+            xp: drift.Value(user.xp),
+            level: drift.Value(user.level),
+            badges: drift.Value(jsonEncode(user.badges)),
+          ),
+        );
+  }
+
+  @override
+  Future<UserModel?> getUser() async {
+    final user = await _db.select(_db.users).getSingleOrNull();
+    if (user == null) return null;
+    return UserModel(
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatar: user.avatar,
+      xp: user.xp,
+      level: user.level,
+      badges: List<String>.from(jsonDecode(user.badges)),
+    );
   }
 }

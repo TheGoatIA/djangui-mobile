@@ -11,12 +11,19 @@ class UserModel {
   final String lastName;
   final String? avatar;
 
+  final int xp;
+  final int level;
+  final List<String> badges;
+
   UserModel({
     required this.id,
     required this.email,
     required this.firstName,
     required this.lastName,
     this.avatar,
+    this.xp = 0,
+    this.level = 1,
+    this.badges = const [],
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>

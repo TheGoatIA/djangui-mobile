@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/settings/presentation/bloc/settings_bloc.dart';
+import '../../../gamification/presentation/widgets/badges_list.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -36,7 +37,11 @@ class ProfilePage extends StatelessWidget {
             child: Column(
               children: [
                 _buildProfileHeader(name, user?.email ?? ''),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+                if (user != null && user.badges.isNotEmpty) ...[
+                  BadgesList(badgeIds: user.badges),
+                  const SizedBox(height: 24),
+                ],
                 _buildSettingsSection(context),
                 const SizedBox(height: 32),
                 _buildLogoutButton(context),

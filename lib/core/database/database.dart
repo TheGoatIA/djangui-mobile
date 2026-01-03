@@ -12,6 +12,9 @@ class Users extends Table {
   TextColumn get firstName => text()();
   TextColumn get lastName => text()();
   TextColumn get avatar => text().nullable()();
+  IntColumn get xp => integer().withDefault(const Constant(0))();
+  IntColumn get level => integer().withDefault(const Constant(1))();
+  TextColumn get badges => text().withDefault(const Constant('[]'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -86,7 +89,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(() async {

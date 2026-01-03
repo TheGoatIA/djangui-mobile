@@ -176,7 +176,10 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i574.NetworkInfo>(),
             ));
     gh.lazySingleton<_i520.AuthLocalDataSource>(
-        () => _i520.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()));
+        () => _i520.AuthLocalDataSourceImpl(
+              gh<_i558.FlutterSecureStorage>(),
+              gh<_i730.AppDatabase>(),
+            ));
     gh.lazySingleton<_i186.CoachRemoteDataSource>(
         () => _i186.CoachRemoteDataSourceImpl(gh<_i522.CoachApiService>()));
     gh.lazySingleton<_i745.CoachRepository>(() => _i364.CoachRepositoryImpl(

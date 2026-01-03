@@ -26,7 +26,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     final isAuthenticated = await _authRepository.isAuthenticated();
     if (isAuthenticated) {
-      emit(state.copyWith(status: AuthStatus.authenticated));
+      final userResult = await _authRepository.getCurrentUser();
+      userResult.fold(
+        (failure) => emit(state.copyWith(status: AuthStatus.unauthenticated)),
+        (user) => emit(
+          state.copyWith(
+            status: AuthStatus.authenticated,
+            authResponse: AuthResponse(
+              accessToken: '', // Not needed for local check
+              refreshToken: '', // Not needed for local check
+              user: user,
+            ),
+          ),
+        ),
+      );
     } else {
       emit(state.copyWith(status: AuthStatus.unauthenticated));
     }
