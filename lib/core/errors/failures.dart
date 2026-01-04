@@ -4,18 +4,17 @@ abstract class Failure {
 }
 
 class ServerFailure extends Failure {
-  ServerFailure([String message = 'Erreur serveur']) : super(message);
+  ServerFailure([super.message = 'Erreur serveur']);
 }
 
 class NetworkFailure extends Failure {
-  NetworkFailure([String message = 'Pas de connexion internet'])
-    : super(message);
+  NetworkFailure([super.message = 'Pas de connexion internet']);
 }
 
 class CacheFailure extends Failure {
-  CacheFailure([String message = 'Erreur cache local']) : super(message);
+  CacheFailure([super.message = 'Erreur cache local']);
 }
 
 class AuthFailure extends Failure {
-  AuthFailure(String message) : super(message);
+  AuthFailure(super.message);
 }

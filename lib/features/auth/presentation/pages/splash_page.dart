@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
 
 class SplashPage extends StatelessWidget {
@@ -18,10 +21,23 @@ class SplashPage extends StatelessWidget {
         listener: (context, state) {
           // Add a small delay for branding
           Future.delayed(const Duration(seconds: 2), () {
-            if (state.status == AuthStatus.authenticated) {
-              context.go(RouteConstants.dashboard);
-            } else if (state.status == AuthStatus.unauthenticated) {
-              context.go(RouteConstants.login);
+            final prefs = getIt<SharedPreferences>();
+            final hasSeenOnboarding =
+                prefs.getBool('hasSeenOnboarding') ?? false;
+
+            if (!hasSeenOnboarding) {
+              if (context.mounted) {
+                context.go(RouteConstants.onBoarding);
+              }
+              return;
+            }
+
+            if (context.mounted) {
+              if (state.status == AuthStatus.authenticated) {
+                context.go(RouteConstants.dashboard);
+              } else if (state.status == AuthStatus.unauthenticated) {
+                context.go(RouteConstants.login);
+              }
             }
           });
         },
@@ -31,22 +47,18 @@ class SplashPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Replace with actual logo
+                // Logo
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.account_balance_wallet,
-                    size: 60,
-                    color: AppColors.primary,
-                  ),
+                  child: Image.asset(AppAssets.logo, width: 80, height: 80),
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Djangui',
+                  AppLocalizations.of(context)!.appTitle,
                   style: AppTextStyles.headlineLarge.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -54,7 +66,7 @@ class SplashPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Votre tontine digitalisée',
+                  AppLocalizations.of(context)!.appSlogan,
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: Colors.white70,
                   ),

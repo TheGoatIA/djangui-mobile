@@ -1,0 +1,34 @@
+name: Bug Report
+description: Report a bug to help us improve Djangui.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de remplir ce formulaire pour nous aider à corriger le problème !
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Une description claire et concise du bug.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Étapes pour Reproduire
+      description: Comment pouvons-nous reproduire ce bug ?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportement Attendu
+      description: Que devrait-il se passer normalement ?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Captures d'écran
+      description: Ajoutez ici les logs ou une capture d'écran si possible.

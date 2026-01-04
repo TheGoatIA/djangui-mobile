@@ -41,9 +41,7 @@ class AppTextField extends StatelessWidget {
             hintText: hint,
             prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20) : null,
             filled: true,
-            fillColor: Theme.of(context).brightness == Brightness.light
-                ? AppColors.lightSurface
-                : AppColors.darkSurface,
+            fillColor: Theme.of(context).inputDecorationTheme.fillColor,
             contentPadding: const EdgeInsets.all(16),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

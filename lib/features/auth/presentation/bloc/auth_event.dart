@@ -24,16 +24,97 @@ class AuthRegisterRequested extends AuthEvent {
   final String password;
   final String firstName;
   final String lastName;
+  final String country;
 
   const AuthRegisterRequested({
     required this.email,
     required this.password,
     required this.firstName,
     required this.lastName,
+    required this.country,
   });
 
   @override
-  List<Object?> get props => [email, password, firstName, lastName];
+  List<Object?> get props => [email, password, firstName, lastName, country];
+}
+
+class AuthUpdateProfileRequested extends AuthEvent {
+  final String? firstName;
+  final String? lastName;
+  final String? country;
+
+  const AuthUpdateProfileRequested({
+    this.firstName,
+    this.lastName,
+    this.country,
+  });
+
+  @override
+  List<Object?> get props => [firstName, lastName, country];
 }
 
 class AuthLogoutRequested extends AuthEvent {}
+
+class AuthForgotPasswordRequested extends AuthEvent {
+  final String email;
+
+  const AuthForgotPasswordRequested(this.email);
+
+  @override
+  List<Object?> get props => [email];
+}
+
+class AuthResetPasswordRequested extends AuthEvent {
+  final String token;
+  final String newPassword;
+
+  const AuthResetPasswordRequested({
+    required this.token,
+    required this.newPassword,
+  });
+
+  @override
+  List<Object?> get props => [token, newPassword];
+}
+
+class AuthGoogleSignInRequested extends AuthEvent {}
+
+class _AuthInternalCodeSent extends AuthEvent {
+  const _AuthInternalCodeSent();
+}
+
+class _AuthInternalError extends AuthEvent {
+  final String message;
+  const _AuthInternalError(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+class AuthPhoneVerificationRequested extends AuthEvent {
+  final String phoneNumber;
+  const AuthPhoneVerificationRequested(this.phoneNumber);
+  @override
+  List<Object?> get props => [phoneNumber];
+}
+
+class AuthPhoneSignInRequested extends AuthEvent {
+  final String verificationId;
+  final String smsCode;
+  const AuthPhoneSignInRequested({
+    required this.verificationId,
+    required this.smsCode,
+  });
+  @override
+  List<Object?> get props => [verificationId, smsCode];
+}
+
+class AuthLinkPhoneRequested extends AuthEvent {
+  final String verificationId;
+  final String smsCode;
+  const AuthLinkPhoneRequested({
+    required this.verificationId,
+    required this.smsCode,
+  });
+  @override
+  List<Object?> get props => [verificationId, smsCode];
+}

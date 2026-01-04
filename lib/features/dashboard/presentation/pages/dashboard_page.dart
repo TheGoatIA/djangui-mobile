@@ -2,53 +2,459 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'package:intl/intl.dart';
+import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../transactions/presentation/bloc/transactions_bloc.dart';
+import '../../../transactions/data/models/transaction_model.dart';
+import '../../../gamification/presentation/widgets/gamification_header.dart';
+import '../../../gamification/presentation/widgets/level_up_dialog.dart';
+import '../../../../core/services/sms_service.dart';
+import 'package:uuid/uuid.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<AuthBloc>(),
-      child: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state.status == AuthStatus.unauthenticated) {
-            context.go(RouteConstants.login);
-          }
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Djangui Dashboard'),
-            actions: [
-              Builder(
-                builder: (context) => IconButton(
-                  onPressed: () {
-                    context.read<AuthBloc>().add(AuthLogoutRequested());
-                  },
-                  icon: const Icon(Icons.logout),
-                ),
-              ),
-            ],
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => getIt<AuthBloc>()),
+        BlocProvider(
+          create: (context) =>
+              getIt<TransactionsBloc>()..add(const GetTransactionsRequested()),
+        ),
+      ],
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state.status == AuthStatus.unauthenticated) {
+                context.go(RouteConstants.login);
+              }
+            },
           ),
-          body: const Center(child: Text('Bienvenue sur votre Dashboard !')),
-          bottomNavigationBar: BottomNavigationBar(
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.list),
-                label: 'Transactions',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profil',
-              ),
-            ],
+          BlocListener<AuthBloc, AuthState>(
+            listenWhen: (previous, current) {
+              return previous.status == AuthStatus.authenticated &&
+                  current.status == AuthStatus.authenticated &&
+                  previous.authResponse?.user != null &&
+                  current.authResponse?.user != null &&
+                  current.authResponse!.user.level >
+                      previous.authResponse!.user.level;
+            },
+            listener: (context, state) {
+              showDialog(
+                context: context,
+                builder: (_) => LevelUpDialog(
+                  newLevel: state.authResponse!.user.level,
+                  onContinue: () => Navigator.of(context).pop(),
+                ),
+              );
+            },
+          ),
+          BlocListener<TransactionsBloc, TransactionsState>(
+            listener: (context, state) {
+              // Handle potential global transaction errors here
+            },
+          ),
+        ],
+        child: Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: _buildAppBar(context),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const GamificationHeader(),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: _buildBalanceCard(context)
+                      .animate()
+                      .fade(duration: 500.ms)
+                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+                ),
+                const SizedBox(height: 24),
+                _buildQuickActions(context)
+                    .animate(delay: 200.ms)
+                    .fade(duration: 500.ms)
+                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+                const SizedBox(height: 32),
+                _buildSectionHeader(
+                  context,
+                  AppLocalizations.of(context)!.recentActivities,
+                  () => context.push(RouteConstants.transactions),
+                ).animate(delay: 300.ms).fade(),
+                const SizedBox(height: 16),
+                _buildRecentActivities(context)
+                    .animate(delay: 400.ms)
+                    .fade(duration: 500.ms)
+                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Bonjour,',
+            style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+          ),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              final userName =
+                  state.authResponse?.user.fullName ?? 'Utilisateur';
+              return Text(
+                userName,
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      actions: [
+        IconButton(
+          onPressed: () {},
+          icon: const Icon(
+            Icons.notifications_none_outlined,
+            color: AppColors.onBackground,
+          ),
+        ),
+        Builder(
+          builder: (context) => IconButton(
+            onPressed: () =>
+                context.read<AuthBloc>().add(AuthLogoutRequested()),
+            icon: const Icon(Icons.logout, color: AppColors.onBackground),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBalanceCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.primary, AppColors.primaryDark],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.totalBalance,
+            style: AppTextStyles.labelLarge.copyWith(color: Colors.white70),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '250,000 FCFA',
+            style: AppTextStyles.headlineLarge.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildBalanceInfo('Épargne Personnel', '150,000'),
+              Container(width: 1, height: 40, color: Colors.white24),
+              _buildBalanceInfo('Tontines Actives', '100,000'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBalanceInfo(String label, String amount) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.bodySmall.copyWith(color: Colors.white70),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '$amount FCFA',
+          style: AppTextStyles.bodyLarge.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickActions(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Actions Rapides',
+          style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildActionItem(
+              Icons.add_circle_outline,
+              'Investir',
+              AppColors.primary,
+              onTap: () => context.push('${RouteConstants.investments}/add'),
+            ),
+            _buildActionItem(
+              Icons.bar_chart_outlined,
+              'Analyses',
+              AppColors.secondary,
+              onTap: () => context.push(RouteConstants.insights),
+            ),
+            _buildActionItem(
+              Icons.sms_outlined,
+              'Import SMS',
+              AppColors.accent,
+              onTap: () async {
+                final smsService = getIt<SMSService>();
+                final granted = await smsService.requestPermission();
+                if (granted) {
+                  // Show loading
+                  if (!context.mounted) return;
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Recherche de transactions SMS...'),
+                      ),
+                    );
+                  }
+
+                  final transactions = await smsService.getRecentTransactions();
+                  if (transactions.isNotEmpty) {
+                    // Automatically add the first one for demo or show a picker
+                    // For now, let's add them via TransactionsBloc
+                    if (!context.mounted) return;
+                    for (final t in transactions) {
+                      context.read<TransactionsBloc>().add(
+                        AddTransactionRequested(
+                          TransactionModel(
+                            id: const Uuid().v4(),
+                            amount: t.amount,
+                            type: 'expense',
+                            category: 'Automatique',
+                            description: t.description,
+                            date: t.date,
+                          ),
+                        ),
+                      );
+                    }
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${transactions.length} transactions importées !',
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Permission SMS requise pour cette fonctionnalité',
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+            _buildActionItem(
+              Icons.smart_toy_outlined,
+              'Coach IA',
+              Colors.indigo,
+              onTap: () => context.push(RouteConstants.coach),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionItem(
+    IconData icon,
+    String label,
+    Color color, {
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(icon, color: color),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: AppTextStyles.bodySmall.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title,
+    VoidCallback onSeeAll,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+        ),
+        TextButton(
+          onPressed: onSeeAll,
+          child: Text(AppLocalizations.of(context)!.seeAll),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecentActivities(BuildContext context) {
+    return BlocBuilder<TransactionsBloc, TransactionsState>(
+      builder: (context, state) {
+        if (state.status == TransactionsStatus.loading &&
+            state.transactions.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state.transactions.isEmpty) {
+          return Center(
+            child: Text(
+              AppLocalizations.of(context)!.noRecentActivities,
+              style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+            ),
+          );
+        }
+
+        final recentTransactions = state.transactions.take(3).toList();
+
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: recentTransactions.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final t = recentTransactions[index];
+            final isIncome = t.type == 'income';
+            final color = isIncome ? AppColors.success : AppColors.error;
+
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+                      color: color,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t.description,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          t.category,
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${isIncome ? '+' : '-'}${t.amount.toStringAsFixed(0)} F',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        DateFormat.yMMMd('fr').format(t.date),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

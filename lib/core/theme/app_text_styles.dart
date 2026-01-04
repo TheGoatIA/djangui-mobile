@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppTextStyles {
-  static const String fontFamily = 'Inter';
+  static const String fontFamily = 'Outfit';
 
   // Headlines
   static const TextStyle h1 = TextStyle(
@@ -48,6 +48,12 @@ class AppTextStyles {
   static const TextStyle labelLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,
+    fontWeight: FontWeight.w500,
+  );
+
+  static const TextStyle labelSmall = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 10,
     fontWeight: FontWeight.w500,
   );
 }
