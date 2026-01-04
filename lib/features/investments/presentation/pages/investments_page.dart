@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
@@ -19,7 +20,7 @@ class InvestmentsPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: const Text('Mes Investissements'),
+          title: Text(AppLocalizations.of(context)!.myInvestments),
           actions: [
             IconButton(
               icon: const Icon(Icons.add),
@@ -34,7 +35,10 @@ class InvestmentsPage extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             } else if (state.status == InvestmentsStatus.error) {
               return Center(
-                child: Text(state.errorMessage ?? 'Une erreur est survenue'),
+                child: Text(
+                  state.errorMessage ??
+                      AppLocalizations.of(context)!.errorOccurred,
+                ),
               );
             } else if (state.investments.isEmpty) {
               return _buildEmptyState(context);
@@ -45,7 +49,7 @@ class InvestmentsPage extends StatelessWidget {
               itemCount: state.investments.length,
               itemBuilder: (context, index) {
                 final investment = state.investments[index];
-                return _buildInvestmentCard(investment);
+                return _buildInvestmentCard(context, investment);
               },
             );
           },
@@ -59,16 +63,22 @@ class InvestmentsPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.trending_up, size: 80, color: Colors.grey[300]),
+          Icon(
+            Icons.trending_up,
+            size: 80,
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
           Text(
-            'Aucun investissement',
-            style: AppTextStyles.h3.copyWith(color: Colors.grey),
+            AppLocalizations.of(context)!.noInvestments,
+            style: AppTextStyles.h3.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
-            'Commencez à construire votre portefeuille',
-            style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+            AppLocalizations.of(context)!.startBuildingPortfolio,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
@@ -77,14 +87,14 @@ class InvestmentsPage extends StatelessWidget {
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Ajouter un investissement'),
+            child: Text(AppLocalizations.of(context)!.addInvestment),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInvestmentCard(dynamic investment) {
+  Widget _buildInvestmentCard(BuildContext context, dynamic investment) {
     final currencyFormat = NumberFormat.currency(
       locale: 'fr_FR',
       symbol: 'FCFA',
@@ -96,11 +106,11 @@ class InvestmentsPage extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -131,8 +141,10 @@ class InvestmentsPage extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  _getTypeName(investment.type),
-                  style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                  _getTypeName(context, investment.type),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -196,16 +208,17 @@ class InvestmentsPage extends StatelessWidget {
     }
   }
 
-  String _getTypeName(String type) {
+  String _getTypeName(BuildContext context, String type) {
+    final l10n = AppLocalizations.of(context)!;
     switch (type) {
       case 'crypto':
-        return 'Crypto-monnaie';
+        return l10n.cryptoCurrency;
       case 'stock':
-        return 'Bourse';
+        return l10n.stockMarket;
       case 'real_estate':
-        return 'Immobilier';
+        return l10n.realEstate;
       default:
-        return 'Autre';
+        return l10n.other;
     }
   }
 }

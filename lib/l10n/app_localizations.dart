@@ -925,6 +925,558 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Numéro invalide'**
   String get invalidPhone;
+
+  /// No description provided for @country.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pays'**
+  String get country;
+
+  /// No description provided for @selectCountry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez votre pays'**
+  String get selectCountry;
+
+  /// No description provided for @selectCountryError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez sélectionner un pays'**
+  String get selectCountryError;
+
+  /// No description provided for @phoneHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'+237 6xx xxx xxx'**
+  String get phoneHint;
+
+  /// No description provided for @resetSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe réinitialisé avec succès'**
+  String get resetSuccess;
+
+  /// No description provided for @resetError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la réinitialisation'**
+  String get resetError;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinitialisation'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mot de passe'**
+  String get newPassword;
+
+  /// No description provided for @newPasswordSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez un mot de passe fort pour sécuriser votre compte.'**
+  String get newPasswordSubtitle;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le mot de passe'**
+  String get confirmPassword;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les mots de passe ne correspondent pas'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @resetPasswordAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinitialiser le mot de passe'**
+  String get resetPasswordAction;
+
+  /// No description provided for @greeting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour,'**
+  String get greeting;
+
+  /// No description provided for @user.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateur'**
+  String get user;
+
+  /// No description provided for @monthlyIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu Mensuel'**
+  String get monthlyIncome;
+
+  /// No description provided for @totalExpenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses Totales'**
+  String get totalExpenses;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actions Rapides'**
+  String get quickActions;
+
+  /// No description provided for @invest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Investir'**
+  String get invest;
+
+  /// No description provided for @insights.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyses'**
+  String get insights;
+
+  /// No description provided for @importSms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Import SMS'**
+  String get importSms;
+
+  /// No description provided for @scanningSms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche de transactions SMS...'**
+  String get scanningSms;
+
+  /// No description provided for @automatic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Automatique'**
+  String get automatic;
+
+  /// No description provided for @transactionsImported.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} transactions importées !'**
+  String transactionsImported(int count);
+
+  /// No description provided for @smsPermissionRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permission SMS requise pour cette fonctionnalité'**
+  String get smsPermissionRequired;
+
+  /// No description provided for @levelLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau {level}'**
+  String levelLabel(int level);
+
+  /// No description provided for @xpToNextLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{xp} XP pour le prochain niveau'**
+  String xpToNextLevel(int xp);
+
+  /// No description provided for @myInvestments.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes Investissements'**
+  String get myInvestments;
+
+  /// No description provided for @addInvestment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un investissement'**
+  String get addInvestment;
+
+  /// No description provided for @noInvestments.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun investissement'**
+  String get noInvestments;
+
+  /// No description provided for @startBuildingPortfolio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencez à construire votre portefeuille'**
+  String get startBuildingPortfolio;
+
+  /// No description provided for @newInvestment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvel Investissement'**
+  String get newInvestment;
+
+  /// No description provided for @investmentDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails de l\'investissement'**
+  String get investmentDetails;
+
+  /// No description provided for @assetNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'actif (ex: Bitcoin, Tesla)'**
+  String get assetNameHint;
+
+  /// No description provided for @assetType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type d\'actif'**
+  String get assetType;
+
+  /// No description provided for @investedAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant investi'**
+  String get investedAmount;
+
+  /// No description provided for @estimatedROI.
+  ///
+  /// In fr, this message translates to:
+  /// **'ROI estimé (%)'**
+  String get estimatedROI;
+
+  /// No description provided for @cryptoCurrency.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crypto-monnaie'**
+  String get cryptoCurrency;
+
+  /// No description provided for @stockMarket.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bourse'**
+  String get stockMarket;
+
+  /// No description provided for @realEstate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Immobilier'**
+  String get realEstate;
+
+  /// No description provided for @other.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get other;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Champ requis'**
+  String get fieldRequired;
+
+  /// No description provided for @errorOccurred.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue'**
+  String get errorOccurred;
+
+  /// No description provided for @importGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer un objectif'**
+  String get importGoal;
+
+  /// No description provided for @goalImportedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif importé avec succès !'**
+  String get goalImportedSuccess;
+
+  /// No description provided for @sharedGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif Partagé'**
+  String get sharedGoal;
+
+  /// No description provided for @targetAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant cible'**
+  String get targetAmount;
+
+  /// No description provided for @deadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date limite'**
+  String get deadline;
+
+  /// No description provided for @addGoalToListPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous ajouter cet objectif à votre liste ?'**
+  String get addGoalToListPrompt;
+
+  /// No description provided for @acceptGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter l\'objectif'**
+  String get acceptGoal;
+
+  /// No description provided for @aiAnalysisTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse Financière par IA'**
+  String get aiAnalysisTitle;
+
+  /// No description provided for @aiAnalysisUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'analyse par IA est actuellement indisponible'**
+  String get aiAnalysisUnavailable;
+
+  /// No description provided for @countryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pays'**
+  String get countryLabel;
+
+  /// No description provided for @notSet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get notSet;
+
+  /// No description provided for @upgradeToPremium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer au Premium'**
+  String get upgradeToPremium;
+
+  /// No description provided for @premiumBannerDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débloquez des analyses avancées, des objectifs illimités et un support prioritaire.'**
+  String get premiumBannerDescription;
+
+  /// No description provided for @discoverOffers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir les offres'**
+  String get discoverOffers;
+
+  /// No description provided for @aboutDjangui.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos de Djangui'**
+  String get aboutDjangui;
+
+  /// No description provided for @versionInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version {version} ({buildNumber})'**
+  String versionInfo(String version, String buildNumber);
+
+  /// No description provided for @aboutDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Djangui est une solution moderne pour gérer votre épargne et vos tontines en toute autonomie. Notre mission est de démocratiser la gestion financière via la technologie.'**
+  String get aboutDescription;
+
+  /// No description provided for @developedBy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Développé avec ❤️ par l\'équipe Djangui'**
+  String get developedBy;
+
+  /// No description provided for @contact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contact'**
+  String get contact;
+
+  /// No description provided for @website.
+  ///
+  /// In fr, this message translates to:
+  /// **'Site web'**
+  String get website;
+
+  /// No description provided for @copyrightInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'© 2024 Djangui. Tous droits réservés.'**
+  String get copyrightInfo;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre une photo'**
+  String get takePhoto;
+
+  /// No description provided for @chooseFromGallery.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir depuis la galerie'**
+  String get chooseFromGallery;
+
+  /// No description provided for @receiptScannedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reçu scanné avec succès'**
+  String get receiptScannedSuccess;
+
+  /// No description provided for @receiptScannedError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du scan du reçu'**
+  String get receiptScannedError;
+
+  /// No description provided for @scanReceiptTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner un reçu'**
+  String get scanReceiptTooltip;
+
+  /// No description provided for @upgradeToPremiumTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer au Premium'**
+  String get upgradeToPremiumTitle;
+
+  /// No description provided for @premiumWelcomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue au Premium'**
+  String get premiumWelcomeTitle;
+
+  /// No description provided for @premiumWelcomeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profitez de toutes les fonctionnalités avancées'**
+  String get premiumWelcomeSubtitle;
+
+  /// No description provided for @freePlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gratuit'**
+  String get freePlan;
+
+  /// No description provided for @freePrice.
+  ///
+  /// In fr, this message translates to:
+  /// **'0 FCFA'**
+  String get freePrice;
+
+  /// No description provided for @freeFeature1.
+  ///
+  /// In fr, this message translates to:
+  /// **'3 Budgets max'**
+  String get freeFeature1;
+
+  /// No description provided for @freeFeature2.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 Objectif max'**
+  String get freeFeature2;
+
+  /// No description provided for @freeFeature3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyses basiques'**
+  String get freeFeature3;
+
+  /// No description provided for @premiumPlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premium'**
+  String get premiumPlan;
+
+  /// No description provided for @premiumPrice.
+  ///
+  /// In fr, this message translates to:
+  /// **'2000 FCFA/mois'**
+  String get premiumPrice;
+
+  /// No description provided for @premiumFeature1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budgets illimités'**
+  String get premiumFeature1;
+
+  /// No description provided for @premiumFeature2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectifs illimités'**
+  String get premiumFeature2;
+
+  /// No description provided for @premiumFeature3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyses IA avancées'**
+  String get premiumFeature3;
+
+  /// No description provided for @premiumFeature4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Support prioritaire'**
+  String get premiumFeature4;
+
+  /// No description provided for @bestValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleure offre'**
+  String get bestValue;
+
+  /// No description provided for @upgradeAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'S\'abonner maintenant'**
+  String get upgradeAction;
+
+  /// No description provided for @currentPlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan actuel'**
+  String get currentPlan;
+
+  /// No description provided for @choosePaymentMethodTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir le mode de paiement'**
+  String get choosePaymentMethodTitle;
+
+  /// No description provided for @paymentInitError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'initialisation du paiement'**
+  String get paymentInitError;
+
+  /// No description provided for @cameroon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cameroun'**
+  String get cameroon;
+
+  /// No description provided for @france.
+  ///
+  /// In fr, this message translates to:
+  /// **'France'**
+  String get france;
+
+  /// No description provided for @usa.
+  ///
+  /// In fr, this message translates to:
+  /// **'États-Unis'**
+  String get usa;
+
+  /// No description provided for @belgium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Belgique'**
+  String get belgium;
+
+  /// No description provided for @canada.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canada'**
+  String get canada;
 }
 
 class _AppLocalizationsDelegate

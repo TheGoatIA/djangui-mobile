@@ -111,7 +111,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                   AppTextField(
                     controller: _amountController,
                     label: AppLocalizations.of(context)!.targetAmountLabel,
-                    hint: '0.00',
+                    hint: AppLocalizations.of(context)!.amountHint,
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -132,7 +132,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
+                        border: Border.all(color: AppColors.outline),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -146,13 +146,13 @@ class _AddGoalPageState extends State<AddGoalPage> {
                                   ).format(_selectedDate!),
                             style: AppTextStyles.bodyMedium.copyWith(
                               color: _selectedDate == null
-                                  ? Colors.grey
-                                  : AppColors.onBackground,
+                                  ? AppColors.textSecondary
+                                  : Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
                           Icon(
                             Icons.calendar_today,
-                            color: Colors.grey[400],
+                            color: AppColors.textSecondary,
                             size: 20,
                           ),
                         ],

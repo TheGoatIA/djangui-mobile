@@ -40,12 +40,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Prendre une photo'),
+              title: Text(AppLocalizations.of(context)!.takePhoto),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Choisir depuis la galerie'),
+              title: Text(AppLocalizations.of(context)!.chooseFromGallery),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
           ],
@@ -78,14 +78,18 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Reçu analysé avec succès !')),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.receiptScannedSuccess),
+          ),
         );
       }
     } catch (e) {
       setState(() => _isScanning = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur lors de l\'analyse du reçu')),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.receiptScannedError),
+          ),
         );
       }
     }
@@ -159,7 +163,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 IconButton(
                   icon: const Icon(Icons.qr_code_scanner),
                   onPressed: _onScanReceipt,
-                  tooltip: 'Scanner un reçu',
+                  tooltip: AppLocalizations.of(context)!.scanReceiptTooltip,
                 ),
             ],
           ),
@@ -267,15 +271,17 @@ class _TypeButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: isSelected ? color : Colors.white,
+            color: isSelected ? color : Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: isSelected ? color : Colors.grey[300]!),
+            border: Border.all(color: isSelected ? color : AppColors.outline),
           ),
           child: Center(
             child: Text(
               label,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: isSelected ? Colors.white : Colors.black87,
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -9,7 +10,7 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('À propos de Djangui')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.aboutDjangui)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -27,28 +28,41 @@ class AboutPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Djangui',
+              AppLocalizations.of(context)!.appTitle,
               style: AppTextStyles.h1.copyWith(color: AppColors.primary),
             ),
             const SizedBox(height: 8),
             Text(
-              'Version 1.0.0',
-              style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+              AppLocalizations.of(context)!.versionInfo('1.0.0', '1'),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
             const SizedBox(height: 32),
-            const Text(
-              'Djangui est votre compagnon financier ultime pour gérer vos tontines, budgets et investissements avec une expérience utilisateur de classe mondiale.',
+            Text(
+              AppLocalizations.of(context)!.aboutDescription,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyLarge,
             ),
             const SizedBox(height: 48),
-            _buildInfoTile('Développé par', 'Boris Gauty'),
-            _buildInfoTile('Contact', 'support@djangui.com'),
-            _buildInfoTile('Site Web', 'www.djangui.com'),
+            _buildInfoTile(
+              AppLocalizations.of(context)!.developedBy,
+              'Boris Gauty',
+            ),
+            _buildInfoTile(
+              AppLocalizations.of(context)!.contact,
+              'support@djangui.com',
+            ),
+            _buildInfoTile(
+              AppLocalizations.of(context)!.website,
+              'www.djangui.com',
+            ),
             const SizedBox(height: 48),
             Text(
-              '© 2024 Djangui inc. Tous droits réservés.',
-              style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+              AppLocalizations.of(context)!.copyrightInfo,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         ),
@@ -64,7 +78,9 @@ class AboutPage extends StatelessWidget {
         children: [
           Text(
             title,
-            style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
           Text(
             value,

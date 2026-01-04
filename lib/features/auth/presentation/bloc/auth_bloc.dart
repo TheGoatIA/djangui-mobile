@@ -133,22 +133,44 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthCheckRequested event,
     Emitter<AuthState> emit,
   ) async {
+    print('🔑 [AuthBloc] Checking authentication status...');
+    emit(state.copyWith(status: AuthStatus.loading));
     final isAuthenticated = await _authRepository.isAuthenticated();
+
     if (isAuthenticated) {
+      print(
+        '🔑 [AuthBloc] User is authenticated in storage, fetching user data...',
+      );
       final userResult = await _authRepository.getCurrentUser();
+
+      final String? accessToken = await _authRepository.getAccessToken();
+      final String? refreshToken = await _authRepository.getRefreshToken();
+
       userResult.fold(
-        (failure) => emit(state.copyWith(status: AuthStatus.unauthenticated)),
-        (user) => emit(
-          state.copyWith(
-            status: AuthStatus.authenticated,
-            authResponse: AuthResponse(
-              tokens: Tokens(accessToken: '', refreshToken: ''),
-              user: user,
+        (failure) {
+          print(
+            '🔑 [AuthBloc] Failed to fetch local user data: ${failure.message}',
+          );
+          emit(state.copyWith(status: AuthStatus.unauthenticated));
+        },
+        (user) {
+          print('🔑 [AuthBloc] Session recovered for user: ${user.email}');
+          emit(
+            state.copyWith(
+              status: AuthStatus.authenticated,
+              authResponse: AuthResponse(
+                tokens: Tokens(
+                  accessToken: accessToken ?? '',
+                  refreshToken: refreshToken ?? '',
+                ),
+                user: user,
+              ),
             ),
-          ),
-        ),
+          );
+        },
       );
     } else {
+      print('🔑 [AuthBloc] No session found (unauthenticated)');
       emit(state.copyWith(status: AuthStatus.unauthenticated));
     }
   }
@@ -251,6 +273,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       firstName: event.firstName,
       lastName: event.lastName,
       country: event.country,
+      avatar: event.avatar,
     );
     result.fold(
       (failure) => emit(

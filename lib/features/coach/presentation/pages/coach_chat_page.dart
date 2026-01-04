@@ -9,6 +9,7 @@ import '../bloc/coach_state.dart';
 import '../../data/models/chat_message_model.dart';
 import 'package:intl/intl.dart';
 import '../../../../l10n/app_localizations.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class CoachChatPage extends StatefulWidget {
   const CoachChatPage({super.key});
@@ -53,7 +54,10 @@ class _CoachChatPageState extends State<CoachChatPage> {
               Text(AppLocalizations.of(context)!.coachTitle),
               Text(
                 AppLocalizations.of(context)!.online,
-                style: const TextStyle(fontSize: 12, color: Colors.green),
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.success,
+                  fontSize: 10,
+                ),
               ),
             ],
           ),
@@ -90,13 +94,13 @@ class _CoachChatPageState extends State<CoachChatPage> {
                           Icon(
                             Icons.chat_bubble_outline,
                             size: 64,
-                            color: Colors.grey[300],
+                            color: AppColors.outline,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             AppLocalizations.of(context)!.coachWelcomeMessage,
                             style: AppTextStyles.bodyLarge.copyWith(
-                              color: Colors.grey,
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -134,12 +138,15 @@ class _CoachChatPageState extends State<CoachChatPage> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           AppLocalizations.of(context)!.coachThinking,
-          style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontStyle: FontStyle.italic,
+            color: AppColors.textSecondary,
+          ),
         ),
       ),
     );
@@ -149,10 +156,10 @@ class _CoachChatPageState extends State<CoachChatPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -164,7 +171,9 @@ class _CoachChatPageState extends State<CoachChatPage> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surfaceVariant.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: TextField(
@@ -188,7 +197,11 @@ class _CoachChatPageState extends State<CoachChatPage> {
                 return CircleAvatar(
                   backgroundColor: AppColors.primary,
                   child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                    icon: Icon(
+                      Icons.send,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      size: 20,
+                    ),
                     onPressed: () {
                       if (_messageController.text.trim().isNotEmpty) {
                         context.read<CoachBloc>().add(
@@ -226,7 +239,9 @@ class _MessageBubble extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isUser ? AppColors.primary : Colors.white,
+          color: isUser
+              ? AppColors.primary
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20),
             topRight: const Radius.circular(20),
@@ -236,7 +251,7 @@ class _MessageBubble extends StatelessWidget {
           boxShadow: [
             if (!isUser)
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
                 blurRadius: 5,
                 offset: const Offset(0, 2),
               ),
@@ -245,18 +260,28 @@ class _MessageBubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              message.text,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: isUser ? Colors.white : AppColors.onBackground,
+            MarkdownBody(
+              data: message.text,
+              styleSheet: MarkdownStyleSheet(
+                p: AppTextStyles.bodyMedium.copyWith(
+                  color: isUser ? Colors.white : AppColors.onBackground,
+                ),
+                strong: AppTextStyles.bodyMedium.copyWith(
+                  color: isUser ? Colors.white : AppColors.onBackground,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(height: 4),
             Text(
               DateFormat('HH:mm').format(message.timestamp),
-              style: TextStyle(
+              style: AppTextStyles.bodySmall.copyWith(
                 fontSize: 10,
-                color: isUser ? Colors.white70 : Colors.grey,
+                color: isUser
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.onPrimary.withValues(alpha: 0.7)
+                    : AppColors.textSecondary,
               ),
             ),
           ],

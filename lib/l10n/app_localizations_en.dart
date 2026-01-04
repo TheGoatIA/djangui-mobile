@@ -429,4 +429,293 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidPhone => 'Invalid phone number';
+
+  @override
+  String get country => 'Country';
+
+  @override
+  String get selectCountry => 'Select your country';
+
+  @override
+  String get selectCountryError => 'Please select a country';
+
+  @override
+  String get phoneHint => '+237 6xx xxx xxx';
+
+  @override
+  String get resetSuccess => 'Password reset successfully';
+
+  @override
+  String get resetError => 'Error resetting password';
+
+  @override
+  String get resetPasswordTitle => 'Reset Password';
+
+  @override
+  String get newPassword => 'New Password';
+
+  @override
+  String get newPasswordSubtitle =>
+      'Create a strong password to secure your account.';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get resetPasswordAction => 'Reset Password';
+
+  @override
+  String get greeting => 'Hello,';
+
+  @override
+  String get user => 'User';
+
+  @override
+  String get monthlyIncome => 'Monthly Income';
+
+  @override
+  String get totalExpenses => 'Total Expenses';
+
+  @override
+  String get quickActions => 'Quick Actions';
+
+  @override
+  String get invest => 'Invest';
+
+  @override
+  String get insights => 'Insights';
+
+  @override
+  String get importSms => 'Import SMS';
+
+  @override
+  String get scanningSms => 'Scanning for SMS transactions...';
+
+  @override
+  String get automatic => 'Automatic';
+
+  @override
+  String transactionsImported(int count) {
+    return '$count transactions imported!';
+  }
+
+  @override
+  String get smsPermissionRequired =>
+      'SMS permission required for this feature';
+
+  @override
+  String levelLabel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String xpToNextLevel(int xp) {
+    return '$xp XP to next level';
+  }
+
+  @override
+  String get myInvestments => 'My Investments';
+
+  @override
+  String get addInvestment => 'Add Investment';
+
+  @override
+  String get noInvestments => 'No Investments';
+
+  @override
+  String get startBuildingPortfolio => 'Start building your portfolio';
+
+  @override
+  String get newInvestment => 'New Investment';
+
+  @override
+  String get investmentDetails => 'Investment Details';
+
+  @override
+  String get assetNameHint => 'Asset name (e.g. Bitcoin, Tesla)';
+
+  @override
+  String get assetType => 'Asset Type';
+
+  @override
+  String get investedAmount => 'Invested Amount';
+
+  @override
+  String get estimatedROI => 'Estimated ROI (%)';
+
+  @override
+  String get cryptoCurrency => 'Cryptocurrency';
+
+  @override
+  String get stockMarket => 'Stock Market';
+
+  @override
+  String get realEstate => 'Real Estate';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get fieldRequired => 'Field required';
+
+  @override
+  String get errorOccurred => 'An error occurred';
+
+  @override
+  String get importGoal => 'Import Goal';
+
+  @override
+  String get goalImportedSuccess => 'Goal imported successfully!';
+
+  @override
+  String get sharedGoal => 'Shared Goal';
+
+  @override
+  String get targetAmount => 'Target Amount';
+
+  @override
+  String get deadline => 'Deadline';
+
+  @override
+  String get addGoalToListPrompt =>
+      'Do you want to add this goal to your list?';
+
+  @override
+  String get acceptGoal => 'Accept Goal';
+
+  @override
+  String get aiAnalysisTitle => 'AI Financial Analysis';
+
+  @override
+  String get aiAnalysisUnavailable => 'AI analysis is currently unavailable';
+
+  @override
+  String get countryLabel => 'Country';
+
+  @override
+  String get notSet => 'Not set';
+
+  @override
+  String get upgradeToPremium => 'Upgrade to Premium';
+
+  @override
+  String get premiumBannerDescription =>
+      'Unlock advanced insights, unlimited goals, and priority support.';
+
+  @override
+  String get discoverOffers => 'Discover Offers';
+
+  @override
+  String get aboutDjangui => 'About Djangui';
+
+  @override
+  String versionInfo(String version, String buildNumber) {
+    return 'Version $version ($buildNumber)';
+  }
+
+  @override
+  String get aboutDescription =>
+      'Djangui is a modern solution to manage your savings and tontines autonomously. Our mission is to democratize financial management through technology.';
+
+  @override
+  String get developedBy => 'Developed with ❤️ by the Djangui Team';
+
+  @override
+  String get contact => 'Contact';
+
+  @override
+  String get website => 'Website';
+
+  @override
+  String get copyrightInfo => '© 2024 Djangui. All rights reserved.';
+
+  @override
+  String get takePhoto => 'Take Photo';
+
+  @override
+  String get chooseFromGallery => 'Choose from Gallery';
+
+  @override
+  String get receiptScannedSuccess => 'Receipt scanned successfully';
+
+  @override
+  String get receiptScannedError => 'Error scanning receipt';
+
+  @override
+  String get scanReceiptTooltip => 'Scan receipt';
+
+  @override
+  String get upgradeToPremiumTitle => 'Upgrade to Premium';
+
+  @override
+  String get premiumWelcomeTitle => 'Welcome to Premium';
+
+  @override
+  String get premiumWelcomeSubtitle => 'Enjoy all advanced features';
+
+  @override
+  String get freePlan => 'Free';
+
+  @override
+  String get freePrice => '0 FCFA';
+
+  @override
+  String get freeFeature1 => '3 Budgets max';
+
+  @override
+  String get freeFeature2 => '1 Goal max';
+
+  @override
+  String get freeFeature3 => 'Basic insights';
+
+  @override
+  String get premiumPlan => 'Premium';
+
+  @override
+  String get premiumPrice => '2000 FCFA/mo';
+
+  @override
+  String get premiumFeature1 => 'Unlimited Budgets';
+
+  @override
+  String get premiumFeature2 => 'Unlimited Goals';
+
+  @override
+  String get premiumFeature3 => 'Advanced AI Insights';
+
+  @override
+  String get premiumFeature4 => 'Priority Support';
+
+  @override
+  String get bestValue => 'Best Value';
+
+  @override
+  String get upgradeAction => 'Upgrade Now';
+
+  @override
+  String get currentPlan => 'Current Plan';
+
+  @override
+  String get choosePaymentMethodTitle => 'Choose Payment Method';
+
+  @override
+  String get paymentInitError => 'Error initializing payment';
+
+  @override
+  String get cameroon => 'Cameroon';
+
+  @override
+  String get france => 'France';
+
+  @override
+  String get usa => 'USA';
+
+  @override
+  String get belgium => 'Belgium';
+
+  @override
+  String get canada => 'Canada';
 }

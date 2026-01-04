@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
+import 'package:logger/logger.dart';
 import '../../../../core/database/database.dart';
 import '../models/user_model.dart';
 import '../models/badge_model.dart';
@@ -22,8 +23,9 @@ abstract class AuthLocalDataSource {
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final FlutterSecureStorage _storage;
   final AppDatabase _db;
+  final Logger _logger;
 
-  AuthLocalDataSourceImpl(this._storage, this._db);
+  AuthLocalDataSourceImpl(this._storage, this._db, this._logger);
 
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
@@ -39,16 +41,21 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<String?> getAccessToken() async {
-    return await _storage.read(key: _accessTokenKey);
+    final token = await _storage.read(key: _accessTokenKey);
+    _logger.d('💾 [AuthLocal] Access token found: ${token != null}');
+    return token;
   }
 
   @override
   Future<String?> getRefreshToken() async {
-    return await _storage.read(key: _refreshTokenKey);
+    final token = await _storage.read(key: _refreshTokenKey);
+    _logger.d('💾 [AuthLocal] Refresh token found: ${token != null}');
+    return token;
   }
 
   @override
   Future<void> clearTokens() async {
+    _logger.d('💾 [AuthLocal] Clearing all tokens and user data');
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _refreshTokenKey);
     await _db.delete(_db.users).go();
@@ -56,6 +63,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> saveUser(UserModel user) async {
+    _logger.d('💾 [AuthLocal] Saving user to database: ${user.email}');
     await _db
         .into(_db.users)
         .insertOnConflictUpdate(
@@ -68,30 +76,42 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
             xp: drift.Value(user.xp),
             level: drift.Value(user.level),
             badges: drift.Value(jsonEncode(user.badges)),
+            isPremium: drift.Value(user.isPremium),
+            country: drift.Value(user.country),
+            phone: drift.Value(user.phone),
+            language: drift.Value(user.language ?? 'fr'),
           ),
         );
   }
 
   @override
   Future<UserModel?> getUser() async {
+    _logger.d('💾 [AuthLocal] Fetching user from database...');
     final user = await _db.select(_db.users).getSingleOrNull();
+    _logger.d('💾 [AuthLocal] User found in database: ${user != null}');
     if (user == null) return null;
+
     return UserModel(
       id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
       avatar: user.avatar,
+      country: user.country,
+      phone: user.phone,
+      isPremium: user.isPremium,
+      language: user.language,
       xp: user.xp,
       level: user.level,
       badges: (jsonDecode(user.badges) as List)
           .map((e) => BadgeModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      phone: '', // These would need to be added to the database schema too
+      // Fields not yet in DB (using defaults)
       isEmailVerified: false,
       isPhoneVerified: false,
       role: 'user',
       status: 'active',
+      walletBalance: 0.0,
     );
   }
 }

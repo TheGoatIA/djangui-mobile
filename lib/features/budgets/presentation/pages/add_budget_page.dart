@@ -107,7 +107,7 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                   AppTextField(
                     controller: _limitController,
                     label: AppLocalizations.of(context)!.monthlyLimitLabel,
-                    hint: '0.00',
+                    hint: AppLocalizations.of(context)!.amountHint,
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {

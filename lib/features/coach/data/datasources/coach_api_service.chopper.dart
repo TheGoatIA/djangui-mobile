@@ -18,8 +18,7 @@ final class _$CoachApiService extends CoachApiService {
   final Type definitionType = CoachApiService;
 
   @override
-  Future<Response<BaseResponse<ChatMessageModel>>> ask(
-      Map<String, dynamic> body) {
+  Future<Response<dynamic>> ask(Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/coach/ask');
     final $body = body;
     final Request $request = Request(
@@ -28,19 +27,17 @@ final class _$CoachApiService extends CoachApiService {
       client.baseUrl,
       body: $body,
     );
-    return client
-        .send<BaseResponse<ChatMessageModel>, ChatMessageModel>($request);
+    return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<BaseListResponse<ChatMessageModel>>> getChatHistory() {
+  Future<Response<dynamic>> getChatHistory() {
     final Uri $url = Uri.parse('/coach/history');
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
     );
-    return client
-        .send<BaseListResponse<ChatMessageModel>, ChatMessageModel>($request);
+    return client.send<dynamic, dynamic>($request);
   }
 }

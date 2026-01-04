@@ -40,7 +40,7 @@ class BudgetListPage extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context)!.noBudgetDefined,
                       style: AppTextStyles.bodyLarge.copyWith(
-                        color: Colors.grey,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -60,6 +60,7 @@ class BudgetListPage extends StatelessWidget {
           },
         ),
         floatingActionButton: FloatingActionButton(
+          heroTag: 'budgets_fab',
           onPressed: () => context.push('${RouteConstants.budgets}/add'),
           backgroundColor: AppColors.primary,
           child: const Icon(Icons.add, color: Colors.white),
@@ -85,11 +86,11 @@ class _BudgetItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -132,11 +133,15 @@ class _BudgetItem extends StatelessWidget {
             children: [
               Text(
                 '${AppLocalizations.of(context)!.spentLabel}: ${budget.totalSpent.toStringAsFixed(0)} F',
-                style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
               Text(
                 '${AppLocalizations.of(context)!.limitLabel}: ${budget.totalAllocated.toStringAsFixed(0)} F',
-                style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),

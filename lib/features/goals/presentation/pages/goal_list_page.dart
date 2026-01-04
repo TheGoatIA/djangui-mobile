@@ -39,7 +39,7 @@ class GoalListPage extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context)!.noGoalDefined,
                       style: AppTextStyles.bodyLarge.copyWith(
-                        color: Colors.grey,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -59,6 +59,7 @@ class GoalListPage extends StatelessWidget {
           },
         ),
         floatingActionButton: FloatingActionButton(
+          heroTag: 'goals_fab',
           onPressed: () => context.push('${RouteConstants.goals}/add'),
           backgroundColor: AppColors.primary,
           child: const Icon(Icons.add, color: Colors.white),
@@ -81,11 +82,11 @@ class _GoalItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -104,7 +105,11 @@ class _GoalItem extends StatelessWidget {
                 ),
               ),
               PopupMenuButton(
-                icon: Icon(Icons.more_vert, color: Colors.grey[400], size: 20),
+                icon: Icon(
+                  Icons.more_vert,
+                  color: AppColors.textSecondary,
+                  size: 20,
+                ),
                 onSelected: (value) {
                   if (value == 'share') {
                     getIt<ShareService>().shareGoal(goal);
@@ -115,10 +120,10 @@ class _GoalItem extends StatelessWidget {
                     value: 'share',
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.share,
                           size: 20,
-                          color: Colors.black54,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 8),
                         Text(AppLocalizations.of(context)!.share),
@@ -163,14 +168,18 @@ class _GoalItem extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              Icon(Icons.calendar_today, size: 14, color: Colors.grey[400]),
+              Icon(
+                Icons.calendar_today,
+                size: 14,
+                color: AppColors.textSecondary,
+              ),
               const SizedBox(width: 6),
               Text(
                 daysRemaining > 0
                     ? AppLocalizations.of(context)!.daysRemaining(daysRemaining)
                     : AppLocalizations.of(context)!.deadlinePassed,
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: Colors.grey[600],
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],

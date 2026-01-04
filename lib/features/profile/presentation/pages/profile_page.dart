@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -9,8 +11,96 @@ import '../../../gamification/presentation/widgets/badges_list.dart';
 import '../../../../core/constants/route_constants.dart';
 import 'package:go_router/go_router.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 50,
+      maxWidth: 500,
+    );
+
+    if (image != null) {
+      final bytes = await image.readAsBytes();
+      final base64Image = base64Encode(bytes);
+      if (mounted) {
+        context.read<AuthBloc>().add(
+          AuthUpdateProfileRequested(avatar: base64Image),
+        );
+      }
+    }
+  }
+
+  void _showEditProfileDialog(BuildContext context) {
+    final user = context.read<AuthBloc>().state.authResponse?.user;
+    if (user == null) return;
+
+    final firstNameController = TextEditingController(text: user.firstName);
+    final lastNameController = TextEditingController(text: user.lastName);
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.profile),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: firstNameController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.firstName,
+                ),
+                validator: (value) => (value == null || value.isEmpty)
+                    ? AppLocalizations.of(context)!.requiredField
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: lastNameController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.lastName,
+                ),
+                validator: (value) => (value == null || value.isEmpty)
+                    ? AppLocalizations.of(context)!.requiredField
+                    : null,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                context.read<AuthBloc>().add(
+                  AuthUpdateProfileRequested(
+                    firstName: firstNameController.text,
+                    lastName: lastNameController.text,
+                  ),
+                );
+                Navigator.pop(dialogContext);
+              }
+            },
+            child: Text(AppLocalizations.of(context)!.save),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,79 +111,125 @@ class ProfilePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
-            onPressed: () {
-              // Edit profile action
-            },
+            onPressed: () => _showEditProfileDialog(context),
           ),
         ],
       ),
-      body: BlocBuilder<AuthBloc, AuthState>(
+      body: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state.status == AuthStatus.error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.errorMessage ??
+                      AppLocalizations.of(context)!.genericError,
+                ),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        },
         builder: (context, state) {
           final user = state.authResponse?.user;
           final name = user != null
               ? '${user.firstName} ${user.lastName}'
-              : 'Utilisateur';
+              : AppLocalizations.of(context)!.user;
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                _buildProfileHeader(name, user?.email ?? ''),
-                const SizedBox(height: 24),
-                if (user != null && user.badges.isNotEmpty) ...[
-                  BadgesList(
-                    badgeIds: user.badges.map((e) => e.toString()).toList(),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-                if (user != null && user.role != 'premium') ...[
-                  _buildPremiumBanner(context),
-                  const SizedBox(height: 24),
-                ],
-                _buildSettingsSection(context),
-                const SizedBox(height: 32),
-                _buildLogoutButton(context),
-              ],
-            ),
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    _buildProfileHeader(
+                      context,
+                      name,
+                      user?.email ?? '',
+                      user?.avatar,
+                    ),
+                    const SizedBox(height: 24),
+                    if (user != null && user.badges.isNotEmpty) ...[
+                      BadgesList(
+                        badgeIds: user.badges.map((e) => e.toString()).toList(),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                    if (user != null && user.role != 'premium') ...[
+                      _buildPremiumBanner(context),
+                      const SizedBox(height: 24),
+                    ],
+                    _buildSettingsSection(context),
+                    const SizedBox(height: 32),
+                    _buildLogoutButton(context),
+                  ],
+                ),
+              ),
+              if (state.status == AuthStatus.loading)
+                const Center(child: CircularProgressIndicator()),
+            ],
           );
         },
       ),
     );
   }
 
-  Widget _buildProfileHeader(String name, String email) {
+  Widget _buildProfileHeader(
+    BuildContext context,
+    String name,
+    String email,
+    String? avatarUrl,
+  ) {
     return Column(
       children: [
-        Stack(
-          children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundColor: AppColors.primary,
-              child: Icon(Icons.person, size: 50, color: Colors.white),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.camera_alt,
-                  size: 20,
-                  color: AppColors.primary,
+        GestureDetector(
+          onTap: _pickImage,
+          child: Stack(
+            children: [
+              CircleAvatar(
+                radius: 50,
+                backgroundColor: AppColors.primary,
+                backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty)
+                    ? (avatarUrl.startsWith('http')
+                              ? NetworkImage(avatarUrl)
+                              : MemoryImage(base64Decode(avatarUrl)))
+                          as ImageProvider
+                    : null,
+                child: (avatarUrl == null || avatarUrl.isEmpty)
+                    ? const Icon(Icons.person, size: 50, color: Colors.white)
+                    : null,
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    size: 20,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 16),
         Text(name, style: AppTextStyles.h3),
         Text(
           email,
-          style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
         ),
       ],
     );
@@ -102,11 +238,11 @@ class ProfilePage extends StatelessWidget {
   Widget _buildSettingsSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -133,7 +269,9 @@ class ProfilePage extends StatelessWidget {
                 AppLocalizations.of(context)!.language,
                 trailing: Text(
                   state.locale.languageCode == 'fr' ? 'Français' : 'English',
-                  style: const TextStyle(color: Colors.grey),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 onTap: () =>
                     _showLanguageSelectionDialog(context, state.locale),
@@ -149,7 +287,9 @@ class ProfilePage extends StatelessWidget {
                 final phone = state.authResponse?.user.phone;
                 return Text(
                   phone ?? '',
-                  style: const TextStyle(color: Colors.grey),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 );
               },
             ),
@@ -163,13 +303,15 @@ class ProfilePage extends StatelessWidget {
           const Divider(height: 1),
           _buildSettingsTile(
             Icons.public_outlined,
-            'Country',
+            AppLocalizations.of(context)!.countryLabel,
             trailing: BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) {
                 final country = state.authResponse?.user.country;
                 return Text(
-                  country ?? 'Not set',
-                  style: const TextStyle(color: Colors.grey),
+                  country ?? AppLocalizations.of(context)!.notSet,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 );
               },
             ),
@@ -191,7 +333,9 @@ class ProfilePage extends StatelessWidget {
                 AppLocalizations.of(context)!.theme,
                 trailing: Text(
                   _getThemeName(context, state.themeMode),
-                  style: const TextStyle(color: Colors.grey),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 onTap: () =>
                     _showThemeSelectionDialog(context, state.themeMode),
@@ -225,7 +369,8 @@ class ProfilePage extends StatelessWidget {
         child: Icon(icon, color: AppColors.primary, size: 20),
       ),
       title: Text(title, style: AppTextStyles.bodyMedium),
-      trailing: trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
+      trailing:
+          trailing ?? Icon(Icons.chevron_right, color: AppColors.textSecondary),
       onTap: onTap,
     );
   }
@@ -250,9 +395,9 @@ class ProfilePage extends StatelessWidget {
                     Navigator.pop(dialogContext);
                     context.read<AuthBloc>().add(AuthLogoutRequested());
                   },
-                  child: const Text(
-                    'Déconnexion',
-                    style: TextStyle(color: Colors.red),
+                  child: Text(
+                    AppLocalizations.of(context)!.logout,
+                    style: const TextStyle(color: AppColors.error),
                   ),
                 ),
               ],
@@ -263,12 +408,15 @@ class ProfilePage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: Colors.red),
+            side: const BorderSide(color: AppColors.error),
           ),
         ),
-        child: const Text(
-          'Se déconnecter',
-          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+        child: Text(
+          AppLocalizations.of(context)!.logout,
+          style: const TextStyle(
+            color: AppColors.error,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -357,16 +505,16 @@ class ProfilePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Passez au Premium',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.upgradeToPremium,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      'Débloquez l\'IA et les rapports avancés',
+                      AppLocalizations.of(context)!.premiumBannerDescription,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,
@@ -389,7 +537,7 @@ class ProfilePage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Découvrir les offres'),
+              child: Text(AppLocalizations.of(context)!.discoverOffers),
             ),
           ),
         ],
@@ -409,7 +557,7 @@ class ProfilePage extends StatelessWidget {
       title: Text(label),
       leading: Icon(
         isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-        color: isSelected ? AppColors.primary : Colors.grey,
+        color: isSelected ? AppColors.primary : AppColors.textSecondary,
       ),
       onTap: () => onChanged(mode),
     );
@@ -464,7 +612,7 @@ class ProfilePage extends StatelessWidget {
       title: Text(label),
       leading: Icon(
         isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-        color: isSelected ? AppColors.primary : Colors.grey,
+        color: isSelected ? AppColors.primary : AppColors.textSecondary,
       ),
       onTap: () => onChanged(value),
     );
@@ -477,15 +625,40 @@ class ProfilePage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Select Country'),
+        title: Text(AppLocalizations.of(context)!.selectCountry),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildCountryOption(context, 'Cameroon', 'CM', currentCountry),
-            _buildCountryOption(context, 'France', 'FR', currentCountry),
-            _buildCountryOption(context, 'USA', 'US', currentCountry),
-            _buildCountryOption(context, 'Belgium', 'BE', currentCountry),
-            _buildCountryOption(context, 'Canada', 'CA', currentCountry),
+            _buildCountryOption(
+              context,
+              AppLocalizations.of(context)!.cameroon,
+              'CM',
+              currentCountry,
+            ),
+            _buildCountryOption(
+              context,
+              AppLocalizations.of(context)!.france,
+              'FR',
+              currentCountry,
+            ),
+            _buildCountryOption(
+              context,
+              AppLocalizations.of(context)!.usa,
+              'US',
+              currentCountry,
+            ),
+            _buildCountryOption(
+              context,
+              AppLocalizations.of(context)!.belgium,
+              'BE',
+              currentCountry,
+            ),
+            _buildCountryOption(
+              context,
+              AppLocalizations.of(context)!.canada,
+              'CA',
+              currentCountry,
+            ),
           ],
         ),
       ),
@@ -503,7 +676,7 @@ class ProfilePage extends StatelessWidget {
       title: Text(label),
       leading: Icon(
         isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-        color: isSelected ? AppColors.primary : Colors.grey,
+        color: isSelected ? AppColors.primary : AppColors.textSecondary,
       ),
       onTap: () {
         context.read<AuthBloc>().add(AuthUpdateProfileRequested(country: code));

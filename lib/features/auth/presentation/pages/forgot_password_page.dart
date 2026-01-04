@@ -58,7 +58,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              iconTheme: const IconThemeData(color: Colors.black),
+              iconTheme: IconThemeData(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
             ),
             body: SafeArea(
               child: SingleChildScrollView(
@@ -76,13 +78,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       Text(
                         AppLocalizations.of(context)!.forgotPasswordSubtitle,
                         style: AppTextStyles.bodyLarge.copyWith(
-                          color: Colors.grey,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 32),
                       AppTextField(
                         label: AppLocalizations.of(context)!.email,
-                        hint: 'email@exemple.com',
+                        hint: AppLocalizations.of(context)!.emailHint,
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         prefixIcon: Icons.email_outlined,

@@ -116,7 +116,7 @@ class InsightsPage extends StatelessWidget {
       },
       selectedColor: AppColors.primary.withValues(alpha: 0.2),
       labelStyle: TextStyle(
-        color: isSelected ? AppColors.primary : Colors.grey[600],
+        color: isSelected ? AppColors.primary : AppColors.textSecondary,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
     );
@@ -130,11 +130,11 @@ class InsightsPage extends StatelessWidget {
       height: 250,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -260,7 +260,10 @@ class InsightsPage extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppColors.primary.withValues(alpha: 0.1), Colors.white],
+              colors: [
+                AppColors.primary.withValues(alpha: 0.1),
+                Theme.of(context).colorScheme.surface,
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -279,7 +282,7 @@ class InsightsPage extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Analyse IA',
+                    AppLocalizations.of(context)!.aiAnalysisTitle,
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.bold,
@@ -292,7 +295,8 @@ class InsightsPage extends StatelessWidget {
                 const LinearProgressIndicator(minHeight: 2)
               else
                 Text(
-                  snapshot.data ?? 'Analyse indisponible',
+                  snapshot.data ??
+                      AppLocalizations.of(context)!.aiAnalysisUnavailable,
                   style: AppTextStyles.bodyMedium.copyWith(height: 1.5),
                 ),
             ],

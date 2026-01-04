@@ -9,7 +9,7 @@ class AuthInterceptor implements RequestInterceptor {
 
   @override
   FutureOr<Request> onRequest(Request request) async {
-    final String? token = await _storage.read(key: 'auth_token');
+    final String? token = await _storage.read(key: 'access_token');
 
     if (token != null) {
       final headers = Map<String, String>.from(request.headers);
@@ -26,6 +26,7 @@ class HttpLoggingInterceptor
   FutureOr<Request> onRequest(Request request) async {
     if (kDebugMode) {
       print('🌐 REQUEST: ${request.method} ${request.url}');
+      print('📦 Headers: ${request.headers}');
       if (request.body != null) print('📦 Body: ${request.body}');
     }
     return request;
@@ -35,7 +36,12 @@ class HttpLoggingInterceptor
   FutureOr<Response> onResponse(Response response) async {
     if (kDebugMode) {
       print('✅ RESPONSE: ${response.statusCode} ${response.base.request?.url}');
-      if (response.body != null) print('📥 Body: ${response.body}');
+      if (response.bodyString.isNotEmpty) {
+        print('📥 Body: ${response.bodyString}');
+      }
+      if (response.error != null) {
+        print('❌ Error: ${response.error}');
+      }
     }
     return response;
   }

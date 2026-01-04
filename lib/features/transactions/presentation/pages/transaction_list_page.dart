@@ -63,7 +63,7 @@ class TransactionListPage extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context)!.noRecentActivities,
                       style: AppTextStyles.bodyLarge.copyWith(
-                        color: Colors.grey,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -91,6 +91,7 @@ class TransactionListPage extends StatelessWidget {
           },
         ),
         floatingActionButton: FloatingActionButton(
+          heroTag: 'transactions_fab',
           onPressed: () => context.push('${RouteConstants.transactions}/add'),
           backgroundColor: AppColors.primary,
           child: const Icon(Icons.add, color: Colors.white),
@@ -114,11 +115,11 @@ class _TransactionItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -147,7 +148,9 @@ class _TransactionItem extends StatelessWidget {
                 ),
                 Text(
                   transaction.category,
-                  style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -163,8 +166,12 @@ class _TransactionItem extends StatelessWidget {
                 ),
               ),
               Text(
-                DateFormat('dd MMM').format(transaction.date),
-                style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                DateFormat(
+                  'dd MMM',
+                ).format(transaction.date), // Should ideally be localized
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),

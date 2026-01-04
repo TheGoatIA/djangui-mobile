@@ -10,73 +10,100 @@ import '../../../../di/injection.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
 
-class SplashPage extends StatelessWidget {
+class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
   @override
+  State<SplashPage> createState() => _SplashPageState();
+}
+
+class _SplashPageState extends State<SplashPage> {
+  bool _timerFinished = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _timerFinished = true;
+        });
+        _checkAndNavigate();
+      }
+    });
+  }
+
+  void _checkAndNavigate() {
+    final state = context.read<AuthBloc>().state;
+    if (!_timerFinished) return;
+
+    if (state.status == AuthStatus.authenticated ||
+        state.status == AuthStatus.unauthenticated) {
+      final prefs = getIt<SharedPreferences>();
+      final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+
+      if (!hasSeenOnboarding) {
+        context.go(RouteConstants.onBoarding);
+        return;
+      }
+
+      if (state.status == AuthStatus.authenticated) {
+        context.go(RouteConstants.dashboard);
+      } else {
+        context.go(RouteConstants.login);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<AuthBloc>()..add(AuthCheckRequested()),
-      child: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          // Add a small delay for branding
-          Future.delayed(const Duration(seconds: 2), () {
-            final prefs = getIt<SharedPreferences>();
-            final hasSeenOnboarding =
-                prefs.getBool('hasSeenOnboarding') ?? false;
-
-            if (!hasSeenOnboarding) {
-              if (context.mounted) {
-                context.go(RouteConstants.onBoarding);
-              }
-              return;
-            }
-
-            if (context.mounted) {
-              if (state.status == AuthStatus.authenticated) {
-                context.go(RouteConstants.dashboard);
-              } else if (state.status == AuthStatus.unauthenticated) {
-                context.go(RouteConstants.login);
-              }
-            }
-          });
-        },
-        child: Scaffold(
-          backgroundColor: AppColors.primary,
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Image.asset(AppAssets.logo, width: 80, height: 80),
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        print('🌊 [SplashPage] Auth state changed: ${state.status}');
+        if (state.status == AuthStatus.authenticated ||
+            state.status == AuthStatus.unauthenticated) {
+          _checkAndNavigate();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.primary,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  AppLocalizations.of(context)!.appTitle,
-                  style: AppTextStyles.headlineLarge.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Image.asset(AppAssets.logo, width: 80, height: 80),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                AppLocalizations.of(context)!.appTitle,
+                style: AppTextStyles.headlineLarge.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  AppLocalizations.of(context)!.appSlogan,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Colors.white70,
-                  ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppLocalizations.of(context)!.appSlogan,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onPrimary.withValues(alpha: 0.7),
                 ),
-                const SizedBox(height: 48),
-                const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+              const SizedBox(height: 48),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).colorScheme.onPrimary,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

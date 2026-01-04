@@ -77,7 +77,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 },
                 child: Text(
                   AppLocalizations.of(context)!.skip,
-                  style: AppTextStyles.labelLarge.copyWith(color: Colors.grey),
+                  style: AppTextStyles.labelLarge.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
             ),
@@ -106,7 +108,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           _contents[index].title,
                           style: AppTextStyles.headlineMedium.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppColors.onBackground,
+                            color: Theme.of(context).colorScheme.onBackground,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -114,7 +116,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         Text(
                           _contents[index].description,
                           style: AppTextStyles.bodyLarge.copyWith(
-                            color: Colors.grey[600],
+                            color: AppColors.textSecondary,
                           ),
                           textAlign: TextAlign.center,
                         ),

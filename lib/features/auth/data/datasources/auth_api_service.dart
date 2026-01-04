@@ -66,7 +66,7 @@ abstract class AuthApiService extends ChopperService {
   Future<Response<BaseResponse<UserModel>>> getProfile();
 
   @Patch(path: ApiConstants.me)
-  Future<Response<BaseResponse<UserModel>>> updateProfile(
+  Future<Response<BaseResponse<Map<String, dynamic>>>> updateProfile(
     @Body() Map<String, dynamic> body,
   );
 

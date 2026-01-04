@@ -81,7 +81,7 @@ class _PhoneLoginPageState extends State<PhoneLoginPage> {
                   AppTextField(
                     controller: _phoneController,
                     label: l10n.phoneNumber,
-                    hint: '+237 6xx xxx xxx',
+                    hint: l10n.phoneHint,
                     keyboardType: TextInputType.phone,
                     prefixIcon: Icons.phone_outlined,
                     validator: (value) {

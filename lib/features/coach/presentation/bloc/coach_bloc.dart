@@ -38,6 +38,7 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
     SendMessageRequested event,
     Emitter<CoachState> emit,
   ) async {
+    print('🤖 [CoachBloc] Sending message: ${event.text}');
     // Add optimistic user message
     final userMessage = ChatMessageModel(
       id: const Uuid().v4(),
@@ -48,20 +49,28 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
 
     final updatedMessages = List<ChatMessageModel>.from(state.messages)
       ..add(userMessage);
+    print(
+      '🤖 [CoachBloc] Optimistic update: ${updatedMessages.length} messages',
+    );
     emit(state.copyWith(messages: updatedMessages, isSending: true));
 
     final result = await _coachRepository.sendMessage(event.text);
     result.fold<void>(
-      (failure) => emit(
-        state.copyWith(
-          isSending: false,
-          status: CoachStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        print('🤖 [CoachBloc] Send message failed: ${failure.message}');
+        emit(
+          state.copyWith(
+            isSending: false,
+            status: CoachStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (ChatMessageModel aiMessage) {
+        print('🤖 [CoachBloc] AI response received: ${aiMessage.text}');
         final finalMessages = List<ChatMessageModel>.from(state.messages)
           ..add(aiMessage);
+        print('🤖 [CoachBloc] Final update: ${finalMessages.length} messages');
         emit(state.copyWith(isSending: false, messages: finalMessages));
       },
     );

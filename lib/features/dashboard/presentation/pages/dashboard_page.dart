@@ -12,6 +12,7 @@ import '../../../transactions/presentation/bloc/transactions_bloc.dart';
 import '../../../transactions/data/models/transaction_model.dart';
 import '../../../gamification/presentation/widgets/gamification_header.dart';
 import '../../../gamification/presentation/widgets/level_up_dialog.dart';
+import '../bloc/dashboard_bloc.dart';
 import '../../../../core/services/sms_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -23,10 +24,13 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => getIt<AuthBloc>()),
         BlocProvider(
           create: (context) =>
               getIt<TransactionsBloc>()..add(const GetTransactionsRequested()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
         ),
       ],
       child: MultiBlocListener(
@@ -112,13 +116,16 @@ class DashboardPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Bonjour,',
-            style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+            AppLocalizations.of(context)!.greeting,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               final userName =
-                  state.authResponse?.user.fullName ?? 'Utilisateur';
+                  state.authResponse?.user.fullName ??
+                  AppLocalizations.of(context)!.user;
               return Text(
                 userName,
                 style: AppTextStyles.bodyLarge.copyWith(
@@ -132,16 +139,19 @@ class DashboardPage extends StatelessWidget {
       actions: [
         IconButton(
           onPressed: () {},
-          icon: const Icon(
+          icon: Icon(
             Icons.notifications_none_outlined,
-            color: AppColors.onBackground,
+            color: Theme.of(context).colorScheme.onBackground,
           ),
         ),
         Builder(
           builder: (context) => IconButton(
             onPressed: () =>
                 context.read<AuthBloc>().add(AuthLogoutRequested()),
-            icon: const Icon(Icons.logout, color: AppColors.onBackground),
+            icon: Icon(
+              Icons.logout,
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
           ),
         ),
       ],
@@ -172,43 +182,77 @@ class DashboardPage extends StatelessWidget {
         children: [
           Text(
             AppLocalizations.of(context)!.totalBalance,
-            style: AppTextStyles.labelLarge.copyWith(color: Colors.white70),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '250,000 FCFA',
-            style: AppTextStyles.headlineLarge.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+            style: AppTextStyles.labelLarge.copyWith(
+              color: Theme.of(
+                context,
+              ).colorScheme.onPrimary.withValues(alpha: 0.7),
             ),
           ),
+          const SizedBox(height: 8),
+          BlocBuilder<DashboardBloc, DashboardState>(
+            builder: (context, state) {
+              final balance = state.report?.walletBalance ?? 0;
+              return Text(
+                '${NumberFormat.decimalPattern('fr').format(balance)} FCFA',
+                style: AppTextStyles.headlineLarge.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
+          ),
           const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildBalanceInfo('Épargne Personnel', '150,000'),
-              Container(width: 1, height: 40, color: Colors.white24),
-              _buildBalanceInfo('Tontines Actives', '100,000'),
-            ],
+          BlocBuilder<DashboardBloc, DashboardState>(
+            builder: (context, state) {
+              final income = state.report?.monthlyIncome ?? 0;
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildBalanceInfo(
+                    context,
+                    AppLocalizations.of(context)!.monthlyIncome,
+                    NumberFormat.decimalPattern('fr').format(income),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onPrimary.withValues(alpha: 0.24),
+                  ),
+                  _buildBalanceInfo(
+                    context,
+                    AppLocalizations.of(context)!.totalExpenses,
+                    NumberFormat.decimalPattern(
+                      'fr',
+                    ).format(state.report?.totalSpent ?? 0),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBalanceInfo(String label, String amount) {
+  Widget _buildBalanceInfo(BuildContext context, String label, String amount) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: AppTextStyles.bodySmall.copyWith(color: Colors.white70),
+          style: AppTextStyles.bodySmall.copyWith(
+            color: Theme.of(
+              context,
+            ).colorScheme.onPrimary.withValues(alpha: 0.7),
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           '$amount FCFA',
           style: AppTextStyles.bodyLarge.copyWith(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onPrimary,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -221,7 +265,7 @@ class DashboardPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Actions Rapides',
+          AppLocalizations.of(context)!.quickActions,
           style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
@@ -230,19 +274,19 @@ class DashboardPage extends StatelessWidget {
           children: [
             _buildActionItem(
               Icons.add_circle_outline,
-              'Investir',
+              AppLocalizations.of(context)!.invest,
               AppColors.primary,
               onTap: () => context.push('${RouteConstants.investments}/add'),
             ),
             _buildActionItem(
               Icons.bar_chart_outlined,
-              'Analyses',
+              AppLocalizations.of(context)!.insights,
               AppColors.secondary,
               onTap: () => context.push(RouteConstants.insights),
             ),
             _buildActionItem(
               Icons.sms_outlined,
-              'Import SMS',
+              AppLocalizations.of(context)!.importSms,
               AppColors.accent,
               onTap: () async {
                 final smsService = getIt<SMSService>();
@@ -252,8 +296,10 @@ class DashboardPage extends StatelessWidget {
                   if (!context.mounted) return;
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Recherche de transactions SMS...'),
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(context)!.scanningSms,
+                        ),
                       ),
                     );
                   }
@@ -270,7 +316,7 @@ class DashboardPage extends StatelessWidget {
                             id: const Uuid().v4(),
                             amount: t.amount,
                             type: 'expense',
-                            category: 'Automatique',
+                            category: AppLocalizations.of(context)!.automatic,
                             description: t.description,
                             date: t.date,
                           ),
@@ -281,7 +327,9 @@ class DashboardPage extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            '${transactions.length} transactions importées !',
+                            AppLocalizations.of(
+                              context,
+                            )!.transactionsImported(transactions.length),
                           ),
                         ),
                       );
@@ -290,9 +338,9 @@ class DashboardPage extends StatelessWidget {
                 } else {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content: Text(
-                          'Permission SMS requise pour cette fonctionnalité',
+                          AppLocalizations.of(context)!.smsPermissionRequired,
                         ),
                       ),
                     );
@@ -302,7 +350,7 @@ class DashboardPage extends StatelessWidget {
             ),
             _buildActionItem(
               Icons.smart_toy_outlined,
-              'Coach IA',
+              AppLocalizations.of(context)!.coach,
               Colors.indigo,
               onTap: () => context.push(RouteConstants.coach),
             ),
@@ -374,7 +422,9 @@ class DashboardPage extends StatelessWidget {
           return Center(
             child: Text(
               AppLocalizations.of(context)!.noRecentActivities,
-              style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           );
         }
@@ -394,7 +444,7 @@ class DashboardPage extends StatelessWidget {
             return Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -425,7 +475,7 @@ class DashboardPage extends StatelessWidget {
                         Text(
                           t.category,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: Colors.grey,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -444,7 +494,7 @@ class DashboardPage extends StatelessWidget {
                       Text(
                         DateFormat.yMMMd('fr').format(t.date),
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: Colors.grey,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],

@@ -179,7 +179,7 @@ final class _$AuthApiService extends AuthApiService {
   }
 
   @override
-  Future<Response<BaseResponse<UserModel>>> updateProfile(
+  Future<Response<BaseResponse<Map<String, dynamic>>>> updateProfile(
       Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/auth/me');
     final $body = body;
@@ -189,6 +189,7 @@ final class _$AuthApiService extends AuthApiService {
       client.baseUrl,
       body: $body,
     );
-    return client.send<BaseResponse<UserModel>, UserModel>($request);
+    return client.send<BaseResponse<Map<String, dynamic>>,
+        Map<String, dynamic>>($request);
   }
 }

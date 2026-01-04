@@ -16,6 +16,7 @@ import '../features/insights/data/datasources/insight_api_service.dart';
 import '../features/insights/data/datasources/ai_api_service.dart';
 import '../features/investments/data/datasources/investment_api_service.dart';
 import '../features/subscription/data/datasources/payment_api_service.dart';
+import '../features/reports/data/datasources/reports_api_service.dart';
 import 'injection.dart';
 
 @module
@@ -67,6 +68,10 @@ abstract class RegisterModule {
   @lazySingleton
   PaymentApiService get paymentApiService =>
       PaymentApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  ReportsApiService get reportsApiService =>
+      ReportsApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
   AppDatabase get database => AppDatabase();

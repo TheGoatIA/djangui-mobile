@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -14,7 +15,10 @@ class SubscriptionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Passer au Premium'), elevation: 0),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.upgradeToPremiumTitle),
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -22,13 +26,13 @@ class SubscriptionPage extends StatelessWidget {
             const Icon(Icons.star_rounded, color: AppColors.primary, size: 80),
             const SizedBox(height: 16),
             Text(
-              'Débloquez votre potentiel financier',
+              AppLocalizations.of(context)!.premiumWelcomeTitle,
               textAlign: TextAlign.center,
               style: AppTextStyles.h2,
             ),
             const SizedBox(height: 12),
             Text(
-              'Accédez à des outils avancés pour booster votre gestion de patrimoine.',
+              AppLocalizations.of(context)!.premiumWelcomeSubtitle,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
@@ -37,25 +41,25 @@ class SubscriptionPage extends StatelessWidget {
             const SizedBox(height: 40),
             _buildPlanCard(
               context,
-              title: 'Gratuit',
-              price: '0 FCFA',
+              title: AppLocalizations.of(context)!.freePlan,
+              price: AppLocalizations.of(context)!.freePrice,
               features: [
-                'Gestion de budget de base',
-                'Suivi de transactions manuel',
-                '1 Objectif financier',
+                AppLocalizations.of(context)!.freeFeature1,
+                AppLocalizations.of(context)!.freeFeature2,
+                AppLocalizations.of(context)!.freeFeature3,
               ],
               isPremium: false,
             ),
             const SizedBox(height: 24),
             _buildPlanCard(
               context,
-              title: 'Premium',
-              price: '5,000 FCFA / mois',
+              title: AppLocalizations.of(context)!.premiumPlan,
+              price: AppLocalizations.of(context)!.premiumPrice,
               features: [
-                'Intelligence Artificielle (OCR & SMS)',
-                'Analyses et Rapports détaillés',
-                'Gestion d\'investissements illimitée',
-                'Multi-devises & Export CSV',
+                AppLocalizations.of(context)!.premiumFeature1,
+                AppLocalizations.of(context)!.premiumFeature2,
+                AppLocalizations.of(context)!.premiumFeature3,
+                AppLocalizations.of(context)!.premiumFeature4,
               ],
               isPremium: true,
               isBestValue: true,
@@ -78,15 +82,15 @@ class SubscriptionPage extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isBestValue ? AppColors.primary : Colors.grey[200]!,
+          color: isBestValue ? AppColors.primary : AppColors.outline,
           width: isBestValue ? 2 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -102,9 +106,9 @@ class SubscriptionPage extends StatelessWidget {
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text(
-                'MEILLEURE OFFRE',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.bestValue,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -139,15 +143,14 @@ class SubscriptionPage extends StatelessWidget {
           const SizedBox(height: 24),
           if (isPremium)
             AppButton(
-              text: 'Devenir Premium',
+              text: AppLocalizations.of(context)!.upgradeAction,
               onPressed: () => _showPaymentOptions(context),
             )
           else
             AppButton(
-              text: 'Plan actuel',
+              text: AppLocalizations.of(context)!.currentPlan,
               onPressed: () {},
-              color: Colors.grey[300]!,
-              // textColor: Colors.black54,
+              color: AppColors.outline,
             ),
         ],
       ),
@@ -160,15 +163,18 @@ class SubscriptionPage extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Choisir un moyen de paiement', style: AppTextStyles.h3),
+            Text(
+              AppLocalizations.of(context)!.choosePaymentMethodTitle,
+              style: AppTextStyles.h3,
+            ),
             const SizedBox(height: 24),
             _buildPaymentMethod(
               icon: Icons.phone_android,
@@ -201,7 +207,7 @@ class SubscriptionPage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[200]!),
+          border: Border.all(color: AppColors.outline),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -229,7 +235,7 @@ class SubscriptionPage extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.grey),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
           ],
         ),
       ),
@@ -257,8 +263,8 @@ class SubscriptionPage extends StatelessWidget {
       } else {
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erreur lors de l\'initialisation du paiement'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.paymentInitError),
           ),
         );
       }

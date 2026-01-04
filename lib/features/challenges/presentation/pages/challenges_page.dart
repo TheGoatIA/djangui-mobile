@@ -37,13 +37,13 @@ class ChallengesPage extends StatelessWidget {
                     Icon(
                       Icons.emoji_events_outlined,
                       size: 64,
-                      color: Colors.grey[400],
+                      color: AppColors.outline,
                     ),
                     const SizedBox(height: 16),
                     Text(
                       AppLocalizations.of(context)!.noChallenges,
                       style: AppTextStyles.bodyLarge.copyWith(
-                        color: Colors.grey,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -86,11 +86,11 @@ class _ChallengeCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -129,7 +129,7 @@ class _ChallengeCard extends StatelessWidget {
                     Text(
                       challenge.description,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: Colors.grey[600],
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -169,7 +169,7 @@ class _ChallengeCard extends StatelessWidget {
               Text(
                 AppLocalizations.of(context)!.progress,
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: Colors.grey[600],
+                  color: AppColors.textSecondary,
                 ),
               ),
               Text(
@@ -199,14 +199,18 @@ class _ChallengeCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.timer_outlined, size: 14, color: Colors.grey[400]),
+                  Icon(
+                    Icons.timer_outlined,
+                    size: 14,
+                    color: AppColors.textSecondary,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     daysLeft > 0
                         ? AppLocalizations.of(context)!.daysRemaining(daysLeft)
                         : AppLocalizations.of(context)!.finished,
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: Colors.grey[600],
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ],

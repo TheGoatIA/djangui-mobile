@@ -151,5 +151,128 @@
     "otpCode": "SMS Code",
     "resendCode": "Resend Code",
     "phoneLinkedSuccess": "Phone linked successfully",
-    "invalidPhone": "Invalid phone number"
+    "invalidPhone": "Invalid phone number",
+    "country": "Country",
+    "selectCountry": "Select your country",
+    "selectCountryError": "Please select a country",
+    "phoneHint": "+237 6xx xxx xxx",
+    "resetSuccess": "Password reset successfully",
+    "resetError": "Error resetting password",
+    "resetPasswordTitle": "Reset Password",
+    "newPassword": "New Password",
+    "newPasswordSubtitle": "Create a strong password to secure your account.",
+    "confirmPassword": "Confirm Password",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "resetPasswordAction": "Reset Password",
+    "greeting": "Hello,",
+    "user": "User",
+    "monthlyIncome": "Monthly Income",
+    "totalExpenses": "Total Expenses",
+    "quickActions": "Quick Actions",
+    "invest": "Invest",
+    "insights": "Insights",
+    "importSms": "Import SMS",
+    "scanningSms": "Scanning for SMS transactions...",
+    "automatic": "Automatic",
+    "transactionsImported": "{count} transactions imported!",
+    "@transactionsImported": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "smsPermissionRequired": "SMS permission required for this feature",
+    "levelLabel": "Level {level}",
+    "@levelLabel": {
+        "placeholders": {
+            "level": {
+                "type": "int"
+            }
+        }
+    },
+    "xpToNextLevel": "{xp} XP to next level",
+    "@xpToNextLevel": {
+        "placeholders": {
+            "xp": {
+                "type": "int"
+            }
+        }
+    },
+    "myInvestments": "My Investments",
+    "addInvestment": "Add Investment",
+    "noInvestments": "No Investments",
+    "startBuildingPortfolio": "Start building your portfolio",
+    "newInvestment": "New Investment",
+    "investmentDetails": "Investment Details",
+    "assetNameHint": "Asset name (e.g. Bitcoin, Tesla)",
+    "assetType": "Asset Type",
+    "investedAmount": "Invested Amount",
+    "estimatedROI": "Estimated ROI (%)",
+    "cryptoCurrency": "Cryptocurrency",
+    "stockMarket": "Stock Market",
+    "realEstate": "Real Estate",
+    "other": "Other",
+    "fieldRequired": "Field required",
+    "errorOccurred": "An error occurred",
+    "importGoal": "Import Goal",
+    "goalImportedSuccess": "Goal imported successfully!",
+    "sharedGoal": "Shared Goal",
+    "targetAmount": "Target Amount",
+    "deadline": "Deadline",
+    "addGoalToListPrompt": "Do you want to add this goal to your list?",
+    "acceptGoal": "Accept Goal",
+    "aiAnalysisTitle": "AI Financial Analysis",
+    "aiAnalysisUnavailable": "AI analysis is currently unavailable",
+    "countryLabel": "Country",
+    "notSet": "Not set",
+    "upgradeToPremium": "Upgrade to Premium",
+    "premiumBannerDescription": "Unlock advanced insights, unlimited goals, and priority support.",
+    "discoverOffers": "Discover Offers",
+    "aboutDjangui": "About Djangui",
+    "versionInfo": "Version {version} ({buildNumber})",
+    "@versionInfo": {
+        "placeholders": {
+            "version": {
+                "type": "String"
+            },
+            "buildNumber": {
+                "type": "String"
+            }
+        }
+    },
+    "aboutDescription": "Djangui is a modern solution to manage your savings and tontines autonomously. Our mission is to democratize financial management through technology.",
+    "developedBy": "Developed with ❤️ by the Djangui Team",
+    "contact": "Contact",
+    "website": "Website",
+    "copyrightInfo": "© 2024 Djangui. All rights reserved.",
+    "takePhoto": "Take Photo",
+    "chooseFromGallery": "Choose from Gallery",
+    "receiptScannedSuccess": "Receipt scanned successfully",
+    "receiptScannedError": "Error scanning receipt",
+    "scanReceiptTooltip": "Scan receipt",
+    "upgradeToPremiumTitle": "Upgrade to Premium",
+    "premiumWelcomeTitle": "Welcome to Premium",
+    "premiumWelcomeSubtitle": "Enjoy all advanced features",
+    "freePlan": "Free",
+    "freePrice": "0 FCFA",
+    "freeFeature1": "3 Budgets max",
+    "freeFeature2": "1 Goal max",
+    "freeFeature3": "Basic insights",
+    "premiumPlan": "Premium",
+    "premiumPrice": "2000 FCFA/mo",
+    "premiumFeature1": "Unlimited Budgets",
+    "premiumFeature2": "Unlimited Goals",
+    "premiumFeature3": "Advanced AI Insights",
+    "premiumFeature4": "Priority Support",
+    "bestValue": "Best Value",
+    "upgradeAction": "Upgrade Now",
+    "currentPlan": "Current Plan",
+    "choosePaymentMethodTitle": "Choose Payment Method",
+    "paymentInitError": "Error initializing payment",
+    "cameroon": "Cameroon",
+    "france": "France",
+    "usa": "USA",
+    "belgium": "Belgium",
+    "canada": "Canada"
 }

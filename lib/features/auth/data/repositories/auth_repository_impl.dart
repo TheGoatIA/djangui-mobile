@@ -149,6 +149,7 @@ class AuthRepositoryImpl implements AuthRepository {
     String? firstName,
     String? lastName,
     String? country,
+    String? avatar,
   }) async {
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
 
@@ -157,6 +158,7 @@ class AuthRepositoryImpl implements AuthRepository {
         firstName: firstName,
         lastName: lastName,
         country: country,
+        avatar: avatar,
       );
       await _localDataSource.saveUser(user);
       return Right(user);
@@ -213,7 +215,9 @@ class AuthRepositoryImpl implements AuthRepository {
         return Right(user);
       }
       return Left(CacheFailure());
-    } catch (e) {
+    } catch (e, stack) {
+      print('🔑 [AuthRepository] Error fetching current user: $e');
+      print(stack);
       return Left(CacheFailure());
     }
   }
@@ -247,6 +251,16 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> isAuthenticated() async {
     final token = await _localDataSource.getAccessToken();
     return token != null;
+  }
+
+  @override
+  Future<String?> getAccessToken() async {
+    return _localDataSource.getAccessToken();
+  }
+
+  @override
+  Future<String?> getRefreshToken() async {
+    return _localDataSource.getRefreshToken();
   }
 
   @override
@@ -287,6 +301,31 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.verifyEmail(token);
         return const Right(null);
       } catch (e) {
+        return Left(AuthFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> refreshToken() async {
+    final refreshToken = await _localDataSource.getRefreshToken();
+    if (refreshToken == null)
+      return Left(AuthFailure('No refresh token found'));
+
+    if (await _networkInfo.isConnected) {
+      try {
+        print('🌐 [AuthRepository] Refreshing token...');
+        final tokens = await _remoteDataSource.refreshToken(refreshToken);
+        await _localDataSource.saveTokens(
+          accessToken: tokens['accessToken']!,
+          refreshToken: tokens['refreshToken']!,
+        );
+        print('🌐 [AuthRepository] Token refreshed successfully');
+        return const Right(null);
+      } catch (e) {
+        print('🌐 [AuthRepository] Token refresh failed: $e');
         return Left(AuthFailure(e.toString()));
       }
     } else {

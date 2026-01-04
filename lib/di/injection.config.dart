@@ -65,6 +65,8 @@ import 'package:djangui/features/coach/domain/repositories/coach_repository.dart
     as _i745;
 import 'package:djangui/features/coach/presentation/bloc/coach_bloc.dart'
     as _i1005;
+import 'package:djangui/features/dashboard/presentation/bloc/dashboard_bloc.dart'
+    as _i257;
 import 'package:djangui/features/goals/data/datasources/goal_api_service.dart'
     as _i615;
 import 'package:djangui/features/goals/data/datasources/goal_local_datasource.dart'
@@ -97,6 +99,12 @@ import 'package:djangui/features/investments/domain/repositories/investment_repo
     as _i499;
 import 'package:djangui/features/investments/presentation/bloc/investments_bloc.dart'
     as _i2;
+import 'package:djangui/features/reports/data/datasources/reports_api_service.dart'
+    as _i490;
+import 'package:djangui/features/reports/data/repositories/reports_repository_impl.dart'
+    as _i80;
+import 'package:djangui/features/reports/domain/repositories/reports_repository.dart'
+    as _i325;
 import 'package:djangui/features/settings/presentation/bloc/settings_bloc.dart'
     as _i754;
 import 'package:djangui/features/subscription/data/datasources/payment_api_service.dart'
@@ -160,6 +168,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => registerModule.investmentApiService);
     gh.lazySingleton<_i816.PaymentApiService>(
         () => registerModule.paymentApiService);
+    gh.lazySingleton<_i490.ReportsApiService>(
+        () => registerModule.reportsApiService);
     gh.lazySingleton<_i730.AppDatabase>(() => registerModule.database);
     gh.lazySingleton<_i974.Logger>(() => registerModule.logger);
     gh.factory<_i754.SettingsBloc>(
@@ -178,12 +188,22 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.factory<_i2.InvestmentsBloc>(
         () => _i2.InvestmentsBloc(gh<_i499.InvestmentRepository>()));
+    gh.lazySingleton<_i325.ReportsRepository>(() => _i80.ReportsRepositoryImpl(
+          gh<_i490.ReportsApiService>(),
+          gh<_i574.NetworkInfo>(),
+        ));
     gh.lazySingleton<_i493.CoachLocalDataSource>(
         () => _i493.CoachLocalDataSourceImpl(gh<_i730.AppDatabase>()));
     gh.lazySingleton<_i209.ChallengeLocalDataSource>(
         () => _i209.ChallengeLocalDataSourceImpl(gh<_i730.AppDatabase>()));
     gh.lazySingleton<_i642.GoalLocalDataSource>(
         () => _i642.GoalLocalDataSourceImpl(gh<_i730.AppDatabase>()));
+    gh.lazySingleton<_i520.AuthLocalDataSource>(
+        () => _i520.AuthLocalDataSourceImpl(
+              gh<_i558.FlutterSecureStorage>(),
+              gh<_i730.AppDatabase>(),
+              gh<_i974.Logger>(),
+            ));
     gh.lazySingleton<_i1021.ChallengeRepository>(
         () => _i558.ChallengeRepositoryImpl(
               gh<_i540.ChallengeRemoteDataSource>(),
@@ -192,8 +212,6 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.lazySingleton<_i912.GoalRemoteDataSource>(
         () => _i912.GoalRemoteDataSourceImpl(gh<_i615.GoalApiService>()));
-    gh.lazySingleton<_i1046.AuthRemoteDataSource>(
-        () => _i1046.AuthRemoteDataSourceImpl(gh<_i651.AuthApiService>()));
     gh.lazySingleton<_i1040.TransactionLocalDataSource>(
         () => _i1040.TransactionLocalDataSourceImpl(gh<_i730.AppDatabase>()));
     gh.lazySingleton<_i999.BudgetLocalDataSource>(
@@ -207,13 +225,15 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i88.InsightApiService>(),
           gh<_i574.NetworkInfo>(),
         ));
-    gh.lazySingleton<_i520.AuthLocalDataSource>(
-        () => _i520.AuthLocalDataSourceImpl(
-              gh<_i558.FlutterSecureStorage>(),
-              gh<_i730.AppDatabase>(),
-            ));
     gh.lazySingleton<_i186.CoachRemoteDataSource>(
         () => _i186.CoachRemoteDataSourceImpl(gh<_i522.CoachApiService>()));
+    gh.factory<_i257.DashboardBloc>(
+        () => _i257.DashboardBloc(gh<_i325.ReportsRepository>()));
+    gh.lazySingleton<_i1046.AuthRemoteDataSource>(
+        () => _i1046.AuthRemoteDataSourceImpl(
+              gh<_i651.AuthApiService>(),
+              gh<_i520.AuthLocalDataSource>(),
+            ));
     gh.lazySingleton<_i745.CoachRepository>(() => _i364.CoachRepositoryImpl(
           gh<_i186.CoachRemoteDataSource>(),
           gh<_i493.CoachLocalDataSource>(),

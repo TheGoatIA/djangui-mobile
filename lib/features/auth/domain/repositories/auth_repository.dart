@@ -24,13 +24,17 @@ abstract class AuthRepository {
   Future<Either<Failure, AuthResponse>> register(RegisterRequest request);
   Future<Either<Failure, void>> logout();
   Future<bool> isAuthenticated();
+  Future<String?> getAccessToken();
+  Future<String?> getRefreshToken();
   Future<Either<Failure, UserModel>> getCurrentUser();
   Future<Either<Failure, UserModel>> updateProfile({
     String? firstName,
     String? lastName,
     String? country,
+    String? avatar,
   });
   Future<Either<Failure, void>> forgotPassword(String email);
   Future<Either<Failure, void>> resetPassword(String token, String newPassword);
   Future<Either<Failure, void>> verifyEmail(String token);
+  Future<Either<Failure, void>> refreshToken();
 }
