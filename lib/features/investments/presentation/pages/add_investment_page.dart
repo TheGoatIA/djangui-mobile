@@ -43,9 +43,11 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
         type: _selectedType,
         initialAmount: amount,
         currentAmount: currentAmount,
-        roi: roi,
-        date: DateTime.now(),
-        notes: '',
+        currency: 'XAF',
+        status: 'active',
+        history: [], // Initialize with empty history
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       // Using getIt to access bloc since we might be outside the provider scope if navigated deeply

@@ -33,10 +33,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'idToken': idToken,
       if (country != null) 'country': country,
     });
-    if (response.isSuccessful && response.body != null) {
-      return response.body!;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception(response.error?.toString() ?? 'Firebase login failed');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Firebase login failed',
+      );
     }
   }
 
@@ -44,27 +48,37 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> linkPhone(String idToken) async {
     final response = await _apiService.linkPhone({'idToken': idToken});
     if (!response.isSuccessful) {
-      throw Exception(response.error?.toString() ?? 'Link phone failed');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Link phone failed',
+      );
     }
   }
 
   @override
   Future<AuthResponse> login(LoginRequest request) async {
     final response = await _apiService.login(request);
-    if (response.isSuccessful && response.body != null) {
-      return response.body!;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception(response.error?.toString() ?? 'Login failed');
+      throw Exception(
+        response.body?.message ?? response.error?.toString() ?? 'Login failed',
+      );
     }
   }
 
   @override
   Future<AuthResponse> register(RegisterRequest request) async {
     final response = await _apiService.register(request);
-    if (response.isSuccessful && response.body != null) {
-      return response.body!;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception(response.error?.toString() ?? 'Registration failed');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Registration failed',
+      );
     }
   }
 
@@ -79,10 +93,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (lastName != null) 'lastName': lastName,
       if (country != null) 'country': country,
     });
-    if (response.isSuccessful && response.body != null) {
-      return response.body!;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception(response.error?.toString() ?? 'Update profile failed');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Update profile failed',
+      );
     }
   }
 
@@ -90,7 +108,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> forgotPassword(String email) async {
     final response = await _apiService.forgotPassword({'email': email});
     if (!response.isSuccessful) {
-      throw Exception(response.error?.toString() ?? 'Forgot password failed');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Forgot password failed',
+      );
     }
   }
 
@@ -100,7 +122,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'password': newPassword,
     });
     if (!response.isSuccessful) {
-      throw Exception(response.error?.toString() ?? 'Reset password failed');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Reset password failed',
+      );
     }
   }
 
@@ -109,7 +135,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final response = await _apiService.verifyEmail(token);
     if (!response.isSuccessful) {
       throw Exception(
-        response.error?.toString() ?? 'Email verification failed',
+        response.body?.message ??
+            response.error?.toString() ??
+            'Email verification failed',
       );
     }
   }

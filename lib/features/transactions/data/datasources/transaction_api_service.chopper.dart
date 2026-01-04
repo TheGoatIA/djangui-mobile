@@ -18,7 +18,7 @@ final class _$TransactionApiService extends TransactionApiService {
   final Type definitionType = TransactionApiService;
 
   @override
-  Future<Response<List<TransactionModel>>> getTransactions({
+  Future<Response<BaseListResponse<TransactionModel>>> getTransactions({
     String? type,
     String? category,
     int? page,
@@ -35,11 +35,24 @@ final class _$TransactionApiService extends TransactionApiService {
       client.baseUrl,
       parameters: $params,
     );
-    return client.send<List<TransactionModel>, TransactionModel>($request);
+    return client
+        .send<BaseListResponse<TransactionModel>, TransactionModel>($request);
   }
 
   @override
-  Future<Response<TransactionModel>> createTransaction(
+  Future<Response<BaseResponse<TransactionModel>>> getTransaction(String id) {
+    final Uri $url = Uri.parse('/transactions/${id}');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client
+        .send<BaseResponse<TransactionModel>, TransactionModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<TransactionModel>>> createTransaction(
       Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/transactions');
     final $body = body;
@@ -49,11 +62,29 @@ final class _$TransactionApiService extends TransactionApiService {
       client.baseUrl,
       body: $body,
     );
-    return client.send<TransactionModel, TransactionModel>($request);
+    return client
+        .send<BaseResponse<TransactionModel>, TransactionModel>($request);
   }
 
   @override
-  Future<Response<dynamic>> createBulkTransaction(String file) {
+  Future<Response<BaseResponse<TransactionModel>>> updateTransaction(
+    String id,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/transactions/${id}');
+    final $body = body;
+    final Request $request = Request(
+      'PUT',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client
+        .send<BaseResponse<TransactionModel>, TransactionModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> createBulkTransaction(String file) {
     final Uri $url = Uri.parse('/transactions/bulk');
     final List<PartValue> $parts = <PartValue>[
       PartValueFile<String>(
@@ -68,17 +99,17 @@ final class _$TransactionApiService extends TransactionApiService {
       parts: $parts,
       multipart: true,
     );
-    return client.send<dynamic, dynamic>($request);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
   @override
-  Future<Response<void>> deleteTransaction(String id) {
+  Future<Response<BaseResponse<dynamic>>> deleteTransaction(String id) {
     final Uri $url = Uri.parse('/transactions/${id}');
     final Request $request = Request(
       'DELETE',
       $url,
       client.baseUrl,
     );
-    return client.send<void, void>($request);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 }

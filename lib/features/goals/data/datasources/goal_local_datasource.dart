@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:injectable/injectable.dart';
 import 'package:drift/drift.dart';
 import '../../../../core/database/database.dart';
@@ -20,18 +21,25 @@ class GoalLocalDataSourceImpl implements GoalLocalDataSource {
   @override
   Future<List<GoalModel>> getGoals() async {
     final rows = await _database.select(_database.goals).get();
-    return rows
-        .map(
-          (row) => GoalModel(
-            id: row.id,
-            name: row.name,
-            targetAmount: row.targetAmount,
-            currentAmount: row.currentAmount,
-            deadline: row.deadline,
-            createdAt: row.createdAt,
-          ),
-        )
-        .toList();
+    return rows.map((row) {
+      final participants = List<String>.from(json.decode(row.participants));
+
+      return GoalModel(
+        id: row.id,
+        name: row.name,
+        targetAmount: row.targetAmount,
+        currentAmount: row.currentAmount,
+        currency: row.currency,
+        deadline: row.deadline,
+        category: row.category,
+        status: row.status,
+        isShared: row.isShared,
+        participants: participants,
+        image: row.image,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+      );
+    }).toList();
   }
 
   @override
@@ -39,16 +47,7 @@ class GoalLocalDataSourceImpl implements GoalLocalDataSource {
     await _database.batch((batch) {
       batch.insertAll(
         _database.goals,
-        goals.map(
-          (g) => GoalsCompanion.insert(
-            id: g.id,
-            name: g.name,
-            targetAmount: g.targetAmount,
-            currentAmount: g.currentAmount,
-            deadline: g.deadline,
-            createdAt: g.createdAt,
-          ),
-        ),
+        goals.map((g) => _toCompanion(g)),
         mode: InsertMode.insertOrReplace,
       );
     });
@@ -58,16 +57,25 @@ class GoalLocalDataSourceImpl implements GoalLocalDataSource {
   Future<void> saveGoal(GoalModel goal) async {
     await _database
         .into(_database.goals)
-        .insertOnConflictUpdate(
-          GoalsCompanion.insert(
-            id: goal.id,
-            name: goal.name,
-            targetAmount: goal.targetAmount,
-            currentAmount: goal.currentAmount,
-            deadline: goal.deadline,
-            createdAt: goal.createdAt,
-          ),
-        );
+        .insertOnConflictUpdate(_toCompanion(goal));
+  }
+
+  GoalsCompanion _toCompanion(GoalModel g) {
+    return GoalsCompanion(
+      id: Value(g.id),
+      name: Value(g.name),
+      targetAmount: Value(g.targetAmount),
+      currentAmount: Value(g.currentAmount),
+      currency: Value(g.currency),
+      deadline: Value(g.deadline),
+      category: Value(g.category),
+      status: Value(g.status),
+      isShared: Value(g.isShared),
+      participants: Value(json.encode(g.participants)),
+      image: Value(g.image),
+      createdAt: Value(g.createdAt),
+      updatedAt: Value(g.updatedAt),
+    );
   }
 
   @override

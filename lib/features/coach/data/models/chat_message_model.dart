@@ -5,16 +5,21 @@ part 'chat_message_model.g.dart';
 
 @JsonSerializable()
 class ChatMessageModel extends Equatable {
+  @JsonKey(name: '_id')
   final String id;
   final String text;
   final String sender; // 'user' or 'ai'
   final DateTime timestamp;
+  final String? type; // 'text', 'image', 'file'
+  final Map<String, dynamic>? metadata;
 
   const ChatMessageModel({
     required this.id,
     required this.text,
     required this.sender,
     required this.timestamp,
+    this.type = 'text',
+    this.metadata,
   });
 
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) =>
@@ -23,5 +28,5 @@ class ChatMessageModel extends Equatable {
   Map<String, dynamic> toJson() => _$ChatMessageModelToJson(this);
 
   @override
-  List<Object?> get props => [id, text, sender, timestamp];
+  List<Object?> get props => [id, text, sender, timestamp, type, metadata];
 }

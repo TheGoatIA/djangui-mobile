@@ -1,5 +1,6 @@
 import 'package:chopper/chopper.dart';
 import '../models/chat_message_model.dart';
+import '../../../../core/network/models/base_response.dart';
 
 part 'coach_api_service.chopper.dart';
 
@@ -9,8 +10,10 @@ abstract class CoachApiService extends ChopperService {
       _$CoachApiService(client);
 
   @Post(path: '/ask')
-  Future<Response<ChatMessageModel>> ask(@Body() Map<String, dynamic> body);
+  Future<Response<BaseResponse<ChatMessageModel>>> ask(
+    @Body() Map<String, dynamic> body,
+  );
 
   @Get(path: '/history')
-  Future<Response<List<ChatMessageModel>>> getChatHistory();
+  Future<Response<BaseListResponse<ChatMessageModel>>> getChatHistory();
 }

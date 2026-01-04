@@ -18,18 +18,19 @@ final class _$InvestmentApiService extends InvestmentApiService {
   final Type definitionType = InvestmentApiService;
 
   @override
-  Future<Response<List<InvestmentModel>>> getInvestments() {
+  Future<Response<BaseListResponse<InvestmentModel>>> getInvestments() {
     final Uri $url = Uri.parse('/investments');
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
     );
-    return client.send<List<InvestmentModel>, InvestmentModel>($request);
+    return client
+        .send<BaseListResponse<InvestmentModel>, InvestmentModel>($request);
   }
 
   @override
-  Future<Response<InvestmentModel>> createInvestment(
+  Future<Response<BaseResponse<InvestmentModel>>> createInvestment(
       Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/investments');
     final $body = body;
@@ -39,33 +40,34 @@ final class _$InvestmentApiService extends InvestmentApiService {
       client.baseUrl,
       body: $body,
     );
-    return client.send<InvestmentModel, InvestmentModel>($request);
+    return client
+        .send<BaseResponse<InvestmentModel>, InvestmentModel>($request);
   }
 
   @override
-  Future<Response<void>> deleteInvestment(String id) {
+  Future<Response<BaseResponse<dynamic>>> deleteInvestment(String id) {
     final Uri $url = Uri.parse('/investments/${id}');
     final Request $request = Request(
       'DELETE',
       $url,
       client.baseUrl,
     );
-    return client.send<void, void>($request);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
   @override
-  Future<Response<void>> closeInvestment(String id) {
+  Future<Response<BaseResponse<dynamic>>> closeInvestment(String id) {
     final Uri $url = Uri.parse('/investments/${id}/close');
     final Request $request = Request(
       'POST',
       $url,
       client.baseUrl,
     );
-    return client.send<void, void>($request);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
   @override
-  Future<Response<void>> updateInvestmentValue(
+  Future<Response<BaseResponse<dynamic>>> updateInvestmentValue(
     String id,
     Map<String, dynamic> body,
   ) {
@@ -77,6 +79,6 @@ final class _$InvestmentApiService extends InvestmentApiService {
       client.baseUrl,
       body: $body,
     );
-    return client.send<void, void>($request);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 }

@@ -76,8 +76,10 @@ class _BudgetItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = (budget.spentAmount / budget.limitAmount).clamp(0.0, 1.0);
-    final isOverBudget = budget.spentAmount > budget.limitAmount;
+    final progress = budget.totalAllocated > 0
+        ? (budget.totalSpent / budget.totalAllocated).clamp(0.0, 1.0)
+        : 0.0;
+    final isOverBudget = budget.totalSpent > budget.totalAllocated;
     final color = isOverBudget ? AppColors.error : AppColors.primary;
 
     return Container(
@@ -100,7 +102,7 @@ class _BudgetItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                budget.category,
+                '${budget.period.month}/${budget.period.year}',
                 style: AppTextStyles.bodyLarge.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -129,11 +131,11 @@ class _BudgetItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${AppLocalizations.of(context)!.spentLabel}: ${budget.spentAmount.toStringAsFixed(0)} F',
+                '${AppLocalizations.of(context)!.spentLabel}: ${budget.totalSpent.toStringAsFixed(0)} F',
                 style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
               ),
               Text(
-                '${AppLocalizations.of(context)!.limitLabel}: ${budget.limitAmount.toStringAsFixed(0)} F',
+                '${AppLocalizations.of(context)!.limitLabel}: ${budget.totalAllocated.toStringAsFixed(0)} F',
                 style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
               ),
             ],

@@ -142,8 +142,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           state.copyWith(
             status: AuthStatus.authenticated,
             authResponse: AuthResponse(
-              accessToken: '', // Not needed for local check
-              refreshToken: '', // Not needed for local check
+              tokens: Tokens(accessToken: '', refreshToken: ''),
               user: user,
             ),
           ),
@@ -262,7 +261,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           status: AuthStatus.authenticated,
           authResponse:
               state.authResponse?.copyWith(user: user) ??
-              AuthResponse(accessToken: '', refreshToken: '', user: user),
+              AuthResponse(
+                tokens: Tokens(accessToken: '', refreshToken: ''),
+                user: user,
+              ),
         ),
       ),
     );

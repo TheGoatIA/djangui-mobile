@@ -74,11 +74,14 @@ class _ChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = (challenge.currentValue / challenge.targetValue).clamp(
-      0.0,
-      1.0,
-    );
-    final daysLeft = challenge.endDate.difference(DateTime.now()).inDays;
+    // For now, assume progress 0 or fetch user specific progress.
+    // ChallengeModel doesn't have currentValue anymore, it's in UserChallengeModel.
+    // This page likely needs to show generic challenges or user specific participation.
+    // Assuming generic list for now with 0 progress or derived from user participation if available.
+    const progress = 0.0;
+
+    // Calculate days left based on duration if start date not available, or just show duration.
+    final daysLeft = challenge.durationDays;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -146,7 +149,9 @@ class _ChallengeCard extends StatelessWidget {
                     const Icon(Icons.star, color: Colors.amber, size: 14),
                     const SizedBox(width: 4),
                     Text(
-                      AppLocalizations.of(context)!.points(challenge.points),
+                      AppLocalizations.of(
+                        context,
+                      )!.points(challenge.rewardPoints),
                       style: AppTextStyles.labelSmall.copyWith(
                         color: Colors.amber[800],
                         fontWeight: FontWeight.bold,
@@ -206,31 +211,31 @@ class _ChallengeCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (!challenge.isCompleted && progress < 1.0)
-                TextButton(
-                  onPressed: () {
-                    // Action de participation ou mise à jour
-                  },
-                  child: Text(AppLocalizations.of(context)!.acceptChallenge),
-                )
-              else if (challenge.isCompleted)
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      AppLocalizations.of(context)!.completed,
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+              // if (!challenge.isCompleted && progress < 1.0)
+              //   TextButton(
+              //     onPressed: () {
+              //       // Action de participation ou mise à jour
+              //     },
+              //     child: Text(AppLocalizations.of(context)!.acceptChallenge),
+              //   )
+              // else if (challenge.isCompleted)
+              //   Row(
+              //     children: [
+              //       const Icon(
+              //         Icons.check_circle,
+              //         color: Colors.green,
+              //         size: 16,
+              //       ),
+              //       const SizedBox(width: 4),
+              //       Text(
+              //         AppLocalizations.of(context)!.completed,
+              //         style: AppTextStyles.labelSmall.copyWith(
+              //           color: Colors.green,
+              //           fontWeight: FontWeight.bold,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
             ],
           ),
         ],

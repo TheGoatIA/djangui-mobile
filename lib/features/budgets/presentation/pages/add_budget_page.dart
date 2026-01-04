@@ -36,11 +36,24 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
       final now = DateTime.now();
       final budget = BudgetModel(
         id: const Uuid().v4(),
-        category: _categoryController.text,
-        limitAmount: double.parse(_limitController.text),
-        spentAmount: 0,
-        startDate: DateTime(now.year, now.month, 1),
-        endDate: DateTime(now.year, now.month + 1, 0),
+        period: BudgetPeriodModel(
+          month: now.month,
+          year: now.year,
+          type: 'monthly',
+        ),
+        categories: [
+          BudgetCategoryModel(
+            name: _categoryController.text,
+            allocated: double.parse(_limitController.text),
+            spent: 0,
+            percentage: 0,
+          ),
+        ],
+        totalAllocated: double.parse(_limitController.text),
+        totalSpent: 0,
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
       );
       context.read<BudgetsBloc>().add(AddBudgetRequested(budget));
     }

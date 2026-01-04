@@ -18,29 +18,32 @@ final class _$ChallengeApiService extends ChallengeApiService {
   final Type definitionType = ChallengeApiService;
 
   @override
-  Future<Response<List<ChallengeModel>>> getChallenges() {
+  Future<Response<BaseListResponse<ChallengeModel>>> getChallenges() {
     final Uri $url = Uri.parse('/challenges');
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
     );
-    return client.send<List<ChallengeModel>, ChallengeModel>($request);
+    return client
+        .send<BaseListResponse<ChallengeModel>, ChallengeModel>($request);
   }
 
   @override
-  Future<Response<List<dynamic>>> getUserChallenges() {
+  Future<Response<BaseListResponse<UserChallengeModel>>> getUserChallenges() {
     final Uri $url = Uri.parse('/challenges/my-challenges');
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
     );
-    return client.send<List<dynamic>, List<dynamic>>($request);
+    return client.send<BaseListResponse<UserChallengeModel>,
+        UserChallengeModel>($request);
   }
 
   @override
-  Future<Response<dynamic>> joinChallenge(Map<String, dynamic> body) {
+  Future<Response<BaseResponse<dynamic>>> joinChallenge(
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/challenges/join');
     final $body = body;
     final Request $request = Request(
@@ -49,11 +52,12 @@ final class _$ChallengeApiService extends ChallengeApiService {
       client.baseUrl,
       body: $body,
     );
-    return client.send<dynamic, dynamic>($request);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
   @override
-  Future<Response<dynamic>> validateWeek(Map<String, dynamic> body) {
+  Future<Response<BaseResponse<dynamic>>> validateWeek(
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/challenges/validate-week');
     final $body = body;
     final Request $request = Request(
@@ -62,6 +66,6 @@ final class _$ChallengeApiService extends ChallengeApiService {
       client.baseUrl,
       body: $body,
     );
-    return client.send<dynamic, dynamic>($request);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 }

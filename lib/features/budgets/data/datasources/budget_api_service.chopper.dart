@@ -18,37 +18,73 @@ final class _$BudgetApiService extends BudgetApiService {
   final Type definitionType = BudgetApiService;
 
   @override
-  Future<Response<BudgetModel>> getCurrentBudget() {
+  Future<Response<BaseResponse<BudgetModel>>> getCurrentBudget() {
     final Uri $url = Uri.parse('/budgets/current');
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
     );
-    return client.send<BudgetModel, BudgetModel>($request);
+    return client.send<BaseResponse<BudgetModel>, BudgetModel>($request);
   }
 
   @override
-  Future<Response<BudgetModel>> createBudget(BudgetModel budget) {
+  Future<Response<BaseListResponse<BudgetModel>>> getBudgets({
+    int? year,
+    int? month,
+  }) {
     final Uri $url = Uri.parse('/budgets');
-    final $body = budget;
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'year': year,
+      'month': month,
+    };
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
+    return client.send<BaseListResponse<BudgetModel>, BudgetModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<BudgetModel>>> createBudget(
+      Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/budgets');
+    final $body = body;
     final Request $request = Request(
       'POST',
       $url,
       client.baseUrl,
       body: $body,
     );
-    return client.send<BudgetModel, BudgetModel>($request);
+    return client.send<BaseResponse<BudgetModel>, BudgetModel>($request);
   }
 
   @override
-  Future<Response<void>> deleteBudget(String id) {
+  Future<Response<BaseResponse<BudgetModel>>> updateBudget(
+    String id,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/budgets/${id}');
+    final $body = body;
+    final Request $request = Request(
+      'PUT',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<BudgetModel>, BudgetModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> deleteBudget(String id) {
     final Uri $url = Uri.parse('/budgets/${id}');
     final Request $request = Request(
       'DELETE',
       $url,
       client.baseUrl,
     );
-    return client.send<void, void>($request);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 }

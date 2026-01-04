@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:fpdart/fpdart.dart';
+import 'dart:convert';
 import 'package:injectable/injectable.dart';
 import '../../../../core/database/database.dart';
 import '../../../../core/errors/failures.dart';
@@ -19,8 +20,8 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
     try {
       // 1. Fetch from remote
       final response = await _apiService.getInvestments();
-      if (response.isSuccessful && response.body != null) {
-        final remoteInvestments = response.body!;
+      if (response.isSuccessful && response.body?.data != null) {
+        final remoteInvestments = response.body!.data!;
         // 2. Sync with local
         for (final inv in remoteInvestments) {
           await _db
@@ -32,9 +33,15 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
                   type: Value(inv.type),
                   initialAmount: Value(inv.initialAmount),
                   currentAmount: Value(inv.currentAmount),
-                  roi: Value(inv.roi),
-                  date: Value(inv.date),
-                  notes: Value(inv.notes),
+                  currency: Value(inv.currency),
+                  status: Value(inv.status),
+                  history: Value(
+                    json.encode(
+                      inv.history?.map((e) => e.toJson()).toList() ?? [],
+                    ),
+                  ),
+                  createdAt: Value(inv.createdAt),
+                  updatedAt: Value(inv.updatedAt),
                 ),
               );
         }
@@ -43,20 +50,26 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
       // 3. Return from local
       final investments = await _db.select(_db.investments).get();
       return Right(
-        investments
-            .map(
-              (e) => InvestmentModel(
-                id: e.id,
-                name: e.name,
-                type: e.type,
-                initialAmount: e.initialAmount,
-                currentAmount: e.currentAmount,
-                roi: e.roi,
-                date: e.date,
-                notes: e.notes,
-              ),
-            )
-            .toList(),
+        investments.map((e) {
+          final historyList = (json.decode(e.history) as List)
+              .map(
+                (x) =>
+                    InvestmentHistoryModel.fromJson(x as Map<String, dynamic>),
+              )
+              .toList();
+          return InvestmentModel(
+            id: e.id,
+            name: e.name,
+            type: e.type,
+            initialAmount: e.initialAmount,
+            currentAmount: e.currentAmount,
+            currency: e.currency,
+            status: e.status,
+            history: historyList,
+            createdAt: e.createdAt,
+            updatedAt: e.updatedAt,
+          );
+        }).toList(),
       );
     } catch (e) {
       return Left(ServerFailure());
@@ -81,9 +94,15 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
                 type: Value(investment.type),
                 initialAmount: Value(investment.initialAmount),
                 currentAmount: Value(investment.currentAmount),
-                roi: Value(investment.roi),
-                date: Value(investment.date),
-                notes: Value(investment.notes),
+                currency: Value(investment.currency),
+                status: Value(investment.status),
+                history: Value(
+                  json.encode(
+                    investment.history?.map((e) => e.toJson()).toList() ?? [],
+                  ),
+                ),
+                createdAt: Value(investment.createdAt),
+                updatedAt: Value(investment.updatedAt),
               ),
             );
         return const Right(null);

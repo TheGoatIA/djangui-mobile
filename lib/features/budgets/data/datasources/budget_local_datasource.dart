@@ -1,5 +1,6 @@
-import 'package:injectable/injectable.dart';
 import 'package:drift/drift.dart';
+import 'dart:convert';
+import 'package:injectable/injectable.dart';
 import '../../../../core/database/database.dart';
 import '../models/budget_model.dart';
 
@@ -20,18 +21,23 @@ class BudgetLocalDataSourceImpl implements BudgetLocalDataSource {
   @override
   Future<List<BudgetModel>> getBudgets() async {
     final rows = await _database.select(_database.budgets).get();
-    return rows
-        .map(
-          (row) => BudgetModel(
-            id: row.id,
-            category: row.category,
-            limitAmount: row.limitAmount,
-            spentAmount: row.spentAmount,
-            startDate: row.startDate,
-            endDate: row.endDate,
-          ),
-        )
-        .toList();
+    return rows.map((row) {
+      final periodMap = json.decode(row.period) as Map<String, dynamic>;
+      final categoriesList = (json.decode(row.categories) as List)
+          .map((e) => BudgetCategoryModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      return BudgetModel(
+        id: row.id,
+        period: BudgetPeriodModel.fromJson(periodMap),
+        categories: categoriesList,
+        totalAllocated: row.totalAllocated,
+        totalSpent: row.totalSpent,
+        status: row.status,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+      );
+    }).toList();
   }
 
   @override
@@ -39,16 +45,7 @@ class BudgetLocalDataSourceImpl implements BudgetLocalDataSource {
     await _database.batch((batch) {
       batch.insertAll(
         _database.budgets,
-        budgets.map(
-          (b) => BudgetsCompanion.insert(
-            id: b.id,
-            category: b.category,
-            limitAmount: b.limitAmount,
-            spentAmount: b.spentAmount,
-            startDate: b.startDate,
-            endDate: b.endDate,
-          ),
-        ),
+        budgets.map((b) => _toCompanion(b)),
         mode: InsertMode.insertOrReplace,
       );
     });
@@ -58,16 +55,22 @@ class BudgetLocalDataSourceImpl implements BudgetLocalDataSource {
   Future<void> saveBudget(BudgetModel budget) async {
     await _database
         .into(_database.budgets)
-        .insertOnConflictUpdate(
-          BudgetsCompanion.insert(
-            id: budget.id,
-            category: budget.category,
-            limitAmount: budget.limitAmount,
-            spentAmount: budget.spentAmount,
-            startDate: budget.startDate,
-            endDate: budget.endDate,
-          ),
-        );
+        .insertOnConflictUpdate(_toCompanion(budget));
+  }
+
+  BudgetsCompanion _toCompanion(BudgetModel b) {
+    return BudgetsCompanion(
+      id: Value(b.id),
+      period: Value(json.encode(b.period.toJson())),
+      categories: Value(
+        json.encode(b.categories.map((e) => e.toJson()).toList()),
+      ),
+      totalAllocated: Value(b.totalAllocated),
+      totalSpent: Value(b.totalSpent),
+      status: Value(b.status),
+      createdAt: Value(b.createdAt),
+      updatedAt: Value(b.updatedAt),
+    );
   }
 
   @override

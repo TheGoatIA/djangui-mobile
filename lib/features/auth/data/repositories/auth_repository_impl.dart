@@ -73,8 +73,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final response = await _remoteDataSource.firebaseLogin(idToken);
       await _localDataSource.saveTokens(
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken,
+        accessToken: response.tokens.accessToken,
+        refreshToken: response.tokens.refreshToken,
       );
       await _localDataSource.saveUser(response.user);
       return Right(response);
@@ -127,7 +127,6 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _googleSignIn.initialize();
       final googleUser = await _googleSignIn.authenticate();
-
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
@@ -135,8 +134,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final response = await _remoteDataSource.firebaseLogin(idToken);
       await _localDataSource.saveTokens(
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken,
+        accessToken: response.tokens.accessToken,
+        refreshToken: response.tokens.refreshToken,
       );
       await _localDataSource.saveUser(response.user);
       return Right(response);
@@ -172,8 +171,8 @@ class AuthRepositoryImpl implements AuthRepository {
       try {
         final response = await _remoteDataSource.login(request);
         await _localDataSource.saveTokens(
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
+          accessToken: response.tokens.accessToken,
+          refreshToken: response.tokens.refreshToken,
         );
         await _localDataSource.saveUser(response.user);
         return Right(response);
@@ -193,8 +192,8 @@ class AuthRepositoryImpl implements AuthRepository {
       try {
         final response = await _remoteDataSource.register(request);
         await _localDataSource.saveTokens(
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
+          accessToken: response.tokens.accessToken,
+          refreshToken: response.tokens.refreshToken,
         );
         await _localDataSource.saveUser(response.user);
         return Right(response);
@@ -222,7 +221,22 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> logout() async {
     try {
+      // 1. Call remote logout if needed (optional)
+      // await _remoteDataSource.logout();
+
+      // 2. Clear local storage
       await _localDataSource.clearTokens();
+
+      // 3. Sign out from Firebase
+      await FirebaseAuth.instance.signOut();
+
+      // 4. Sign out from Google
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {
+        // Ignore errors if not signed in or other issues
+      }
+
       return const Right(null);
     } catch (e) {
       return Left(CacheFailure());

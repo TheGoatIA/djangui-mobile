@@ -5,60 +5,32 @@ part 'challenge_model.g.dart';
 
 @JsonSerializable()
 class ChallengeModel extends Equatable {
+  @JsonKey(name: '_id')
   final String id;
   final String title;
   final String description;
-  final String type; // saving, spending
-  final double targetValue;
-  final double currentValue;
-  final int points;
-  final DateTime startDate;
-  final DateTime endDate;
-  final bool isCompleted;
+  final String type; // saving, spending_cut, habit
+  final String difficulty; // easy, medium, hard
+  final double targetAmount;
+  final int durationDays;
+  final int rewardPoints;
+  final String? icon;
 
   const ChallengeModel({
     required this.id,
     required this.title,
     required this.description,
     required this.type,
-    required this.targetValue,
-    required this.currentValue,
-    required this.points,
-    required this.startDate,
-    required this.endDate,
-    this.isCompleted = false,
+    required this.difficulty,
+    required this.targetAmount,
+    required this.durationDays,
+    required this.rewardPoints,
+    this.icon,
   });
 
   factory ChallengeModel.fromJson(Map<String, dynamic> json) =>
       _$ChallengeModelFromJson(json);
-
   Map<String, dynamic> toJson() => _$ChallengeModelToJson(this);
-
-  ChallengeModel copyWith({
-    String? id,
-    String? title,
-    String? description,
-    String? type,
-    double? targetValue,
-    double? currentValue,
-    int? points,
-    DateTime? startDate,
-    DateTime? endDate,
-    bool? isCompleted,
-  }) {
-    return ChallengeModel(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      type: type ?? this.type,
-      targetValue: targetValue ?? this.targetValue,
-      currentValue: currentValue ?? this.currentValue,
-      points: points ?? this.points,
-      startDate: startDate ?? this.startDate,
-      endDate: endDate ?? this.endDate,
-      isCompleted: isCompleted ?? this.isCompleted,
-    );
-  }
 
   @override
   List<Object?> get props => [
@@ -66,11 +38,44 @@ class ChallengeModel extends Equatable {
     title,
     description,
     type,
-    targetValue,
+    difficulty,
+    targetAmount,
+    durationDays,
+    rewardPoints,
+    icon,
+  ];
+}
+
+@JsonSerializable()
+class UserChallengeModel extends Equatable {
+  @JsonKey(name: '_id')
+  final String id;
+  final String status;
+  final double progress;
+  final double currentValue;
+  final ChallengeModel? challengeId;
+  final Map<String, dynamic>? flexibility;
+
+  const UserChallengeModel({
+    required this.id,
+    required this.status,
+    required this.progress,
+    required this.currentValue,
+    this.challengeId,
+    this.flexibility,
+  });
+
+  factory UserChallengeModel.fromJson(Map<String, dynamic> json) =>
+      _$UserChallengeModelFromJson(json);
+  Map<String, dynamic> toJson() => _$UserChallengeModelToJson(this);
+
+  @override
+  List<Object?> get props => [
+    id,
+    status,
+    progress,
     currentValue,
-    points,
-    startDate,
-    endDate,
-    isCompleted,
+    challengeId,
+    flexibility,
   ];
 }

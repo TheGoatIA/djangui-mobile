@@ -23,30 +23,42 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
   @override
   Future<List<ChallengeModel>> getChallenges() async {
     final response = await _apiService.getChallenges();
-    if (response.isSuccessful) {
-      return response.body ?? [];
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception('Failed to fetch challenges');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to fetch challenges',
+      );
     }
   }
 
   @override
   Future<List<dynamic>> getUserChallenges() async {
     final response = await _apiService.getUserChallenges();
-    if (response.isSuccessful) {
-      return response.body ?? [];
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception('Failed to fetch user challenges');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to fetch user challenges',
+      );
     }
   }
 
   @override
   Future<dynamic> joinChallenge(String id) async {
     final response = await _apiService.joinChallenge({'challengeId': id});
-    if (response.isSuccessful && response.body != null) {
-      return response.body!;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception('Failed to join challenge');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to join challenge',
+      );
     }
   }
 
@@ -62,9 +74,13 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
       'amount': amount,
     });
     if (response.isSuccessful) {
-      return response.body;
+      return response.body?.data;
     } else {
-      throw Exception('Failed to validate week');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to validate week',
+      );
     }
   }
 }

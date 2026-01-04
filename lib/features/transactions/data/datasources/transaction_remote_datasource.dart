@@ -17,11 +17,13 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
   @override
   Future<List<TransactionModel>> getTransactions() async {
     final response = await _apiService.getTransactions();
-    if (response.isSuccessful && response.body != null) {
-      return response.body!;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
       throw Exception(
-        response.error?.toString() ?? 'Failed to fetch transactions',
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to fetch transactions',
       );
     }
   }
@@ -31,11 +33,13 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
     TransactionModel transaction,
   ) async {
     final response = await _apiService.createTransaction(transaction.toJson());
-    if (response.isSuccessful && response.body != null) {
-      return response.body!;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
       throw Exception(
-        response.error?.toString() ?? 'Failed to create transaction',
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to create transaction',
       );
     }
   }
@@ -45,7 +49,9 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
     final response = await _apiService.deleteTransaction(id);
     if (!response.isSuccessful) {
       throw Exception(
-        response.error?.toString() ?? 'Failed to delete transaction',
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to delete transaction',
       );
     }
   }

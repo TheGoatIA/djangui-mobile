@@ -16,20 +16,28 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
   @override
   Future<ChatMessageModel> sendMessage(String text) async {
     final response = await _apiService.ask({'message': text});
-    if (response.isSuccessful && response.body != null) {
-      return response.body!;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception('Failed to get coach response');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to get coach response',
+      );
     }
   }
 
   @override
   Future<List<ChatMessageModel>> getChatHistory() async {
     final response = await _apiService.getChatHistory();
-    if (response.isSuccessful && response.body != null) {
-      return response.body!;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception('Failed to fetch chat history');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to fetch chat history',
+      );
     }
   }
 }

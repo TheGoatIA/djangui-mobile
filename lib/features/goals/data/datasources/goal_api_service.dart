@@ -1,5 +1,6 @@
 import 'package:chopper/chopper.dart';
 import '../models/goal_model.dart';
+import '../../../../core/network/models/base_response.dart';
 
 part 'goal_api_service.chopper.dart';
 
@@ -9,16 +10,16 @@ abstract class GoalApiService extends ChopperService {
       _$GoalApiService(client);
 
   @Get()
-  Future<Response<List<GoalModel>>> getGoals();
+  Future<Response<BaseListResponse<GoalModel>>> getGoals();
 
   @Post()
-  Future<Response<GoalModel>> createGoal(@Body() GoalModel goal);
+  Future<Response<BaseResponse<GoalModel>>> createGoal(@Body() GoalModel goal);
 
   @Delete(path: '/{id}')
-  Future<Response<void>> deleteGoal(@Path('id') String id);
+  Future<Response<BaseResponse<dynamic>>> deleteGoal(@Path('id') String id);
 
   @Post(path: '/{id}/contribute')
-  Future<Response<void>> contributeToGoal(
+  Future<Response<BaseResponse<dynamic>>> contributeToGoal(
     @Path('id') String id,
     @Body() Map<String, dynamic> body,
   );

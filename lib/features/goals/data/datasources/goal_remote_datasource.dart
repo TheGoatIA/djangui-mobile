@@ -18,20 +18,28 @@ class GoalRemoteDataSourceImpl implements GoalRemoteDataSource {
   @override
   Future<List<GoalModel>> getGoals() async {
     final response = await _apiService.getGoals();
-    if (response.isSuccessful) {
-      return response.body ?? [];
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception('Failed to fetch goals');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to fetch goals',
+      );
     }
   }
 
   @override
   Future<GoalModel> createGoal(GoalModel goal) async {
     final response = await _apiService.createGoal(goal);
-    if (response.isSuccessful && response.body != null) {
-      return response.body!;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception('Failed to create goal');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to create goal',
+      );
     }
   }
 
@@ -39,7 +47,11 @@ class GoalRemoteDataSourceImpl implements GoalRemoteDataSource {
   Future<void> deleteGoal(String id) async {
     final response = await _apiService.deleteGoal(id);
     if (!response.isSuccessful) {
-      throw Exception('Failed to delete goal');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to delete goal',
+      );
     }
   }
 
@@ -47,7 +59,11 @@ class GoalRemoteDataSourceImpl implements GoalRemoteDataSource {
   Future<void> contributeToGoal(String id, double amount) async {
     final response = await _apiService.contributeToGoal(id, {'amount': amount});
     if (!response.isSuccessful) {
-      throw Exception('Failed to contribute to goal');
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to contribute to goal',
+      );
     }
   }
 }

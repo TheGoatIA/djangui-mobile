@@ -34,12 +34,11 @@ class ChallengeLocalDataSourceImpl implements ChallengeLocalDataSource {
             title: row.title,
             description: row.description,
             type: row.type,
-            targetValue: row.targetValue,
-            currentValue: row.currentValue,
-            points: row.points,
-            startDate: row.startDate,
-            endDate: row.endDate,
-            isCompleted: row.isCompleted,
+            difficulty: 'medium', // Default or fetch if new column added
+            targetAmount: row.targetValue,
+            durationDays: 30, // Default
+            rewardPoints: row.points,
+            icon: null,
           ),
         )
         .toList();
@@ -56,12 +55,11 @@ class ChallengeLocalDataSourceImpl implements ChallengeLocalDataSource {
             title: c.title,
             description: c.description,
             type: c.type,
-            targetValue: c.targetValue,
-            currentValue: c.currentValue,
-            points: c.points,
-            startDate: c.startDate,
-            endDate: c.endDate,
-            isCompleted: Value(c.isCompleted),
+            targetValue: c.targetAmount,
+            currentValue: 0.0,
+            points: c.rewardPoints,
+            startDate: DateTime.now(), // Placeholder
+            endDate: DateTime.now().add(Duration(days: c.durationDays)),
           ),
         ),
         mode: InsertMode.insertOrReplace,
@@ -79,12 +77,11 @@ class ChallengeLocalDataSourceImpl implements ChallengeLocalDataSource {
             title: challenge.title,
             description: challenge.description,
             type: challenge.type,
-            targetValue: challenge.targetValue,
-            currentValue: challenge.currentValue,
-            points: challenge.points,
-            startDate: challenge.startDate,
-            endDate: challenge.endDate,
-            isCompleted: Value(challenge.isCompleted),
+            targetValue: challenge.targetAmount,
+            currentValue: 0.0,
+            points: challenge.rewardPoints,
+            startDate: DateTime.now(), // Placeholder
+            endDate: DateTime.now().add(Duration(days: challenge.durationDays)),
           ),
         );
   }
