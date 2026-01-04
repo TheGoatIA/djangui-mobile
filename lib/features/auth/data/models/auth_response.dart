@@ -18,4 +18,16 @@ class AuthResponse {
   factory AuthResponse.fromJson(Map<String, dynamic> json) =>
       _$AuthResponseFromJson(json);
   Map<String, dynamic> toJson() => _$AuthResponseToJson(this);
+
+  AuthResponse copyWith({
+    String? accessToken,
+    String? refreshToken,
+    UserModel? user,
+  }) {
+    return AuthResponse(
+      accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
+      user: user ?? this.user,
+    );
+  }
 }

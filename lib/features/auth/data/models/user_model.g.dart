@@ -12,14 +12,27 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
       avatar: json['avatar'] as String?,
-      phoneNumber: json['phoneNumber'] as String?,
-      isPremium: json['isPremium'] as bool? ?? false,
+      country: json['country'] as String?,
+      phone: json['phone'] as String?,
+      isEmailVerified: json['isEmailVerified'] as bool? ?? false,
+      isPhoneVerified: json['isPhoneVerified'] as bool? ?? false,
+      role: json['role'] as String? ?? 'user',
+      status: json['status'] as String? ?? 'active',
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
       monthlyIncome: (json['monthlyIncome'] as num?)?.toDouble(),
       currency: json['currency'] as String?,
       walletBalance: (json['walletBalance'] as num?)?.toDouble() ?? 0.0,
       xp: (json['xp'] as num?)?.toInt() ?? 0,
       level: (json['level'] as num?)?.toInt() ?? 1,
-      badges: json['badges'] as List<dynamic>? ?? const [],
+      badges: (json['badges'] as List<dynamic>?)
+              ?.map((e) => BadgeModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -28,8 +41,14 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'firstName': instance.firstName,
       'lastName': instance.lastName,
       'avatar': instance.avatar,
-      'phoneNumber': instance.phoneNumber,
-      'isPremium': instance.isPremium,
+      'country': instance.country,
+      'phone': instance.phone,
+      'isEmailVerified': instance.isEmailVerified,
+      'isPhoneVerified': instance.isPhoneVerified,
+      'role': instance.role,
+      'status': instance.status,
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
       'monthlyIncome': instance.monthlyIncome,
       'currency': instance.currency,
       'walletBalance': instance.walletBalance,

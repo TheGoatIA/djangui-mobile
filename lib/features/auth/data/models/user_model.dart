@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'badge_model.dart';
 
 part 'user_model.g.dart';
 
@@ -10,8 +11,14 @@ class UserModel {
   final String firstName;
   final String lastName;
   final String? avatar;
-  final String? phoneNumber;
-  final bool isPremium;
+  final String? country;
+  final String? phone;
+  final bool isEmailVerified;
+  final bool isPhoneVerified;
+  final String role; // user, admin
+  final String status; // active, inactive, suspended
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   final double? monthlyIncome;
   final String? currency;
@@ -19,10 +26,7 @@ class UserModel {
 
   final int xp;
   final int level;
-  // Swagger defines badges as objects, but for now we keep List<String> or dynamic
-  // until we create a BadgeModel. Let's use dynamic for flexibility or map to a class if we had one.
-  // Using List<dynamic> to avoid breakage if backend sends objects.
-  final List<dynamic> badges;
+  final List<BadgeModel> badges;
 
   UserModel({
     required this.id,
@@ -30,8 +34,14 @@ class UserModel {
     required this.firstName,
     required this.lastName,
     this.avatar,
-    this.phoneNumber,
-    this.isPremium = false,
+    this.country,
+    this.phone,
+    this.isEmailVerified = false,
+    this.isPhoneVerified = false,
+    this.role = 'user',
+    this.status = 'active',
+    this.createdAt,
+    this.updatedAt,
     this.monthlyIncome,
     this.currency,
     this.walletBalance = 0.0,

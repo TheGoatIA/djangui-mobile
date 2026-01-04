@@ -4,12 +4,18 @@ import 'auth_api_service.dart';
 import '../models/auth_response.dart';
 import '../models/login_request.dart';
 import '../models/register_request.dart';
+import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponse> login(LoginRequest request);
-  Future<AuthResponse> firebaseLogin(String idToken);
+  Future<AuthResponse> firebaseLogin(String idToken, {String? country});
   Future<void> linkPhone(String idToken);
   Future<AuthResponse> register(RegisterRequest request);
+  Future<UserModel> updateProfile({
+    String? firstName,
+    String? lastName,
+    String? country,
+  });
   Future<void> forgotPassword(String email);
   Future<void> resetPassword(String token, String newPassword);
   Future<void> verifyEmail(String token);
@@ -22,8 +28,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this._apiService);
 
   @override
-  Future<AuthResponse> firebaseLogin(String idToken) async {
-    final response = await _apiService.firebaseLogin({'idToken': idToken});
+  Future<AuthResponse> firebaseLogin(String idToken, {String? country}) async {
+    final response = await _apiService.firebaseLogin({
+      'idToken': idToken,
+      if (country != null) 'country': country,
+    });
     if (response.isSuccessful && response.body != null) {
       return response.body!;
     } else {
@@ -56,6 +65,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return response.body!;
     } else {
       throw Exception(response.error?.toString() ?? 'Registration failed');
+    }
+  }
+
+  @override
+  Future<UserModel> updateProfile({
+    String? firstName,
+    String? lastName,
+    String? country,
+  }) async {
+    final response = await _apiService.updateProfile({
+      if (firstName != null) 'firstName': firstName,
+      if (lastName != null) 'lastName': lastName,
+      if (country != null) 'country': country,
+    });
+    if (response.isSuccessful && response.body != null) {
+      return response.body!;
+    } else {
+      throw Exception(response.error?.toString() ?? 'Update profile failed');
     }
   }
 

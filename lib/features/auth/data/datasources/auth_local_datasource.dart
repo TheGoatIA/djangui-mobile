@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/database/database.dart';
 import '../models/user_model.dart';
+import '../models/badge_model.dart';
 import 'package:drift/drift.dart' as drift;
 
 abstract class AuthLocalDataSource {
@@ -83,7 +84,14 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       avatar: user.avatar,
       xp: user.xp,
       level: user.level,
-      badges: List<String>.from(jsonDecode(user.badges)),
+      badges: (jsonDecode(user.badges) as List)
+          .map((e) => BadgeModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      phone: '', // These would need to be added to the database schema too
+      isEmailVerified: false,
+      isPhoneVerified: false,
+      role: 'user',
+      status: 'active',
     );
   }
 }

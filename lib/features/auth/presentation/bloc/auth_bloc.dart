@@ -17,6 +17,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthLoginRequested>(_onAuthLoginRequested);
     on<AuthRegisterRequested>(_onAuthRegisterRequested);
+    on<AuthUpdateProfileRequested>(_onAuthUpdateProfileRequested);
     on<AuthLogoutRequested>(_onAuthLogoutRequested);
     on<AuthForgotPasswordRequested>(_onAuthForgotPasswordRequested);
     on<AuthResetPasswordRequested>(_onAuthResetPasswordRequested);
@@ -185,6 +186,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: event.password,
         firstName: event.firstName,
         lastName: event.lastName,
+        country: event.country,
       ),
     );
     result.fold<void>(
@@ -238,6 +240,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
       ),
       (_) => emit(state.copyWith(status: AuthStatus.passwordResetSuccess)),
+    );
+  }
+
+  Future<void> _onAuthUpdateProfileRequested(
+    AuthUpdateProfileRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.updateProfile(
+      firstName: event.firstName,
+      lastName: event.lastName,
+      country: event.country,
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (user) => emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          authResponse:
+              state.authResponse?.copyWith(user: user) ??
+              AuthResponse(accessToken: '', refreshToken: '', user: user),
+        ),
+      ),
     );
   }
 }

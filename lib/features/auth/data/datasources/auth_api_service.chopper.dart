@@ -121,4 +121,17 @@ final class _$AuthApiService extends AuthApiService {
     );
     return client.send<UserModel, UserModel>($request);
   }
+
+  @override
+  Future<Response<UserModel>> updateProfile(Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/auth/me');
+    final $body = body;
+    final Request $request = Request(
+      'PATCH',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<UserModel, UserModel>($request);
+  }
 }

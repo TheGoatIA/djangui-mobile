@@ -146,6 +146,27 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, UserModel>> updateProfile({
+    String? firstName,
+    String? lastName,
+    String? country,
+  }) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+
+    try {
+      final user = await _remoteDataSource.updateProfile(
+        firstName: firstName,
+        lastName: lastName,
+        country: country,
+      );
+      await _localDataSource.saveUser(user);
+      return Right(user);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, AuthResponse>> login(LoginRequest request) async {
     if (await _networkInfo.isConnected) {
       try {

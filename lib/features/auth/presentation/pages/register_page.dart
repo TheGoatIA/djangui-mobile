@@ -22,6 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  String? _selectedCountry;
 
   @override
   void dispose() {
@@ -127,25 +128,29 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                     ),
                     const SizedBox(height: 24),
-                    AppTextField(
-                      label: AppLocalizations.of(context)!.password,
-                      hint: '********',
-                      controller: _passwordController,
-                      isPassword: true,
-                      prefixIcon: Icons.lock_outline,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return AppLocalizations.of(
-                            context,
-                          )!.enterPasswordError;
-                        }
-                        if (value.length < 6) {
-                          return AppLocalizations.of(
-                            context,
-                          )!.passwordLengthError;
-                        }
-                        return null;
+                    const SizedBox(height: 24),
+                    DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        labelText: 'Country',
+                        hintText: 'Select your country',
+                        prefixIcon: const Icon(Icons.public),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'CM', child: Text('Cameroon')),
+                        DropdownMenuItem(value: 'FR', child: Text('France')),
+                        DropdownMenuItem(value: 'US', child: Text('USA')),
+                        DropdownMenuItem(value: 'BE', child: Text('Belgium')),
+                        DropdownMenuItem(value: 'CA', child: Text('Canada')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedCountry = value;
+                        });
                       },
+                      validator: (value) => value == null ? 'Please select a country' : null,
                     ),
                     const SizedBox(height: 32),
                     BlocBuilder<AuthBloc, AuthState>(
@@ -154,13 +159,14 @@ class _RegisterPageState extends State<RegisterPage> {
                           text: AppLocalizations.of(context)!.register,
                           isLoading: state.status == AuthStatus.loading,
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
+                            if (_formKey.currentState!.validate() && _selectedCountry != null) {
                               context.read<AuthBloc>().add(
                                 AuthRegisterRequested(
                                   email: _emailController.text,
                                   password: _passwordController.text,
                                   firstName: _firstNameController.text,
                                   lastName: _lastNameController.text,
+                                  country: _selectedCountry!,
                                 ),
                               );
                             }

@@ -46,7 +46,7 @@ class ProfilePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                 ],
-                if (user != null && !user.isPremium) ...[
+                if (user != null && user.role != 'premium') ...[
                   _buildPremiumBanner(context),
                   const SizedBox(height: 24),
                 ],
@@ -146,7 +146,7 @@ class ProfilePage extends StatelessWidget {
             AppLocalizations.of(context)!.phoneNumber,
             trailing: BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) {
-                final phone = state.authResponse?.user.phoneNumber;
+                final phone = state.authResponse?.user.phone;
                 return Text(
                   phone ?? '',
                   style: const TextStyle(color: Colors.grey),
@@ -155,9 +155,32 @@ class ProfilePage extends StatelessWidget {
             ),
             onTap: () {
               final authState = context.read<AuthBloc>().state;
-              if (authState.authResponse?.user.phoneNumber == null) {
+              if (authState.authResponse?.user.phone == null) {
                 context.push(RouteConstants.phoneLogin);
               }
+            },
+          ),
+          const Divider(height: 1),
+          _buildSettingsTile(
+            Icons.public_outlined,
+            'Country',
+            trailing: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                final country = state.authResponse?.user.country;
+                return Text(
+                  country ?? 'Not set',
+                  style: const TextStyle(color: Colors.grey),
+                );
+              },
+            ),
+            onTap: () {
+              final country = context
+                  .read<AuthBloc>()
+                  .state
+                  .authResponse
+                  ?.user
+                  .country;
+              _showCountrySelectionDialog(context, country ?? 'CM');
             },
           ),
           const Divider(height: 1),
@@ -444,6 +467,48 @@ class ProfilePage extends StatelessWidget {
         color: isSelected ? AppColors.primary : Colors.grey,
       ),
       onTap: () => onChanged(value),
+    );
+  }
+
+  void _showCountrySelectionDialog(
+    BuildContext context,
+    String currentCountry,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Select Country'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildCountryOption(context, 'Cameroon', 'CM', currentCountry),
+            _buildCountryOption(context, 'France', 'FR', currentCountry),
+            _buildCountryOption(context, 'USA', 'US', currentCountry),
+            _buildCountryOption(context, 'Belgium', 'BE', currentCountry),
+            _buildCountryOption(context, 'Canada', 'CA', currentCountry),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCountryOption(
+    BuildContext context,
+    String label,
+    String code,
+    String currentCode,
+  ) {
+    final isSelected = code == currentCode;
+    return ListTile(
+      title: Text(label),
+      leading: Icon(
+        isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+        color: isSelected ? AppColors.primary : Colors.grey,
+      ),
+      onTap: () {
+        context.read<AuthBloc>().add(AuthUpdateProfileRequested(country: code));
+        Navigator.pop(context);
+      },
     );
   }
 }
