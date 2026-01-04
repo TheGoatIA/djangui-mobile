@@ -161,6 +161,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i816.PaymentApiService>(
         () => registerModule.paymentApiService);
     gh.lazySingleton<_i730.AppDatabase>(() => registerModule.database);
+    gh.lazySingleton<_i974.Logger>(() => registerModule.logger);
     gh.factory<_i754.SettingsBloc>(
         () => _i754.SettingsBloc(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i959.BudgetRemoteDataSource>(

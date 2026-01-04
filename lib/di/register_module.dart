@@ -2,6 +2,7 @@ import 'package:chopper/chopper.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logger/logger.dart';
 
 import '../core/network/api_client.dart';
 import '../core/database/database.dart';
@@ -69,4 +70,7 @@ abstract class RegisterModule {
 
   @lazySingleton
   AppDatabase get database => AppDatabase();
+
+  @lazySingleton
+  Logger get logger => Logger();
 }

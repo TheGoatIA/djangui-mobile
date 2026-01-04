@@ -21,7 +21,12 @@ final class _$AuthApiService extends AuthApiService {
   Future<Response<AuthResponse>> login(LoginRequest body) {
     final Uri $url = Uri.parse('/auth/login');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<AuthResponse, AuthResponse>($request);
   }
 
@@ -29,7 +34,12 @@ final class _$AuthApiService extends AuthApiService {
   Future<Response<AuthResponse>> firebaseLogin(Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/auth/firebase');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<AuthResponse, AuthResponse>($request);
   }
 
@@ -37,7 +47,12 @@ final class _$AuthApiService extends AuthApiService {
   Future<Response<dynamic>> linkPhone(Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/auth/link-phone');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<dynamic, dynamic>($request);
   }
 
@@ -45,7 +60,12 @@ final class _$AuthApiService extends AuthApiService {
   Future<Response<AuthResponse>> register(RegisterRequest body) {
     final Uri $url = Uri.parse('/auth/register');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<AuthResponse, AuthResponse>($request);
   }
 
@@ -53,7 +73,12 @@ final class _$AuthApiService extends AuthApiService {
   Future<Response<dynamic>> forgotPassword(Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/auth/forgot-password');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<dynamic, dynamic>($request);
   }
 
@@ -89,7 +114,11 @@ final class _$AuthApiService extends AuthApiService {
   @override
   Future<Response<UserModel>> getProfile() {
     final Uri $url = Uri.parse('/auth/me');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
     return client.send<UserModel, UserModel>($request);
   }
 }
