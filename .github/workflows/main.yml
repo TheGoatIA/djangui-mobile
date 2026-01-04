@@ -17,6 +17,13 @@ jobs:
           flutter-version: '3.38.3'
           channel: 'stable'
           cache: true
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
       - name: Install Dependencies
         run: flutter pub get
       - name: Create .env from example
@@ -40,6 +47,13 @@ jobs:
           flutter-version: '3.38.3'
           channel: 'stable'
           cache: true
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
       - name: Install Dependencies
         run: flutter pub get
       - name: Create .env from example
@@ -63,6 +77,20 @@ jobs:
           flutter-version: '3.38.3'
           channel: 'stable'
           cache: true
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
       - name: Install Dependencies
         run: flutter pub get
       - name: Create .env from example
