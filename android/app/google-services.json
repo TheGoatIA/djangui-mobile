@@ -12,7 +12,12 @@
           "package_name": "cm.tbg.djangui"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "323526784336-07im9pakveh0qbrp9asg01ni6ci7r7bb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDL-ecmy4eV7nwl6LdhmXUEiT8bdc9FWgM"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "323526784336-07im9pakveh0qbrp9asg01ni6ci7r7bb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "323526784336-54lh5a8iqb1j0oc9i7uu3n5q246b9qlo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "cm.tbg.djangui"
+              }
+            }
+          ]
         }
       }
     }
