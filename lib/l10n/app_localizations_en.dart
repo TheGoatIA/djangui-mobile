@@ -169,6 +169,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get genericError => 'An error occurred';
 
   @override
+  String get retry => 'Retry';
+
+  @override
   String get noAccountQuestion => 'Don\'t have an account?';
 
   @override

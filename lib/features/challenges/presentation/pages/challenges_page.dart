@@ -29,6 +29,42 @@ class ChallengesPage extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
 
+            if (state.status == ChallengesStatus.error) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: AppColors.error,
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        state.errorMessage ??
+                            AppLocalizations.of(context)!.genericError,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<ChallengesBloc>().add(
+                          const GetChallengesRequested(forceRefresh: true),
+                        );
+                      },
+                      child: Text(AppLocalizations.of(context)!.retry),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             if (state.challenges.isEmpty) {
               return Center(
                 child: Column(

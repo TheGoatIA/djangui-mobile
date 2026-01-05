@@ -11,7 +11,7 @@ class ChallengeModel extends Equatable {
   final String description;
   final String type; // saving, spending_cut, habit
   final String difficulty; // easy, medium, hard
-  final double targetAmount;
+  final double? targetAmount;
   final int durationDays;
   final int rewardPoints;
   final String? icon;

@@ -52,6 +52,7 @@
     "enterPasswordError": "Please enter your password",
     "passwordLengthError": "Password must be at least 6 characters",
     "genericError": "An error occurred",
+    "retry": "Retry",
     "noAccountQuestion": "Don't have an account?",
     "createAccount": "Create an Account",
     "registerSubtitle": "Join Djangui and start saving smartly.",

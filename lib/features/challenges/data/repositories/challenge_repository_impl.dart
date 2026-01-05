@@ -32,11 +32,28 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
 
     if (await _networkInfo.isConnected) {
       try {
+        print('🏆 [ChallengeRepository] Fetching remote challenges...');
         final remoteChallenges = await _remoteDataSource.getChallenges();
-        await _localDataSource.clearChallenges();
-        await _localDataSource.saveChallenges(remoteChallenges);
+        print(
+          '🏆 [ChallengeRepository] Received ${remoteChallenges.length} from remote',
+        );
+
+        try {
+          print('🏆 [ChallengeRepository] Clearing and saving to local...');
+          await _localDataSource.clearChallenges();
+          await _localDataSource.saveChallenges(remoteChallenges);
+          print('🏆 [ChallengeRepository] Local storage sync successful');
+        } catch (localError) {
+          print(
+            '🏆 [ChallengeRepository] WARNING: Local storage sync failed: $localError',
+          );
+          // Still return remote results even if local save fails
+        }
+
         return Right(remoteChallenges);
-      } catch (e) {
+      } catch (e, stack) {
+        print('🏆 [ChallengeRepository] ERROR in remote fetch: $e');
+        print(stack);
         return Left(ServerFailure(e.toString()));
       }
     } else {

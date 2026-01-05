@@ -24,18 +24,26 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
       forceRefresh: event.forceRefresh,
     );
     result.fold<void>(
-      (failure) => emit(
-        state.copyWith(
-          status: ChallengesStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
-      (challenges) => emit(
-        state.copyWith(
-          status: ChallengesStatus.success,
-          challenges: challenges,
-        ),
-      ),
+      (failure) {
+        print(
+          '🏆 [ChallengesBloc] Error fetching challenges: ${failure.message}',
+        );
+        emit(
+          state.copyWith(
+            status: ChallengesStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (challenges) {
+        print('🏆 [ChallengesBloc] Fetched ${challenges.length} challenges');
+        emit(
+          state.copyWith(
+            status: ChallengesStatus.success,
+            challenges: challenges,
+          ),
+        );
+      },
     );
   }
 

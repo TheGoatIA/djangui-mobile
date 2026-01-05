@@ -13,7 +13,7 @@ ChallengeModel _$ChallengeModelFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String,
       type: json['type'] as String,
       difficulty: json['difficulty'] as String,
-      targetAmount: (json['targetAmount'] as num).toDouble(),
+      targetAmount: (json['targetAmount'] as num?)?.toDouble(),
       durationDays: (json['durationDays'] as num).toInt(),
       rewardPoints: (json['rewardPoints'] as num).toInt(),
       icon: json['icon'] as String?,

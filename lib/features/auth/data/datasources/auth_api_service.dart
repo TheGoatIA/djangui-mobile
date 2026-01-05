@@ -18,20 +18,20 @@ abstract class AuthApiService extends ChopperService {
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: '/v1/auth/google')
+  @Post(path: '/auth/google')
   Future<Response<BaseResponse<AuthResponse>>> googleLogin(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: '/v1/auth/refresh')
+  @Post(path: ApiConstants.refresh)
   Future<Response<BaseResponse<Map<String, dynamic>>>> refreshToken(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: '/v1/auth/logout')
+  @Post(path: ApiConstants.logout)
   Future<Response<BaseResponse<dynamic>>> logout();
 
-  @Post(path: '/v1/auth/fcm-token')
+  @Post(path: ApiConstants.fcmToken)
   Future<Response<BaseResponse<dynamic>>> updateFcmToken(
     @Body() Map<String, dynamic> body,
   );

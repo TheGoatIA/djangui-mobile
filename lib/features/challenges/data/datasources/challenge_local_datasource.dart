@@ -1,5 +1,5 @@
 import 'package:injectable/injectable.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' as drift;
 import '../../../../core/database/database.dart';
 import '../models/challenge_model.dart';
 
@@ -34,11 +34,11 @@ class ChallengeLocalDataSourceImpl implements ChallengeLocalDataSource {
             title: row.title,
             description: row.description,
             type: row.type,
-            difficulty: 'medium', // Default or fetch if new column added
+            difficulty: row.difficulty,
             targetAmount: row.targetValue,
-            durationDays: 30, // Default
+            durationDays: row.durationDays,
             rewardPoints: row.points,
-            icon: null,
+            icon: row.icon,
           ),
         )
         .toList();
@@ -55,14 +55,17 @@ class ChallengeLocalDataSourceImpl implements ChallengeLocalDataSource {
             title: c.title,
             description: c.description,
             type: c.type,
-            targetValue: c.targetAmount,
+            targetValue: drift.Value(c.targetAmount),
             currentValue: 0.0,
             points: c.rewardPoints,
+            difficulty: drift.Value(c.difficulty),
+            durationDays: drift.Value(c.durationDays),
+            icon: drift.Value(c.icon),
             startDate: DateTime.now(), // Placeholder
             endDate: DateTime.now().add(Duration(days: c.durationDays)),
           ),
         ),
-        mode: InsertMode.insertOrReplace,
+        mode: drift.InsertMode.insertOrReplace,
       );
     });
   }
@@ -77,9 +80,12 @@ class ChallengeLocalDataSourceImpl implements ChallengeLocalDataSource {
             title: challenge.title,
             description: challenge.description,
             type: challenge.type,
-            targetValue: challenge.targetAmount,
+            targetValue: drift.Value(challenge.targetAmount),
             currentValue: 0.0,
             points: challenge.rewardPoints,
+            difficulty: drift.Value(challenge.difficulty),
+            durationDays: drift.Value(challenge.durationDays),
+            icon: drift.Value(challenge.icon),
             startDate: DateTime.now(), // Placeholder
             endDate: DateTime.now().add(Duration(days: challenge.durationDays)),
           ),

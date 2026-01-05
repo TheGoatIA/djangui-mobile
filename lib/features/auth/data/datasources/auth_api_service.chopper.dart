@@ -47,7 +47,7 @@ final class _$AuthApiService extends AuthApiService {
   @override
   Future<Response<BaseResponse<AuthResponse>>> googleLogin(
       Map<String, dynamic> body) {
-    final Uri $url = Uri.parse('/v1/auth/google');
+    final Uri $url = Uri.parse('/auth/google');
     final $body = body;
     final Request $request = Request(
       'POST',
@@ -61,7 +61,7 @@ final class _$AuthApiService extends AuthApiService {
   @override
   Future<Response<BaseResponse<Map<String, dynamic>>>> refreshToken(
       Map<String, dynamic> body) {
-    final Uri $url = Uri.parse('/v1/auth/refresh');
+    final Uri $url = Uri.parse('/auth/refresh');
     final $body = body;
     final Request $request = Request(
       'POST',
@@ -75,7 +75,7 @@ final class _$AuthApiService extends AuthApiService {
 
   @override
   Future<Response<BaseResponse<dynamic>>> logout() {
-    final Uri $url = Uri.parse('/v1/auth/logout');
+    final Uri $url = Uri.parse('/auth/logout');
     final Request $request = Request(
       'POST',
       $url,
@@ -87,7 +87,7 @@ final class _$AuthApiService extends AuthApiService {
   @override
   Future<Response<BaseResponse<dynamic>>> updateFcmToken(
       Map<String, dynamic> body) {
-    final Uri $url = Uri.parse('/v1/auth/fcm-token');
+    final Uri $url = Uri.parse('/auth/fcm-token');
     final $body = body;
     final Request $request = Request(
       'POST',

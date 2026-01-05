@@ -95,11 +95,14 @@ class Challenges extends Table {
   TextColumn get title => text()();
   TextColumn get description => text()();
   TextColumn get type => text()();
-  RealColumn get targetValue => real()();
+  RealColumn get targetValue => real().nullable()();
   RealColumn get currentValue => real()();
   IntColumn get points => integer()();
   DateTimeColumn get startDate => dateTime()();
   DateTimeColumn get endDate => dateTime()();
+  TextColumn get difficulty => text().withDefault(const Constant('medium'))();
+  IntColumn get durationDays => integer().withDefault(const Constant(30))();
+  TextColumn get icon => text().nullable()();
   BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
   TextColumn get participants => text().withDefault(const Constant('[]'))();
   TextColumn get category => text().nullable()();
@@ -154,7 +157,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration {

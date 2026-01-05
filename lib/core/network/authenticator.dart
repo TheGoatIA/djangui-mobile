@@ -12,9 +12,21 @@ class DjanguiAuthenticator extends Authenticator {
     Request? originalRequest,
   ]) async {
     final logger = getIt<Logger>();
+    final String requestUrl = request.url.toString();
+
     if (response.statusCode == 401) {
+      // If we're already trying to refresh or login, don't try again to avoid infinite loops
+      if (requestUrl.contains('/auth/refresh') ||
+          requestUrl.contains('/auth/login') ||
+          requestUrl.contains('/auth/firebase')) {
+        logger.w(
+          '🔐 [Authenticator] 401 detected on an auth endpoint ($requestUrl). Breaking loop.',
+        );
+        return null;
+      }
+
       logger.d(
-        '🔐 [Authenticator] 401 Unauthorized detected. Attempting to refresh token...',
+        '🔐 [Authenticator] 401 Unauthorized detected on $requestUrl. Attempting to refresh token...',
       );
 
       final authRepository = getIt<AuthRepository>();
@@ -25,7 +37,6 @@ class DjanguiAuthenticator extends Authenticator {
           logger.e(
             '🔐 [Authenticator] Refresh failed: ${failure.message}. Redirecting to login.',
           );
-          // Logic for logout/redirect could be here or handled by the AuthBloc listening to failures
           return null;
         },
         (_) async {
@@ -40,6 +51,13 @@ class DjanguiAuthenticator extends Authenticator {
           return null;
         },
       );
+    }
+
+    if (response.statusCode == 429) {
+      logger.w(
+        '🔐 [Authenticator] 429 Too Many Requests detected on $requestUrl. This is usually triggered by the server or a proxy rate limiter.',
+      );
+      return null;
     }
     return null;
   }

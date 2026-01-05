@@ -9,6 +9,23 @@ class AuthInterceptor implements RequestInterceptor {
 
   @override
   FutureOr<Request> onRequest(Request request) async {
+    // Endpoints that don't need the Authorization header
+    final List<String> excludedPaths = [
+      '/auth/login',
+      '/auth/register',
+      '/auth/refresh',
+      '/auth/forgot-password',
+      '/auth/reset-password',
+      '/auth/verify-email',
+      '/auth/firebase',
+    ];
+
+    final bool isExcluded = excludedPaths.any(
+      (path) => request.url.toString().contains(path),
+    );
+
+    if (isExcluded) return request;
+
     final String? token = await _storage.read(key: 'access_token');
 
     if (token != null) {

@@ -52,6 +52,7 @@
     "enterPasswordError": "Veuillez entrer votre mot de passe",
     "passwordLengthError": "Le mot de passe doit contenir au moins 6 caractères",
     "genericError": "Une erreur est survenue",
+    "retry": "Réessayer",
     "noAccountQuestion": "Vous n'avez pas de compte ?",
     "createAccount": "Créer un compte",
     "registerSubtitle": "Rejoignez Djangui et commencez à épargner intelligemment.",

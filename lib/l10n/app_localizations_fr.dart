@@ -171,6 +171,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get genericError => 'Une erreur est survenue';
 
   @override
+  String get retry => 'Réessayer';
+
+  @override
   String get noAccountQuestion => 'Vous n\'avez pas de compte ?';
 
   @override

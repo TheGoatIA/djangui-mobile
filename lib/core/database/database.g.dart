@@ -2527,8 +2527,8 @@ class $ChallengesTable extends Challenges
       const VerificationMeta('targetValue');
   @override
   late final GeneratedColumn<double> targetValue = GeneratedColumn<double>(
-      'target_value', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
+      'target_value', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _currentValueMeta =
       const VerificationMeta('currentValue');
   @override
@@ -2552,6 +2552,27 @@ class $ChallengesTable extends Challenges
   late final GeneratedColumn<DateTime> endDate = GeneratedColumn<DateTime>(
       'end_date', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _difficultyMeta =
+      const VerificationMeta('difficulty');
+  @override
+  late final GeneratedColumn<String> difficulty = GeneratedColumn<String>(
+      'difficulty', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('medium'));
+  static const VerificationMeta _durationDaysMeta =
+      const VerificationMeta('durationDays');
+  @override
+  late final GeneratedColumn<int> durationDays = GeneratedColumn<int>(
+      'duration_days', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(30));
+  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
+  @override
+  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
+      'icon', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _isCompletedMeta =
       const VerificationMeta('isCompleted');
   @override
@@ -2599,6 +2620,9 @@ class $ChallengesTable extends Challenges
         points,
         startDate,
         endDate,
+        difficulty,
+        durationDays,
+        icon,
         isCompleted,
         participants,
         category,
@@ -2645,8 +2669,6 @@ class $ChallengesTable extends Challenges
           _targetValueMeta,
           targetValue.isAcceptableOrUnknown(
               data['target_value']!, _targetValueMeta));
-    } else if (isInserting) {
-      context.missing(_targetValueMeta);
     }
     if (data.containsKey('current_value')) {
       context.handle(
@@ -2673,6 +2695,22 @@ class $ChallengesTable extends Challenges
           endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta));
     } else if (isInserting) {
       context.missing(_endDateMeta);
+    }
+    if (data.containsKey('difficulty')) {
+      context.handle(
+          _difficultyMeta,
+          difficulty.isAcceptableOrUnknown(
+              data['difficulty']!, _difficultyMeta));
+    }
+    if (data.containsKey('duration_days')) {
+      context.handle(
+          _durationDaysMeta,
+          durationDays.isAcceptableOrUnknown(
+              data['duration_days']!, _durationDaysMeta));
+    }
+    if (data.containsKey('icon')) {
+      context.handle(
+          _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
     }
     if (data.containsKey('is_completed')) {
       context.handle(
@@ -2716,7 +2754,7 @@ class $ChallengesTable extends Challenges
       type: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
       targetValue: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}target_value'])!,
+          .read(DriftSqlType.double, data['${effectivePrefix}target_value']),
       currentValue: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}current_value'])!,
       points: attachedDatabase.typeMapping
@@ -2725,6 +2763,12 @@ class $ChallengesTable extends Challenges
           .read(DriftSqlType.dateTime, data['${effectivePrefix}start_date'])!,
       endDate: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}end_date'])!,
+      difficulty: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}difficulty'])!,
+      durationDays: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}duration_days'])!,
+      icon: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon']),
       isCompleted: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_completed'])!,
       participants: attachedDatabase.typeMapping
@@ -2749,11 +2793,14 @@ class Challenge extends DataClass implements Insertable<Challenge> {
   final String title;
   final String description;
   final String type;
-  final double targetValue;
+  final double? targetValue;
   final double currentValue;
   final int points;
   final DateTime startDate;
   final DateTime endDate;
+  final String difficulty;
+  final int durationDays;
+  final String? icon;
   final bool isCompleted;
   final String participants;
   final String? category;
@@ -2764,11 +2811,14 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       required this.title,
       required this.description,
       required this.type,
-      required this.targetValue,
+      this.targetValue,
       required this.currentValue,
       required this.points,
       required this.startDate,
       required this.endDate,
+      required this.difficulty,
+      required this.durationDays,
+      this.icon,
       required this.isCompleted,
       required this.participants,
       this.category,
@@ -2781,11 +2831,18 @@ class Challenge extends DataClass implements Insertable<Challenge> {
     map['title'] = Variable<String>(title);
     map['description'] = Variable<String>(description);
     map['type'] = Variable<String>(type);
-    map['target_value'] = Variable<double>(targetValue);
+    if (!nullToAbsent || targetValue != null) {
+      map['target_value'] = Variable<double>(targetValue);
+    }
     map['current_value'] = Variable<double>(currentValue);
     map['points'] = Variable<int>(points);
     map['start_date'] = Variable<DateTime>(startDate);
     map['end_date'] = Variable<DateTime>(endDate);
+    map['difficulty'] = Variable<String>(difficulty);
+    map['duration_days'] = Variable<int>(durationDays);
+    if (!nullToAbsent || icon != null) {
+      map['icon'] = Variable<String>(icon);
+    }
     map['is_completed'] = Variable<bool>(isCompleted);
     map['participants'] = Variable<String>(participants);
     if (!nullToAbsent || category != null) {
@@ -2806,11 +2863,16 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       title: Value(title),
       description: Value(description),
       type: Value(type),
-      targetValue: Value(targetValue),
+      targetValue: targetValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetValue),
       currentValue: Value(currentValue),
       points: Value(points),
       startDate: Value(startDate),
       endDate: Value(endDate),
+      difficulty: Value(difficulty),
+      durationDays: Value(durationDays),
+      icon: icon == null && nullToAbsent ? const Value.absent() : Value(icon),
       isCompleted: Value(isCompleted),
       participants: Value(participants),
       category: category == null && nullToAbsent
@@ -2833,11 +2895,14 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String>(json['description']),
       type: serializer.fromJson<String>(json['type']),
-      targetValue: serializer.fromJson<double>(json['targetValue']),
+      targetValue: serializer.fromJson<double?>(json['targetValue']),
       currentValue: serializer.fromJson<double>(json['currentValue']),
       points: serializer.fromJson<int>(json['points']),
       startDate: serializer.fromJson<DateTime>(json['startDate']),
       endDate: serializer.fromJson<DateTime>(json['endDate']),
+      difficulty: serializer.fromJson<String>(json['difficulty']),
+      durationDays: serializer.fromJson<int>(json['durationDays']),
+      icon: serializer.fromJson<String?>(json['icon']),
       isCompleted: serializer.fromJson<bool>(json['isCompleted']),
       participants: serializer.fromJson<String>(json['participants']),
       category: serializer.fromJson<String?>(json['category']),
@@ -2853,11 +2918,14 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String>(description),
       'type': serializer.toJson<String>(type),
-      'targetValue': serializer.toJson<double>(targetValue),
+      'targetValue': serializer.toJson<double?>(targetValue),
       'currentValue': serializer.toJson<double>(currentValue),
       'points': serializer.toJson<int>(points),
       'startDate': serializer.toJson<DateTime>(startDate),
       'endDate': serializer.toJson<DateTime>(endDate),
+      'difficulty': serializer.toJson<String>(difficulty),
+      'durationDays': serializer.toJson<int>(durationDays),
+      'icon': serializer.toJson<String?>(icon),
       'isCompleted': serializer.toJson<bool>(isCompleted),
       'participants': serializer.toJson<String>(participants),
       'category': serializer.toJson<String?>(category),
@@ -2871,11 +2939,14 @@ class Challenge extends DataClass implements Insertable<Challenge> {
           String? title,
           String? description,
           String? type,
-          double? targetValue,
+          Value<double?> targetValue = const Value.absent(),
           double? currentValue,
           int? points,
           DateTime? startDate,
           DateTime? endDate,
+          String? difficulty,
+          int? durationDays,
+          Value<String?> icon = const Value.absent(),
           bool? isCompleted,
           String? participants,
           Value<String?> category = const Value.absent(),
@@ -2886,11 +2957,14 @@ class Challenge extends DataClass implements Insertable<Challenge> {
         title: title ?? this.title,
         description: description ?? this.description,
         type: type ?? this.type,
-        targetValue: targetValue ?? this.targetValue,
+        targetValue: targetValue.present ? targetValue.value : this.targetValue,
         currentValue: currentValue ?? this.currentValue,
         points: points ?? this.points,
         startDate: startDate ?? this.startDate,
         endDate: endDate ?? this.endDate,
+        difficulty: difficulty ?? this.difficulty,
+        durationDays: durationDays ?? this.durationDays,
+        icon: icon.present ? icon.value : this.icon,
         isCompleted: isCompleted ?? this.isCompleted,
         participants: participants ?? this.participants,
         category: category.present ? category.value : this.category,
@@ -2912,6 +2986,12 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       points: data.points.present ? data.points.value : this.points,
       startDate: data.startDate.present ? data.startDate.value : this.startDate,
       endDate: data.endDate.present ? data.endDate.value : this.endDate,
+      difficulty:
+          data.difficulty.present ? data.difficulty.value : this.difficulty,
+      durationDays: data.durationDays.present
+          ? data.durationDays.value
+          : this.durationDays,
+      icon: data.icon.present ? data.icon.value : this.icon,
       isCompleted:
           data.isCompleted.present ? data.isCompleted.value : this.isCompleted,
       participants: data.participants.present
@@ -2935,6 +3015,9 @@ class Challenge extends DataClass implements Insertable<Challenge> {
           ..write('points: $points, ')
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('durationDays: $durationDays, ')
+          ..write('icon: $icon, ')
           ..write('isCompleted: $isCompleted, ')
           ..write('participants: $participants, ')
           ..write('category: $category, ')
@@ -2955,6 +3038,9 @@ class Challenge extends DataClass implements Insertable<Challenge> {
       points,
       startDate,
       endDate,
+      difficulty,
+      durationDays,
+      icon,
       isCompleted,
       participants,
       category,
@@ -2973,6 +3059,9 @@ class Challenge extends DataClass implements Insertable<Challenge> {
           other.points == this.points &&
           other.startDate == this.startDate &&
           other.endDate == this.endDate &&
+          other.difficulty == this.difficulty &&
+          other.durationDays == this.durationDays &&
+          other.icon == this.icon &&
           other.isCompleted == this.isCompleted &&
           other.participants == this.participants &&
           other.category == this.category &&
@@ -2985,11 +3074,14 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
   final Value<String> title;
   final Value<String> description;
   final Value<String> type;
-  final Value<double> targetValue;
+  final Value<double?> targetValue;
   final Value<double> currentValue;
   final Value<int> points;
   final Value<DateTime> startDate;
   final Value<DateTime> endDate;
+  final Value<String> difficulty;
+  final Value<int> durationDays;
+  final Value<String?> icon;
   final Value<bool> isCompleted;
   final Value<String> participants;
   final Value<String?> category;
@@ -3006,6 +3098,9 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     this.points = const Value.absent(),
     this.startDate = const Value.absent(),
     this.endDate = const Value.absent(),
+    this.difficulty = const Value.absent(),
+    this.durationDays = const Value.absent(),
+    this.icon = const Value.absent(),
     this.isCompleted = const Value.absent(),
     this.participants = const Value.absent(),
     this.category = const Value.absent(),
@@ -3018,11 +3113,14 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     required String title,
     required String description,
     required String type,
-    required double targetValue,
+    this.targetValue = const Value.absent(),
     required double currentValue,
     required int points,
     required DateTime startDate,
     required DateTime endDate,
+    this.difficulty = const Value.absent(),
+    this.durationDays = const Value.absent(),
+    this.icon = const Value.absent(),
     this.isCompleted = const Value.absent(),
     this.participants = const Value.absent(),
     this.category = const Value.absent(),
@@ -3033,7 +3131,6 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
         title = Value(title),
         description = Value(description),
         type = Value(type),
-        targetValue = Value(targetValue),
         currentValue = Value(currentValue),
         points = Value(points),
         startDate = Value(startDate),
@@ -3048,6 +3145,9 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     Expression<int>? points,
     Expression<DateTime>? startDate,
     Expression<DateTime>? endDate,
+    Expression<String>? difficulty,
+    Expression<int>? durationDays,
+    Expression<String>? icon,
     Expression<bool>? isCompleted,
     Expression<String>? participants,
     Expression<String>? category,
@@ -3065,6 +3165,9 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
       if (points != null) 'points': points,
       if (startDate != null) 'start_date': startDate,
       if (endDate != null) 'end_date': endDate,
+      if (difficulty != null) 'difficulty': difficulty,
+      if (durationDays != null) 'duration_days': durationDays,
+      if (icon != null) 'icon': icon,
       if (isCompleted != null) 'is_completed': isCompleted,
       if (participants != null) 'participants': participants,
       if (category != null) 'category': category,
@@ -3079,11 +3182,14 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
       Value<String>? title,
       Value<String>? description,
       Value<String>? type,
-      Value<double>? targetValue,
+      Value<double?>? targetValue,
       Value<double>? currentValue,
       Value<int>? points,
       Value<DateTime>? startDate,
       Value<DateTime>? endDate,
+      Value<String>? difficulty,
+      Value<int>? durationDays,
+      Value<String?>? icon,
       Value<bool>? isCompleted,
       Value<String>? participants,
       Value<String?>? category,
@@ -3100,6 +3206,9 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
       points: points ?? this.points,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      difficulty: difficulty ?? this.difficulty,
+      durationDays: durationDays ?? this.durationDays,
+      icon: icon ?? this.icon,
       isCompleted: isCompleted ?? this.isCompleted,
       participants: participants ?? this.participants,
       category: category ?? this.category,
@@ -3139,6 +3248,15 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
     if (endDate.present) {
       map['end_date'] = Variable<DateTime>(endDate.value);
     }
+    if (difficulty.present) {
+      map['difficulty'] = Variable<String>(difficulty.value);
+    }
+    if (durationDays.present) {
+      map['duration_days'] = Variable<int>(durationDays.value);
+    }
+    if (icon.present) {
+      map['icon'] = Variable<String>(icon.value);
+    }
     if (isCompleted.present) {
       map['is_completed'] = Variable<bool>(isCompleted.value);
     }
@@ -3172,6 +3290,9 @@ class ChallengesCompanion extends UpdateCompanion<Challenge> {
           ..write('points: $points, ')
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('durationDays: $durationDays, ')
+          ..write('icon: $icon, ')
           ..write('isCompleted: $isCompleted, ')
           ..write('participants: $participants, ')
           ..write('category: $category, ')
@@ -5425,11 +5546,14 @@ typedef $$ChallengesTableCreateCompanionBuilder = ChallengesCompanion Function({
   required String title,
   required String description,
   required String type,
-  required double targetValue,
+  Value<double?> targetValue,
   required double currentValue,
   required int points,
   required DateTime startDate,
   required DateTime endDate,
+  Value<String> difficulty,
+  Value<int> durationDays,
+  Value<String?> icon,
   Value<bool> isCompleted,
   Value<String> participants,
   Value<String?> category,
@@ -5442,11 +5566,14 @@ typedef $$ChallengesTableUpdateCompanionBuilder = ChallengesCompanion Function({
   Value<String> title,
   Value<String> description,
   Value<String> type,
-  Value<double> targetValue,
+  Value<double?> targetValue,
   Value<double> currentValue,
   Value<int> points,
   Value<DateTime> startDate,
   Value<DateTime> endDate,
+  Value<String> difficulty,
+  Value<int> durationDays,
+  Value<String?> icon,
   Value<bool> isCompleted,
   Value<String> participants,
   Value<String?> category,
@@ -5490,6 +5617,15 @@ class $$ChallengesTableFilterComposer
 
   ColumnFilters<DateTime> get endDate => $composableBuilder(
       column: $table.endDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get difficulty => $composableBuilder(
+      column: $table.difficulty, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get durationDays => $composableBuilder(
+      column: $table.durationDays, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get icon => $composableBuilder(
+      column: $table.icon, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isCompleted => $composableBuilder(
       column: $table.isCompleted, builder: (column) => ColumnFilters(column));
@@ -5544,6 +5680,16 @@ class $$ChallengesTableOrderingComposer
   ColumnOrderings<DateTime> get endDate => $composableBuilder(
       column: $table.endDate, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get difficulty => $composableBuilder(
+      column: $table.difficulty, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get durationDays => $composableBuilder(
+      column: $table.durationDays,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get icon => $composableBuilder(
+      column: $table.icon, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get isCompleted => $composableBuilder(
       column: $table.isCompleted, builder: (column) => ColumnOrderings(column));
 
@@ -5597,6 +5743,15 @@ class $$ChallengesTableAnnotationComposer
   GeneratedColumn<DateTime> get endDate =>
       $composableBuilder(column: $table.endDate, builder: (column) => column);
 
+  GeneratedColumn<String> get difficulty => $composableBuilder(
+      column: $table.difficulty, builder: (column) => column);
+
+  GeneratedColumn<int> get durationDays => $composableBuilder(
+      column: $table.durationDays, builder: (column) => column);
+
+  GeneratedColumn<String> get icon =>
+      $composableBuilder(column: $table.icon, builder: (column) => column);
+
   GeneratedColumn<bool> get isCompleted => $composableBuilder(
       column: $table.isCompleted, builder: (column) => column);
 
@@ -5640,11 +5795,14 @@ class $$ChallengesTableTableManager extends RootTableManager<
             Value<String> title = const Value.absent(),
             Value<String> description = const Value.absent(),
             Value<String> type = const Value.absent(),
-            Value<double> targetValue = const Value.absent(),
+            Value<double?> targetValue = const Value.absent(),
             Value<double> currentValue = const Value.absent(),
             Value<int> points = const Value.absent(),
             Value<DateTime> startDate = const Value.absent(),
             Value<DateTime> endDate = const Value.absent(),
+            Value<String> difficulty = const Value.absent(),
+            Value<int> durationDays = const Value.absent(),
+            Value<String?> icon = const Value.absent(),
             Value<bool> isCompleted = const Value.absent(),
             Value<String> participants = const Value.absent(),
             Value<String?> category = const Value.absent(),
@@ -5662,6 +5820,9 @@ class $$ChallengesTableTableManager extends RootTableManager<
             points: points,
             startDate: startDate,
             endDate: endDate,
+            difficulty: difficulty,
+            durationDays: durationDays,
+            icon: icon,
             isCompleted: isCompleted,
             participants: participants,
             category: category,
@@ -5674,11 +5835,14 @@ class $$ChallengesTableTableManager extends RootTableManager<
             required String title,
             required String description,
             required String type,
-            required double targetValue,
+            Value<double?> targetValue = const Value.absent(),
             required double currentValue,
             required int points,
             required DateTime startDate,
             required DateTime endDate,
+            Value<String> difficulty = const Value.absent(),
+            Value<int> durationDays = const Value.absent(),
+            Value<String?> icon = const Value.absent(),
             Value<bool> isCompleted = const Value.absent(),
             Value<String> participants = const Value.absent(),
             Value<String?> category = const Value.absent(),
@@ -5696,6 +5860,9 @@ class $$ChallengesTableTableManager extends RootTableManager<
             points: points,
             startDate: startDate,
             endDate: endDate,
+            difficulty: difficulty,
+            durationDays: durationDays,
+            icon: icon,
             isCompleted: isCompleted,
             participants: participants,
             category: category,
