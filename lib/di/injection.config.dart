@@ -278,7 +278,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i1005.CoachBloc(gh<_i745.CoachRepository>()));
     gh.factory<_i492.TransactionsBloc>(
         () => _i492.TransactionsBloc(gh<_i461.TransactionRepository>()));
-    gh.factory<_i48.AuthBloc>(() => _i48.AuthBloc(gh<_i1012.AuthRepository>()));
+    gh.lazySingleton<_i48.AuthBloc>(
+        () => _i48.AuthBloc(gh<_i1012.AuthRepository>()));
     return this;
   }
 }

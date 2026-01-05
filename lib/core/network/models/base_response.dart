@@ -2,7 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'base_response.g.dart';
 
-@JsonSerializable(genericArgumentFactories: true)
 class BaseResponse<T> {
   final bool success;
   final String? message;
@@ -13,13 +12,27 @@ class BaseResponse<T> {
   factory BaseResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Object? json) fromJsonT,
-  ) => _$BaseResponseFromJson(json, fromJsonT);
+  ) {
+    // Robust success check: handle both boolean 'success' and string 'status'
+    final bool isSuccess =
+        (json['success'] == true) ||
+        (json['status'] == 'success') ||
+        (json['status'] != 'error' && json['success'] == null);
 
-  Map<String, dynamic> toJson(Object? Function(T value) toJsonT) =>
-      _$BaseResponseToJson(this, toJsonT);
+    return BaseResponse<T>(
+      success: isSuccess,
+      message: json['message'] as String?,
+      data: json['data'] != null ? fromJsonT(json['data']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson(Object? Function(T value) toJsonT) => {
+    'success': success,
+    'message': message,
+    'data': data != null ? toJsonT(data!) : null,
+  };
 }
 
-@JsonSerializable(genericArgumentFactories: true)
 class BaseListResponse<T> {
   final bool success;
   final String? message;
@@ -36,10 +49,29 @@ class BaseListResponse<T> {
   factory BaseListResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Object? json) fromJsonT,
-  ) => _$BaseListResponseFromJson(json, fromJsonT);
+  ) {
+    // Robust success check: handle both boolean 'success' and string 'status'
+    final bool isSuccess =
+        (json['success'] == true) ||
+        (json['status'] == 'success') ||
+        (json['status'] != 'error' && json['success'] == null);
 
-  Map<String, dynamic> toJson(Object? Function(T value) toJsonT) =>
-      _$BaseListResponseToJson(this, toJsonT);
+    return BaseListResponse<T>(
+      success: isSuccess,
+      message: json['message'] as String?,
+      data: (json['data'] as List<dynamic>?)?.map<T>(fromJsonT).toList(),
+      pagination: json['pagination'] == null
+          ? null
+          : Pagination.fromJson(json['pagination'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson(Object? Function(T value) toJsonT) => {
+    'success': success,
+    'message': message,
+    'data': data?.map(toJsonT).toList(),
+    'pagination': pagination?.toJson(),
+  };
 }
 
 @JsonSerializable()

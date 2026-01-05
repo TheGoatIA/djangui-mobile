@@ -13,8 +13,11 @@ DashboardReportModel _$DashboardReportModelFromJson(
       monthlyIncome: (json['monthlyIncome'] as num).toDouble(),
       totalSpent: (json['totalSpent'] as num).toDouble(),
       savingsRate: (json['savingsRate'] as num).toDouble(),
-      budgetHealth: BudgetHealthModel.fromJson(
-          json['budgetHealth'] as Map<String, dynamic>),
+      currency: json['currency'] as String? ?? 'XAF',
+      budgetHealth: json['budgetHealth'] == null
+          ? null
+          : BudgetHealthModel.fromJson(
+              json['budgetHealth'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$DashboardReportModelToJson(
@@ -24,6 +27,7 @@ Map<String, dynamic> _$DashboardReportModelToJson(
       'monthlyIncome': instance.monthlyIncome,
       'totalSpent': instance.totalSpent,
       'savingsRate': instance.savingsRate,
+      'currency': instance.currency,
       'budgetHealth': instance.budgetHealth,
     };
 

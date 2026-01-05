@@ -181,9 +181,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     if (response.isSuccessful && response.body?.data != null) {
       final data = response.body!.data!;
+      final tokens = data['tokens'] as Map<String, dynamic>;
       return {
-        'accessToken': data['accessToken'] as String,
-        'refreshToken': data['refreshToken'] as String,
+        'accessToken': tokens['accessToken'] as String,
+        'refreshToken': tokens['refreshToken'] as String,
       };
     } else {
       throw Exception(

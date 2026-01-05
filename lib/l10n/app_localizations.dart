@@ -524,6 +524,12 @@ abstract class AppLocalizations {
   /// **'{count} jours restants'**
   String daysRemaining(int count);
 
+  /// No description provided for @daysCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} jours'**
+  String daysCount(int count);
+
   /// No description provided for @deadlinePassed.
   ///
   /// In fr, this message translates to:
@@ -788,6 +794,96 @@ abstract class AppLocalizations {
   /// **'Complété'**
   String get completed;
 
+  /// No description provided for @difficulty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Difficulté'**
+  String get difficulty;
+
+  /// No description provided for @duration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée'**
+  String get duration;
+
+  /// No description provided for @reward.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récompense'**
+  String get reward;
+
+  /// No description provided for @startChallenge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer le défi'**
+  String get startChallenge;
+
+  /// No description provided for @validateWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider ma semaine'**
+  String get validateWeek;
+
+  /// No description provided for @yourProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Progression'**
+  String get yourProgress;
+
+  /// No description provided for @percentCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent}% complété'**
+  String percentCompleted(String percent);
+
+  /// No description provided for @week.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine'**
+  String get week;
+
+  /// No description provided for @validateWeekTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider la semaine'**
+  String get validateWeekTitle;
+
+  /// No description provided for @enterAmountSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez le montant épargné cette semaine :'**
+  String get enterAmountSaved;
+
+  /// No description provided for @amountToContribute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant à cotiser :'**
+  String get amountToContribute;
+
+  /// No description provided for @confirmValidationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer la validation'**
+  String get confirmValidationTitle;
+
+  /// No description provided for @confirmValidationMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir valider cette semaine pour {amount} XAF ?'**
+  String confirmValidationMessage(Object amount);
+
+  /// No description provided for @confirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get confirm;
+
+  /// No description provided for @active.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif'**
+  String get active;
+
   /// No description provided for @coachTitle.
   ///
   /// In fr, this message translates to:
@@ -925,6 +1021,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Numéro lié avec succès'**
   String get phoneLinkedSuccess;
+
+  /// No description provided for @validationSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine validée avec succès'**
+  String get validationSuccess;
 
   /// No description provided for @invalidPhone.
   ///

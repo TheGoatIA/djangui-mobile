@@ -19,21 +19,43 @@ class JsonToTypeConverter extends JsonConverter {
         .convertResponse<dynamic, dynamic>(response);
     final dynamic body = jsonRes.body;
 
-    return jsonRes.copyWith<ResultType>(body: _decode<ResultType, Item>(body));
+    try {
+      return jsonRes.copyWith<ResultType>(
+        body: _decode<ResultType, Item>(body),
+      );
+    } catch (e) {
+      getIt<Logger>().e(
+        '❌ [JsonToTypeConverter] Error decoding $ResultType: $e\nBody: $body',
+      );
+      rethrow;
+    }
   }
 
   @override
   FutureOr<Response> convertError<ResultType, Item>(Response response) async {
     final Response<dynamic> jsonRes = await super
         .convertError<dynamic, dynamic>(response);
-    return jsonRes.copyWith(body: _decode<dynamic, dynamic>(jsonRes.body));
+    final dynamic body = jsonRes.body;
+
+    try {
+      return jsonRes.copyWith(body: _decode<dynamic, dynamic>(body));
+    } catch (e) {
+      getIt<Logger>().e(
+        '❌ [JsonToTypeConverter] Error decoding Error: $e\nBody: $body',
+      );
+      return jsonRes;
+    }
   }
 
   dynamic _decode<ResultType, Item>(dynamic body) {
     if (body == null) return null;
 
     if (body is List) {
-      return body.map((e) => _decodeMap<Item, dynamic>(e)).toList()
+      return body
+              .map<Item>(
+                (e) => _decodeMap<Item, dynamic>(e as Map<String, dynamic>),
+              )
+              .toList()
           as ResultType;
     }
 
@@ -45,7 +67,12 @@ class JsonToTypeConverter extends JsonConverter {
   }
 
   dynamic _decodeMap<T, Item>(Map<String, dynamic> json) {
-    if (T == dynamic || T == Object) return json;
+    if (T == dynamic ||
+        T == Object ||
+        T == Map ||
+        T == (Map<String, dynamic>)) {
+      return json;
+    }
 
     if (typeDecoders.containsKey(T)) {
       return typeDecoders[T]!(json);
@@ -56,14 +83,23 @@ class JsonToTypeConverter extends JsonConverter {
     final String typeString = T.toString();
 
     if (typeString.startsWith('BaseResponse')) {
+      // Guard against Chopper's type inference if it passes BaseResponse as Item
+      if (Item.toString().startsWith('BaseResponse') || Item == dynamic) {
+        return _createBaseResponse<dynamic>(json);
+      }
       return _createBaseResponse<Item>(json);
     }
 
     if (typeString.startsWith('BaseListResponse')) {
+      if (Item.toString().startsWith('BaseResponse') || Item == dynamic) {
+        return _createBaseListResponse<dynamic>(json);
+      }
       return _createBaseListResponse<Item>(json);
     }
 
-    getIt<Logger>().w('⚠️ [JsonToTypeConverter] No decoder found for type: $T');
+    getIt<Logger>().w(
+      '⚠️ [JsonToTypeConverter] No decoder found for type: $T (Item: $Item)',
+    );
     return json;
   }
 

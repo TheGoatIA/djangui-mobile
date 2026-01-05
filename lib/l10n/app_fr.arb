@@ -71,6 +71,14 @@
     "myGoals": "Mes Objectifs",
     "noGoalDefined": "Aucun objectif défini",
     "daysRemaining": "{count} jours restants",
+    "daysCount": "{count} jours",
+    "@daysCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
     "@daysRemaining": {
         "placeholders": {
             "count": {
@@ -129,6 +137,28 @@
     "finished": "Terminé",
     "acceptChallenge": "Relever le défi",
     "completed": "Complété",
+    "difficulty": "Difficulté",
+    "duration": "Durée",
+    "reward": "Récompense",
+    "startChallenge": "Commencer le défi",
+    "validateWeek": "Valider ma semaine",
+    "yourProgress": "Votre Progression",
+    "percentCompleted": "{percent}% complété",
+    "@percentCompleted": {
+        "placeholders": {
+            "percent": {
+                "type": "String"
+            }
+        }
+    },
+    "week": "Semaine",
+    "validateWeekTitle": "Valider la semaine",
+    "enterAmountSaved": "Entrez le montant épargné cette semaine :",
+    "amountToContribute": "Montant à cotiser :",
+    "confirmValidationTitle": "Confirmer la validation",
+    "confirmValidationMessage": "Êtes-vous sûr de vouloir valider cette semaine pour {amount} XAF ?",
+    "confirm": "Confirmer",
+    "active": "Actif",
     "coachTitle": "Coach IA",
     "online": "En ligne",
     "coachWelcomeMessage": "Comment puis-je vous aider aujourd'hui ?",
@@ -152,6 +182,7 @@
     "otpCode": "Code SMS",
     "resendCode": "Renvoyer le code",
     "phoneLinkedSuccess": "Numéro lié avec succès",
+    "validationSuccess": "Semaine validée avec succès",
     "invalidPhone": "Numéro invalide",
     "country": "Pays",
     "selectCountry": "Sélectionnez votre pays",

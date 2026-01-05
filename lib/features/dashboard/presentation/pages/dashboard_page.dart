@@ -67,42 +67,69 @@ class DashboardPage extends StatelessWidget {
             },
           ),
         ],
-        child: Scaffold(
-          backgroundColor: AppColors.background,
-          appBar: _buildAppBar(context),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const GamificationHeader(),
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: _buildBalanceCard(context)
-                      .animate()
-                      .fade(duration: 500.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+        child: Builder(
+          builder: (context) {
+            return Scaffold(
+              backgroundColor: AppColors.background,
+              appBar: _buildAppBar(context),
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  context.read<DashboardBloc>().add(
+                    GetDashboardDataRequested(),
+                  );
+                  context.read<TransactionsBloc>().add(
+                    const GetTransactionsRequested(forceRefresh: true),
+                  );
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const GamificationHeader(),
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: _buildBalanceCard(context)
+                            .animate()
+                            .fade(duration: 500.ms)
+                            .slideY(
+                              begin: 0.1,
+                              end: 0,
+                              curve: Curves.easeOutQuad,
+                            ),
+                      ),
+                      const SizedBox(height: 24),
+                      _buildQuickActions(context)
+                          .animate(delay: 200.ms)
+                          .fade(duration: 500.ms)
+                          .slideY(
+                            begin: 0.1,
+                            end: 0,
+                            curve: Curves.easeOutQuad,
+                          ),
+                      const SizedBox(height: 32),
+                      _buildSectionHeader(
+                        context,
+                        AppLocalizations.of(context)!.recentActivities,
+                        () => context.push(RouteConstants.transactions),
+                      ).animate(delay: 300.ms).fade(),
+                      const SizedBox(height: 16),
+                      _buildRecentActivities(context)
+                          .animate(delay: 400.ms)
+                          .fade(duration: 500.ms)
+                          .slideY(
+                            begin: 0.1,
+                            end: 0,
+                            curve: Curves.easeOutQuad,
+                          ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 24),
-                _buildQuickActions(context)
-                    .animate(delay: 200.ms)
-                    .fade(duration: 500.ms)
-                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
-                const SizedBox(height: 32),
-                _buildSectionHeader(
-                  context,
-                  AppLocalizations.of(context)!.recentActivities,
-                  () => context.push(RouteConstants.transactions),
-                ).animate(delay: 300.ms).fade(),
-                const SizedBox(height: 16),
-                _buildRecentActivities(context)
-                    .animate(delay: 400.ms)
-                    .fade(duration: 500.ms)
-                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

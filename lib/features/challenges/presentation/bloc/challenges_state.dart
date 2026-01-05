@@ -6,14 +6,13 @@ enum ChallengesStatus { initial, loading, success, error }
 class ChallengesState extends Equatable {
   final ChallengesStatus status;
   final List<ChallengeModel> challenges;
-  final List<dynamic>
-  userChallenges; // Using dynamic for now as model not defined
+  final List<UserChallengeModel> userChallenges;
   final String? errorMessage;
 
   const ChallengesState({
     this.status = ChallengesStatus.initial,
-    this.challenges = const [],
-    this.userChallenges = const [],
+    this.challenges = const <ChallengeModel>[],
+    this.userChallenges = const <UserChallengeModel>[],
     this.errorMessage,
   });
 
@@ -22,7 +21,7 @@ class ChallengesState extends Equatable {
   ChallengesState copyWith({
     ChallengesStatus? status,
     List<ChallengeModel>? challenges,
-    List<dynamic>? userChallenges,
+    List<UserChallengeModel>? userChallenges,
     String? errorMessage,
   }) {
     return ChallengesState(

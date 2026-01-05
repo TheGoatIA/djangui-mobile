@@ -71,6 +71,14 @@
     "myGoals": "My Goals",
     "noGoalDefined": "No goal defined",
     "daysRemaining": "{count} days remaining",
+    "daysCount": "{count} days",
+    "@daysCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
     "@daysRemaining": {
         "placeholders": {
             "count": {
@@ -129,6 +137,28 @@
     "finished": "Finished",
     "acceptChallenge": "Accept Challenge",
     "completed": "Completed",
+    "difficulty": "Difficulty",
+    "duration": "Duration",
+    "reward": "Reward",
+    "startChallenge": "Start Challenge",
+    "validateWeek": "Validate Week",
+    "yourProgress": "Your Progress",
+    "percentCompleted": "{percent}% Completed",
+    "@percentCompleted": {
+        "placeholders": {
+            "percent": {
+                "type": "String"
+            }
+        }
+    },
+    "week": "Week",
+    "validateWeekTitle": "Validate Week",
+    "enterAmountSaved": "Enter the amount saved this week:",
+    "amountToContribute": "Amount to contribute:",
+    "confirmValidationTitle": "Confirm Validation",
+    "confirmValidationMessage": "Are you sure you want to validate this week for {amount} XAF?",
+    "confirm": "Confirm",
+    "active": "Active",
     "coachTitle": "AI Coach",
     "online": "Online",
     "coachWelcomeMessage": "How can I help you today?",
@@ -152,6 +182,7 @@
     "otpCode": "SMS Code",
     "resendCode": "Resend Code",
     "phoneLinkedSuccess": "Phone linked successfully",
+    "validationSuccess": "Week validated successfully",
     "invalidPhone": "Invalid phone number",
     "country": "Country",
     "selectCountry": "Select your country",

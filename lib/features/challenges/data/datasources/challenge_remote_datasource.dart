@@ -4,9 +4,9 @@ import '../models/challenge_model.dart';
 
 abstract class ChallengeRemoteDataSource {
   Future<List<ChallengeModel>> getChallenges();
-  Future<List<dynamic>> getUserChallenges();
-  Future<dynamic> joinChallenge(String id);
-  Future<dynamic> validateWeek(
+  Future<List<UserChallengeModel>> getUserChallenges();
+  Future<UserChallengeModel> joinChallenge(String id);
+  Future<UserChallengeModel> validateWeek(
     String userChallengeId,
     int weekNumber,
     double amount,
@@ -35,7 +35,7 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
   }
 
   @override
-  Future<List<dynamic>> getUserChallenges() async {
+  Future<List<UserChallengeModel>> getUserChallenges() async {
     final response = await _apiService.getUserChallenges();
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
@@ -49,7 +49,7 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
   }
 
   @override
-  Future<dynamic> joinChallenge(String id) async {
+  Future<UserChallengeModel> joinChallenge(String id) async {
     final response = await _apiService.joinChallenge({'challengeId': id});
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
@@ -63,7 +63,7 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
   }
 
   @override
-  Future<dynamic> validateWeek(
+  Future<UserChallengeModel> validateWeek(
     String userChallengeId,
     int weekNumber,
     double amount,
@@ -73,8 +73,8 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
       'weekNumber': weekNumber,
       'amount': amount,
     });
-    if (response.isSuccessful) {
-      return response.body?.data;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
       throw Exception(
         response.body?.message ??

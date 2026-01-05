@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:djangui/l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 import '../utils/responsive_utils.dart';
+import '../constants/route_constants.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
 
 class ScaffoldWithNavBar extends StatelessWidget {
   const ScaffoldWithNavBar({required this.navigationShell, super.key});
@@ -11,6 +14,17 @@ class ScaffoldWithNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state.status == AuthStatus.unauthenticated) {
+          context.go(RouteConstants.login);
+        }
+      },
+      child: _buildScaffold(context),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     // Mobile Layout
     if (ResponsiveUtils.isMobile(context)) {
       return Scaffold(

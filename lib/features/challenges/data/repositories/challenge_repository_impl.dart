@@ -66,12 +66,15 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
   }
 
   @override
-  Future<Either<Failure, List<dynamic>>> getUserChallenges() async {
+  Future<Either<Failure, List<UserChallengeModel>>> getUserChallenges() async {
     // Try local cache first if offline
     if (!await _networkInfo.isConnected) {
-      final localChallenges = _localDataSource.getUserChallenges();
-      if (localChallenges.isNotEmpty) {
-        return Right(localChallenges);
+      final localChallengesJson = _localDataSource.getUserChallenges();
+      if (localChallengesJson.isNotEmpty) {
+        final localModels = localChallengesJson
+            .map((e) => UserChallengeModel.fromJson(e))
+            .toList();
+        return Right(localModels);
       }
       return Left(NetworkFailure());
     }
@@ -81,14 +84,17 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
       final result = await _remoteDataSource.getUserChallenges();
       // Cache the result
       _localDataSource.saveUserChallenges(
-        result.map((e) => e as Map<String, dynamic>).toList(),
+        result.map((e) => e.toJson()).toList(),
       );
       return Right(result);
     } catch (e) {
       // Fallback to cache on error
-      final localChallenges = _localDataSource.getUserChallenges();
-      if (localChallenges.isNotEmpty) {
-        return Right(localChallenges);
+      final localChallengesJson = _localDataSource.getUserChallenges();
+      if (localChallengesJson.isNotEmpty) {
+        final localModels = localChallengesJson
+            .map((e) => UserChallengeModel.fromJson(e))
+            .toList();
+        return Right(localModels);
       }
       return Left(ServerFailure(e.toString()));
     }

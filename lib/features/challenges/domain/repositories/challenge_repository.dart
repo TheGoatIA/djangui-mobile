@@ -7,7 +7,7 @@ abstract class ChallengeRepository {
     bool forceRefresh = false,
   });
 
-  Future<Either<Failure, List<dynamic>>> getUserChallenges();
+  Future<Either<Failure, List<UserChallengeModel>>> getUserChallenges();
 
   Future<Either<Failure, void>> joinChallenge(String id);
 

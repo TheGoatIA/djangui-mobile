@@ -60,12 +60,17 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
           errorMessage: failure.message,
         ),
       ),
-      (userChallenges) => emit(
-        state.copyWith(
-          status: ChallengesStatus.success,
-          userChallenges: userChallenges,
-        ),
-      ),
+      (userChallenges) {
+        print(
+          '🏆 [ChallengesBloc] Fetched ${userChallenges.length} user challenges',
+        );
+        emit(
+          state.copyWith(
+            status: ChallengesStatus.success,
+            userChallenges: userChallenges,
+          ),
+        );
+      },
     );
   }
 

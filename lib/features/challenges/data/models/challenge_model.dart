@@ -53,8 +53,13 @@ class UserChallengeModel extends Equatable {
   final String status;
   final double progress;
   final double currentValue;
+
+  @_ChallengeIdConverter()
   final ChallengeModel? challengeId;
   final Map<String, dynamic>? flexibility;
+  final List<ChallengeWeekModel>? weeks;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   const UserChallengeModel({
     required this.id,
@@ -63,6 +68,9 @@ class UserChallengeModel extends Equatable {
     required this.currentValue,
     this.challengeId,
     this.flexibility,
+    this.weeks,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory UserChallengeModel.fromJson(Map<String, dynamic> json) =>
@@ -77,5 +85,68 @@ class UserChallengeModel extends Equatable {
     currentValue,
     challengeId,
     flexibility,
+    weeks,
+    createdAt,
+    updatedAt,
   ];
+}
+
+@JsonSerializable()
+class ChallengeWeekModel extends Equatable {
+  @JsonKey(name: '_id')
+  final String id;
+  final int weekNumber;
+  final double targetAmount;
+  final double savedAmount;
+  final String status;
+
+  const ChallengeWeekModel({
+    required this.id,
+    required this.weekNumber,
+    required this.targetAmount,
+    required this.savedAmount,
+    required this.status,
+  });
+
+  factory ChallengeWeekModel.fromJson(Map<String, dynamic> json) =>
+      _$ChallengeWeekModelFromJson(json);
+  Map<String, dynamic> toJson() => _$ChallengeWeekModelToJson(this);
+
+  @override
+  List<Object?> get props => [
+    id,
+    weekNumber,
+    targetAmount,
+    savedAmount,
+    status,
+  ];
+}
+
+class _ChallengeIdConverter implements JsonConverter<ChallengeModel?, dynamic> {
+  const _ChallengeIdConverter();
+
+  @override
+  ChallengeModel? fromJson(dynamic json) {
+    if (json == null) return null;
+    if (json is Map<String, dynamic>) {
+      return ChallengeModel.fromJson(json);
+    }
+    if (json is String) {
+      // If it's just an ID, we return a skeleton model so that we can still access the ID
+      return ChallengeModel(
+        id: json,
+        title: '',
+        description: '',
+        type: '',
+        difficulty: '',
+        targetAmount: null,
+        durationDays: 0,
+        rewardPoints: 0,
+      );
+    }
+    return null;
+  }
+
+  @override
+  dynamic toJson(ChallengeModel? object) => object?.toJson();
 }

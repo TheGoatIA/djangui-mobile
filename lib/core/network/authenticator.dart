@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:chopper/chopper.dart';
 import 'package:logger/logger.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../di/injection.dart';
 
 class DjanguiAuthenticator extends Authenticator {
@@ -37,6 +38,8 @@ class DjanguiAuthenticator extends Authenticator {
           logger.e(
             '🔐 [Authenticator] Refresh failed: ${failure.message}. Redirecting to login.',
           );
+          // Trigger global logout so UI reacts
+          getIt<AuthBloc>().add(AuthLogoutRequested());
           return null;
         },
         (_) async {

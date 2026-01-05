@@ -228,6 +228,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String daysCount(int count) {
+    return '$count days';
+  }
+
+  @override
   String get deadlinePassed => 'Deadline passed';
 
   @override
@@ -362,6 +367,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get completed => 'Completed';
 
   @override
+  String get difficulty => 'Difficulty';
+
+  @override
+  String get duration => 'Duration';
+
+  @override
+  String get reward => 'Reward';
+
+  @override
+  String get startChallenge => 'Start Challenge';
+
+  @override
+  String get validateWeek => 'Validate Week';
+
+  @override
+  String get yourProgress => 'Your Progress';
+
+  @override
+  String percentCompleted(String percent) {
+    return '$percent% Completed';
+  }
+
+  @override
+  String get week => 'Week';
+
+  @override
+  String get validateWeekTitle => 'Validate Week';
+
+  @override
+  String get enterAmountSaved => 'Enter the amount saved this week:';
+
+  @override
+  String get amountToContribute => 'Amount to contribute:';
+
+  @override
+  String get confirmValidationTitle => 'Confirm Validation';
+
+  @override
+  String confirmValidationMessage(Object amount) {
+    return 'Are you sure you want to validate this week for $amount XAF?';
+  }
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get active => 'Active';
+
+  @override
   String get coachTitle => 'AI Coach';
 
   @override
@@ -429,6 +483,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneLinkedSuccess => 'Phone linked successfully';
+
+  @override
+  String get validationSuccess => 'Week validated successfully';
 
   @override
   String get invalidPhone => 'Invalid phone number';
