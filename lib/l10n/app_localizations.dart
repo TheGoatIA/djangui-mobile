@@ -248,6 +248,12 @@ abstract class AppLocalizations {
   /// **'Annuler'**
   String get cancel;
 
+  /// No description provided for @none.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun'**
+  String get none;
+
   /// No description provided for @totalBalance.
   ///
   /// In fr, this message translates to:
@@ -595,6 +601,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'ex: Alimentation, Salaire...'**
   String get categoryHint;
+
+  /// No description provided for @subcategoryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-catégorie'**
+  String get subcategoryLabel;
+
+  /// No description provided for @subcategoryHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'ex: Restaurant, Carburant...'**
+  String get subcategoryHint;
+
+  /// No description provided for @merchantLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marchand'**
+  String get merchantLabel;
+
+  /// No description provided for @merchantHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'ex: Casino, Shell...'**
+  String get merchantHint;
+
+  /// No description provided for @locationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lieu'**
+  String get locationLabel;
+
+  /// No description provided for @locationHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'ex: Douala, Cameroun'**
+  String get locationHint;
+
+  /// No description provided for @linkToGoalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lier à un objectif'**
+  String get linkToGoalLabel;
+
+  /// No description provided for @selectGoalHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionner un objectif (optionnel)'**
+  String get selectGoalHint;
 
   /// No description provided for @descriptionLabel.
   ///

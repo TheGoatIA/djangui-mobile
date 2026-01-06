@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
@@ -63,7 +64,11 @@ class TransactionRepositoryImpl implements TransactionRepository {
         final remoteTransaction = await _remoteDataSource.createTransaction(
           transaction,
         );
-        // Update local with remote response (in case of ID change or server-side fields)
+        // If the server returns a different ID, delete the optimistic one
+        if (remoteTransaction.id != transaction.id) {
+          await _localDataSource.deleteTransaction(transaction.id);
+        }
+        // Save the remote version
         await _localDataSource.saveTransaction(remoteTransaction);
         return Right(remoteTransaction);
       } catch (e) {
@@ -116,8 +121,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   String transactionToJsonString(TransactionModel t) {
-    // Need a helper to avoid circular imports or messy code
-    // Assuming TransactionModel has toJson.
-    return '{"id": "${t.id}", "amount": ${t.amount}, "type": "${t.type}", "category": "${t.category}", "description": "${t.description}", "date": "${t.date.toIso8601String()}"}';
+    return jsonEncode(t.toJson());
   }
 }

@@ -85,6 +85,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cancel => 'Annuler';
 
   @override
+  String get none => 'Aucun';
+
+  @override
   String get totalBalance => 'Solde Total';
 
   @override
@@ -267,6 +270,30 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get categoryHint => 'ex: Alimentation, Salaire...';
+
+  @override
+  String get subcategoryLabel => 'Sous-catégorie';
+
+  @override
+  String get subcategoryHint => 'ex: Restaurant, Carburant...';
+
+  @override
+  String get merchantLabel => 'Marchand';
+
+  @override
+  String get merchantHint => 'ex: Casino, Shell...';
+
+  @override
+  String get locationLabel => 'Lieu';
+
+  @override
+  String get locationHint => 'ex: Douala, Cameroun';
+
+  @override
+  String get linkToGoalLabel => 'Lier à un objectif';
+
+  @override
+  String get selectGoalHint => 'Sélectionner un objectif (optionnel)';
 
   @override
   String get descriptionLabel => 'Description';

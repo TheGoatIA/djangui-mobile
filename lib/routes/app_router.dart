@@ -15,6 +15,8 @@ import '../features/goals/presentation/pages/goal_import_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/transactions/presentation/pages/transaction_list_page.dart';
 import '../features/transactions/presentation/pages/add_transaction_page.dart';
+import '../features/transactions/presentation/pages/transaction_detail_page.dart';
+import '../features/transactions/data/models/transaction_model.dart';
 import '../features/budgets/presentation/pages/budget_list_page.dart';
 import '../features/budgets/presentation/pages/add_budget_page.dart';
 import '../features/goals/presentation/pages/goal_list_page.dart';
@@ -171,6 +173,7 @@ final appRouter = GoRouter(
     // Independent Routes (Full Screen)
     GoRoute(
       path: RouteConstants.transactions,
+      name: 'transactions',
       pageBuilder: (context, state) => buildPageWithDefaultTransition(
         context: context,
         state: state,
@@ -179,11 +182,26 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(
           path: 'add',
-          pageBuilder: (context, state) => buildPageWithDefaultTransition(
-            context: context,
-            state: state,
-            child: const AddTransactionPage(),
-          ),
+          pageBuilder: (context, state) {
+            final goalId = state.extra as String?;
+            return buildPageWithDefaultTransition(
+              context: context,
+              state: state,
+              child: AddTransactionPage(initialGoalId: goalId),
+            );
+          },
+        ),
+        GoRoute(
+          path: ':id',
+          name: RouteConstants.transactionDetails,
+          pageBuilder: (context, state) {
+            final transaction = state.extra as TransactionModel;
+            return buildPageWithDefaultTransition(
+              context: context,
+              state: state,
+              child: TransactionDetailPage(transaction: transaction),
+            );
+          },
         ),
       ],
     ),

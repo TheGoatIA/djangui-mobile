@@ -585,6 +585,11 @@ class $TransactionsTable extends Transactions
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
   late final GeneratedColumn<double> amount = GeneratedColumn<double>(
@@ -627,6 +632,12 @@ class $TransactionsTable extends Transactions
   late final GeneratedColumn<String> merchant = GeneratedColumn<String>(
       'merchant', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _locationMeta =
+      const VerificationMeta('location');
+  @override
+  late final GeneratedColumn<String> location = GeneratedColumn<String>(
+      'location', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
@@ -661,12 +672,34 @@ class $TransactionsTable extends Transactions
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'CHECK ("is_recurring" IN (0, 1))'),
       defaultValue: const Constant(false));
-  static const VerificationMeta _recurringIntervalMeta =
-      const VerificationMeta('recurringInterval');
+  static const VerificationMeta _recurringFrequencyMeta =
+      const VerificationMeta('recurringFrequency');
   @override
-  late final GeneratedColumn<String> recurringInterval =
-      GeneratedColumn<String>('recurring_interval', aliasedName, true,
+  late final GeneratedColumn<String> recurringFrequency =
+      GeneratedColumn<String>('recurring_frequency', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isAutoCategorizedMeta =
+      const VerificationMeta('isAutoCategorized');
+  @override
+  late final GeneratedColumn<bool> isAutoCategorized = GeneratedColumn<bool>(
+      'is_auto_categorized', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_auto_categorized" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _categorizationConfidenceMeta =
+      const VerificationMeta('categorizationConfidence');
+  @override
+  late final GeneratedColumn<double> categorizationConfidence =
+      GeneratedColumn<double>('categorization_confidence', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _receiptMeta =
+      const VerificationMeta('receipt');
+  @override
+  late final GeneratedColumn<String> receipt = GeneratedColumn<String>(
+      'receipt', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _linkedGoalIdMeta =
       const VerificationMeta('linkedGoalId');
   @override
@@ -694,6 +727,7 @@ class $TransactionsTable extends Transactions
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        userId,
         amount,
         currency,
         type,
@@ -701,12 +735,16 @@ class $TransactionsTable extends Transactions
         subcategory,
         description,
         merchant,
+        location,
         date,
         status,
         source,
         tags,
         isRecurring,
-        recurringInterval,
+        recurringFrequency,
+        isAutoCategorized,
+        categorizationConfidence,
+        receipt,
         linkedGoalId,
         metadata,
         createdAt,
@@ -726,6 +764,10 @@ class $TransactionsTable extends Transactions
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
     }
     if (data.containsKey('amount')) {
       context.handle(_amountMeta,
@@ -767,6 +809,10 @@ class $TransactionsTable extends Transactions
       context.handle(_merchantMeta,
           merchant.isAcceptableOrUnknown(data['merchant']!, _merchantMeta));
     }
+    if (data.containsKey('location')) {
+      context.handle(_locationMeta,
+          location.isAcceptableOrUnknown(data['location']!, _locationMeta));
+    }
     if (data.containsKey('date')) {
       context.handle(
           _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
@@ -791,11 +837,28 @@ class $TransactionsTable extends Transactions
           isRecurring.isAcceptableOrUnknown(
               data['is_recurring']!, _isRecurringMeta));
     }
-    if (data.containsKey('recurring_interval')) {
+    if (data.containsKey('recurring_frequency')) {
       context.handle(
-          _recurringIntervalMeta,
-          recurringInterval.isAcceptableOrUnknown(
-              data['recurring_interval']!, _recurringIntervalMeta));
+          _recurringFrequencyMeta,
+          recurringFrequency.isAcceptableOrUnknown(
+              data['recurring_frequency']!, _recurringFrequencyMeta));
+    }
+    if (data.containsKey('is_auto_categorized')) {
+      context.handle(
+          _isAutoCategorizedMeta,
+          isAutoCategorized.isAcceptableOrUnknown(
+              data['is_auto_categorized']!, _isAutoCategorizedMeta));
+    }
+    if (data.containsKey('categorization_confidence')) {
+      context.handle(
+          _categorizationConfidenceMeta,
+          categorizationConfidence.isAcceptableOrUnknown(
+              data['categorization_confidence']!,
+              _categorizationConfidenceMeta));
+    }
+    if (data.containsKey('receipt')) {
+      context.handle(_receiptMeta,
+          receipt.isAcceptableOrUnknown(data['receipt']!, _receiptMeta));
     }
     if (data.containsKey('linked_goal_id')) {
       context.handle(
@@ -826,6 +889,8 @@ class $TransactionsTable extends Transactions
     return Transaction(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id']),
       amount: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
       currency: attachedDatabase.typeMapping
@@ -840,6 +905,8 @@ class $TransactionsTable extends Transactions
           .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
       merchant: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}merchant']),
+      location: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location']),
       date: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
       status: attachedDatabase.typeMapping
@@ -850,8 +917,15 @@ class $TransactionsTable extends Transactions
           .read(DriftSqlType.string, data['${effectivePrefix}tags'])!,
       isRecurring: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_recurring'])!,
-      recurringInterval: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}recurring_interval']),
+      recurringFrequency: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}recurring_frequency']),
+      isAutoCategorized: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}is_auto_categorized'])!,
+      categorizationConfidence: attachedDatabase.typeMapping.read(
+          DriftSqlType.double,
+          data['${effectivePrefix}categorization_confidence']),
+      receipt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}receipt']),
       linkedGoalId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}linked_goal_id']),
       metadata: attachedDatabase.typeMapping
@@ -871,6 +945,7 @@ class $TransactionsTable extends Transactions
 
 class Transaction extends DataClass implements Insertable<Transaction> {
   final String id;
+  final String? userId;
   final double amount;
   final String currency;
   final String type;
@@ -878,18 +953,23 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final String? subcategory;
   final String description;
   final String? merchant;
+  final String? location;
   final DateTime date;
   final String status;
   final String? source;
   final String tags;
   final bool isRecurring;
-  final String? recurringInterval;
+  final String? recurringFrequency;
+  final bool isAutoCategorized;
+  final double? categorizationConfidence;
+  final String? receipt;
   final String? linkedGoalId;
   final String? metadata;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   const Transaction(
       {required this.id,
+      this.userId,
       required this.amount,
       required this.currency,
       required this.type,
@@ -897,12 +977,16 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       this.subcategory,
       required this.description,
       this.merchant,
+      this.location,
       required this.date,
       required this.status,
       this.source,
       required this.tags,
       required this.isRecurring,
-      this.recurringInterval,
+      this.recurringFrequency,
+      required this.isAutoCategorized,
+      this.categorizationConfidence,
+      this.receipt,
       this.linkedGoalId,
       this.metadata,
       this.createdAt,
@@ -911,6 +995,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || userId != null) {
+      map['user_id'] = Variable<String>(userId);
+    }
     map['amount'] = Variable<double>(amount);
     map['currency'] = Variable<String>(currency);
     map['type'] = Variable<String>(type);
@@ -922,6 +1009,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     if (!nullToAbsent || merchant != null) {
       map['merchant'] = Variable<String>(merchant);
     }
+    if (!nullToAbsent || location != null) {
+      map['location'] = Variable<String>(location);
+    }
     map['date'] = Variable<DateTime>(date);
     map['status'] = Variable<String>(status);
     if (!nullToAbsent || source != null) {
@@ -929,8 +1019,16 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     }
     map['tags'] = Variable<String>(tags);
     map['is_recurring'] = Variable<bool>(isRecurring);
-    if (!nullToAbsent || recurringInterval != null) {
-      map['recurring_interval'] = Variable<String>(recurringInterval);
+    if (!nullToAbsent || recurringFrequency != null) {
+      map['recurring_frequency'] = Variable<String>(recurringFrequency);
+    }
+    map['is_auto_categorized'] = Variable<bool>(isAutoCategorized);
+    if (!nullToAbsent || categorizationConfidence != null) {
+      map['categorization_confidence'] =
+          Variable<double>(categorizationConfidence);
+    }
+    if (!nullToAbsent || receipt != null) {
+      map['receipt'] = Variable<String>(receipt);
     }
     if (!nullToAbsent || linkedGoalId != null) {
       map['linked_goal_id'] = Variable<String>(linkedGoalId);
@@ -950,6 +1048,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   TransactionsCompanion toCompanion(bool nullToAbsent) {
     return TransactionsCompanion(
       id: Value(id),
+      userId:
+          userId == null && nullToAbsent ? const Value.absent() : Value(userId),
       amount: Value(amount),
       currency: Value(currency),
       type: Value(type),
@@ -961,15 +1061,25 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       merchant: merchant == null && nullToAbsent
           ? const Value.absent()
           : Value(merchant),
+      location: location == null && nullToAbsent
+          ? const Value.absent()
+          : Value(location),
       date: Value(date),
       status: Value(status),
       source:
           source == null && nullToAbsent ? const Value.absent() : Value(source),
       tags: Value(tags),
       isRecurring: Value(isRecurring),
-      recurringInterval: recurringInterval == null && nullToAbsent
+      recurringFrequency: recurringFrequency == null && nullToAbsent
           ? const Value.absent()
-          : Value(recurringInterval),
+          : Value(recurringFrequency),
+      isAutoCategorized: Value(isAutoCategorized),
+      categorizationConfidence: categorizationConfidence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categorizationConfidence),
+      receipt: receipt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(receipt),
       linkedGoalId: linkedGoalId == null && nullToAbsent
           ? const Value.absent()
           : Value(linkedGoalId),
@@ -990,6 +1100,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Transaction(
       id: serializer.fromJson<String>(json['id']),
+      userId: serializer.fromJson<String?>(json['userId']),
       amount: serializer.fromJson<double>(json['amount']),
       currency: serializer.fromJson<String>(json['currency']),
       type: serializer.fromJson<String>(json['type']),
@@ -997,13 +1108,18 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       subcategory: serializer.fromJson<String?>(json['subcategory']),
       description: serializer.fromJson<String>(json['description']),
       merchant: serializer.fromJson<String?>(json['merchant']),
+      location: serializer.fromJson<String?>(json['location']),
       date: serializer.fromJson<DateTime>(json['date']),
       status: serializer.fromJson<String>(json['status']),
       source: serializer.fromJson<String?>(json['source']),
       tags: serializer.fromJson<String>(json['tags']),
       isRecurring: serializer.fromJson<bool>(json['isRecurring']),
-      recurringInterval:
-          serializer.fromJson<String?>(json['recurringInterval']),
+      recurringFrequency:
+          serializer.fromJson<String?>(json['recurringFrequency']),
+      isAutoCategorized: serializer.fromJson<bool>(json['isAutoCategorized']),
+      categorizationConfidence:
+          serializer.fromJson<double?>(json['categorizationConfidence']),
+      receipt: serializer.fromJson<String?>(json['receipt']),
       linkedGoalId: serializer.fromJson<String?>(json['linkedGoalId']),
       metadata: serializer.fromJson<String?>(json['metadata']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
@@ -1015,6 +1131,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'userId': serializer.toJson<String?>(userId),
       'amount': serializer.toJson<double>(amount),
       'currency': serializer.toJson<String>(currency),
       'type': serializer.toJson<String>(type),
@@ -1022,12 +1139,17 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'subcategory': serializer.toJson<String?>(subcategory),
       'description': serializer.toJson<String>(description),
       'merchant': serializer.toJson<String?>(merchant),
+      'location': serializer.toJson<String?>(location),
       'date': serializer.toJson<DateTime>(date),
       'status': serializer.toJson<String>(status),
       'source': serializer.toJson<String?>(source),
       'tags': serializer.toJson<String>(tags),
       'isRecurring': serializer.toJson<bool>(isRecurring),
-      'recurringInterval': serializer.toJson<String?>(recurringInterval),
+      'recurringFrequency': serializer.toJson<String?>(recurringFrequency),
+      'isAutoCategorized': serializer.toJson<bool>(isAutoCategorized),
+      'categorizationConfidence':
+          serializer.toJson<double?>(categorizationConfidence),
+      'receipt': serializer.toJson<String?>(receipt),
       'linkedGoalId': serializer.toJson<String?>(linkedGoalId),
       'metadata': serializer.toJson<String?>(metadata),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
@@ -1037,6 +1159,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
 
   Transaction copyWith(
           {String? id,
+          Value<String?> userId = const Value.absent(),
           double? amount,
           String? currency,
           String? type,
@@ -1044,18 +1167,23 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           Value<String?> subcategory = const Value.absent(),
           String? description,
           Value<String?> merchant = const Value.absent(),
+          Value<String?> location = const Value.absent(),
           DateTime? date,
           String? status,
           Value<String?> source = const Value.absent(),
           String? tags,
           bool? isRecurring,
-          Value<String?> recurringInterval = const Value.absent(),
+          Value<String?> recurringFrequency = const Value.absent(),
+          bool? isAutoCategorized,
+          Value<double?> categorizationConfidence = const Value.absent(),
+          Value<String?> receipt = const Value.absent(),
           Value<String?> linkedGoalId = const Value.absent(),
           Value<String?> metadata = const Value.absent(),
           Value<DateTime?> createdAt = const Value.absent(),
           Value<DateTime?> updatedAt = const Value.absent()}) =>
       Transaction(
         id: id ?? this.id,
+        userId: userId.present ? userId.value : this.userId,
         amount: amount ?? this.amount,
         currency: currency ?? this.currency,
         type: type ?? this.type,
@@ -1063,14 +1191,20 @@ class Transaction extends DataClass implements Insertable<Transaction> {
         subcategory: subcategory.present ? subcategory.value : this.subcategory,
         description: description ?? this.description,
         merchant: merchant.present ? merchant.value : this.merchant,
+        location: location.present ? location.value : this.location,
         date: date ?? this.date,
         status: status ?? this.status,
         source: source.present ? source.value : this.source,
         tags: tags ?? this.tags,
         isRecurring: isRecurring ?? this.isRecurring,
-        recurringInterval: recurringInterval.present
-            ? recurringInterval.value
-            : this.recurringInterval,
+        recurringFrequency: recurringFrequency.present
+            ? recurringFrequency.value
+            : this.recurringFrequency,
+        isAutoCategorized: isAutoCategorized ?? this.isAutoCategorized,
+        categorizationConfidence: categorizationConfidence.present
+            ? categorizationConfidence.value
+            : this.categorizationConfidence,
+        receipt: receipt.present ? receipt.value : this.receipt,
         linkedGoalId:
             linkedGoalId.present ? linkedGoalId.value : this.linkedGoalId,
         metadata: metadata.present ? metadata.value : this.metadata,
@@ -1080,6 +1214,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   Transaction copyWithCompanion(TransactionsCompanion data) {
     return Transaction(
       id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
       amount: data.amount.present ? data.amount.value : this.amount,
       currency: data.currency.present ? data.currency.value : this.currency,
       type: data.type.present ? data.type.value : this.type,
@@ -1089,15 +1224,23 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       description:
           data.description.present ? data.description.value : this.description,
       merchant: data.merchant.present ? data.merchant.value : this.merchant,
+      location: data.location.present ? data.location.value : this.location,
       date: data.date.present ? data.date.value : this.date,
       status: data.status.present ? data.status.value : this.status,
       source: data.source.present ? data.source.value : this.source,
       tags: data.tags.present ? data.tags.value : this.tags,
       isRecurring:
           data.isRecurring.present ? data.isRecurring.value : this.isRecurring,
-      recurringInterval: data.recurringInterval.present
-          ? data.recurringInterval.value
-          : this.recurringInterval,
+      recurringFrequency: data.recurringFrequency.present
+          ? data.recurringFrequency.value
+          : this.recurringFrequency,
+      isAutoCategorized: data.isAutoCategorized.present
+          ? data.isAutoCategorized.value
+          : this.isAutoCategorized,
+      categorizationConfidence: data.categorizationConfidence.present
+          ? data.categorizationConfidence.value
+          : this.categorizationConfidence,
+      receipt: data.receipt.present ? data.receipt.value : this.receipt,
       linkedGoalId: data.linkedGoalId.present
           ? data.linkedGoalId.value
           : this.linkedGoalId,
@@ -1111,6 +1254,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   String toString() {
     return (StringBuffer('Transaction(')
           ..write('id: $id, ')
+          ..write('userId: $userId, ')
           ..write('amount: $amount, ')
           ..write('currency: $currency, ')
           ..write('type: $type, ')
@@ -1118,12 +1262,16 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('subcategory: $subcategory, ')
           ..write('description: $description, ')
           ..write('merchant: $merchant, ')
+          ..write('location: $location, ')
           ..write('date: $date, ')
           ..write('status: $status, ')
           ..write('source: $source, ')
           ..write('tags: $tags, ')
           ..write('isRecurring: $isRecurring, ')
-          ..write('recurringInterval: $recurringInterval, ')
+          ..write('recurringFrequency: $recurringFrequency, ')
+          ..write('isAutoCategorized: $isAutoCategorized, ')
+          ..write('categorizationConfidence: $categorizationConfidence, ')
+          ..write('receipt: $receipt, ')
           ..write('linkedGoalId: $linkedGoalId, ')
           ..write('metadata: $metadata, ')
           ..write('createdAt: $createdAt, ')
@@ -1133,30 +1281,37 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      amount,
-      currency,
-      type,
-      category,
-      subcategory,
-      description,
-      merchant,
-      date,
-      status,
-      source,
-      tags,
-      isRecurring,
-      recurringInterval,
-      linkedGoalId,
-      metadata,
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hashAll([
+        id,
+        userId,
+        amount,
+        currency,
+        type,
+        category,
+        subcategory,
+        description,
+        merchant,
+        location,
+        date,
+        status,
+        source,
+        tags,
+        isRecurring,
+        recurringFrequency,
+        isAutoCategorized,
+        categorizationConfidence,
+        receipt,
+        linkedGoalId,
+        metadata,
+        createdAt,
+        updatedAt
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Transaction &&
           other.id == this.id &&
+          other.userId == this.userId &&
           other.amount == this.amount &&
           other.currency == this.currency &&
           other.type == this.type &&
@@ -1164,12 +1319,16 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.subcategory == this.subcategory &&
           other.description == this.description &&
           other.merchant == this.merchant &&
+          other.location == this.location &&
           other.date == this.date &&
           other.status == this.status &&
           other.source == this.source &&
           other.tags == this.tags &&
           other.isRecurring == this.isRecurring &&
-          other.recurringInterval == this.recurringInterval &&
+          other.recurringFrequency == this.recurringFrequency &&
+          other.isAutoCategorized == this.isAutoCategorized &&
+          other.categorizationConfidence == this.categorizationConfidence &&
+          other.receipt == this.receipt &&
           other.linkedGoalId == this.linkedGoalId &&
           other.metadata == this.metadata &&
           other.createdAt == this.createdAt &&
@@ -1178,6 +1337,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
 
 class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String> id;
+  final Value<String?> userId;
   final Value<double> amount;
   final Value<String> currency;
   final Value<String> type;
@@ -1185,12 +1345,16 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String?> subcategory;
   final Value<String> description;
   final Value<String?> merchant;
+  final Value<String?> location;
   final Value<DateTime> date;
   final Value<String> status;
   final Value<String?> source;
   final Value<String> tags;
   final Value<bool> isRecurring;
-  final Value<String?> recurringInterval;
+  final Value<String?> recurringFrequency;
+  final Value<bool> isAutoCategorized;
+  final Value<double?> categorizationConfidence;
+  final Value<String?> receipt;
   final Value<String?> linkedGoalId;
   final Value<String?> metadata;
   final Value<DateTime?> createdAt;
@@ -1198,6 +1362,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<int> rowid;
   const TransactionsCompanion({
     this.id = const Value.absent(),
+    this.userId = const Value.absent(),
     this.amount = const Value.absent(),
     this.currency = const Value.absent(),
     this.type = const Value.absent(),
@@ -1205,12 +1370,16 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.subcategory = const Value.absent(),
     this.description = const Value.absent(),
     this.merchant = const Value.absent(),
+    this.location = const Value.absent(),
     this.date = const Value.absent(),
     this.status = const Value.absent(),
     this.source = const Value.absent(),
     this.tags = const Value.absent(),
     this.isRecurring = const Value.absent(),
-    this.recurringInterval = const Value.absent(),
+    this.recurringFrequency = const Value.absent(),
+    this.isAutoCategorized = const Value.absent(),
+    this.categorizationConfidence = const Value.absent(),
+    this.receipt = const Value.absent(),
     this.linkedGoalId = const Value.absent(),
     this.metadata = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1219,6 +1388,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   });
   TransactionsCompanion.insert({
     required String id,
+    this.userId = const Value.absent(),
     required double amount,
     this.currency = const Value.absent(),
     required String type,
@@ -1226,12 +1396,16 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.subcategory = const Value.absent(),
     required String description,
     this.merchant = const Value.absent(),
+    this.location = const Value.absent(),
     required DateTime date,
     this.status = const Value.absent(),
     this.source = const Value.absent(),
     this.tags = const Value.absent(),
     this.isRecurring = const Value.absent(),
-    this.recurringInterval = const Value.absent(),
+    this.recurringFrequency = const Value.absent(),
+    this.isAutoCategorized = const Value.absent(),
+    this.categorizationConfidence = const Value.absent(),
+    this.receipt = const Value.absent(),
     this.linkedGoalId = const Value.absent(),
     this.metadata = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1245,6 +1419,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
         date = Value(date);
   static Insertable<Transaction> custom({
     Expression<String>? id,
+    Expression<String>? userId,
     Expression<double>? amount,
     Expression<String>? currency,
     Expression<String>? type,
@@ -1252,12 +1427,16 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<String>? subcategory,
     Expression<String>? description,
     Expression<String>? merchant,
+    Expression<String>? location,
     Expression<DateTime>? date,
     Expression<String>? status,
     Expression<String>? source,
     Expression<String>? tags,
     Expression<bool>? isRecurring,
-    Expression<String>? recurringInterval,
+    Expression<String>? recurringFrequency,
+    Expression<bool>? isAutoCategorized,
+    Expression<double>? categorizationConfidence,
+    Expression<String>? receipt,
     Expression<String>? linkedGoalId,
     Expression<String>? metadata,
     Expression<DateTime>? createdAt,
@@ -1266,6 +1445,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
       if (amount != null) 'amount': amount,
       if (currency != null) 'currency': currency,
       if (type != null) 'type': type,
@@ -1273,12 +1453,17 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (subcategory != null) 'subcategory': subcategory,
       if (description != null) 'description': description,
       if (merchant != null) 'merchant': merchant,
+      if (location != null) 'location': location,
       if (date != null) 'date': date,
       if (status != null) 'status': status,
       if (source != null) 'source': source,
       if (tags != null) 'tags': tags,
       if (isRecurring != null) 'is_recurring': isRecurring,
-      if (recurringInterval != null) 'recurring_interval': recurringInterval,
+      if (recurringFrequency != null) 'recurring_frequency': recurringFrequency,
+      if (isAutoCategorized != null) 'is_auto_categorized': isAutoCategorized,
+      if (categorizationConfidence != null)
+        'categorization_confidence': categorizationConfidence,
+      if (receipt != null) 'receipt': receipt,
       if (linkedGoalId != null) 'linked_goal_id': linkedGoalId,
       if (metadata != null) 'metadata': metadata,
       if (createdAt != null) 'created_at': createdAt,
@@ -1289,6 +1474,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
 
   TransactionsCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? userId,
       Value<double>? amount,
       Value<String>? currency,
       Value<String>? type,
@@ -1296,12 +1482,16 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       Value<String?>? subcategory,
       Value<String>? description,
       Value<String?>? merchant,
+      Value<String?>? location,
       Value<DateTime>? date,
       Value<String>? status,
       Value<String?>? source,
       Value<String>? tags,
       Value<bool>? isRecurring,
-      Value<String?>? recurringInterval,
+      Value<String?>? recurringFrequency,
+      Value<bool>? isAutoCategorized,
+      Value<double?>? categorizationConfidence,
+      Value<String?>? receipt,
       Value<String?>? linkedGoalId,
       Value<String?>? metadata,
       Value<DateTime?>? createdAt,
@@ -1309,6 +1499,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       Value<int>? rowid}) {
     return TransactionsCompanion(
       id: id ?? this.id,
+      userId: userId ?? this.userId,
       amount: amount ?? this.amount,
       currency: currency ?? this.currency,
       type: type ?? this.type,
@@ -1316,12 +1507,17 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       subcategory: subcategory ?? this.subcategory,
       description: description ?? this.description,
       merchant: merchant ?? this.merchant,
+      location: location ?? this.location,
       date: date ?? this.date,
       status: status ?? this.status,
       source: source ?? this.source,
       tags: tags ?? this.tags,
       isRecurring: isRecurring ?? this.isRecurring,
-      recurringInterval: recurringInterval ?? this.recurringInterval,
+      recurringFrequency: recurringFrequency ?? this.recurringFrequency,
+      isAutoCategorized: isAutoCategorized ?? this.isAutoCategorized,
+      categorizationConfidence:
+          categorizationConfidence ?? this.categorizationConfidence,
+      receipt: receipt ?? this.receipt,
       linkedGoalId: linkedGoalId ?? this.linkedGoalId,
       metadata: metadata ?? this.metadata,
       createdAt: createdAt ?? this.createdAt,
@@ -1335,6 +1531,9 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (amount.present) {
       map['amount'] = Variable<double>(amount.value);
@@ -1357,6 +1556,9 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (merchant.present) {
       map['merchant'] = Variable<String>(merchant.value);
     }
+    if (location.present) {
+      map['location'] = Variable<String>(location.value);
+    }
     if (date.present) {
       map['date'] = Variable<DateTime>(date.value);
     }
@@ -1372,8 +1574,18 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (isRecurring.present) {
       map['is_recurring'] = Variable<bool>(isRecurring.value);
     }
-    if (recurringInterval.present) {
-      map['recurring_interval'] = Variable<String>(recurringInterval.value);
+    if (recurringFrequency.present) {
+      map['recurring_frequency'] = Variable<String>(recurringFrequency.value);
+    }
+    if (isAutoCategorized.present) {
+      map['is_auto_categorized'] = Variable<bool>(isAutoCategorized.value);
+    }
+    if (categorizationConfidence.present) {
+      map['categorization_confidence'] =
+          Variable<double>(categorizationConfidence.value);
+    }
+    if (receipt.present) {
+      map['receipt'] = Variable<String>(receipt.value);
     }
     if (linkedGoalId.present) {
       map['linked_goal_id'] = Variable<String>(linkedGoalId.value);
@@ -1397,6 +1609,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   String toString() {
     return (StringBuffer('TransactionsCompanion(')
           ..write('id: $id, ')
+          ..write('userId: $userId, ')
           ..write('amount: $amount, ')
           ..write('currency: $currency, ')
           ..write('type: $type, ')
@@ -1404,12 +1617,16 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('subcategory: $subcategory, ')
           ..write('description: $description, ')
           ..write('merchant: $merchant, ')
+          ..write('location: $location, ')
           ..write('date: $date, ')
           ..write('status: $status, ')
           ..write('source: $source, ')
           ..write('tags: $tags, ')
           ..write('isRecurring: $isRecurring, ')
-          ..write('recurringInterval: $recurringInterval, ')
+          ..write('recurringFrequency: $recurringFrequency, ')
+          ..write('isAutoCategorized: $isAutoCategorized, ')
+          ..write('categorizationConfidence: $categorizationConfidence, ')
+          ..write('receipt: $receipt, ')
           ..write('linkedGoalId: $linkedGoalId, ')
           ..write('metadata: $metadata, ')
           ..write('createdAt: $createdAt, ')
@@ -4877,6 +5094,7 @@ typedef $$UsersTableProcessedTableManager = ProcessedTableManager<
 typedef $$TransactionsTableCreateCompanionBuilder = TransactionsCompanion
     Function({
   required String id,
+  Value<String?> userId,
   required double amount,
   Value<String> currency,
   required String type,
@@ -4884,12 +5102,16 @@ typedef $$TransactionsTableCreateCompanionBuilder = TransactionsCompanion
   Value<String?> subcategory,
   required String description,
   Value<String?> merchant,
+  Value<String?> location,
   required DateTime date,
   Value<String> status,
   Value<String?> source,
   Value<String> tags,
   Value<bool> isRecurring,
-  Value<String?> recurringInterval,
+  Value<String?> recurringFrequency,
+  Value<bool> isAutoCategorized,
+  Value<double?> categorizationConfidence,
+  Value<String?> receipt,
   Value<String?> linkedGoalId,
   Value<String?> metadata,
   Value<DateTime?> createdAt,
@@ -4899,6 +5121,7 @@ typedef $$TransactionsTableCreateCompanionBuilder = TransactionsCompanion
 typedef $$TransactionsTableUpdateCompanionBuilder = TransactionsCompanion
     Function({
   Value<String> id,
+  Value<String?> userId,
   Value<double> amount,
   Value<String> currency,
   Value<String> type,
@@ -4906,12 +5129,16 @@ typedef $$TransactionsTableUpdateCompanionBuilder = TransactionsCompanion
   Value<String?> subcategory,
   Value<String> description,
   Value<String?> merchant,
+  Value<String?> location,
   Value<DateTime> date,
   Value<String> status,
   Value<String?> source,
   Value<String> tags,
   Value<bool> isRecurring,
-  Value<String?> recurringInterval,
+  Value<String?> recurringFrequency,
+  Value<bool> isAutoCategorized,
+  Value<double?> categorizationConfidence,
+  Value<String?> receipt,
   Value<String?> linkedGoalId,
   Value<String?> metadata,
   Value<DateTime?> createdAt,
@@ -4930,6 +5157,9 @@ class $$TransactionsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get amount => $composableBuilder(
       column: $table.amount, builder: (column) => ColumnFilters(column));
@@ -4952,6 +5182,9 @@ class $$TransactionsTableFilterComposer
   ColumnFilters<String> get merchant => $composableBuilder(
       column: $table.merchant, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<DateTime> get date => $composableBuilder(
       column: $table.date, builder: (column) => ColumnFilters(column));
 
@@ -4967,9 +5200,20 @@ class $$TransactionsTableFilterComposer
   ColumnFilters<bool> get isRecurring => $composableBuilder(
       column: $table.isRecurring, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get recurringInterval => $composableBuilder(
-      column: $table.recurringInterval,
+  ColumnFilters<String> get recurringFrequency => $composableBuilder(
+      column: $table.recurringFrequency,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isAutoCategorized => $composableBuilder(
+      column: $table.isAutoCategorized,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get categorizationConfidence => $composableBuilder(
+      column: $table.categorizationConfidence,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get receipt => $composableBuilder(
+      column: $table.receipt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get linkedGoalId => $composableBuilder(
       column: $table.linkedGoalId, builder: (column) => ColumnFilters(column));
@@ -4996,6 +5240,9 @@ class $$TransactionsTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<double> get amount => $composableBuilder(
       column: $table.amount, builder: (column) => ColumnOrderings(column));
 
@@ -5017,6 +5264,9 @@ class $$TransactionsTableOrderingComposer
   ColumnOrderings<String> get merchant => $composableBuilder(
       column: $table.merchant, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get date => $composableBuilder(
       column: $table.date, builder: (column) => ColumnOrderings(column));
 
@@ -5032,9 +5282,20 @@ class $$TransactionsTableOrderingComposer
   ColumnOrderings<bool> get isRecurring => $composableBuilder(
       column: $table.isRecurring, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get recurringInterval => $composableBuilder(
-      column: $table.recurringInterval,
+  ColumnOrderings<String> get recurringFrequency => $composableBuilder(
+      column: $table.recurringFrequency,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isAutoCategorized => $composableBuilder(
+      column: $table.isAutoCategorized,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get categorizationConfidence => $composableBuilder(
+      column: $table.categorizationConfidence,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get receipt => $composableBuilder(
+      column: $table.receipt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get linkedGoalId => $composableBuilder(
       column: $table.linkedGoalId,
@@ -5062,6 +5323,9 @@ class $$TransactionsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
   GeneratedColumn<double> get amount =>
       $composableBuilder(column: $table.amount, builder: (column) => column);
 
@@ -5083,6 +5347,9 @@ class $$TransactionsTableAnnotationComposer
   GeneratedColumn<String> get merchant =>
       $composableBuilder(column: $table.merchant, builder: (column) => column);
 
+  GeneratedColumn<String> get location =>
+      $composableBuilder(column: $table.location, builder: (column) => column);
+
   GeneratedColumn<DateTime> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
 
@@ -5098,8 +5365,17 @@ class $$TransactionsTableAnnotationComposer
   GeneratedColumn<bool> get isRecurring => $composableBuilder(
       column: $table.isRecurring, builder: (column) => column);
 
-  GeneratedColumn<String> get recurringInterval => $composableBuilder(
-      column: $table.recurringInterval, builder: (column) => column);
+  GeneratedColumn<String> get recurringFrequency => $composableBuilder(
+      column: $table.recurringFrequency, builder: (column) => column);
+
+  GeneratedColumn<bool> get isAutoCategorized => $composableBuilder(
+      column: $table.isAutoCategorized, builder: (column) => column);
+
+  GeneratedColumn<double> get categorizationConfidence => $composableBuilder(
+      column: $table.categorizationConfidence, builder: (column) => column);
+
+  GeneratedColumn<String> get receipt =>
+      $composableBuilder(column: $table.receipt, builder: (column) => column);
 
   GeneratedColumn<String> get linkedGoalId => $composableBuilder(
       column: $table.linkedGoalId, builder: (column) => column);
@@ -5141,6 +5417,7 @@ class $$TransactionsTableTableManager extends RootTableManager<
               $$TransactionsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> userId = const Value.absent(),
             Value<double> amount = const Value.absent(),
             Value<String> currency = const Value.absent(),
             Value<String> type = const Value.absent(),
@@ -5148,12 +5425,16 @@ class $$TransactionsTableTableManager extends RootTableManager<
             Value<String?> subcategory = const Value.absent(),
             Value<String> description = const Value.absent(),
             Value<String?> merchant = const Value.absent(),
+            Value<String?> location = const Value.absent(),
             Value<DateTime> date = const Value.absent(),
             Value<String> status = const Value.absent(),
             Value<String?> source = const Value.absent(),
             Value<String> tags = const Value.absent(),
             Value<bool> isRecurring = const Value.absent(),
-            Value<String?> recurringInterval = const Value.absent(),
+            Value<String?> recurringFrequency = const Value.absent(),
+            Value<bool> isAutoCategorized = const Value.absent(),
+            Value<double?> categorizationConfidence = const Value.absent(),
+            Value<String?> receipt = const Value.absent(),
             Value<String?> linkedGoalId = const Value.absent(),
             Value<String?> metadata = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
@@ -5162,6 +5443,7 @@ class $$TransactionsTableTableManager extends RootTableManager<
           }) =>
               TransactionsCompanion(
             id: id,
+            userId: userId,
             amount: amount,
             currency: currency,
             type: type,
@@ -5169,12 +5451,16 @@ class $$TransactionsTableTableManager extends RootTableManager<
             subcategory: subcategory,
             description: description,
             merchant: merchant,
+            location: location,
             date: date,
             status: status,
             source: source,
             tags: tags,
             isRecurring: isRecurring,
-            recurringInterval: recurringInterval,
+            recurringFrequency: recurringFrequency,
+            isAutoCategorized: isAutoCategorized,
+            categorizationConfidence: categorizationConfidence,
+            receipt: receipt,
             linkedGoalId: linkedGoalId,
             metadata: metadata,
             createdAt: createdAt,
@@ -5183,6 +5469,7 @@ class $$TransactionsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> userId = const Value.absent(),
             required double amount,
             Value<String> currency = const Value.absent(),
             required String type,
@@ -5190,12 +5477,16 @@ class $$TransactionsTableTableManager extends RootTableManager<
             Value<String?> subcategory = const Value.absent(),
             required String description,
             Value<String?> merchant = const Value.absent(),
+            Value<String?> location = const Value.absent(),
             required DateTime date,
             Value<String> status = const Value.absent(),
             Value<String?> source = const Value.absent(),
             Value<String> tags = const Value.absent(),
             Value<bool> isRecurring = const Value.absent(),
-            Value<String?> recurringInterval = const Value.absent(),
+            Value<String?> recurringFrequency = const Value.absent(),
+            Value<bool> isAutoCategorized = const Value.absent(),
+            Value<double?> categorizationConfidence = const Value.absent(),
+            Value<String?> receipt = const Value.absent(),
             Value<String?> linkedGoalId = const Value.absent(),
             Value<String?> metadata = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
@@ -5204,6 +5495,7 @@ class $$TransactionsTableTableManager extends RootTableManager<
           }) =>
               TransactionsCompanion.insert(
             id: id,
+            userId: userId,
             amount: amount,
             currency: currency,
             type: type,
@@ -5211,12 +5503,16 @@ class $$TransactionsTableTableManager extends RootTableManager<
             subcategory: subcategory,
             description: description,
             merchant: merchant,
+            location: location,
             date: date,
             status: status,
             source: source,
             tags: tags,
             isRecurring: isRecurring,
-            recurringInterval: recurringInterval,
+            recurringFrequency: recurringFrequency,
+            isAutoCategorized: isAutoCategorized,
+            categorizationConfidence: categorizationConfidence,
+            receipt: receipt,
             linkedGoalId: linkedGoalId,
             metadata: metadata,
             createdAt: createdAt,

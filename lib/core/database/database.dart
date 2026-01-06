@@ -34,6 +34,7 @@ class SyncRequests extends Table {
 
 class Transactions extends Table {
   TextColumn get id => text()();
+  TextColumn get userId => text().nullable()();
   RealColumn get amount => real()();
   TextColumn get currency => text().withDefault(const Constant('XAF'))();
   TextColumn get type => text()(); // income, expense, transfer
@@ -41,12 +42,17 @@ class Transactions extends Table {
   TextColumn get subcategory => text().nullable()();
   TextColumn get description => text()();
   TextColumn get merchant => text().nullable()();
+  TextColumn get location => text().nullable()();
   DateTimeColumn get date => dateTime()();
   TextColumn get status => text().withDefault(const Constant('completed'))();
   TextColumn get source => text().nullable()();
   TextColumn get tags => text().withDefault(const Constant('[]'))();
   BoolColumn get isRecurring => boolean().withDefault(const Constant(false))();
-  TextColumn get recurringInterval => text().nullable()();
+  TextColumn get recurringFrequency => text().nullable()();
+  BoolColumn get isAutoCategorized =>
+      boolean().withDefault(const Constant(false))();
+  RealColumn get categorizationConfidence => real().nullable()();
+  TextColumn get receipt => text().nullable()();
   TextColumn get linkedGoalId => text().nullable()();
   TextColumn get metadata => text().nullable()();
   DateTimeColumn get createdAt => dateTime().nullable()();
@@ -162,7 +168,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration {
@@ -172,11 +178,18 @@ class AppDatabase extends _$AppDatabase {
       },
       onUpgrade: (Migrator m, int from, int to) async {
         if (from < 16) {
-          await m.addColumn(goals, goals.description);
-          await m.addColumn(goals, goals.emoji);
-          await m.addColumn(goals, goals.type);
-          await m.addColumn(goals, goals.strategy);
-          await m.addColumn(goals, goals.autoSaveRules);
+          await m.createAll(); // Simplified for v16 catchup if needed
+        }
+        if (from < 17) {
+          await m.addColumn(transactions, transactions.userId);
+          await m.addColumn(transactions, transactions.location);
+          await m.addColumn(transactions, transactions.recurringFrequency);
+          await m.addColumn(transactions, transactions.isAutoCategorized);
+          await m.addColumn(
+            transactions,
+            transactions.categorizationConfidence,
+          );
+          await m.addColumn(transactions, transactions.receipt);
         }
       },
       beforeOpen: (details) async {

@@ -16,6 +16,14 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     on<GetTransactionsRequested>(_onGetTransactionsRequested);
     on<AddTransactionRequested>(_onAddTransactionRequested);
     on<DeleteTransactionRequested>(_onDeleteTransactionRequested);
+    on<ResetTransactionsStatus>(_onResetTransactionsStatus);
+  }
+
+  void _onResetTransactionsStatus(
+    ResetTransactionsStatus event,
+    Emitter<TransactionsState> emit,
+  ) {
+    emit(state.copyWith(status: TransactionsStatus.initial));
   }
 
   Future<void> _onGetTransactionsRequested(

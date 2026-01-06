@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/route_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -11,6 +12,9 @@ import '../bloc/goals_bloc.dart';
 import '../bloc/goals_event.dart';
 import '../bloc/goals_state.dart';
 import '../../data/models/goal_model.dart';
+import '../../../budgets/presentation/bloc/budgets_bloc.dart';
+import '../../../budgets/presentation/bloc/budgets_event.dart';
+import '../../../transactions/presentation/bloc/transactions_bloc.dart';
 
 class GoalDetailPage extends StatelessWidget {
   final String goalId;
@@ -89,8 +93,28 @@ class GoalDetailPage extends StatelessWidget {
                 const SizedBox(height: 48),
                 AppButton(
                   text: l10n.addSavingsAction,
-                  onPressed: () {
-                    // TODO: Implement direct savings addition or navigate to transaction creation
+                  onPressed: () async {
+                    // Reset status to prevent immediate pop if coming from a previous success
+                    context.read<TransactionsBloc>().add(
+                      ResetTransactionsStatus(),
+                    );
+
+                    final refresh = await context.push<bool>(
+                      '${RouteConstants.transactions}/add',
+                      extra: goal.id,
+                    );
+                    if (refresh == true && context.mounted) {
+                      // Refresh everything to ensure UI is in sync
+                      context.read<TransactionsBloc>().add(
+                        const GetTransactionsRequested(forceRefresh: true),
+                      );
+                      context.read<BudgetsBloc>().add(
+                        const GetBudgetsRequested(forceRefresh: true),
+                      );
+                      context.read<GoalsBloc>().add(
+                        const GetGoalsRequested(forceRefresh: true),
+                      );
+                    }
                   },
                 ),
               ],

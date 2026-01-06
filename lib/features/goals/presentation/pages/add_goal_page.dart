@@ -113,7 +113,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
     return BlocListener<GoalsBloc, GoalsState>(
       listener: (context, state) {
         if (state.status == GoalsStatus.success) {
-          context.pop();
+          context.pop(true);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(AppLocalizations.of(context)!.successGoal)),
           );

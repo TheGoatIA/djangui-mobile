@@ -6,7 +6,6 @@ import '../../../../core/constants/route_constants.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../di/injection.dart';
 import '../bloc/budgets_bloc.dart';
 import '../bloc/budgets_event.dart';
 import '../bloc/budgets_state.dart';
@@ -19,74 +18,65 @@ class BudgetListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          getIt<BudgetsBloc>()..add(const GetBudgetsRequested()),
-      child: Builder(
-        builder: (context) {
-          return Scaffold(
-            backgroundColor: AppColors.background,
-            appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.myBudgets),
-            ),
-            body: BlocBuilder<BudgetsBloc, BudgetsState>(
-              builder: (context, state) {
-                if (state.status == BudgetsStatus.loading &&
-                    state.budgets.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.myBudgets)),
+      body: BlocBuilder<BudgetsBloc, BudgetsState>(
+        builder: (context, state) {
+          if (state.status == BudgetsStatus.loading && state.budgets.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                if (state.budgets.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          AppAssets.emptyBudget,
-                          width: 150,
-                          height: 150,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          AppLocalizations.of(context)!.noBudgetDefined,
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
+          if (state.budgets.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(AppAssets.emptyBudget, width: 150, height: 150),
+                  const SizedBox(height: 16),
+                  Text(
+                    AppLocalizations.of(context)!.noBudgetDefined,
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: AppColors.textSecondary,
                     ),
-                  );
-                }
+                  ),
+                ],
+              ),
+            );
+          }
 
-                return ListView.separated(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: state.budgets.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final budget = state.budgets[index];
-                    return _BudgetItem(budget: budget);
-                  },
-                );
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<BudgetsBloc>().add(
+                const GetBudgetsRequested(forceRefresh: true),
+              );
+            },
+            child: ListView.separated(
+              padding: const EdgeInsets.all(20),
+              itemCount: state.budgets.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final budget = state.budgets[index];
+                return _BudgetItem(budget: budget);
               },
-            ),
-            floatingActionButton: FloatingActionButton(
-              heroTag: 'budgets_fab',
-              onPressed: () async {
-                final refresh = await context.push<bool>(
-                  '${RouteConstants.budgets}/add',
-                );
-                if (refresh == true && context.mounted) {
-                  context.read<BudgetsBloc>().add(
-                    const GetBudgetsRequested(forceRefresh: true),
-                  );
-                }
-              },
-              backgroundColor: AppColors.primary,
-              child: const Icon(Icons.add, color: Colors.white),
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'budgets_fab',
+        onPressed: () async {
+          final refresh = await context.push<bool>(
+            '${RouteConstants.budgets}/add',
+          );
+          if (refresh == true && context.mounted) {
+            context.read<BudgetsBloc>().add(
+              const GetBudgetsRequested(forceRefresh: true),
+            );
+          }
+        },
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

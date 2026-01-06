@@ -16,6 +16,9 @@ import 'features/settings/presentation/bloc/settings_bloc.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/goals/presentation/bloc/goals_bloc.dart';
 import 'features/goals/presentation/bloc/goals_event.dart';
+import 'features/transactions/presentation/bloc/transactions_bloc.dart';
+import 'features/budgets/presentation/bloc/budgets_bloc.dart';
+import 'features/budgets/presentation/bloc/budgets_event.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +50,14 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) =>
               getIt<GoalsBloc>()..add(const GetGoalsRequested()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<TransactionsBloc>()..add(const GetTransactionsRequested()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<BudgetsBloc>()..add(const GetBudgetsRequested()),
         ),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(

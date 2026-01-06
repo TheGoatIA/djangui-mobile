@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/route_constants.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -45,20 +44,34 @@ class GoalListPage extends StatelessWidget {
             );
           }
 
-          return ListView.separated(
-            padding: const EdgeInsets.all(20),
-            itemCount: state.goals.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              final goal = state.goals[index];
-              return _GoalItem(goal: goal);
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<GoalsBloc>().add(
+                const GetGoalsRequested(forceRefresh: true),
+              );
             },
+            child: ListView.separated(
+              padding: const EdgeInsets.all(20),
+              itemCount: state.goals.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final goal = state.goals[index];
+                return _GoalItem(goal: goal);
+              },
+            ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'goals_fab',
-        onPressed: () => context.pushNamed('goal-add'),
+        onPressed: () async {
+          final result = await context.pushNamed<bool>('goal-add');
+          if (result == true && context.mounted) {
+            context.read<GoalsBloc>().add(
+              const GetGoalsRequested(forceRefresh: true),
+            );
+          }
+        },
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
       ),
