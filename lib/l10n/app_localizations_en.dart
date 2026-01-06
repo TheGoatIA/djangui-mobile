@@ -974,4 +974,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get add => 'Add';
+
+  @override
+  String get updateAvailable => 'Update Available';
+
+  @override
+  String get updateRequiredMessage =>
+      'A new version of Djangui is available. Please update to continue using the app.';
+
+  @override
+  String get updateNow => 'Update Now';
+
+  @override
+  String get maintenanceMode => 'Maintenance Mode';
+
+  @override
+  String get maintenanceMessage =>
+      'The app is currently under maintenance. Please try again later.';
 }

@@ -773,7 +773,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get freeFeature1 => '3 Budgets max';
 
   @override
-  String get freeFeature2 => '1 Objectif max';
+  String get freeFeature2 => '1 Goal max';
 
   @override
   String get freeFeature3 => 'Analyses basiques';
@@ -981,4 +981,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get add => 'Ajouter';
+
+  @override
+  String get updateAvailable => 'Mise à jour disponible';
+
+  @override
+  String get updateRequiredMessage =>
+      'Une nouvelle version de Djangui est disponible. Veuillez mettre à jour pour continuer.';
+
+  @override
+  String get updateNow => 'Mettre à jour';
+
+  @override
+  String get maintenanceMode => 'Mode Maintenance';
+
+  @override
+  String get maintenanceMessage =>
+      'L\'application est en maintenance. Veuillez réessayer plus tard.';
 }

@@ -109,6 +109,12 @@ import 'package:djangui/features/settings/presentation/bloc/settings_bloc.dart'
     as _i754;
 import 'package:djangui/features/subscription/data/datasources/payment_api_service.dart'
     as _i816;
+import 'package:djangui/features/system/data/datasources/system_api_service.dart'
+    as _i477;
+import 'package:djangui/features/system/data/repositories/system_repository_impl.dart'
+    as _i510;
+import 'package:djangui/features/system/domain/repositories/system_repository.dart'
+    as _i326;
 import 'package:djangui/features/transactions/data/datasources/transaction_api_service.dart'
     as _i70;
 import 'package:djangui/features/transactions/data/datasources/transaction_local_datasource.dart'
@@ -198,6 +204,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i209.ChallengeLocalDataSourceImpl(gh<_i730.AppDatabase>()));
     gh.lazySingleton<_i642.GoalLocalDataSource>(
         () => _i642.GoalLocalDataSourceImpl(gh<_i730.AppDatabase>()));
+    gh.lazySingleton<_i326.SystemRepository>(
+        () => _i510.SystemRepositoryImpl(gh<_i477.SystemApiService>()));
     gh.lazySingleton<_i520.AuthLocalDataSource>(
         () => _i520.AuthLocalDataSourceImpl(
               gh<_i558.FlutterSecureStorage>(),

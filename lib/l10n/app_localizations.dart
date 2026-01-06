@@ -1559,7 +1559,7 @@ abstract class AppLocalizations {
   /// No description provided for @freeFeature2.
   ///
   /// In fr, this message translates to:
-  /// **'1 Objectif max'**
+  /// **'1 Goal max'**
   String get freeFeature2;
 
   /// No description provided for @freeFeature3.
@@ -1957,6 +1957,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Ajouter'**
   String get add;
+
+  /// No description provided for @updateAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise à jour disponible'**
+  String get updateAvailable;
+
+  /// No description provided for @updateRequiredMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une nouvelle version de Djangui est disponible. Veuillez mettre à jour pour continuer.'**
+  String get updateRequiredMessage;
+
+  /// No description provided for @updateNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre à jour'**
+  String get updateNow;
+
+  /// No description provided for @maintenanceMode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode Maintenance'**
+  String get maintenanceMode;
+
+  /// No description provided for @maintenanceMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'application est en maintenance. Veuillez réessayer plus tard.'**
+  String get maintenanceMessage;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'dart:io';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/network_info.dart';
 import '../datasources/auth_local_datasource.dart';
@@ -10,6 +13,7 @@ import '../models/auth_response.dart';
 import '../models/user_model.dart';
 import '../models/login_request.dart';
 import '../models/register_request.dart';
+import '../models/device_info_request.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -346,6 +350,49 @@ class AuthRepositoryImpl implements AuthRepository {
       }
     } else {
       return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<void> updateDeviceInfo() async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final deviceInfoPlugin = DeviceInfoPlugin();
+        final packageInfo = await PackageInfo.fromPlatform();
+        String model = 'Unknown';
+        String os = 'Unknown';
+        String osVersion = 'Unknown';
+        String platform = 'unknown';
+
+        if (Platform.isAndroid) {
+          final androidInfo = await deviceInfoPlugin.androidInfo;
+          model = '${androidInfo.manufacturer} ${androidInfo.model}';
+          os = 'Android';
+          osVersion = androidInfo.version.release;
+          platform = 'android';
+        } else if (Platform.isIOS) {
+          final iosInfo = await deviceInfoPlugin.iosInfo;
+          model = iosInfo.utsname.machine;
+          os = 'iOS';
+          osVersion = iosInfo.systemVersion;
+          platform = 'ios';
+        }
+
+        final request = DeviceInfoRequest(
+          deviceInfo: DeviceInfoDetails(
+            model: model,
+            os: os,
+            osVersion: osVersion,
+            platform: platform,
+          ),
+          appVersion: packageInfo.version,
+        );
+
+        await _remoteDataSource.updateDeviceInfo(request);
+      } catch (e) {
+        debugPrint('⚠️ [AuthRepository] Failed to update device info: $e');
+        // We generally don't want to throw/return failure for this background task
+      }
     }
   }
 }

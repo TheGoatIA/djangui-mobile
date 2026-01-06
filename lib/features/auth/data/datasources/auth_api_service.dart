@@ -4,6 +4,7 @@ import '../models/login_request.dart';
 import '../models/register_request.dart';
 import '../models/auth_response.dart';
 import '../models/user_model.dart';
+import '../models/device_info_request.dart';
 import '../../../../core/network/models/base_response.dart';
 
 part 'auth_api_service.chopper.dart';
@@ -68,6 +69,11 @@ abstract class AuthApiService extends ChopperService {
   @Patch(path: ApiConstants.me)
   Future<Response<BaseResponse<Map<String, dynamic>>>> updateProfile(
     @Body() Map<String, dynamic> body,
+  );
+
+  @Patch(path: '/auth/device')
+  Future<Response<BaseResponse<dynamic>>> updateDeviceInfo(
+    @Body() DeviceInfoRequest body,
   );
 
   static AuthApiService create(ChopperClient client) =>

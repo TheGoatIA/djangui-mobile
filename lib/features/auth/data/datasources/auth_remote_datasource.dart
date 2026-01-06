@@ -6,6 +6,7 @@ import '../models/auth_response.dart';
 import '../models/login_request.dart';
 import '../models/register_request.dart';
 import '../models/user_model.dart';
+import '../models/device_info_request.dart';
 import '../../../../core/network/api_response_extensions.dart';
 
 abstract class AuthRemoteDataSource {
@@ -24,6 +25,7 @@ abstract class AuthRemoteDataSource {
   Future<void> verifyEmail(String token);
   Future<Map<String, String>> refreshToken(String refreshToken);
   Future<void> updateFcmToken(String token);
+  Future<void> updateDeviceInfo(DeviceInfoRequest request);
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -166,6 +168,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> updateFcmToken(String token) async {
     final response = await _apiService.updateFcmToken({'fcmToken': token});
+    if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<void> updateDeviceInfo(DeviceInfoRequest request) async {
+    final response = await _apiService.updateDeviceInfo(request);
     if (!response.isSuccessful) {
       throw Exception(response.errorMessage);
     }

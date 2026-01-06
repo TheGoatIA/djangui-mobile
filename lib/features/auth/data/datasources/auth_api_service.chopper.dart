@@ -192,4 +192,18 @@ final class _$AuthApiService extends AuthApiService {
     return client.send<BaseResponse<Map<String, dynamic>>,
         Map<String, dynamic>>($request);
   }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> updateDeviceInfo(
+      DeviceInfoRequest body) {
+    final Uri $url = Uri.parse('/auth/device');
+    final $body = body;
+    final Request $request = Request(
+      'PATCH',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
 }

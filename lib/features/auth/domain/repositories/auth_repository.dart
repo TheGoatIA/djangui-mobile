@@ -38,4 +38,5 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> verifyEmail(String token);
   Future<Either<Failure, void>> refreshToken();
   Future<Either<Failure, void>> updateFcmToken(String token);
+  Future<void> updateDeviceInfo();
 }

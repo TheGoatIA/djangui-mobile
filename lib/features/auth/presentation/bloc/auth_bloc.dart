@@ -85,12 +85,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
       ),
-      (response) => emit(
-        state.copyWith(
-          status: AuthStatus.authenticated,
-          authResponse: response,
-        ),
-      ),
+      (response) {
+        _authRepository.updateDeviceInfo();
+        emit(
+          state.copyWith(
+            status: AuthStatus.authenticated,
+            authResponse: response,
+          ),
+        );
+      },
     );
   }
 
@@ -121,12 +124,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
       ),
-      (response) => emit(
-        state.copyWith(
-          status: AuthStatus.authenticated,
-          authResponse: response,
-        ),
-      ),
+      (response) {
+        _authRepository.updateDeviceInfo();
+        emit(
+          state.copyWith(
+            status: AuthStatus.authenticated,
+            authResponse: response,
+          ),
+        );
+      },
     );
   }
 
@@ -156,6 +162,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         },
         (user) {
           debugPrint('🔑 [AuthBloc] Session recovered for user: ${user.email}');
+          _authRepository.updateDeviceInfo(); // Fire and forget
           emit(
             state.copyWith(
               status: AuthStatus.authenticated,
@@ -188,12 +195,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
       ),
-      (response) => emit(
-        state.copyWith(
-          status: AuthStatus.authenticated,
-          authResponse: response,
-        ),
-      ),
+      (response) {
+        _authRepository.updateDeviceInfo();
+        emit(
+          state.copyWith(
+            status: AuthStatus.authenticated,
+            authResponse: response,
+          ),
+        );
+      },
     );
   }
 
@@ -215,12 +225,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
       ),
-      (response) => emit(
-        state.copyWith(
-          status: AuthStatus.authenticated,
-          authResponse: response,
-        ),
-      ),
+      (response) {
+        _authRepository.updateDeviceInfo();
+        emit(
+          state.copyWith(
+            status: AuthStatus.authenticated,
+            authResponse: response,
+          ),
+        );
+      },
     );
   }
 

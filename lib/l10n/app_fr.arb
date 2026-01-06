@@ -302,7 +302,7 @@
     "freePlan": "Gratuit",
     "freePrice": "0 FCFA",
     "freeFeature1": "3 Budgets max",
-    "freeFeature2": "1 Objectif max",
+    "freeFeature2": "1 Goal max",
     "freeFeature3": "Analyses basiques",
     "premiumPlan": "Premium",
     "premiumPrice": "2000 FCFA/mois",
@@ -368,5 +368,10 @@
     "addSavingsAction": "Ajouter une épargne",
     "currentAmountLabel": "Épargné",
     "monthAndYear": "Mois & Année",
-    "add": "Ajouter"
+    "add": "Ajouter",
+    "updateAvailable": "Mise à jour disponible",
+    "updateRequiredMessage": "Une nouvelle version de Djangui est disponible. Veuillez mettre à jour pour continuer.",
+    "updateNow": "Mettre à jour",
+    "maintenanceMode": "Mode Maintenance",
+    "maintenanceMessage": "L'application est en maintenance. Veuillez réessayer plus tard."
 }
