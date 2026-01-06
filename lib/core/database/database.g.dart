@@ -1872,6 +1872,24 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _emojiMeta = const VerificationMeta('emoji');
+  @override
+  late final GeneratedColumn<String> emoji = GeneratedColumn<String>(
+      'emoji', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('savings'));
   static const VerificationMeta _targetAmountMeta =
       const VerificationMeta('targetAmount');
   @override
@@ -1911,6 +1929,18 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('active'));
+  static const VerificationMeta _strategyMeta =
+      const VerificationMeta('strategy');
+  @override
+  late final GeneratedColumn<String> strategy = GeneratedColumn<String>(
+      'strategy', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _autoSaveRulesMeta =
+      const VerificationMeta('autoSaveRules');
+  @override
+  late final GeneratedColumn<String> autoSaveRules = GeneratedColumn<String>(
+      'auto_save_rules', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _isSharedMeta =
       const VerificationMeta('isShared');
   @override
@@ -1950,12 +1980,17 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
   List<GeneratedColumn> get $columns => [
         id,
         name,
+        description,
+        emoji,
+        type,
         targetAmount,
         currentAmount,
         currency,
         deadline,
         category,
         status,
+        strategy,
+        autoSaveRules,
         isShared,
         participants,
         image,
@@ -1982,6 +2017,20 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
           _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('emoji')) {
+      context.handle(
+          _emojiMeta, emoji.isAcceptableOrUnknown(data['emoji']!, _emojiMeta));
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
     }
     if (data.containsKey('target_amount')) {
       context.handle(
@@ -2016,6 +2065,16 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     if (data.containsKey('status')) {
       context.handle(_statusMeta,
           status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('strategy')) {
+      context.handle(_strategyMeta,
+          strategy.isAcceptableOrUnknown(data['strategy']!, _strategyMeta));
+    }
+    if (data.containsKey('auto_save_rules')) {
+      context.handle(
+          _autoSaveRulesMeta,
+          autoSaveRules.isAcceptableOrUnknown(
+              data['auto_save_rules']!, _autoSaveRulesMeta));
     }
     if (data.containsKey('is_shared')) {
       context.handle(_isSharedMeta,
@@ -2054,6 +2113,12 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      emoji: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}emoji']),
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
       targetAmount: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}target_amount'])!,
       currentAmount: attachedDatabase.typeMapping
@@ -2066,6 +2131,10 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
           .read(DriftSqlType.string, data['${effectivePrefix}category']),
       status: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      strategy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}strategy']),
+      autoSaveRules: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}auto_save_rules']),
       isShared: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_shared'])!,
       participants: attachedDatabase.typeMapping
@@ -2088,12 +2157,17 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
 class Goal extends DataClass implements Insertable<Goal> {
   final String id;
   final String name;
+  final String? description;
+  final String? emoji;
+  final String type;
   final double targetAmount;
   final double currentAmount;
   final String currency;
   final DateTime deadline;
   final String? category;
   final String status;
+  final String? strategy;
+  final String? autoSaveRules;
   final bool isShared;
   final String participants;
   final String? image;
@@ -2102,12 +2176,17 @@ class Goal extends DataClass implements Insertable<Goal> {
   const Goal(
       {required this.id,
       required this.name,
+      this.description,
+      this.emoji,
+      required this.type,
       required this.targetAmount,
       required this.currentAmount,
       required this.currency,
       required this.deadline,
       this.category,
       required this.status,
+      this.strategy,
+      this.autoSaveRules,
       required this.isShared,
       required this.participants,
       this.image,
@@ -2118,6 +2197,13 @@ class Goal extends DataClass implements Insertable<Goal> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || emoji != null) {
+      map['emoji'] = Variable<String>(emoji);
+    }
+    map['type'] = Variable<String>(type);
     map['target_amount'] = Variable<double>(targetAmount);
     map['current_amount'] = Variable<double>(currentAmount);
     map['currency'] = Variable<String>(currency);
@@ -2126,6 +2212,12 @@ class Goal extends DataClass implements Insertable<Goal> {
       map['category'] = Variable<String>(category);
     }
     map['status'] = Variable<String>(status);
+    if (!nullToAbsent || strategy != null) {
+      map['strategy'] = Variable<String>(strategy);
+    }
+    if (!nullToAbsent || autoSaveRules != null) {
+      map['auto_save_rules'] = Variable<String>(autoSaveRules);
+    }
     map['is_shared'] = Variable<bool>(isShared);
     map['participants'] = Variable<String>(participants);
     if (!nullToAbsent || image != null) {
@@ -2142,6 +2234,12 @@ class Goal extends DataClass implements Insertable<Goal> {
     return GoalsCompanion(
       id: Value(id),
       name: Value(name),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      emoji:
+          emoji == null && nullToAbsent ? const Value.absent() : Value(emoji),
+      type: Value(type),
       targetAmount: Value(targetAmount),
       currentAmount: Value(currentAmount),
       currency: Value(currency),
@@ -2150,6 +2248,12 @@ class Goal extends DataClass implements Insertable<Goal> {
           ? const Value.absent()
           : Value(category),
       status: Value(status),
+      strategy: strategy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(strategy),
+      autoSaveRules: autoSaveRules == null && nullToAbsent
+          ? const Value.absent()
+          : Value(autoSaveRules),
       isShared: Value(isShared),
       participants: Value(participants),
       image:
@@ -2167,12 +2271,17 @@ class Goal extends DataClass implements Insertable<Goal> {
     return Goal(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String?>(json['description']),
+      emoji: serializer.fromJson<String?>(json['emoji']),
+      type: serializer.fromJson<String>(json['type']),
       targetAmount: serializer.fromJson<double>(json['targetAmount']),
       currentAmount: serializer.fromJson<double>(json['currentAmount']),
       currency: serializer.fromJson<String>(json['currency']),
       deadline: serializer.fromJson<DateTime>(json['deadline']),
       category: serializer.fromJson<String?>(json['category']),
       status: serializer.fromJson<String>(json['status']),
+      strategy: serializer.fromJson<String?>(json['strategy']),
+      autoSaveRules: serializer.fromJson<String?>(json['autoSaveRules']),
       isShared: serializer.fromJson<bool>(json['isShared']),
       participants: serializer.fromJson<String>(json['participants']),
       image: serializer.fromJson<String?>(json['image']),
@@ -2186,12 +2295,17 @@ class Goal extends DataClass implements Insertable<Goal> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String?>(description),
+      'emoji': serializer.toJson<String?>(emoji),
+      'type': serializer.toJson<String>(type),
       'targetAmount': serializer.toJson<double>(targetAmount),
       'currentAmount': serializer.toJson<double>(currentAmount),
       'currency': serializer.toJson<String>(currency),
       'deadline': serializer.toJson<DateTime>(deadline),
       'category': serializer.toJson<String?>(category),
       'status': serializer.toJson<String>(status),
+      'strategy': serializer.toJson<String?>(strategy),
+      'autoSaveRules': serializer.toJson<String?>(autoSaveRules),
       'isShared': serializer.toJson<bool>(isShared),
       'participants': serializer.toJson<String>(participants),
       'image': serializer.toJson<String?>(image),
@@ -2203,12 +2317,17 @@ class Goal extends DataClass implements Insertable<Goal> {
   Goal copyWith(
           {String? id,
           String? name,
+          Value<String?> description = const Value.absent(),
+          Value<String?> emoji = const Value.absent(),
+          String? type,
           double? targetAmount,
           double? currentAmount,
           String? currency,
           DateTime? deadline,
           Value<String?> category = const Value.absent(),
           String? status,
+          Value<String?> strategy = const Value.absent(),
+          Value<String?> autoSaveRules = const Value.absent(),
           bool? isShared,
           String? participants,
           Value<String?> image = const Value.absent(),
@@ -2217,12 +2336,18 @@ class Goal extends DataClass implements Insertable<Goal> {
       Goal(
         id: id ?? this.id,
         name: name ?? this.name,
+        description: description.present ? description.value : this.description,
+        emoji: emoji.present ? emoji.value : this.emoji,
+        type: type ?? this.type,
         targetAmount: targetAmount ?? this.targetAmount,
         currentAmount: currentAmount ?? this.currentAmount,
         currency: currency ?? this.currency,
         deadline: deadline ?? this.deadline,
         category: category.present ? category.value : this.category,
         status: status ?? this.status,
+        strategy: strategy.present ? strategy.value : this.strategy,
+        autoSaveRules:
+            autoSaveRules.present ? autoSaveRules.value : this.autoSaveRules,
         isShared: isShared ?? this.isShared,
         participants: participants ?? this.participants,
         image: image.present ? image.value : this.image,
@@ -2233,6 +2358,10 @@ class Goal extends DataClass implements Insertable<Goal> {
     return Goal(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
+      description:
+          data.description.present ? data.description.value : this.description,
+      emoji: data.emoji.present ? data.emoji.value : this.emoji,
+      type: data.type.present ? data.type.value : this.type,
       targetAmount: data.targetAmount.present
           ? data.targetAmount.value
           : this.targetAmount,
@@ -2243,6 +2372,10 @@ class Goal extends DataClass implements Insertable<Goal> {
       deadline: data.deadline.present ? data.deadline.value : this.deadline,
       category: data.category.present ? data.category.value : this.category,
       status: data.status.present ? data.status.value : this.status,
+      strategy: data.strategy.present ? data.strategy.value : this.strategy,
+      autoSaveRules: data.autoSaveRules.present
+          ? data.autoSaveRules.value
+          : this.autoSaveRules,
       isShared: data.isShared.present ? data.isShared.value : this.isShared,
       participants: data.participants.present
           ? data.participants.value
@@ -2258,12 +2391,17 @@ class Goal extends DataClass implements Insertable<Goal> {
     return (StringBuffer('Goal(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('emoji: $emoji, ')
+          ..write('type: $type, ')
           ..write('targetAmount: $targetAmount, ')
           ..write('currentAmount: $currentAmount, ')
           ..write('currency: $currency, ')
           ..write('deadline: $deadline, ')
           ..write('category: $category, ')
           ..write('status: $status, ')
+          ..write('strategy: $strategy, ')
+          ..write('autoSaveRules: $autoSaveRules, ')
           ..write('isShared: $isShared, ')
           ..write('participants: $participants, ')
           ..write('image: $image, ')
@@ -2277,12 +2415,17 @@ class Goal extends DataClass implements Insertable<Goal> {
   int get hashCode => Object.hash(
       id,
       name,
+      description,
+      emoji,
+      type,
       targetAmount,
       currentAmount,
       currency,
       deadline,
       category,
       status,
+      strategy,
+      autoSaveRules,
       isShared,
       participants,
       image,
@@ -2294,12 +2437,17 @@ class Goal extends DataClass implements Insertable<Goal> {
       (other is Goal &&
           other.id == this.id &&
           other.name == this.name &&
+          other.description == this.description &&
+          other.emoji == this.emoji &&
+          other.type == this.type &&
           other.targetAmount == this.targetAmount &&
           other.currentAmount == this.currentAmount &&
           other.currency == this.currency &&
           other.deadline == this.deadline &&
           other.category == this.category &&
           other.status == this.status &&
+          other.strategy == this.strategy &&
+          other.autoSaveRules == this.autoSaveRules &&
           other.isShared == this.isShared &&
           other.participants == this.participants &&
           other.image == this.image &&
@@ -2310,12 +2458,17 @@ class Goal extends DataClass implements Insertable<Goal> {
 class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<String> id;
   final Value<String> name;
+  final Value<String?> description;
+  final Value<String?> emoji;
+  final Value<String> type;
   final Value<double> targetAmount;
   final Value<double> currentAmount;
   final Value<String> currency;
   final Value<DateTime> deadline;
   final Value<String?> category;
   final Value<String> status;
+  final Value<String?> strategy;
+  final Value<String?> autoSaveRules;
   final Value<bool> isShared;
   final Value<String> participants;
   final Value<String?> image;
@@ -2325,12 +2478,17 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   const GoalsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.emoji = const Value.absent(),
+    this.type = const Value.absent(),
     this.targetAmount = const Value.absent(),
     this.currentAmount = const Value.absent(),
     this.currency = const Value.absent(),
     this.deadline = const Value.absent(),
     this.category = const Value.absent(),
     this.status = const Value.absent(),
+    this.strategy = const Value.absent(),
+    this.autoSaveRules = const Value.absent(),
     this.isShared = const Value.absent(),
     this.participants = const Value.absent(),
     this.image = const Value.absent(),
@@ -2341,12 +2499,17 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   GoalsCompanion.insert({
     required String id,
     required String name,
+    this.description = const Value.absent(),
+    this.emoji = const Value.absent(),
+    this.type = const Value.absent(),
     required double targetAmount,
     required double currentAmount,
     this.currency = const Value.absent(),
     required DateTime deadline,
     this.category = const Value.absent(),
     this.status = const Value.absent(),
+    this.strategy = const Value.absent(),
+    this.autoSaveRules = const Value.absent(),
     this.isShared = const Value.absent(),
     this.participants = const Value.absent(),
     this.image = const Value.absent(),
@@ -2362,12 +2525,17 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   static Insertable<Goal> custom({
     Expression<String>? id,
     Expression<String>? name,
+    Expression<String>? description,
+    Expression<String>? emoji,
+    Expression<String>? type,
     Expression<double>? targetAmount,
     Expression<double>? currentAmount,
     Expression<String>? currency,
     Expression<DateTime>? deadline,
     Expression<String>? category,
     Expression<String>? status,
+    Expression<String>? strategy,
+    Expression<String>? autoSaveRules,
     Expression<bool>? isShared,
     Expression<String>? participants,
     Expression<String>? image,
@@ -2378,12 +2546,17 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (emoji != null) 'emoji': emoji,
+      if (type != null) 'type': type,
       if (targetAmount != null) 'target_amount': targetAmount,
       if (currentAmount != null) 'current_amount': currentAmount,
       if (currency != null) 'currency': currency,
       if (deadline != null) 'deadline': deadline,
       if (category != null) 'category': category,
       if (status != null) 'status': status,
+      if (strategy != null) 'strategy': strategy,
+      if (autoSaveRules != null) 'auto_save_rules': autoSaveRules,
       if (isShared != null) 'is_shared': isShared,
       if (participants != null) 'participants': participants,
       if (image != null) 'image': image,
@@ -2396,12 +2569,17 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   GoalsCompanion copyWith(
       {Value<String>? id,
       Value<String>? name,
+      Value<String?>? description,
+      Value<String?>? emoji,
+      Value<String>? type,
       Value<double>? targetAmount,
       Value<double>? currentAmount,
       Value<String>? currency,
       Value<DateTime>? deadline,
       Value<String?>? category,
       Value<String>? status,
+      Value<String?>? strategy,
+      Value<String?>? autoSaveRules,
       Value<bool>? isShared,
       Value<String>? participants,
       Value<String?>? image,
@@ -2411,12 +2589,17 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     return GoalsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      description: description ?? this.description,
+      emoji: emoji ?? this.emoji,
+      type: type ?? this.type,
       targetAmount: targetAmount ?? this.targetAmount,
       currentAmount: currentAmount ?? this.currentAmount,
       currency: currency ?? this.currency,
       deadline: deadline ?? this.deadline,
       category: category ?? this.category,
       status: status ?? this.status,
+      strategy: strategy ?? this.strategy,
+      autoSaveRules: autoSaveRules ?? this.autoSaveRules,
       isShared: isShared ?? this.isShared,
       participants: participants ?? this.participants,
       image: image ?? this.image,
@@ -2435,6 +2618,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (emoji.present) {
+      map['emoji'] = Variable<String>(emoji.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
     if (targetAmount.present) {
       map['target_amount'] = Variable<double>(targetAmount.value);
     }
@@ -2452,6 +2644,12 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     }
     if (status.present) {
       map['status'] = Variable<String>(status.value);
+    }
+    if (strategy.present) {
+      map['strategy'] = Variable<String>(strategy.value);
+    }
+    if (autoSaveRules.present) {
+      map['auto_save_rules'] = Variable<String>(autoSaveRules.value);
     }
     if (isShared.present) {
       map['is_shared'] = Variable<bool>(isShared.value);
@@ -2479,12 +2677,17 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     return (StringBuffer('GoalsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('emoji: $emoji, ')
+          ..write('type: $type, ')
           ..write('targetAmount: $targetAmount, ')
           ..write('currentAmount: $currentAmount, ')
           ..write('currency: $currency, ')
           ..write('deadline: $deadline, ')
           ..write('category: $category, ')
           ..write('status: $status, ')
+          ..write('strategy: $strategy, ')
+          ..write('autoSaveRules: $autoSaveRules, ')
           ..write('isShared: $isShared, ')
           ..write('participants: $participants, ')
           ..write('image: $image, ')
@@ -5257,12 +5460,17 @@ typedef $$BudgetsTableProcessedTableManager = ProcessedTableManager<
 typedef $$GoalsTableCreateCompanionBuilder = GoalsCompanion Function({
   required String id,
   required String name,
+  Value<String?> description,
+  Value<String?> emoji,
+  Value<String> type,
   required double targetAmount,
   required double currentAmount,
   Value<String> currency,
   required DateTime deadline,
   Value<String?> category,
   Value<String> status,
+  Value<String?> strategy,
+  Value<String?> autoSaveRules,
   Value<bool> isShared,
   Value<String> participants,
   Value<String?> image,
@@ -5273,12 +5481,17 @@ typedef $$GoalsTableCreateCompanionBuilder = GoalsCompanion Function({
 typedef $$GoalsTableUpdateCompanionBuilder = GoalsCompanion Function({
   Value<String> id,
   Value<String> name,
+  Value<String?> description,
+  Value<String?> emoji,
+  Value<String> type,
   Value<double> targetAmount,
   Value<double> currentAmount,
   Value<String> currency,
   Value<DateTime> deadline,
   Value<String?> category,
   Value<String> status,
+  Value<String?> strategy,
+  Value<String?> autoSaveRules,
   Value<bool> isShared,
   Value<String> participants,
   Value<String?> image,
@@ -5301,6 +5514,15 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get emoji => $composableBuilder(
+      column: $table.emoji, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<double> get targetAmount => $composableBuilder(
       column: $table.targetAmount, builder: (column) => ColumnFilters(column));
 
@@ -5318,6 +5540,12 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
 
   ColumnFilters<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get strategy => $composableBuilder(
+      column: $table.strategy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get autoSaveRules => $composableBuilder(
+      column: $table.autoSaveRules, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isShared => $composableBuilder(
       column: $table.isShared, builder: (column) => ColumnFilters(column));
@@ -5350,6 +5578,15 @@ class $$GoalsTableOrderingComposer
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get emoji => $composableBuilder(
+      column: $table.emoji, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<double> get targetAmount => $composableBuilder(
       column: $table.targetAmount,
       builder: (column) => ColumnOrderings(column));
@@ -5369,6 +5606,13 @@ class $$GoalsTableOrderingComposer
 
   ColumnOrderings<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get strategy => $composableBuilder(
+      column: $table.strategy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get autoSaveRules => $composableBuilder(
+      column: $table.autoSaveRules,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isShared => $composableBuilder(
       column: $table.isShared, builder: (column) => ColumnOrderings(column));
@@ -5402,6 +5646,15 @@ class $$GoalsTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get emoji =>
+      $composableBuilder(column: $table.emoji, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
   GeneratedColumn<double> get targetAmount => $composableBuilder(
       column: $table.targetAmount, builder: (column) => column);
 
@@ -5419,6 +5672,12 @@ class $$GoalsTableAnnotationComposer
 
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get strategy =>
+      $composableBuilder(column: $table.strategy, builder: (column) => column);
+
+  GeneratedColumn<String> get autoSaveRules => $composableBuilder(
+      column: $table.autoSaveRules, builder: (column) => column);
 
   GeneratedColumn<bool> get isShared =>
       $composableBuilder(column: $table.isShared, builder: (column) => column);
@@ -5461,12 +5720,17 @@ class $$GoalsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> name = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> emoji = const Value.absent(),
+            Value<String> type = const Value.absent(),
             Value<double> targetAmount = const Value.absent(),
             Value<double> currentAmount = const Value.absent(),
             Value<String> currency = const Value.absent(),
             Value<DateTime> deadline = const Value.absent(),
             Value<String?> category = const Value.absent(),
             Value<String> status = const Value.absent(),
+            Value<String?> strategy = const Value.absent(),
+            Value<String?> autoSaveRules = const Value.absent(),
             Value<bool> isShared = const Value.absent(),
             Value<String> participants = const Value.absent(),
             Value<String?> image = const Value.absent(),
@@ -5477,12 +5741,17 @@ class $$GoalsTableTableManager extends RootTableManager<
               GoalsCompanion(
             id: id,
             name: name,
+            description: description,
+            emoji: emoji,
+            type: type,
             targetAmount: targetAmount,
             currentAmount: currentAmount,
             currency: currency,
             deadline: deadline,
             category: category,
             status: status,
+            strategy: strategy,
+            autoSaveRules: autoSaveRules,
             isShared: isShared,
             participants: participants,
             image: image,
@@ -5493,12 +5762,17 @@ class $$GoalsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String name,
+            Value<String?> description = const Value.absent(),
+            Value<String?> emoji = const Value.absent(),
+            Value<String> type = const Value.absent(),
             required double targetAmount,
             required double currentAmount,
             Value<String> currency = const Value.absent(),
             required DateTime deadline,
             Value<String?> category = const Value.absent(),
             Value<String> status = const Value.absent(),
+            Value<String?> strategy = const Value.absent(),
+            Value<String?> autoSaveRules = const Value.absent(),
             Value<bool> isShared = const Value.absent(),
             Value<String> participants = const Value.absent(),
             Value<String?> image = const Value.absent(),
@@ -5509,12 +5783,17 @@ class $$GoalsTableTableManager extends RootTableManager<
               GoalsCompanion.insert(
             id: id,
             name: name,
+            description: description,
+            emoji: emoji,
+            type: type,
             targetAmount: targetAmount,
             currentAmount: currentAmount,
             currency: currency,
             deadline: deadline,
             category: category,
             status: status,
+            strategy: strategy,
+            autoSaveRules: autoSaveRules,
             isShared: isShared,
             participants: participants,
             image: image,

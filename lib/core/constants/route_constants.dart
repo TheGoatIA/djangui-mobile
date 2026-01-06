@@ -13,6 +13,7 @@ class RouteConstants {
   static const String budgets = '/budgets';
   static const String investments = '/investments';
   static const String goals = '/goals';
+  static const String goalDetails = '/goals/:id';
   static const String coach = '/coach';
   static const String profile = '/profile';
   static const String challenges = '/challenges';

@@ -19,6 +19,7 @@ import '../features/budgets/presentation/pages/budget_list_page.dart';
 import '../features/budgets/presentation/pages/add_budget_page.dart';
 import '../features/goals/presentation/pages/goal_list_page.dart';
 import '../features/goals/presentation/pages/add_goal_page.dart';
+import '../features/goals/presentation/pages/goal_detail_page.dart';
 import '../features/investments/presentation/pages/investments_page.dart';
 import '../features/investments/presentation/pages/add_investment_page.dart';
 import '../features/challenges/presentation/pages/challenges_page.dart';
@@ -134,11 +135,21 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: RouteConstants.goals,
+              name: 'goals',
               builder: (context, state) => const GoalListPage(),
               routes: [
                 GoRoute(
                   path: 'add',
+                  name: 'goal-add',
                   builder: (context, state) => const AddGoalPage(),
+                ),
+                GoRoute(
+                  path: ':id',
+                  name: 'goal-details',
+                  builder: (context, state) {
+                    final goalId = state.pathParameters['id']!;
+                    return GoalDetailPage(goalId: goalId);
+                  },
                 ),
               ],
             ),

@@ -841,4 +841,104 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categories => 'Categories';
+
+  @override
+  String get goalDescriptionLabel => 'Description';
+
+  @override
+  String get goalDescriptionHint => 'e.g. Save for a rainy day';
+
+  @override
+  String get goalTypeLabel => 'Goal Type';
+
+  @override
+  String get goalPriorityLabel => 'Priority';
+
+  @override
+  String get goalEmojiLabel => 'Emoji';
+
+  @override
+  String get autoSaveRulesTitle => 'Auto-Save Rules';
+
+  @override
+  String get enableSurplusLabel => 'Save Surplus';
+
+  @override
+  String get enableRoundupLabel => 'Round up Transactions';
+
+  @override
+  String get percentageIncomeLabel => '% of Income';
+
+  @override
+  String get emergencyType => 'Emergency';
+
+  @override
+  String get savingsType => 'Savings';
+
+  @override
+  String get investmentType => 'Investment';
+
+  @override
+  String get highPriority => 'High';
+
+  @override
+  String get mediumPriority => 'Medium';
+
+  @override
+  String get lowPriority => 'Low';
+
+  @override
+  String get deleteGoalConfirmation =>
+      'Are you sure you want to delete this goal?';
+
+  @override
+  String get strategyLabel => 'Saving Strategy';
+
+  @override
+  String get strategy_50_30_20 => '50-30-20 Rule';
+
+  @override
+  String get strategy_50_30_20_desc =>
+      'Allocate 20% of income to savings (50% for needs, 30% for wants).';
+
+  @override
+  String get strategy_progressive => 'Progressive';
+
+  @override
+  String get strategy_progressive_desc =>
+      'Start small and increase contributions over time.';
+
+  @override
+  String get strategy_roundup => 'Roundup';
+
+  @override
+  String get strategy_roundup_desc =>
+      'Automatically save the difference when rounding up your spending.';
+
+  @override
+  String get strategy_pay_yourself_first => 'Pay Yourself First';
+
+  @override
+  String get strategy_pay_yourself_first_desc =>
+      'Automated transfer to savings as soon as income is received.';
+
+  @override
+  String get strategy_envelope => 'Envelope';
+
+  @override
+  String get strategy_envelope_desc =>
+      'Allocate a fixed amount and stop spending once the envelope is empty.';
+
+  @override
+  String get strategy_custom => 'Custom';
+
+  @override
+  String get strategy_custom_desc =>
+      'Flexible contributions without predefined rules.';
+
+  @override
+  String get addSavingsAction => 'Add Savings';
+
+  @override
+  String get currentAmountLabel => 'Saved';
 }

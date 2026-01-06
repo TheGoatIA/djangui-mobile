@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 import 'coach_api_service.dart';
 import '../models/chat_message_model.dart';
+import '../../../../core/network/api_response_extensions.dart';
 
 abstract class CoachRemoteDataSource {
   Future<ChatMessageModel> sendMessage(String text);
@@ -49,10 +50,8 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
         timestamp: DateTime.now(),
       );
     } else {
-      print(
-        '🌐 [CoachRemote] Error: ${response.error ?? (response.body is Map ? response.body['message'] : 'Unknown error')}',
-      );
-      throw Exception('Failed to get coach response');
+      print('🌐 [CoachRemote] Error: ${response.errorMessage}');
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -85,10 +84,8 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
       print('🌐 [CoachRemote] Success: Received ${history.length} messages');
       return history;
     } else {
-      print(
-        '🌐 [CoachRemote] Error: ${response.error ?? (response.body is Map ? response.body['message'] : 'Unknown error')}',
-      );
-      throw Exception('Failed to fetch chat history');
+      print('🌐 [CoachRemote] Error: ${response.errorMessage}');
+      throw Exception(response.errorMessage);
     }
   }
 }

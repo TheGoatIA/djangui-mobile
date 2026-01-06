@@ -6,6 +6,7 @@ import '../models/auth_response.dart';
 import '../models/login_request.dart';
 import '../models/register_request.dart';
 import '../models/user_model.dart';
+import '../../../../core/network/api_response_extensions.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponse> login(LoginRequest request);
@@ -41,11 +42,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Firebase login failed',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -53,11 +50,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> linkPhone(String idToken) async {
     final response = await _apiService.linkPhone({'idToken': idToken});
     if (!response.isSuccessful) {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Link phone failed',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -67,9 +60,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ?? response.error?.toString() ?? 'Login failed',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -79,11 +70,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Registration failed',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -128,11 +115,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
       return UserModel.fromJson(userData);
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Update profile failed',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -140,11 +123,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> forgotPassword(String email) async {
     final response = await _apiService.forgotPassword({'email': email});
     if (!response.isSuccessful) {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Forgot password failed',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -154,11 +133,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'password': newPassword,
     });
     if (!response.isSuccessful) {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Reset password failed',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -166,11 +141,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> verifyEmail(String token) async {
     final response = await _apiService.verifyEmail(token);
     if (!response.isSuccessful) {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Email verification failed',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -188,11 +159,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'refreshToken': tokens['refreshToken'] as String,
       };
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Token refresh failed',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -200,11 +167,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> updateFcmToken(String token) async {
     final response = await _apiService.updateFcmToken({'fcmToken': token});
     if (!response.isSuccessful) {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to update FCM token',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 }

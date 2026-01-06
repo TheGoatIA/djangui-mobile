@@ -14,6 +14,8 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'firebase_options.dart';
 import 'features/settings/presentation/bloc/settings_bloc.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/goals/presentation/bloc/goals_bloc.dart';
+import 'features/goals/presentation/bloc/goals_event.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +43,10 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => getIt<AuthBloc>()..add(AuthCheckRequested()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<GoalsBloc>()..add(const GetGoalsRequested()),
         ),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(

@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'budget_api_service.dart';
 import '../models/budget_model.dart';
+import '../../../../core/network/api_response_extensions.dart';
 
 abstract class BudgetRemoteDataSource {
   Future<List<BudgetModel>> getBudgets();
@@ -22,27 +23,25 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
       return [response.body!.data!];
     } else {
       if (response.statusCode == 404) return [];
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to fetch budgets',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
   @override
   Future<BudgetModel> createBudget(BudgetModel budget) async {
     final json = budget.toJson();
-    json.remove('_id');
-    final response = await _apiService.createBudget(json);
+    final Map<String, dynamic> cleanBody = {};
+    json.forEach((key, value) {
+      if (key != '_id' && key != 'id') {
+        cleanBody[key] = value;
+      }
+    });
+
+    final response = await _apiService.createBudget(cleanBody);
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to create budget',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -54,11 +53,7 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to update budget',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -66,11 +61,7 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
   Future<void> deleteBudget(String id) async {
     final response = await _apiService.deleteBudget(id);
     if (!response.isSuccessful) {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to delete budget',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 }

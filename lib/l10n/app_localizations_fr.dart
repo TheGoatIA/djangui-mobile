@@ -848,4 +848,104 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get categories => 'Catégories';
+
+  @override
+  String get goalDescriptionLabel => 'Description';
+
+  @override
+  String get goalDescriptionHint => 'ex: Épargne de secours';
+
+  @override
+  String get goalTypeLabel => 'Type d\'objectif';
+
+  @override
+  String get goalPriorityLabel => 'Priorité';
+
+  @override
+  String get goalEmojiLabel => 'Emoji';
+
+  @override
+  String get autoSaveRulesTitle => 'Règles d\'épargne auto';
+
+  @override
+  String get enableSurplusLabel => 'Épargner le surplus';
+
+  @override
+  String get enableRoundupLabel => 'Arrondir les transactions';
+
+  @override
+  String get percentageIncomeLabel => '% des revenus';
+
+  @override
+  String get emergencyType => 'Urgence';
+
+  @override
+  String get savingsType => 'Épargne';
+
+  @override
+  String get investmentType => 'Investissement';
+
+  @override
+  String get highPriority => 'Haute';
+
+  @override
+  String get mediumPriority => 'Moyenne';
+
+  @override
+  String get lowPriority => 'Basse';
+
+  @override
+  String get deleteGoalConfirmation =>
+      'Voulez-vous vraiment supprimer cet objectif ?';
+
+  @override
+  String get strategyLabel => 'Stratégie d\'Épargne';
+
+  @override
+  String get strategy_50_30_20 => 'Règle 50-30-20';
+
+  @override
+  String get strategy_50_30_20_desc =>
+      'Allouer 20% des revenus à l\'épargne (50% besoins, 30% envies).';
+
+  @override
+  String get strategy_progressive => 'Progressive';
+
+  @override
+  String get strategy_progressive_desc =>
+      'Commencer doucement et augmenter avec le temps.';
+
+  @override
+  String get strategy_roundup => 'Arrondi (Roundup)';
+
+  @override
+  String get strategy_roundup_desc =>
+      'Épargne indolore : arrondit vos dépenses et épargne la différence.';
+
+  @override
+  String get strategy_pay_yourself_first => 'Se payer en premier';
+
+  @override
+  String get strategy_pay_yourself_first_desc =>
+      'Virement automatique dès la réception du salaire.';
+
+  @override
+  String get strategy_envelope => 'Enveloppes';
+
+  @override
+  String get strategy_envelope_desc =>
+      'Montant fixe alloué, fin de dépense une fois l\'enveloppe vide.';
+
+  @override
+  String get strategy_custom => 'Personnalisé';
+
+  @override
+  String get strategy_custom_desc =>
+      'Versements libres sans règles prédéfinies.';
+
+  @override
+  String get addSavingsAction => 'Ajouter une épargne';
+
+  @override
+  String get currentAmountLabel => 'Épargné';
 }

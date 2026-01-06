@@ -74,12 +74,17 @@ class Budgets extends Table {
 class Goals extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get emoji => text().nullable()();
+  TextColumn get type => text().withDefault(const Constant('savings'))();
   RealColumn get targetAmount => real()();
   RealColumn get currentAmount => real()();
   TextColumn get currency => text().withDefault(const Constant('XAF'))();
   DateTimeColumn get deadline => dateTime()();
   TextColumn get category => text().nullable()();
   TextColumn get status => text().withDefault(const Constant('active'))();
+  TextColumn get strategy => text().nullable()(); // JSON
+  TextColumn get autoSaveRules => text().nullable()(); // JSON
   BoolColumn get isShared => boolean().withDefault(const Constant(false))();
   TextColumn get participants => text().withDefault(const Constant('[]'))();
   TextColumn get image => text().nullable()();
@@ -157,7 +162,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration {
@@ -166,11 +171,13 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       onUpgrade: (Migrator m, int from, int to) async {
-        // Note: usage of 'from' and 'to' allows to perform migration
-        // for specific versions
-        // if (from < 2) {
-        //   await m.addColumn(todos, todos.category);
-        // }
+        if (from < 16) {
+          await m.addColumn(goals, goals.description);
+          await m.addColumn(goals, goals.emoji);
+          await m.addColumn(goals, goals.type);
+          await m.addColumn(goals, goals.strategy);
+          await m.addColumn(goals, goals.autoSaveRules);
+        }
       },
       beforeOpen: (details) async {
         await customStatement('PRAGMA foreign_keys = ON');

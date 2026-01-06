@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:djangui/features/challenges/data/datasources/challenge_api_service.dart';
 import 'package:djangui/features/challenges/data/models/challenge_model.dart';
+import '../../../../core/network/api_response_extensions.dart';
 
 abstract class ChallengeRemoteDataSource {
   Future<List<ChallengeModel>> getChallenges();
@@ -26,11 +27,7 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to fetch challenges',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -40,11 +37,7 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to fetch user challenges',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -54,11 +47,7 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to join challenge',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -76,11 +65,7 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to validate week',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -88,11 +73,7 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
   Future<void> unjoinChallenge(String id) async {
     final response = await _apiService.unjoinChallenge(id);
     if (!response.isSuccessful) {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to unjoin challenge',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 }

@@ -23,16 +23,27 @@ class GoalLocalDataSourceImpl implements GoalLocalDataSource {
     final rows = await _database.select(_database.goals).get();
     return rows.map((row) {
       final participants = List<String>.from(json.decode(row.participants));
+      final strategy = row.strategy != null
+          ? GoalStrategyModel.fromJson(json.decode(row.strategy!))
+          : const GoalStrategyModel(type: 'custom');
+      final autoSaveRules = row.autoSaveRules != null
+          ? AutoSaveRulesModel.fromJson(json.decode(row.autoSaveRules!))
+          : null;
 
       return GoalModel(
         id: row.id,
         name: row.name,
+        description: row.description,
+        emoji: row.emoji,
+        type: row.type,
         targetAmount: row.targetAmount,
         currentAmount: row.currentAmount,
         currency: row.currency,
         deadline: row.deadline,
         category: row.category,
         status: row.status,
+        strategy: strategy,
+        autoSaveRules: autoSaveRules,
         isShared: row.isShared,
         participants: participants,
         image: row.image,
@@ -64,12 +75,19 @@ class GoalLocalDataSourceImpl implements GoalLocalDataSource {
     return GoalsCompanion(
       id: Value(g.id),
       name: Value(g.name),
+      description: Value(g.description),
+      emoji: Value(g.emoji),
+      type: Value(g.type),
       targetAmount: Value(g.targetAmount),
       currentAmount: Value(g.currentAmount),
       currency: Value(g.currency),
       deadline: Value(g.deadline),
       category: Value(g.category),
       status: Value(g.status),
+      strategy: Value(json.encode(g.strategy.toJson())),
+      autoSaveRules: Value(
+        g.autoSaveRules != null ? json.encode(g.autoSaveRules!.toJson()) : null,
+      ),
       isShared: Value(g.isShared),
       participants: Value(json.encode(g.participants)),
       image: Value(g.image),

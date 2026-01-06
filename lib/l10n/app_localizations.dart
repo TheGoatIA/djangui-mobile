@@ -1705,6 +1705,192 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Catégories'**
   String get categories;
+
+  /// No description provided for @goalDescriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description'**
+  String get goalDescriptionLabel;
+
+  /// No description provided for @goalDescriptionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'ex: Épargne de secours'**
+  String get goalDescriptionHint;
+
+  /// No description provided for @goalTypeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type d\'objectif'**
+  String get goalTypeLabel;
+
+  /// No description provided for @goalPriorityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Priorité'**
+  String get goalPriorityLabel;
+
+  /// No description provided for @goalEmojiLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Emoji'**
+  String get goalEmojiLabel;
+
+  /// No description provided for @autoSaveRulesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Règles d\'épargne auto'**
+  String get autoSaveRulesTitle;
+
+  /// No description provided for @enableSurplusLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargner le surplus'**
+  String get enableSurplusLabel;
+
+  /// No description provided for @enableRoundupLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrondir les transactions'**
+  String get enableRoundupLabel;
+
+  /// No description provided for @percentageIncomeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'% des revenus'**
+  String get percentageIncomeLabel;
+
+  /// No description provided for @emergencyType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Urgence'**
+  String get emergencyType;
+
+  /// No description provided for @savingsType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne'**
+  String get savingsType;
+
+  /// No description provided for @investmentType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Investissement'**
+  String get investmentType;
+
+  /// No description provided for @highPriority.
+  ///
+  /// In fr, this message translates to:
+  /// **'Haute'**
+  String get highPriority;
+
+  /// No description provided for @mediumPriority.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyenne'**
+  String get mediumPriority;
+
+  /// No description provided for @lowPriority.
+  ///
+  /// In fr, this message translates to:
+  /// **'Basse'**
+  String get lowPriority;
+
+  /// No description provided for @deleteGoalConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment supprimer cet objectif ?'**
+  String get deleteGoalConfirmation;
+
+  /// No description provided for @strategyLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stratégie d\'Épargne'**
+  String get strategyLabel;
+
+  /// No description provided for @strategy_50_30_20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Règle 50-30-20'**
+  String get strategy_50_30_20;
+
+  /// No description provided for @strategy_50_30_20_desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allouer 20% des revenus à l\'épargne (50% besoins, 30% envies).'**
+  String get strategy_50_30_20_desc;
+
+  /// No description provided for @strategy_progressive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progressive'**
+  String get strategy_progressive;
+
+  /// No description provided for @strategy_progressive_desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer doucement et augmenter avec le temps.'**
+  String get strategy_progressive_desc;
+
+  /// No description provided for @strategy_roundup.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrondi (Roundup)'**
+  String get strategy_roundup;
+
+  /// No description provided for @strategy_roundup_desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne indolore : arrondit vos dépenses et épargne la différence.'**
+  String get strategy_roundup_desc;
+
+  /// No description provided for @strategy_pay_yourself_first.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se payer en premier'**
+  String get strategy_pay_yourself_first;
+
+  /// No description provided for @strategy_pay_yourself_first_desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Virement automatique dès la réception du salaire.'**
+  String get strategy_pay_yourself_first_desc;
+
+  /// No description provided for @strategy_envelope.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enveloppes'**
+  String get strategy_envelope;
+
+  /// No description provided for @strategy_envelope_desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant fixe alloué, fin de dépense une fois l\'enveloppe vide.'**
+  String get strategy_envelope_desc;
+
+  /// No description provided for @strategy_custom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnalisé'**
+  String get strategy_custom;
+
+  /// No description provided for @strategy_custom_desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versements libres sans règles prédéfinies.'**
+  String get strategy_custom_desc;
+
+  /// No description provided for @addSavingsAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une épargne'**
+  String get addSavingsAction;
+
+  /// No description provided for @currentAmountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargné'**
+  String get currentAmountLabel;
 }
 
 class _AppLocalizationsDelegate

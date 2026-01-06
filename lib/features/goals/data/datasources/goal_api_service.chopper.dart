@@ -29,9 +29,10 @@ final class _$GoalApiService extends GoalApiService {
   }
 
   @override
-  Future<Response<BaseResponse<GoalModel>>> createGoal(GoalModel goal) {
+  Future<Response<BaseResponse<GoalModel>>> createGoal(
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/goals');
-    final $body = goal;
+    final $body = body;
     final Request $request = Request(
       'POST',
       $url,
