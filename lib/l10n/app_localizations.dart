@@ -1945,6 +1945,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Épargné'**
   String get currentAmountLabel;
+
+  /// No description provided for @monthAndYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois & Année'**
+  String get monthAndYear;
+
+  /// No description provided for @add.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter'**
+  String get add;
 }
 
 class _AppLocalizationsDelegate

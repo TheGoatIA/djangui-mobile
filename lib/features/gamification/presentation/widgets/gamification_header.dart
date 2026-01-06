@@ -107,9 +107,7 @@ class GamificationHeader extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: levelProgress.clamp(0.0, 1.0),
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.background,
+                        backgroundColor: Theme.of(context).colorScheme.surface,
                         valueColor: AlwaysStoppedAnimation<Color>(
                           Theme.of(context).colorScheme.primary,
                         ),

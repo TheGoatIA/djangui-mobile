@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 import 'coach_api_service.dart';
@@ -17,10 +18,10 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
 
   @override
   Future<ChatMessageModel> sendMessage(String text) async {
-    print('🌐 [CoachRemote] Sending request to AI coach...');
+    debugPrint('🌐 [CoachRemote] Sending request to AI coach...');
     final response = await _apiService.ask({'message': text});
     if (response.isSuccessful && response.body != null) {
-      print('🌐 [CoachRemote] Success: Received AI response');
+      debugPrint('🌐 [CoachRemote] Success: Received AI response');
 
       final dynamic body = response.body;
       dynamic data;
@@ -50,14 +51,14 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
         timestamp: DateTime.now(),
       );
     } else {
-      print('🌐 [CoachRemote] Error: ${response.errorMessage}');
+      debugPrint('🌐 [CoachRemote] Error: ${response.errorMessage}');
       throw Exception(response.errorMessage);
     }
   }
 
   @override
   Future<List<ChatMessageModel>> getChatHistory() async {
-    print('🌐 [CoachRemote] Fetching chat history...');
+    debugPrint('🌐 [CoachRemote] Fetching chat history...');
     final response = await _apiService.getChatHistory();
     if (response.isSuccessful && response.body != null) {
       final dynamic body = response.body;
@@ -81,10 +82,12 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
         );
       }).toList();
 
-      print('🌐 [CoachRemote] Success: Received ${history.length} messages');
+      debugPrint(
+        '🌐 [CoachRemote] Success: Received ${history.length} messages',
+      );
       return history;
     } else {
-      print('🌐 [CoachRemote] Error: ${response.errorMessage}');
+      debugPrint('🌐 [CoachRemote] Error: ${response.errorMessage}');
       throw Exception(response.errorMessage);
     }
   }

@@ -366,5 +366,7 @@
     "strategy_custom": "Custom",
     "strategy_custom_desc": "Flexible contributions without predefined rules.",
     "addSavingsAction": "Add Savings",
-    "currentAmountLabel": "Saved"
+    "currentAmountLabel": "Saved",
+    "monthAndYear": "Month & Year",
+    "add": "Add"
 }

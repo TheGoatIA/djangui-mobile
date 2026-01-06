@@ -42,9 +42,9 @@ class HttpLoggingInterceptor
   @override
   FutureOr<Request> onRequest(Request request) async {
     if (kDebugMode) {
-      print('🌐 REQUEST: ${request.method} ${request.url}');
-      print('📦 Headers: ${request.headers}');
-      if (request.body != null) print('📦 Body: ${request.body}');
+      debugPrint('🌐 REQUEST: ${request.method} ${request.url}');
+      debugPrint('📦 Headers: ${request.headers}');
+      if (request.body != null) debugPrint('📦 Body: ${request.body}');
     }
     return request;
   }
@@ -52,12 +52,14 @@ class HttpLoggingInterceptor
   @override
   FutureOr<Response> onResponse(Response response) async {
     if (kDebugMode) {
-      print('✅ RESPONSE: ${response.statusCode} ${response.base.request?.url}');
+      debugPrint(
+        '✅ RESPONSE: ${response.statusCode} ${response.base.request?.url}',
+      );
       if (response.bodyString.isNotEmpty) {
-        print('📥 Body: ${response.bodyString}');
+        debugPrint('📥 Body: ${response.bodyString}');
       }
       if (response.error != null) {
-        print('❌ Error: ${response.error}');
+        debugPrint('❌ Error: ${response.error}');
       }
     }
     return response;

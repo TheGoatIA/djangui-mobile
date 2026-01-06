@@ -153,7 +153,7 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                   onTap: () => _selectDate(context),
                   child: InputDecorator(
                     decoration: InputDecoration(
-                      labelText: 'Month & Year', // TODO: Localize
+                      labelText: AppLocalizations.of(context)!.monthAndYear,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -170,13 +170,13 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Categories', // TODO: Localize
+                      AppLocalizations.of(context)!.categories,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     TextButton.icon(
                       onPressed: _addCategory,
                       icon: const Icon(Icons.add),
-                      label: const Text('Add'), // TODO: Localize
+                      label: Text(AppLocalizations.of(context)!.add),
                     ),
                   ],
                 ),
@@ -202,7 +202,7 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                             children: [
                               Expanded(
                                 child: DropdownButtonFormField<String>(
-                                  value: item.selectedCategory,
+                                  initialValue: item.selectedCategory,
                                   decoration: InputDecoration(
                                     labelText: AppLocalizations.of(
                                       context,

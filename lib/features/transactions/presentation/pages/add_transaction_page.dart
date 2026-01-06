@@ -281,7 +281,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 ),
                 const SizedBox(height: 20),
                 DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  initialValue: _selectedCategory,
                   decoration: InputDecoration(
                     labelText: AppLocalizations.of(context)!.categoryLabel,
                     border: OutlineInputBorder(
@@ -363,7 +363,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                       "${goal.emoji ?? '🎯'} ${goal.name}",
                                     ),
                                   );
-                                }).toList(),
+                                }),
                               ],
                               onChanged: (value) =>
                                   setState(() => _selectedGoalId = value),

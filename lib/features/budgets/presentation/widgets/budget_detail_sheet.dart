@@ -140,7 +140,7 @@ class BudgetDetailSheet extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: budget.categories.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final category = budget.categories[index];
                 return _CategoryItem(category: category);
@@ -177,7 +177,7 @@ class _SummaryItem extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          '${amount.toStringAsFixed(0)}',
+          amount.toStringAsFixed(0),
           style: AppTextStyles.bodyLarge.copyWith(
             fontWeight: FontWeight.bold,
             color: color,

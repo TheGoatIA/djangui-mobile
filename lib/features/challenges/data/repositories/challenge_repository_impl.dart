@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:djangui/core/errors/failures.dart';
@@ -32,19 +33,21 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
 
     if (await _networkInfo.isConnected) {
       try {
-        print('🏆 [ChallengeRepository] Fetching remote challenges...');
+        debugPrint('🏆 [ChallengeRepository] Fetching remote challenges...');
         final remoteChallenges = await _remoteDataSource.getChallenges();
-        print(
+        debugPrint(
           '🏆 [ChallengeRepository] Received ${remoteChallenges.length} from remote',
         );
 
         try {
-          print('🏆 [ChallengeRepository] Clearing and saving to local...');
+          debugPrint(
+            '🏆 [ChallengeRepository] Clearing and saving to local...',
+          );
           await _localDataSource.clearChallenges();
           await _localDataSource.saveChallenges(remoteChallenges);
-          print('🏆 [ChallengeRepository] Local storage sync successful');
+          debugPrint('🏆 [ChallengeRepository] Local storage sync successful');
         } catch (localError) {
-          print(
+          debugPrint(
             '🏆 [ChallengeRepository] WARNING: Local storage sync failed: $localError',
           );
           // Still return remote results even if local save fails
@@ -52,8 +55,8 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
 
         return Right(remoteChallenges);
       } catch (e, stack) {
-        print('🏆 [ChallengeRepository] ERROR in remote fetch: $e');
-        print(stack);
+        debugPrint('🏆 [ChallengeRepository] ERROR in remote fetch: $e');
+        debugPrint(stack.toString());
         return Left(ServerFailure(e.toString()));
       }
     } else {

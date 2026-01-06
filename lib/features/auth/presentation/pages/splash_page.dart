@@ -59,7 +59,7 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        print('🌊 [SplashPage] Auth state changed: ${state.status}');
+        debugPrint('🌊 [SplashPage] Auth state changed: ${state.status}');
         if (state.status == AuthStatus.authenticated ||
             state.status == AuthStatus.unauthenticated) {
           _checkAndNavigate();

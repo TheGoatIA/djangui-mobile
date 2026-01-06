@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
@@ -216,8 +217,8 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return Left(CacheFailure());
     } catch (e, stack) {
-      print('🔑 [AuthRepository] Error fetching current user: $e');
-      print(stack);
+      debugPrint('🔑 [AuthRepository] Error fetching current user: $e');
+      debugPrint(stack.toString());
       return Left(CacheFailure());
     }
   }
@@ -311,21 +312,22 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> refreshToken() async {
     final refreshToken = await _localDataSource.getRefreshToken();
-    if (refreshToken == null)
+    if (refreshToken == null) {
       return Left(AuthFailure('No refresh token found'));
+    }
 
     if (await _networkInfo.isConnected) {
       try {
-        print('🌐 [AuthRepository] Refreshing token...');
+        debugPrint('🌐 [AuthRepository] Refreshing token...');
         final tokens = await _remoteDataSource.refreshToken(refreshToken);
         await _localDataSource.saveTokens(
           accessToken: tokens['accessToken']!,
           refreshToken: tokens['refreshToken']!,
         );
-        print('🌐 [AuthRepository] Token refreshed successfully');
+        debugPrint('🌐 [AuthRepository] Token refreshed successfully');
         return const Right(null);
       } catch (e) {
-        print('🌐 [AuthRepository] Token refresh failed: $e');
+        debugPrint('🌐 [AuthRepository] Token refresh failed: $e');
         return Left(AuthFailure(e.toString()));
       }
     } else {

@@ -26,11 +26,14 @@ class BaseResponse<T> {
     );
   }
 
-  Map<String, dynamic> toJson(Object? Function(T value) toJsonT) => {
-    'success': success,
-    'message': message,
-    'data': data != null ? toJsonT(data!) : null,
-  };
+  Map<String, dynamic> toJson(Object? Function(T value) toJsonT) {
+    final value = data;
+    return {
+      'success': success,
+      'message': message,
+      'data': value == null ? null : toJsonT(value),
+    };
+  }
 }
 
 class BaseListResponse<T> {

@@ -59,7 +59,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               backgroundColor: Colors.transparent,
               elevation: 0,
               iconTheme: IconThemeData(
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             body: SafeArea(

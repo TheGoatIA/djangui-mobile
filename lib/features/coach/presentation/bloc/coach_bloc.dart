@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
@@ -38,7 +39,7 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
     SendMessageRequested event,
     Emitter<CoachState> emit,
   ) async {
-    print('🤖 [CoachBloc] Sending message: ${event.text}');
+    debugPrint('🤖 [CoachBloc] Sending message: ${event.text}');
     // Add optimistic user message
     final userMessage = ChatMessageModel(
       id: const Uuid().v4(),
@@ -49,7 +50,7 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
 
     final updatedMessages = List<ChatMessageModel>.from(state.messages)
       ..add(userMessage);
-    print(
+    debugPrint(
       '🤖 [CoachBloc] Optimistic update: ${updatedMessages.length} messages',
     );
     emit(state.copyWith(messages: updatedMessages, isSending: true));
@@ -57,7 +58,7 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
     final result = await _coachRepository.sendMessage(event.text);
     result.fold<void>(
       (failure) {
-        print('🤖 [CoachBloc] Send message failed: ${failure.message}');
+        debugPrint('🤖 [CoachBloc] Send message failed: ${failure.message}');
         emit(
           state.copyWith(
             isSending: false,
@@ -67,10 +68,12 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
         );
       },
       (ChatMessageModel aiMessage) {
-        print('🤖 [CoachBloc] AI response received: ${aiMessage.text}');
+        debugPrint('🤖 [CoachBloc] AI response received: ${aiMessage.text}');
         final finalMessages = List<ChatMessageModel>.from(state.messages)
           ..add(aiMessage);
-        print('🤖 [CoachBloc] Final update: ${finalMessages.length} messages');
+        debugPrint(
+          '🤖 [CoachBloc] Final update: ${finalMessages.length} messages',
+        );
         emit(state.copyWith(isSending: false, messages: finalMessages));
       },
     );

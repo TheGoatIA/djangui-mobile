@@ -108,7 +108,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           _contents[index].title,
                           style: AppTextStyles.headlineMedium.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onBackground,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           textAlign: TextAlign.center,
                         ),

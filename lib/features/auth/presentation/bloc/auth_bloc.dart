@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import '../../data/models/auth_response.dart';
 import '../../data/models/login_request.dart';
@@ -133,12 +134,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthCheckRequested event,
     Emitter<AuthState> emit,
   ) async {
-    print('🔑 [AuthBloc] Checking authentication status...');
+    debugPrint('🔑 [AuthBloc] Checking authentication status...');
     emit(state.copyWith(status: AuthStatus.loading));
     final isAuthenticated = await _authRepository.isAuthenticated();
 
     if (isAuthenticated) {
-      print(
+      debugPrint(
         '🔑 [AuthBloc] User is authenticated in storage, fetching user data...',
       );
       final userResult = await _authRepository.getCurrentUser();
@@ -148,13 +149,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       userResult.fold(
         (failure) {
-          print(
+          debugPrint(
             '🔑 [AuthBloc] Failed to fetch local user data: ${failure.message}',
           );
           emit(state.copyWith(status: AuthStatus.unauthenticated));
         },
         (user) {
-          print('🔑 [AuthBloc] Session recovered for user: ${user.email}');
+          debugPrint('🔑 [AuthBloc] Session recovered for user: ${user.email}');
           emit(
             state.copyWith(
               status: AuthStatus.authenticated,
@@ -170,7 +171,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         },
       );
     } else {
-      print('🔑 [AuthBloc] No session found (unauthenticated)');
+      debugPrint('🔑 [AuthBloc] No session found (unauthenticated)');
       emit(state.copyWith(status: AuthStatus.unauthenticated));
     }
   }

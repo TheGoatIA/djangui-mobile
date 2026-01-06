@@ -366,5 +366,7 @@
     "strategy_custom": "Personnalisé",
     "strategy_custom_desc": "Versements libres sans règles prédéfinies.",
     "addSavingsAction": "Ajouter une épargne",
-    "currentAmountLabel": "Épargné"
+    "currentAmountLabel": "Épargné",
+    "monthAndYear": "Mois & Année",
+    "add": "Ajouter"
 }

@@ -94,6 +94,7 @@ dependencies:
   google_fonts: ^6.3.3
   flutter_animate: ^4.5.2
   logger: ^2.6.2
+  collection: ^1.19.0
   flutter_dotenv: ^6.0.0
   google_mlkit_text_recognition: ^0.15.0
   flutter_sms_inbox: ^1.0.4
@@ -140,11 +141,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
-    - assets/images/
     - assets/images/onboarding/
     - assets/images/placeholders/
     - assets/images/icons/
-    - assets/images/animations/
     - assets/images/animations/
     - .env
 

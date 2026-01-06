@@ -968,4 +968,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currentAmountLabel => 'Saved';
+
+  @override
+  String get monthAndYear => 'Month & Year';
+
+  @override
+  String get add => 'Add';
 }

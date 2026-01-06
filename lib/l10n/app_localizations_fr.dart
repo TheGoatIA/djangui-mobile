@@ -975,4 +975,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get currentAmountLabel => 'Épargné';
+
+  @override
+  String get monthAndYear => 'Mois & Année';
+
+  @override
+  String get add => 'Ajouter';
 }

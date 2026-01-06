@@ -256,7 +256,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: _selectedDate == null
                                 ? AppColors.textSecondary
-                                : Theme.of(context).colorScheme.onBackground,
+                                : Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         Icon(
@@ -379,7 +379,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
       value: value,
       onChanged: onChanged,
       contentPadding: EdgeInsets.zero,
-      activeColor: AppColors.primary,
+      activeThumbColor: AppColors.primary,
     );
   }
 

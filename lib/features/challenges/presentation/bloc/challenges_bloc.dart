@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/repositories/challenge_repository.dart';
@@ -26,7 +27,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     );
     result.fold<void>(
       (failure) {
-        print(
+        debugPrint(
           '🏆 [ChallengesBloc] Error fetching challenges: ${failure.message}',
         );
         emit(
@@ -37,7 +38,9 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
         );
       },
       (challenges) {
-        print('🏆 [ChallengesBloc] Fetched ${challenges.length} challenges');
+        debugPrint(
+          '🏆 [ChallengesBloc] Fetched ${challenges.length} challenges',
+        );
         emit(
           state.copyWith(
             status: ChallengesStatus.success,
@@ -62,7 +65,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
         ),
       ),
       (userChallenges) {
-        print(
+        debugPrint(
           '🏆 [ChallengesBloc] Fetched ${userChallenges.length} user challenges',
         );
         emit(
