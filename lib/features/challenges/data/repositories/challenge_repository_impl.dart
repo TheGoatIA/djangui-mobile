@@ -1,11 +1,11 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
-import '../../../../core/errors/failures.dart';
-import '../../../../core/network/network_info.dart';
-import '../datasources/challenge_local_datasource.dart';
-import '../datasources/challenge_remote_datasource.dart';
-import '../../domain/repositories/challenge_repository.dart';
-import '../models/challenge_model.dart';
+import 'package:djangui/core/errors/failures.dart';
+import 'package:djangui/core/network/network_info.dart';
+import 'package:djangui/features/challenges/data/datasources/challenge_local_datasource.dart';
+import 'package:djangui/features/challenges/data/datasources/challenge_remote_datasource.dart';
+import 'package:djangui/features/challenges/domain/repositories/challenge_repository.dart';
+import 'package:djangui/features/challenges/data/models/challenge_model.dart';
 
 @LazySingleton(as: ChallengeRepository)
 class ChallengeRepositoryImpl implements ChallengeRepository {
@@ -128,6 +128,20 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
           weekNumber,
           amount,
         );
+        return const Right(null);
+      } catch (e) {
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> unjoinChallenge(String id) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        await _remoteDataSource.unjoinChallenge(id);
         return const Right(null);
       } catch (e) {
         return Left(ServerFailure(e.toString()));

@@ -1154,6 +1154,12 @@ abstract class AppLocalizations {
   /// **'Import SMS'**
   String get importSms;
 
+  /// No description provided for @featureNotAvailableOnIos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonctionnalité non disponible sur iOS'**
+  String get featureNotAvailableOnIos;
+
   /// No description provided for @scanningSms.
   ///
   /// In fr, this message translates to:
@@ -1171,6 +1177,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{count} transactions importées !'**
   String transactionsImported(int count);
+
+  /// No description provided for @deleteBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le budget'**
+  String get deleteBudget;
+
+  /// No description provided for @deleteBudgetConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir supprimer ce budget ?'**
+  String get deleteBudgetConfirmation;
+
+  /// No description provided for @delete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get delete;
 
   /// No description provided for @smsPermissionRequired.
   ///
@@ -1585,6 +1609,102 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Canada'**
   String get canada;
+
+  /// No description provided for @unjoinChallenge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter le défi'**
+  String get unjoinChallenge;
+
+  /// No description provided for @unjoinConfirmationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter le défi'**
+  String get unjoinConfirmationTitle;
+
+  /// No description provided for @unjoinConfirmationMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir quitter ce défi ? Votre progression sera perdue.'**
+  String get unjoinConfirmationMessage;
+
+  /// No description provided for @unjoinAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter'**
+  String get unjoinAction;
+
+  /// No description provided for @join.
+  ///
+  /// In fr, this message translates to:
+  /// **'REJOINDRE'**
+  String get join;
+
+  /// No description provided for @easyDifficulty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Facile'**
+  String get easyDifficulty;
+
+  /// No description provided for @mediumDifficulty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyen'**
+  String get mediumDifficulty;
+
+  /// No description provided for @hardDifficulty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Difficile'**
+  String get hardDifficulty;
+
+  /// No description provided for @savingType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne'**
+  String get savingType;
+
+  /// No description provided for @spendingType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépense'**
+  String get spendingType;
+
+  /// No description provided for @deleteInvestmentConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment supprimer cet investissement ?'**
+  String get deleteInvestmentConfirmation;
+
+  /// No description provided for @budgetDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails du budget'**
+  String get budgetDetails;
+
+  /// No description provided for @allocated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alloué'**
+  String get allocated;
+
+  /// No description provided for @spent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépensé'**
+  String get spent;
+
+  /// No description provided for @remaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restant'**
+  String get remaining;
+
+  /// No description provided for @categories.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégories'**
+  String get categories;
 }
 
 class _AppLocalizationsDelegate

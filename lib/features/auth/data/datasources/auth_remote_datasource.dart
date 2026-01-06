@@ -22,6 +22,7 @@ abstract class AuthRemoteDataSource {
   Future<void> resetPassword(String token, String newPassword);
   Future<void> verifyEmail(String token);
   Future<Map<String, String>> refreshToken(String refreshToken);
+  Future<void> updateFcmToken(String token);
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -191,6 +192,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         response.body?.message ??
             response.error?.toString() ??
             'Token refresh failed',
+      );
+    }
+  }
+
+  @override
+  Future<void> updateFcmToken(String token) async {
+    final response = await _apiService.updateFcmToken({'fcmToken': token});
+    if (!response.isSuccessful) {
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to update FCM token',
       );
     }
   }

@@ -42,7 +42,7 @@ final class _$ChallengeApiService extends ChallengeApiService {
   }
 
   @override
-  Future<Response<BaseResponse<dynamic>>> joinChallenge(
+  Future<Response<BaseResponse<UserChallengeModel>>> joinChallenge(
       Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/challenges/join');
     final $body = body;
@@ -52,11 +52,12 @@ final class _$ChallengeApiService extends ChallengeApiService {
       client.baseUrl,
       body: $body,
     );
-    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+    return client
+        .send<BaseResponse<UserChallengeModel>, UserChallengeModel>($request);
   }
 
   @override
-  Future<Response<BaseResponse<dynamic>>> validateWeek(
+  Future<Response<BaseResponse<UserChallengeModel>>> validateWeek(
       Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/challenges/validate-week');
     final $body = body;
@@ -65,6 +66,18 @@ final class _$ChallengeApiService extends ChallengeApiService {
       $url,
       client.baseUrl,
       body: $body,
+    );
+    return client
+        .send<BaseResponse<UserChallengeModel>, UserChallengeModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> unjoinChallenge(String id) {
+    final Uri $url = Uri.parse('/challenges/${id}');
+    final Request $request = Request(
+      'DELETE',
+      $url,
+      client.baseUrl,
     );
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }

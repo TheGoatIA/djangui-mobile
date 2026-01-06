@@ -7,5 +7,9 @@ abstract class BudgetRepository {
     bool forceRefresh = false,
   });
   Future<Either<Failure, BudgetModel>> createBudget(BudgetModel budget);
+  Future<Either<Failure, BudgetModel>> updateBudget(
+    String id,
+    double totalAllocated,
+  );
   Future<Either<Failure, void>> deleteBudget(String id);
 }

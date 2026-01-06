@@ -38,9 +38,7 @@ UserChallengeModel _$UserChallengeModelFromJson(Map<String, dynamic> json) =>
       status: json['status'] as String,
       progress: (json['progress'] as num).toDouble(),
       currentValue: (json['currentValue'] as num).toDouble(),
-      challengeId: const _ChallengeIdConverter().fromJson(
-        json['challengeId'] ?? json['challenge'],
-      ),
+      challengeId: const _ChallengeIdConverter().fromJson(json['challengeId']),
       flexibility: json['flexibility'] as Map<String, dynamic>?,
       weeks: (json['weeks'] as List<dynamic>?)
           ?.map((e) => ChallengeWeekModel.fromJson(e as Map<String, dynamic>))

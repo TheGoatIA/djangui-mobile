@@ -13,6 +13,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     on<GetUserChallengesRequested>(_onGetUserChallengesRequested);
     on<JoinChallengeRequested>(_onJoinChallengeRequested);
     on<ValidateWeekRequested>(_onValidateWeekRequested);
+    on<UnjoinChallengeRequested>(_onUnjoinChallengeRequested);
   }
 
   Future<void> _onGetChallengesRequested(
@@ -114,6 +115,29 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
       ),
       (_) {
         // Success
+        add(GetUserChallengesRequested());
+      },
+    );
+  }
+
+  Future<void> _onUnjoinChallengeRequested(
+    UnjoinChallengeRequested event,
+    Emitter<ChallengesState> emit,
+  ) async {
+    emit(state.copyWith(status: ChallengesStatus.loading));
+    final result = await _challengeRepository.unjoinChallenge(
+      event.userChallengeId,
+    );
+    result.fold<void>(
+      (failure) => emit(
+        state.copyWith(
+          status: ChallengesStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) {
+        // Success, refresh challenges
+        add(const GetChallengesRequested(forceRefresh: true));
         add(GetUserChallengesRequested());
       },
     );

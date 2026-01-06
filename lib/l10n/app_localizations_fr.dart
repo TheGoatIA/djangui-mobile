@@ -555,6 +555,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get importSms => 'Import SMS';
 
   @override
+  String get featureNotAvailableOnIos =>
+      'Fonctionnalité non disponible sur iOS';
+
+  @override
   String get scanningSms => 'Recherche de transactions SMS...';
 
   @override
@@ -564,6 +568,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String transactionsImported(int count) {
     return '$count transactions importées !';
   }
+
+  @override
+  String get deleteBudget => 'Supprimer le budget';
+
+  @override
+  String get deleteBudgetConfirmation =>
+      'Êtes-vous sûr de vouloir supprimer ce budget ?';
+
+  @override
+  String get delete => 'Supprimer';
 
   @override
   String get smsPermissionRequired =>
@@ -784,4 +798,54 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get canada => 'Canada';
+
+  @override
+  String get unjoinChallenge => 'Quitter le défi';
+
+  @override
+  String get unjoinConfirmationTitle => 'Quitter le défi';
+
+  @override
+  String get unjoinConfirmationMessage =>
+      'Êtes-vous sûr de vouloir quitter ce défi ? Votre progression sera perdue.';
+
+  @override
+  String get unjoinAction => 'Quitter';
+
+  @override
+  String get join => 'REJOINDRE';
+
+  @override
+  String get easyDifficulty => 'Facile';
+
+  @override
+  String get mediumDifficulty => 'Moyen';
+
+  @override
+  String get hardDifficulty => 'Difficile';
+
+  @override
+  String get savingType => 'Épargne';
+
+  @override
+  String get spendingType => 'Dépense';
+
+  @override
+  String get deleteInvestmentConfirmation =>
+      'Voulez-vous vraiment supprimer cet investissement ?';
+
+  @override
+  String get budgetDetails => 'Détails du budget';
+
+  @override
+  String get allocated => 'Alloué';
+
+  @override
+  String get spent => 'Dépensé';
+
+  @override
+  String get remaining => 'Restant';
+
+  @override
+  String get categories => 'Catégories';
 }

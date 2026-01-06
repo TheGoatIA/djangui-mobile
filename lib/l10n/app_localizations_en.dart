@@ -552,6 +552,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importSms => 'Import SMS';
 
   @override
+  String get featureNotAvailableOnIos => 'Feature not available on iOS';
+
+  @override
   String get scanningSms => 'Scanning for SMS transactions...';
 
   @override
@@ -559,8 +562,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String transactionsImported(int count) {
-    return '$count transactions imported!';
+    return '$count transactions imported successfully';
   }
+
+  @override
+  String get deleteBudget => 'Delete Budget';
+
+  @override
+  String get deleteBudgetConfirmation =>
+      'Are you sure you want to delete this budget?';
+
+  @override
+  String get delete => 'Delete';
 
   @override
   String get smsPermissionRequired =>
@@ -778,4 +791,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get canada => 'Canada';
+
+  @override
+  String get unjoinChallenge => 'Quit Challenge';
+
+  @override
+  String get unjoinConfirmationTitle => 'Quit Challenge';
+
+  @override
+  String get unjoinConfirmationMessage =>
+      'Are you sure you want to quit this challenge? Your progress will be lost.';
+
+  @override
+  String get unjoinAction => 'Quit';
+
+  @override
+  String get join => 'JOIN';
+
+  @override
+  String get easyDifficulty => 'Easy';
+
+  @override
+  String get mediumDifficulty => 'Medium';
+
+  @override
+  String get hardDifficulty => 'Hard';
+
+  @override
+  String get savingType => 'Saving';
+
+  @override
+  String get spendingType => 'Spending';
+
+  @override
+  String get deleteInvestmentConfirmation =>
+      'Are you sure you want to delete this investment?';
+
+  @override
+  String get budgetDetails => 'Budget Details';
+
+  @override
+  String get allocated => 'Allocated';
+
+  @override
+  String get spent => 'Spent';
+
+  @override
+  String get remaining => 'Remaining';
+
+  @override
+  String get categories => 'Categories';
 }

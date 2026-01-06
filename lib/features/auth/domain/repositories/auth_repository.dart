@@ -37,4 +37,5 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> resetPassword(String token, String newPassword);
   Future<Either<Failure, void>> verifyEmail(String token);
   Future<Either<Failure, void>> refreshToken();
+  Future<Either<Failure, void>> updateFcmToken(String token);
 }

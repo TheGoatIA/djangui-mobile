@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
-import 'challenge_api_service.dart';
-import '../models/challenge_model.dart';
+import 'package:djangui/features/challenges/data/datasources/challenge_api_service.dart';
+import 'package:djangui/features/challenges/data/models/challenge_model.dart';
 
 abstract class ChallengeRemoteDataSource {
   Future<List<ChallengeModel>> getChallenges();
@@ -11,7 +11,7 @@ abstract class ChallengeRemoteDataSource {
     int weekNumber,
     double amount,
   );
-  // Future<ChallengeModel> updateProgress(String id, double value); // Removed
+  Future<void> unjoinChallenge(String id);
 }
 
 @LazySingleton(as: ChallengeRemoteDataSource)
@@ -80,6 +80,18 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
         response.body?.message ??
             response.error?.toString() ??
             'Failed to validate week',
+      );
+    }
+  }
+
+  @override
+  Future<void> unjoinChallenge(String id) async {
+    final response = await _apiService.unjoinChallenge(id);
+    if (!response.isSuccessful) {
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to unjoin challenge',
       );
     }
   }

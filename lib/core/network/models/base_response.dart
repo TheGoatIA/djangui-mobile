@@ -59,7 +59,14 @@ class BaseListResponse<T> {
     return BaseListResponse<T>(
       success: isSuccess,
       message: json['message'] as String?,
-      data: (json['data'] as List<dynamic>?)?.map<T>(fromJsonT).toList(),
+      data:
+          ((json['data'] ??
+                      json['transactions'] ??
+                      json['results'] ??
+                      json['items'])
+                  as List<dynamic>?)
+              ?.map<T>(fromJsonT)
+              .toList(),
       pagination: json['pagination'] == null
           ? null
           : Pagination.fromJson(json['pagination'] as Map<String, dynamic>),

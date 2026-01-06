@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
@@ -17,8 +18,24 @@ import '../../../../core/services/sms_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-class DashboardPage extends StatelessWidget {
+import '../../../../core/services/notification_service.dart';
+
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Sync FCM token when dashboard loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getIt<NotificationService>().syncFcmToken();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +185,7 @@ class DashboardPage extends StatelessWidget {
           onPressed: () {},
           icon: Icon(
             Icons.notifications_none_outlined,
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         Builder(
@@ -177,7 +194,7 @@ class DashboardPage extends StatelessWidget {
                 context.read<AuthBloc>().add(AuthLogoutRequested()),
             icon: Icon(
               Icons.logout,
-              color: Theme.of(context).colorScheme.onBackground,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
@@ -316,6 +333,16 @@ class DashboardPage extends StatelessWidget {
               AppLocalizations.of(context)!.importSms,
               AppColors.accent,
               onTap: () async {
+                if (!Platform.isAndroid) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.of(context)!.featureNotAvailableOnIos,
+                      ),
+                    ),
+                  );
+                  return;
+                }
                 final smsService = getIt<SMSService>();
                 final granted = await smsService.requestPermission();
                 if (granted) {

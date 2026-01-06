@@ -97,7 +97,7 @@ class ChallengeDetailSheet extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      challenge.type.toUpperCase(),
+                      _getLocalizedType(context, challenge.type).toUpperCase(),
                       style: AppTextStyles.labelLarge.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,
@@ -146,7 +146,10 @@ class ChallengeDetailSheet extends StatelessWidget {
               _InfoCard(
                 icon: Icons.trending_up,
                 label: AppLocalizations.of(context)!.difficulty,
-                value: challenge.difficulty.toUpperCase(),
+                value: _getLocalizedDifficulty(
+                  context,
+                  challenge.difficulty,
+                ).toUpperCase(),
                 color: _getDifficultyColor(challenge.difficulty),
               ),
             ],
@@ -240,6 +243,49 @@ class ChallengeDetailSheet extends StatelessWidget {
               ),
             ),
           ),
+          if (isJoined) ...[
+            const SizedBox(height: 16),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  _showUnjoinConfirmationDialog(context, userChallenge!.id);
+                },
+                child: Text(
+                  AppLocalizations.of(context)!.unjoinChallenge,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _showUnjoinConfirmationDialog(BuildContext context, String challengeId) {
+    final challengesBloc = context.read<ChallengesBloc>();
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.unjoinConfirmationTitle),
+        content: Text(AppLocalizations.of(context)!.unjoinConfirmationMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              challengesBloc.add(UnjoinChallengeRequested(challengeId));
+              Navigator.pop(dialogContext); // Close dialog
+              Navigator.pop(context); // Close sheet
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: Text(AppLocalizations.of(context)!.unjoinAction),
+          ),
         ],
       ),
     );
@@ -255,6 +301,32 @@ class ChallengeDetailSheet extends StatelessWidget {
         return Colors.red;
       default:
         return Colors.grey;
+    }
+  }
+
+  String _getLocalizedDifficulty(BuildContext context, String difficulty) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (difficulty.toLowerCase()) {
+      case 'easy':
+        return l10n.easyDifficulty;
+      case 'medium':
+        return l10n.mediumDifficulty;
+      case 'hard':
+        return l10n.hardDifficulty;
+      default:
+        return difficulty;
+    }
+  }
+
+  String _getLocalizedType(BuildContext context, String type) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (type.toLowerCase()) {
+      case 'saving':
+        return l10n.savingType;
+      case 'spending':
+        return l10n.spendingType;
+      default:
+        return type;
     }
   }
 

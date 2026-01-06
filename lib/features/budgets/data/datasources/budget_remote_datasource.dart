@@ -5,6 +5,7 @@ import '../models/budget_model.dart';
 abstract class BudgetRemoteDataSource {
   Future<List<BudgetModel>> getBudgets();
   Future<BudgetModel> createBudget(BudgetModel budget);
+  Future<BudgetModel> updateBudget(String id, double totalAllocated);
   Future<void> deleteBudget(String id);
 }
 
@@ -31,7 +32,9 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
 
   @override
   Future<BudgetModel> createBudget(BudgetModel budget) async {
-    final response = await _apiService.createBudget(budget.toJson());
+    final json = budget.toJson();
+    json.remove('_id');
+    final response = await _apiService.createBudget(json);
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
@@ -39,6 +42,22 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
         response.body?.message ??
             response.error?.toString() ??
             'Failed to create budget',
+      );
+    }
+  }
+
+  @override
+  Future<BudgetModel> updateBudget(String id, double totalAllocated) async {
+    final response = await _apiService.updateBudget(id, {
+      'totalAllocated': totalAllocated,
+    });
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
+    } else {
+      throw Exception(
+        response.body?.message ??
+            response.error?.toString() ??
+            'Failed to update budget',
       );
     }
   }

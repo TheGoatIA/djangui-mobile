@@ -34,3 +34,13 @@ class DeleteBudgetRequested extends BudgetsEvent {
   @override
   List<Object?> get props => [id];
 }
+
+class UpdateBudgetRequested extends BudgetsEvent {
+  final String id;
+  final double totalAllocated;
+
+  const UpdateBudgetRequested({required this.id, required this.totalAllocated});
+
+  @override
+  List<Object?> get props => [id, totalAllocated];
+}

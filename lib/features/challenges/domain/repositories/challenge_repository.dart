@@ -16,4 +16,6 @@ abstract class ChallengeRepository {
     required int weekNumber,
     required double amount,
   });
+
+  Future<Either<Failure, void>> unjoinChallenge(String id);
 }

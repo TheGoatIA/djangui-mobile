@@ -256,7 +256,10 @@ class _ChallengeCard extends StatelessWidget {
                 Text(
                   isJoined
                       ? AppLocalizations.of(context)!.progress
-                      : challenge.difficulty.toUpperCase(),
+                      : _getLocalizedDifficulty(
+                          context,
+                          challenge.difficulty,
+                        ).toUpperCase(),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isJoined
                         ? AppColors.textSecondary
@@ -322,7 +325,7 @@ class _ChallengeCard extends StatelessWidget {
                   )
                 else
                   Text(
-                    'JOIN',
+                    AppLocalizations.of(context)!.join,
                     style: AppTextStyles.labelSmall.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.bold,
@@ -346,6 +349,20 @@ class _ChallengeCard extends StatelessWidget {
         return Colors.red;
       default:
         return Colors.grey;
+    }
+  }
+
+  String _getLocalizedDifficulty(BuildContext context, String difficulty) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (difficulty.toLowerCase()) {
+      case 'easy':
+        return l10n.easyDifficulty;
+      case 'medium':
+        return l10n.mediumDifficulty;
+      case 'hard':
+        return l10n.hardDifficulty;
+      default:
+        return difficulty;
     }
   }
 }

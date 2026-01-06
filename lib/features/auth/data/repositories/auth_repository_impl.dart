@@ -332,4 +332,18 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(NetworkFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, void>> updateFcmToken(String token) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        await _remoteDataSource.updateFcmToken(token);
+        return const Right(null);
+      } catch (e) {
+        return Left(AuthFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
 }

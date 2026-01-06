@@ -204,9 +204,13 @@
     "invest": "Invest",
     "insights": "Insights",
     "importSms": "Import SMS",
+    "featureNotAvailableOnIos": "Feature not available on iOS",
     "scanningSms": "Scanning for SMS transactions...",
     "automatic": "Automatic",
-    "transactionsImported": "{count} transactions imported!",
+    "transactionsImported": "{count} transactions imported successfully",
+    "deleteBudget": "Delete Budget",
+    "deleteBudgetConfirmation": "Are you sure you want to delete this budget?",
+    "delete": "Delete",
     "@transactionsImported": {
         "placeholders": {
             "count": {
@@ -306,5 +310,21 @@
     "france": "France",
     "usa": "USA",
     "belgium": "Belgium",
-    "canada": "Canada"
+    "canada": "Canada",
+    "unjoinChallenge": "Quit Challenge",
+    "unjoinConfirmationTitle": "Quit Challenge",
+    "unjoinConfirmationMessage": "Are you sure you want to quit this challenge? Your progress will be lost.",
+    "unjoinAction": "Quit",
+    "join": "JOIN",
+    "easyDifficulty": "Easy",
+    "mediumDifficulty": "Medium",
+    "hardDifficulty": "Hard",
+    "savingType": "Saving",
+    "spendingType": "Spending",
+    "deleteInvestmentConfirmation": "Are you sure you want to delete this investment?",
+    "budgetDetails": "Budget Details",
+    "allocated": "Allocated",
+    "spent": "Spent",
+    "remaining": "Remaining",
+    "categories": "Categories"
 }

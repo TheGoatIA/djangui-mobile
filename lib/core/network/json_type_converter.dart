@@ -13,6 +13,15 @@ class JsonToTypeConverter extends JsonConverter {
   FutureOr<Response<ResultType>> convertResponse<ResultType, Item>(
     Response response,
   ) async {
+    // Check if body is empty before letting Chopper try to decode it as JSON
+    // We check the raw response body. If it's empty, we return null immediately.
+    final dynamic rawBody = response.body;
+    if (rawBody == null ||
+        (rawBody is String && rawBody.trim().isEmpty) ||
+        (rawBody is List && rawBody.isEmpty)) {
+      return Response<ResultType>(response.base, null, error: response.error);
+    }
+
     // Use Chopper's JsonConverter to decode the string to Map/List
     // We must pass dynamic because super.convertResponse attempts to cast it
     final Response<dynamic> jsonRes = await super
@@ -33,6 +42,13 @@ class JsonToTypeConverter extends JsonConverter {
 
   @override
   FutureOr<Response> convertError<ResultType, Item>(Response response) async {
+    final dynamic rawBody = response.body;
+    if (rawBody == null ||
+        (rawBody is String && rawBody.trim().isEmpty) ||
+        (rawBody is List && rawBody.isEmpty)) {
+      return response;
+    }
+
     final Response<dynamic> jsonRes = await super
         .convertError<dynamic, dynamic>(response);
     final dynamic body = jsonRes.body;

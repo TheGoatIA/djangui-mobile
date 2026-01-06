@@ -49,7 +49,29 @@ class InvestmentsPage extends StatelessWidget {
               itemCount: state.investments.length,
               itemBuilder: (context, index) {
                 final investment = state.investments[index];
-                return _buildInvestmentCard(context, investment);
+                return Dismissible(
+                  key: Key(investment.id),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: AppColors.error,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  confirmDismiss: (direction) async {
+                    return await _showDeleteConfirmation(context);
+                  },
+                  onDismissed: (direction) {
+                    context.read<InvestmentsBloc>().add(
+                      DeleteInvestment(investment.id),
+                    );
+                  },
+                  child: _buildInvestmentCard(context, investment),
+                );
               },
             );
           },
@@ -97,7 +119,7 @@ class InvestmentsPage extends StatelessWidget {
   Widget _buildInvestmentCard(BuildContext context, dynamic investment) {
     final currencyFormat = NumberFormat.currency(
       locale: 'fr_FR',
-      symbol: 'FCFA',
+      symbol: 'XAF',
       decimalDigits: 0,
     );
     final isPositive = investment.roi >= 0;
@@ -220,5 +242,28 @@ class InvestmentsPage extends StatelessWidget {
       default:
         return l10n.other;
     }
+  }
+
+  Future<bool?> _showDeleteConfirmation(BuildContext context) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.delete),
+        content: Text(
+          AppLocalizations.of(context)!.deleteInvestmentConfirmation,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: Text(AppLocalizations.of(context)!.delete),
+          ),
+        ],
+      ),
+    );
   }
 }

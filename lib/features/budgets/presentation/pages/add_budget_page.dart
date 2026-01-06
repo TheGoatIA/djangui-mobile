@@ -19,37 +19,97 @@ class AddBudgetPage extends StatefulWidget {
   State<AddBudgetPage> createState() => _AddBudgetPageState();
 }
 
+class _CategoryRowItem {
+  final TextEditingController nameController;
+  final TextEditingController amountController;
+
+  _CategoryRowItem()
+    : nameController = TextEditingController(),
+      amountController = TextEditingController();
+
+  void dispose() {
+    nameController.dispose();
+    amountController.dispose();
+  }
+}
+
 class _AddBudgetPageState extends State<AddBudgetPage> {
   final _formKey = GlobalKey<FormState>();
-  final _categoryController = TextEditingController();
-  final _limitController = TextEditingController();
+  final List<_CategoryRowItem> _categoryItems = [];
+
+  DateTime _selectedDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _addCategory();
+  }
+
+  void _addCategory() {
+    setState(() {
+      _categoryItems.add(_CategoryRowItem());
+    });
+  }
+
+  void _removeCategory(int index) {
+    if (_categoryItems.length > 1) {
+      setState(() {
+        final item = _categoryItems.removeAt(index);
+        item.dispose();
+      });
+    }
+  }
 
   @override
   void dispose() {
-    _categoryController.dispose();
-    _limitController.dispose();
+    for (final item in _categoryItems) {
+      item.dispose();
+    }
     super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      helpText: 'SELECT MONTH AND YEAR',
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
   }
 
   void _onSave(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       final now = DateTime.now();
+
+      final categories = _categoryItems.map((item) {
+        return BudgetCategoryModel(
+          name: item.nameController.text,
+          allocated: double.parse(item.amountController.text),
+          spent: 0,
+          percentage: 0,
+        );
+      }).toList();
+
+      final totalAllocated = categories.fold<double>(
+        0,
+        (sum, item) => sum + item.allocated,
+      );
+
       final budget = BudgetModel(
         id: const Uuid().v4(),
         period: BudgetPeriodModel(
-          month: now.month,
-          year: now.year,
+          month: _selectedDate.month,
+          year: _selectedDate.year,
           type: 'monthly',
         ),
-        categories: [
-          BudgetCategoryModel(
-            name: _categoryController.text,
-            allocated: double.parse(_limitController.text),
-            spent: 0,
-            percentage: 0,
-          ),
-        ],
-        totalAllocated: double.parse(_limitController.text),
+        categories: categories,
+        totalAllocated: totalAllocated,
         totalSpent: 0,
         status: 'active',
         createdAt: now,
@@ -66,7 +126,7 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
       child: BlocListener<BudgetsBloc, BudgetsState>(
         listener: (context, state) {
           if (state.status == BudgetsStatus.success) {
-            context.pop();
+            context.pop(true);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(AppLocalizations.of(context)!.successBudget),
@@ -95,28 +155,109 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppTextField(
-                    controller: _categoryController,
-                    label: AppLocalizations.of(context)!.categoryLabel,
-                    hint: AppLocalizations.of(context)!.categoryHint,
-                    validator: (value) => (value == null || value.isEmpty)
-                        ? AppLocalizations.of(context)!.requiredField
-                        : null,
+                  InkWell(
+                    onTap: () => _selectDate(context),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: 'Month & Year', // TODO: Localize
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        suffixIcon: const Icon(Icons.calendar_today),
+                      ),
+                      child: Text(
+                        '${_selectedDate.month}/${_selectedDate.year}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  AppTextField(
-                    controller: _limitController,
-                    label: AppLocalizations.of(context)!.monthlyLimitLabel,
-                    hint: AppLocalizations.of(context)!.amountHint,
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return AppLocalizations.of(context)!.requiredField;
-                      }
-                      if (double.tryParse(value) == null) {
-                        return AppLocalizations.of(context)!.invalidNumber;
-                      }
-                      return null;
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Categories', // TODO: Localize
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      TextButton.icon(
+                        onPressed: _addCategory,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add'), // TODO: Localize
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _categoryItems.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      final item = _categoryItems[index];
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: AppTextField(
+                                    controller: item.nameController,
+                                    label: AppLocalizations.of(
+                                      context,
+                                    )!.categoryLabel,
+                                    hint: AppLocalizations.of(
+                                      context,
+                                    )!.categoryHint,
+                                    validator: (value) =>
+                                        (value == null || value.isEmpty)
+                                        ? AppLocalizations.of(
+                                            context,
+                                          )!.requiredField
+                                        : null,
+                                  ),
+                                ),
+                                if (_categoryItems.length > 1)
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: AppColors.error,
+                                    ),
+                                    onPressed: () => _removeCategory(index),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            AppTextField(
+                              controller: item.amountController,
+                              label: AppLocalizations.of(
+                                context,
+                              )!.amountLabel, // Changed label
+                              hint: AppLocalizations.of(context)!.amountHint,
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppLocalizations.of(
+                                    context,
+                                  )!.requiredField;
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return AppLocalizations.of(
+                                    context,
+                                  )!.invalidNumber;
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
+                        ),
+                      );
                     },
                   ),
                   const SizedBox(height: 40),
