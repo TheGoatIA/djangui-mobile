@@ -2131,6 +2131,198 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Téléchargement de l\'image...'**
   String get uploadingImage;
+
+  /// No description provided for @investmentsPremiumRestriction.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'accès au portefeuille d\'investissements est réservé aux membres Premium.'**
+  String get investmentsPremiumRestriction;
+
+  /// No description provided for @ocrPremiumRestriction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le scan de reçus est réservé aux membres Premium.'**
+  String get ocrPremiumRestriction;
+
+  /// No description provided for @seeOffers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir Offres'**
+  String get seeOffers;
+
+  /// No description provided for @smsImportPremiumRestriction.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'import automatique est réservé aux membres Premium.'**
+  String get smsImportPremiumRestriction;
+
+  /// No description provided for @aiAnalysisPremiumRestriction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obtenez des analyses détaillées avec le plan Premium.'**
+  String get aiAnalysisPremiumRestriction;
+
+  /// No description provided for @confirmDowngradeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le déclassement'**
+  String get confirmDowngradeTitle;
+
+  /// No description provided for @confirmDowngradeMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir revenir au plan gratuit ? Les fonctionnalités Premium ne seront plus accessibles.'**
+  String get confirmDowngradeMessage;
+
+  /// No description provided for @featureTransactions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des Transactions'**
+  String get featureTransactions;
+
+  /// No description provided for @featureBudgetsGoals.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budgétisation & Objectifs'**
+  String get featureBudgetsGoals;
+
+  /// No description provided for @featureCoachStandard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach IA Standard'**
+  String get featureCoachStandard;
+
+  /// No description provided for @featureGamification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gamification (XP, Badges)'**
+  String get featureGamification;
+
+  /// No description provided for @featureInvestments.
+  ///
+  /// In fr, this message translates to:
+  /// **'Investissements (Actions, Crypto, Immo)'**
+  String get featureInvestments;
+
+  /// No description provided for @featureOCR.
+  ///
+  /// In fr, this message translates to:
+  /// **'OCR / Scan de Reçus'**
+  String get featureOCR;
+
+  /// No description provided for @featureAIReports.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rapports Narratifs IA'**
+  String get featureAIReports;
+
+  /// No description provided for @featureBulkImport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Import de Masse (CSV/SMS)'**
+  String get featureBulkImport;
+
+  /// No description provided for @revertToFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir au plan gratuit'**
+  String get revertToFree;
+
+  /// No description provided for @downgradeRequestSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre demande de résiliation a été prise en compte.'**
+  String get downgradeRequestSuccess;
+
+  /// No description provided for @paymentHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique des paiements'**
+  String get paymentHistory;
+
+  /// No description provided for @noPaymentFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun paiement trouvé'**
+  String get noPaymentFound;
+
+  /// No description provided for @mobileMoney.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mobile Money'**
+  String get mobileMoney;
+
+  /// No description provided for @bankCard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carte Bancaire'**
+  String get bankCard;
+
+  /// No description provided for @mobileMoneyPlatforms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Orange, MTN, Moov... ({price})'**
+  String mobileMoneyPlatforms(Object price);
+
+  /// No description provided for @bankCardPlatforms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visa, Mastercard... ({price})'**
+  String bankCardPlatforms(Object price);
+
+  /// No description provided for @invalidAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant invalide'**
+  String get invalidAmount;
+
+  /// No description provided for @french.
+  ///
+  /// In fr, this message translates to:
+  /// **'Français'**
+  String get french;
+
+  /// No description provided for @english.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anglais'**
+  String get english;
+
+  /// No description provided for @unknownRenewalDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de renouvellement inconnue'**
+  String get unknownRenewalDate;
+
+  /// No description provided for @premiumMember.
+  ///
+  /// In fr, this message translates to:
+  /// **'Membre Premium'**
+  String get premiumMember;
+
+  /// No description provided for @expiresOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expire le : {date}'**
+  String expiresOn(Object date);
+
+  /// No description provided for @activeSubscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement actif'**
+  String get activeSubscription;
+
+  /// No description provided for @subscriptionCancelled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement annulé'**
+  String get subscriptionCancelled;
+
+  /// No description provided for @pricePerMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'{price} / mois'**
+  String pricePerMonth(Object price);
 }
 
 class _AppLocalizationsDelegate

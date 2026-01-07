@@ -1067,4 +1067,114 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uploadingImage => 'Uploading image...';
+
+  @override
+  String get investmentsPremiumRestriction =>
+      'Access to the investment portfolio is reserved for Premium members.';
+
+  @override
+  String get ocrPremiumRestriction =>
+      'Receipt scanning is reserved for Premium members.';
+
+  @override
+  String get seeOffers => 'See Offers';
+
+  @override
+  String get smsImportPremiumRestriction =>
+      'Automatic import is reserved for Premium members.';
+
+  @override
+  String get aiAnalysisPremiumRestriction =>
+      'Get detailed analysis with the Premium plan.';
+
+  @override
+  String get confirmDowngradeTitle => 'Confirm Downgrade';
+
+  @override
+  String get confirmDowngradeMessage =>
+      'Are you sure you want to revert to the free plan? Premium features will no longer be accessible.';
+
+  @override
+  String get featureTransactions => 'Transaction Management';
+
+  @override
+  String get featureBudgetsGoals => 'Budgeting & Goals';
+
+  @override
+  String get featureCoachStandard => 'Standard AI Coach';
+
+  @override
+  String get featureGamification => 'Gamification (XP, Badges)';
+
+  @override
+  String get featureInvestments => 'Investments (Stocks, Crypto, Real Estate)';
+
+  @override
+  String get featureOCR => 'OCR / Receipt Scanning';
+
+  @override
+  String get featureAIReports => 'AI Narrative Reports';
+
+  @override
+  String get featureBulkImport => 'Bulk Import (CSV/SMS)';
+
+  @override
+  String get revertToFree => 'Revert to free plan';
+
+  @override
+  String get downgradeRequestSuccess =>
+      'Your downgrade request has been processed.';
+
+  @override
+  String get paymentHistory => 'Payment History';
+
+  @override
+  String get noPaymentFound => 'No payment found';
+
+  @override
+  String get mobileMoney => 'Mobile Money';
+
+  @override
+  String get bankCard => 'Bank Card';
+
+  @override
+  String mobileMoneyPlatforms(Object price) {
+    return 'Orange, MTN, Moov... ($price)';
+  }
+
+  @override
+  String bankCardPlatforms(Object price) {
+    return 'Visa, Mastercard... ($price)';
+  }
+
+  @override
+  String get invalidAmount => 'Invalid amount';
+
+  @override
+  String get french => 'French';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get unknownRenewalDate => 'Unknown renewal date';
+
+  @override
+  String get premiumMember => 'Premium Member';
+
+  @override
+  String expiresOn(Object date) {
+    return 'Expires on: $date';
+  }
+
+  @override
+  String get activeSubscription => 'Active subscription';
+
+  @override
+  String get subscriptionCancelled => 'Subscription cancelled';
+
+  @override
+  String pricePerMonth(Object price) {
+    return '$price / month';
+  }
 }

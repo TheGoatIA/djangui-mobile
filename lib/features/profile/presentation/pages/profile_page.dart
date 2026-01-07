@@ -12,7 +12,8 @@ import '../../../gamification/presentation/widgets/badges_list.dart';
 import '../../../../core/constants/route_constants.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../di/injection.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart'; // Import dotenv
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../../auth/data/models/user_model.dart';
 import '../../../upload/domain/repositories/upload_repository.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -116,7 +117,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   if (value != null &&
                       value.isNotEmpty &&
                       double.tryParse(value) == null) {
-                    return 'Montant invalide';
+                    return AppLocalizations.of(context)!.invalidAmount;
                   }
                   return null;
                 },
@@ -217,10 +218,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         _buildPremiumBanner(context),
                         const SizedBox(height: 24),
                       ] else if (user != null && user.isPremium) ...[
-                        _buildPremiumStatusCard(
-                          context,
-                          user.subscription?.endDate,
-                        ),
+                        _buildPremiumStatusCard(context, user),
                         const SizedBox(height: 24),
                       ],
                       _buildSettingsSection(context),
@@ -620,11 +618,13 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildPremiumStatusCard(BuildContext context, DateTime? endDate) {
-    final dateFormat = DateFormat('dd MMMM yyyy', 'fr');
+  Widget _buildPremiumStatusCard(BuildContext context, UserModel user) {
+    final endDate = user.subscription?.endDate;
+    final locale = Localizations.localeOf(context).languageCode;
+    final dateFormat = DateFormat('dd MMMM yyyy', locale);
     final formattedDate = endDate != null
         ? dateFormat.format(endDate)
-        : 'Date de renouvellement inconnue';
+        : AppLocalizations.of(context)!.unknownRenewalDate;
 
     return GestureDetector(
       onTap: () => context.push(RouteConstants.subscription),
@@ -664,16 +664,26 @@ class _ProfilePageState extends State<ProfilePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Membre Premium',
+                        AppLocalizations.of(context)!.premiumMember,
                         style: AppTextStyles.h3.copyWith(fontSize: 18),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        endDate != null
-                            ? 'Expire le : $formattedDate'
-                            : 'Abonnement actif',
+                        user.subscription?.status == 'cancelled'
+                            ? AppLocalizations.of(
+                                context,
+                              )!.subscriptionCancelled
+                            : (endDate != null
+                                  ? AppLocalizations.of(
+                                      context,
+                                    )!.expiresOn(formattedDate)
+                                  : AppLocalizations.of(
+                                      context,
+                                    )!.activeSubscription),
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
+                          color: user.subscription?.status == 'cancelled'
+                              ? AppColors.error
+                              : AppColors.textSecondary,
                           fontSize: 14,
                         ),
                       ),

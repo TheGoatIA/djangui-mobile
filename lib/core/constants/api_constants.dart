@@ -54,6 +54,7 @@ class ApiConstants {
   static const String stripeCheckout = '/payments/checkout/stripe';
   static const String verifyPayment = '/payments/verify/{reference}';
   static const String paymentHistory = '/payments';
+  static const String cancelSubscription = '/payments/cancel-subscription';
 
   // Notifications
   static const String notifications = '/notifications';

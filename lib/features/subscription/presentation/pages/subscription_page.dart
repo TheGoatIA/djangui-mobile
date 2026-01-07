@@ -65,9 +65,10 @@ class SubscriptionPage extends StatelessWidget {
                 title: AppLocalizations.of(context)!.freePlan,
                 price: AppLocalizations.of(context)!.freePrice,
                 features: [
-                  AppLocalizations.of(context)!.freeFeature1,
-                  AppLocalizations.of(context)!.freeFeature2,
-                  AppLocalizations.of(context)!.freeFeature3,
+                  AppLocalizations.of(context)!.featureTransactions,
+                  AppLocalizations.of(context)!.featureBudgetsGoals,
+                  AppLocalizations.of(context)!.featureCoachStandard,
+                  AppLocalizations.of(context)!.featureGamification,
                 ],
                 isPremium: false,
                 isCurrentPlan: !(user?.isPremium ?? false),
@@ -81,10 +82,10 @@ class SubscriptionPage extends StatelessWidget {
                 title: AppLocalizations.of(context)!.premiumPlan,
                 price: priceInfo.formattedPrice, // Dynamic price
                 features: [
-                  AppLocalizations.of(context)!.premiumFeature1,
-                  AppLocalizations.of(context)!.premiumFeature2,
-                  AppLocalizations.of(context)!.premiumFeature3,
-                  AppLocalizations.of(context)!.premiumFeature4,
+                  AppLocalizations.of(context)!.featureInvestments,
+                  AppLocalizations.of(context)!.featureOCR,
+                  AppLocalizations.of(context)!.featureAIReports,
+                  AppLocalizations.of(context)!.featureBulkImport,
                 ],
                 isPremium: true,
                 isBestValue: true,
@@ -106,19 +107,17 @@ class SubscriptionPage extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Revenir au plan gratuit ?"),
-        content: const Text(
-          "En revenant au plan gratuit, vous perdrez immédiatement vos avantages Premium. Êtes-vous sûr ?",
-        ),
+        title: Text(AppLocalizations.of(context)!.confirmDowngradeTitle),
+        content: Text(AppLocalizations.of(context)!.confirmDowngradeMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text("Annuler"),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text("Confirmer"),
+            child: Text(AppLocalizations.of(context)!.confirm),
           ),
         ],
       ),
@@ -126,14 +125,30 @@ class SubscriptionPage extends StatelessWidget {
 
     if (confirmed == true) {
       if (!context.mounted) return;
-      // Ideally call API here. For now, show message.
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Votre demande de résiliation a été prise en compte."),
-        ),
-      );
-      // Trigger refresh to update state if backend supports it
-      context.read<AuthBloc>().add(AuthRefreshUserRequested());
+
+      final paymentService = getIt<PaymentService>();
+      final success = await paymentService.cancelSubscription();
+
+      if (!context.mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.downgradeRequestSuccess,
+            ),
+          ),
+        );
+        // Refresh user status
+        context.read<AuthBloc>().add(AuthRefreshUserRequested());
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.errorOccurred),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
@@ -141,7 +156,10 @@ class SubscriptionPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Historique des paiements', style: AppTextStyles.h3),
+        Text(
+          AppLocalizations.of(context)!.paymentHistory,
+          style: AppTextStyles.h3,
+        ),
         const SizedBox(height: 16),
         FutureBuilder<List<PaymentModel>>(
           future: getIt<PaymentService>().getPaymentHistory(),
@@ -160,7 +178,7 @@ class SubscriptionPage extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    'Aucun paiement trouvé',
+                    AppLocalizations.of(context)!.noPaymentFound,
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -340,7 +358,7 @@ class SubscriptionPage extends StatelessWidget {
           const SizedBox(height: 24),
           if (isCurrentPlan)
             AppButton(
-              text: "Plan Actuel",
+              text: AppLocalizations.of(context)!.currentPlan,
               onPressed: () {},
               color: AppColors.outline,
             )
@@ -353,7 +371,7 @@ class SubscriptionPage extends StatelessWidget {
           else
             // Case: Showing Free card while on Premium plan (Downgrade option)
             AppButton(
-              text: "Revenir au plan gratuit",
+              text: AppLocalizations.of(context)!.revertToFree,
               onPressed: onTap ?? () {},
               color: AppColors.error,
             ),
@@ -386,15 +404,19 @@ class SubscriptionPage extends StatelessWidget {
             const SizedBox(height: 24),
             _buildPaymentMethod(
               icon: Icons.phone_android,
-              title: 'Mobile Money (NotchPay)',
-              subtitle: 'Orange, MTN, Moov... (${priceInfo.formattedPrice})',
+              title: 'NotchPay (${AppLocalizations.of(context)!.mobileMoney})',
+              subtitle: AppLocalizations.of(
+                context,
+              )!.mobileMoneyPlatforms(priceInfo.formattedPrice),
               onTap: () => _initiatePayment(context, 'notchpay', priceInfo),
             ),
             const SizedBox(height: 16),
             _buildPaymentMethod(
               icon: Icons.credit_card,
-              title: 'Carte Bancaire (Stripe)',
-              subtitle: 'Visa, Mastercard... (${priceInfo.formattedPrice})',
+              title: 'Stripe (${AppLocalizations.of(context)!.bankCard})',
+              subtitle: AppLocalizations.of(
+                context,
+              )!.bankCardPlatforms(priceInfo.formattedPrice),
               onTap: () => _initiatePayment(context, 'stripe', priceInfo),
             ),
             const SizedBox(height: 24),

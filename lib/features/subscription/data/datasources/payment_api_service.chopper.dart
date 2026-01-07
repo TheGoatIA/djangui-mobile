@@ -66,4 +66,15 @@ final class _$PaymentApiService extends PaymentApiService {
     );
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
+
+  @override
+  Future<Response<Map<String, dynamic>>> cancelSubscription() {
+    final Uri $url = Uri.parse('/payments/cancel-subscription');
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
+  }
 }

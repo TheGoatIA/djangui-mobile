@@ -346,6 +346,28 @@ class _DashboardPageState extends State<DashboardPage> {
               AppLocalizations.of(context)!.importSms,
               AppColors.accent,
               onTap: () async {
+                final authState = context.read<AuthBloc>().state;
+                final isPremium =
+                    authState.authResponse?.user.isPremium ?? false;
+
+                if (!isPremium) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.smsImportPremiumRestriction,
+                      ),
+                      action: SnackBarAction(
+                        label: AppLocalizations.of(context)!.seeOffers,
+                        onPressed: () =>
+                            context.push(RouteConstants.subscription),
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
                 if (!Platform.isAndroid) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

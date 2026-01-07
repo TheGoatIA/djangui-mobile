@@ -7,6 +7,8 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../bloc/investments_bloc.dart';
 
 class InvestmentsPage extends StatelessWidget {
@@ -29,48 +31,95 @@ class InvestmentsPage extends StatelessWidget {
             ),
           ],
         ),
-        body: BlocBuilder<InvestmentsBloc, InvestmentsState>(
-          builder: (context, state) {
-            if (state.status == InvestmentsStatus.loading) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state.status == InvestmentsStatus.error) {
+        body: BlocBuilder<AuthBloc, AuthState>(
+          // Listen to AuthBloc for premium status
+          builder: (context, authState) {
+            final isPremium = authState.authResponse?.user.isPremium ?? false;
+
+            if (!isPremium) {
               return Center(
-                child: Text(
-                  state.errorMessage ??
-                      AppLocalizations.of(context)!.errorOccurred,
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.lock_outline,
+                        size: 80,
+                        color: AppColors.primary,
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        AppLocalizations.of(context)!.premiumWelcomeTitle,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.h3,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.investmentsPremiumRestriction,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      AppButton(
+                        text: AppLocalizations.of(context)!.upgradeToPremium,
+                        onPressed: () =>
+                            context.push(RouteConstants.subscription),
+                      ),
+                    ],
+                  ),
                 ),
               );
-            } else if (state.investments.isEmpty) {
-              return _buildEmptyState(context);
             }
 
-            return ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: state.investments.length,
-              itemBuilder: (context, index) {
-                final investment = state.investments[index];
-                return Dismissible(
-                  key: Key(investment.id),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: AppColors.error,
-                      borderRadius: BorderRadius.circular(16),
+            return BlocBuilder<InvestmentsBloc, InvestmentsState>(
+              builder: (context, state) {
+                if (state.status == InvestmentsStatus.loading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state.status == InvestmentsStatus.error) {
+                  return Center(
+                    child: Text(
+                      state.errorMessage ??
+                          AppLocalizations.of(context)!.errorOccurred,
                     ),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  confirmDismiss: (direction) async {
-                    return await _showDeleteConfirmation(context);
-                  },
-                  onDismissed: (direction) {
-                    context.read<InvestmentsBloc>().add(
-                      DeleteInvestment(investment.id),
+                  );
+                } else if (state.investments.isEmpty) {
+                  return _buildEmptyState(context);
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: state.investments.length,
+                  itemBuilder: (context, index) {
+                    final investment = state.investments[index];
+                    return Dismissible(
+                      key: Key(investment.id),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
+                          color: AppColors.error,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      confirmDismiss: (direction) async {
+                        return await _showDeleteConfirmation(context);
+                      },
+                      onDismissed: (direction) {
+                        context.read<InvestmentsBloc>().add(
+                          DeleteInvestment(investment.id),
+                        );
+                      },
+                      child: _buildInvestmentCard(context, investment),
                     );
                   },
-                  child: _buildInvestmentCard(context, investment),
                 );
               },
             );

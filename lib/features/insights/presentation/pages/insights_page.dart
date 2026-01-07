@@ -8,8 +8,12 @@ import '../bloc/insights_bloc.dart';
 import '../bloc/insights_event.dart';
 import '../bloc/insights_state.dart';
 import '../../data/models/insight_model.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/datasources/ai_remote_datasource.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../../core/constants/route_constants.dart';
+import '../../../../core/widgets/app_button.dart';
 
 class InsightsPage extends StatelessWidget {
   const InsightsPage({super.key});
@@ -251,6 +255,43 @@ class InsightsPage extends StatelessWidget {
   }
 
   Widget _buildAINarrativeCard(BuildContext context) {
+    final authState = context.read<AuthBloc>().state;
+    final isPremium = authState.authResponse?.user.isPremium ?? false;
+
+    if (!isPremium) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.outline),
+        ),
+        child: Column(
+          children: [
+            const Icon(Icons.lock_outline, color: AppColors.primary, size: 40),
+            const SizedBox(height: 12),
+            Text(
+              AppLocalizations.of(context)!.aiAnalysisTitle,
+              style: AppTextStyles.h3,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppLocalizations.of(context)!.aiAnalysisPremiumRestriction,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            AppButton(
+              text: AppLocalizations.of(context)!.upgradeToPremium,
+              onPressed: () => context.push(RouteConstants.subscription),
+            ),
+          ],
+        ),
+      );
+    }
+
     return FutureBuilder<String>(
       future: getIt<AIRemoteDataSource>().getNarrativeReport(),
       builder: (context, snapshot) {

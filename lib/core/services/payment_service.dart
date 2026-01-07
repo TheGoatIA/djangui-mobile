@@ -108,4 +108,13 @@ class PaymentService {
       return false;
     }
   }
+
+  Future<bool> cancelSubscription() async {
+    try {
+      final response = await _apiService.cancelSubscription();
+      return response.isSuccessful;
+    } catch (e) {
+      return false;
+    }
+  }
 }

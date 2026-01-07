@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/constants/route_constants.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../di/injection.dart';
@@ -49,6 +50,22 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   }
 
   Future<void> _onScanReceipt() async {
+    final authState = context.read<AuthBloc>().state;
+    final isPremium = authState.authResponse?.user.isPremium ?? false;
+
+    if (!isPremium) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.ocrPremiumRestriction),
+          action: SnackBarAction(
+            label: AppLocalizations.of(context)!.seeOffers,
+            onPressed: () => context.push(RouteConstants.subscription),
+          ),
+        ),
+      );
+      return;
+    }
+
     final ocrService = getIt<OCRService>();
 
     // Show picker source selection
