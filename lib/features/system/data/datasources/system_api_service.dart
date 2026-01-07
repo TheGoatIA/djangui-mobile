@@ -4,7 +4,7 @@ import '../models/version_check_response.dart';
 
 part 'system_api_service.chopper.dart';
 
-@ChopperApi(baseUrl: '/v1/system')
+@ChopperApi(baseUrl: '/system')
 abstract class SystemApiService extends ChopperService {
   @Get(path: '/version-check')
   Future<Response<BaseResponse<VersionCheckResponse>>> checkVersion(

@@ -176,6 +176,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => registerModule.paymentApiService);
     gh.lazySingleton<_i490.ReportsApiService>(
         () => registerModule.reportsApiService);
+    gh.lazySingleton<_i477.SystemApiService>(
+        () => registerModule.systemApiService);
     gh.lazySingleton<_i730.AppDatabase>(() => registerModule.database);
     gh.lazySingleton<_i974.Logger>(() => registerModule.logger);
     gh.factory<_i754.SettingsBloc>(
@@ -284,7 +286,7 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i424.GoalsBloc(gh<_i824.GoalRepository>()));
     gh.factory<_i1005.CoachBloc>(
         () => _i1005.CoachBloc(gh<_i745.CoachRepository>()));
-    gh.factory<_i492.TransactionsBloc>(
+    gh.lazySingleton<_i492.TransactionsBloc>(
         () => _i492.TransactionsBloc(gh<_i461.TransactionRepository>()));
     gh.lazySingleton<_i48.AuthBloc>(
         () => _i48.AuthBloc(gh<_i1012.AuthRepository>()));

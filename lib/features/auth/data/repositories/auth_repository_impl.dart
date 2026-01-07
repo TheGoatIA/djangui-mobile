@@ -155,6 +155,7 @@ class AuthRepositoryImpl implements AuthRepository {
     String? lastName,
     String? country,
     String? avatar,
+    double? monthlyIncome,
   }) async {
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
 
@@ -164,6 +165,7 @@ class AuthRepositoryImpl implements AuthRepository {
         lastName: lastName,
         country: country,
         avatar: avatar,
+        monthlyIncome: monthlyIncome,
       );
       await _localDataSource.saveUser(user);
       return Right(user);

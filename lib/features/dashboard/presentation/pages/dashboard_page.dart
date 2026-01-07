@@ -43,10 +43,6 @@ class _DashboardPageState extends State<DashboardPage> {
       providers: [
         BlocProvider(
           create: (context) =>
-              getIt<TransactionsBloc>()..add(const GetTransactionsRequested()),
-        ),
-        BlocProvider(
-          create: (context) =>
               getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
         ),
       ],
@@ -79,8 +75,25 @@ class _DashboardPageState extends State<DashboardPage> {
             },
           ),
           BlocListener<TransactionsBloc, TransactionsState>(
+            listenWhen: (previous, current) =>
+                current.status == TransactionsStatus.success &&
+                previous.status != TransactionsStatus.success,
             listener: (context, state) {
-              // Handle potential global transaction errors here
+              // Refresh dashboard when a transaction is added/updated successfully
+              context.read<DashboardBloc>().add(GetDashboardDataRequested());
+            },
+          ),
+          BlocListener<AuthBloc, AuthState>(
+            listenWhen: (previous, current) {
+              // Listen for significant profile changes that affect dashboard (e.g. monthlyIncome)
+              if (previous.authResponse?.user == null ||
+                  current.authResponse?.user == null) {
+                return false;
+              }
+              return previous.authResponse!.user != current.authResponse!.user;
+            },
+            listener: (context, state) {
+              context.read<DashboardBloc>().add(GetDashboardDataRequested());
             },
           ),
         ],

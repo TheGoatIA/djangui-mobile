@@ -45,6 +45,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
     final firstNameController = TextEditingController(text: user.firstName);
     final lastNameController = TextEditingController(text: user.lastName);
+    final incomeController = TextEditingController(
+      text: user.monthlyIncome?.toStringAsFixed(0) ?? '',
+    );
     final formKey = GlobalKey<FormState>();
 
     showDialog(
@@ -75,6 +78,23 @@ class _ProfilePageState extends State<ProfilePage> {
                     ? AppLocalizations.of(context)!.requiredField
                     : null,
               ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: incomeController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.monthlyIncome,
+                  suffixText: 'FCFA',
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value != null &&
+                      value.isNotEmpty &&
+                      double.tryParse(value) == null) {
+                    return 'Montant invalide';
+                  }
+                  return null;
+                },
+              ),
             ],
           ),
         ),
@@ -90,6 +110,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   AuthUpdateProfileRequested(
                     firstName: firstNameController.text,
                     lastName: lastNameController.text,
+                    monthlyIncome: incomeController.text.isNotEmpty
+                        ? double.tryParse(incomeController.text)
+                        : null,
                   ),
                 );
                 Navigator.pop(dialogContext);
@@ -255,13 +278,13 @@ class _ProfilePageState extends State<ProfilePage> {
             AppLocalizations.of(context)!.notifications,
             onTap: () {},
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: Colors.transparent),
           _buildSettingsTile(
             Icons.security_outlined,
             AppLocalizations.of(context)!.security,
             onTap: () {},
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: Colors.transparent),
           BlocBuilder<SettingsBloc, SettingsState>(
             builder: (context, state) {
               return _buildSettingsTile(
@@ -278,7 +301,7 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             },
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: Colors.transparent),
           _buildSettingsTile(
             Icons.phone_android_outlined,
             AppLocalizations.of(context)!.phoneNumber,
@@ -300,7 +323,7 @@ class _ProfilePageState extends State<ProfilePage> {
               }
             },
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: Colors.transparent),
           _buildSettingsTile(
             Icons.public_outlined,
             AppLocalizations.of(context)!.countryLabel,
@@ -325,7 +348,7 @@ class _ProfilePageState extends State<ProfilePage> {
               _showCountrySelectionDialog(context, country ?? 'CM');
             },
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: Colors.transparent),
           BlocBuilder<SettingsBloc, SettingsState>(
             builder: (context, state) {
               return _buildSettingsTile(
@@ -342,7 +365,7 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             },
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: Colors.transparent),
           _buildSettingsTile(
             Icons.help_outline,
             AppLocalizations.of(context)!.helpSupport,

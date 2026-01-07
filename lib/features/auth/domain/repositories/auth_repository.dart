@@ -32,6 +32,7 @@ abstract class AuthRepository {
     String? lastName,
     String? country,
     String? avatar,
+    double? monthlyIncome,
   });
   Future<Either<Failure, void>> forgotPassword(String email);
   Future<Either<Failure, void>> resetPassword(String token, String newPassword);

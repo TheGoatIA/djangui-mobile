@@ -288,6 +288,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       lastName: event.lastName,
       country: event.country,
       avatar: event.avatar,
+      monthlyIncome: event.monthlyIncome,
     );
     result.fold(
       (failure) => emit(

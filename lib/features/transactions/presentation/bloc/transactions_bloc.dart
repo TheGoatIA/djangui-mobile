@@ -7,7 +7,7 @@ import '../../domain/repositories/transaction_repository.dart';
 part 'transactions_event.dart';
 part 'transactions_state.dart';
 
-@injectable
+@lazySingleton
 class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
   final TransactionRepository _transactionRepository;
 

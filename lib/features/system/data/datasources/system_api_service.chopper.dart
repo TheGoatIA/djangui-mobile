@@ -22,7 +22,7 @@ final class _$SystemApiService extends SystemApiService {
     String platform,
     String version,
   ) {
-    final Uri $url = Uri.parse('/v1/system/version-check');
+    final Uri $url = Uri.parse('/system/version-check');
     final Map<String, dynamic> $params = <String, dynamic>{
       'platform': platform,
       'version': version,
