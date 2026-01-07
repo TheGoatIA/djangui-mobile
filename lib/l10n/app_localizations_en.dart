@@ -991,4 +991,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get maintenanceMessage =>
       'The app is currently under maintenance. Please try again later.';
+
+  @override
+  String get markAllAsRead => 'Mark all as read';
+
+  @override
+  String get noNotifications => 'No notifications';
+
+  @override
+  String get unknownError => 'Unknown error';
 }

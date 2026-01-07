@@ -30,6 +30,7 @@ import '../features/insights/presentation/pages/insights_page.dart';
 import '../features/profile/presentation/pages/profile_page.dart';
 import '../features/subscription/presentation/pages/subscription_page.dart';
 import '../features/settings/presentation/pages/about_page.dart';
+import '../features/notifications/presentation/pages/notifications_page.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
@@ -253,6 +254,14 @@ final appRouter = GoRouter(
         context: context,
         state: state,
         child: const AboutPage(),
+      ),
+    ),
+    GoRoute(
+      path: RouteConstants.notifications,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const NotificationsPage(),
       ),
     ),
   ],

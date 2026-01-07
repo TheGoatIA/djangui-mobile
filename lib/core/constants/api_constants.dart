@@ -49,4 +49,9 @@ class ApiConstants {
   // Payments
   static const String notchPayInit = '/payments/init/notchpay';
   static const String stripeCheckout = '/payments/checkout/stripe';
+
+  // Notifications
+  static const String notifications = '/notifications';
+  static const String notificationsMarkRead = '/notifications/mark-all-read';
+  static const String notificationsUnreadCount = '/notifications/unread-count';
 }

@@ -195,7 +195,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () => context.push(RouteConstants.notifications),
           icon: Icon(
             Icons.notifications_none_outlined,
             color: Theme.of(context).colorScheme.onSurface,

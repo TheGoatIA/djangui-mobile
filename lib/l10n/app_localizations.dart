@@ -1987,6 +1987,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'L\'application est en maintenance. Veuillez réessayer plus tard.'**
   String get maintenanceMessage;
+
+  /// No description provided for @markAllAsRead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout marquer comme lu'**
+  String get markAllAsRead;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune notification'**
+  String get noNotifications;
+
+  /// No description provided for @unknownError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur inconnue'**
+  String get unknownError;
 }
 
 class _AppLocalizationsDelegate

@@ -373,5 +373,8 @@
     "updateRequiredMessage": "Une nouvelle version de Djangui est disponible. Veuillez mettre à jour pour continuer.",
     "updateNow": "Mettre à jour",
     "maintenanceMode": "Mode Maintenance",
-    "maintenanceMessage": "L'application est en maintenance. Veuillez réessayer plus tard."
+    "maintenanceMessage": "L'application est en maintenance. Veuillez réessayer plus tard.",
+    "markAllAsRead": "Tout marquer comme lu",
+    "noNotifications": "Aucune notification",
+    "unknownError": "Erreur inconnue"
 }

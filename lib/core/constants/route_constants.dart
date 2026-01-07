@@ -21,4 +21,5 @@ class RouteConstants {
   static const String insights = '/insights';
   static const String subscription = '/subscription';
   static const String about = '/about';
+  static const String notifications = '/notifications';
 }

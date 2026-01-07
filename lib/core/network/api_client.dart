@@ -15,6 +15,7 @@ import 'package:djangui/features/transactions/data/models/transaction_model.dart
 import 'package:djangui/features/upload/data/models/upload_model.dart';
 import 'package:djangui/features/coach/data/models/chat_message_model.dart';
 import 'package:djangui/features/system/data/models/version_check_response.dart';
+import 'package:djangui/features/notifications/data/models/notification_model.dart';
 import 'json_type_converter.dart';
 import 'interceptors.dart';
 import 'authenticator.dart';
@@ -54,6 +55,7 @@ class DjanguiApiClient {
             BulkSmsParseResponseModel.fromJson(json),
         UploadResponseModel: (json) => UploadResponseModel.fromJson(json),
         VersionCheckResponse: (json) => VersionCheckResponse.fromJson(json),
+        NotificationModel: (json) => NotificationModel.fromJson(json),
       }),
       errorConverter: JsonToTypeConverter({
         AuthResponse: (json) => AuthResponse.fromJson(json),

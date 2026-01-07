@@ -373,5 +373,8 @@
     "updateRequiredMessage": "A new version of Djangui is available. Please update to continue using the app.",
     "updateNow": "Update Now",
     "maintenanceMode": "Maintenance Mode",
-    "maintenanceMessage": "The app is currently under maintenance. Please try again later."
+    "maintenanceMessage": "The app is currently under maintenance. Please try again later.",
+    "markAllAsRead": "Mark all as read",
+    "noNotifications": "No notifications",
+    "unknownError": "Unknown error"
 }

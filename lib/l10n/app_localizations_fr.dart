@@ -998,4 +998,13 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get maintenanceMessage =>
       'L\'application est en maintenance. Veuillez réessayer plus tard.';
+
+  @override
+  String get markAllAsRead => 'Tout marquer comme lu';
+
+  @override
+  String get noNotifications => 'Aucune notification';
+
+  @override
+  String get unknownError => 'Erreur inconnue';
 }

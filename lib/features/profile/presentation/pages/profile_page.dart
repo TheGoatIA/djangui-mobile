@@ -276,7 +276,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildSettingsTile(
             Icons.notifications_outlined,
             AppLocalizations.of(context)!.notifications,
-            onTap: () {},
+            onTap: () => context.push(RouteConstants.notifications),
           ),
           const Divider(height: 1, color: Colors.transparent),
           _buildSettingsTile(
