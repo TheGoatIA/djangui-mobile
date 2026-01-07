@@ -14,6 +14,7 @@ import '../models/user_model.dart';
 import '../models/login_request.dart';
 import '../models/register_request.dart';
 import '../models/device_info_request.dart';
+import '../models/session_model.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -184,6 +185,8 @@ class AuthRepositoryImpl implements AuthRepository {
           refreshToken: response.tokens.refreshToken,
         );
         await _localDataSource.saveUser(response.user);
+        // Save credentials for biometrics
+        await _localDataSource.saveCredentials(request.email, request.password);
         return Right(response);
       } catch (e) {
         return Left(AuthFailure(e.toString()));
@@ -216,15 +219,20 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, UserModel>> getCurrentUser() async {
-    try {
-      final user = await _localDataSource.getUser();
-      if (user != null) {
+    if (await _networkInfo.isConnected) {
+      try {
+        final user = await _remoteDataSource.getCurrentUser();
+        await _localDataSource.saveUser(user);
         return Right(user);
+      } catch (e) {
+        // Fallback to local cache if network fails
+        final user = await _localDataSource.getUser();
+        if (user != null) return Right(user);
+        return Left(AuthFailure(e.toString()));
       }
-      return Left(CacheFailure());
-    } catch (e, stack) {
-      debugPrint('🔑 [AuthRepository] Error fetching current user: $e');
-      debugPrint(stack.toString());
+    } else {
+      final user = await _localDataSource.getUser();
+      if (user != null) return Right(user);
       return Left(CacheFailure());
     }
   }
@@ -396,5 +404,62 @@ class AuthRepositoryImpl implements AuthRepository {
         // We generally don't want to throw/return failure for this background task
       }
     }
+  }
+
+  @override
+  Future<Either<Failure, void>> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        await _remoteDataSource.changePassword(currentPassword, newPassword);
+        return const Right(null);
+      } catch (e) {
+        return Left(AuthFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    if (await _networkInfo.isConnected) {
+      try {
+        await _remoteDataSource.deleteAccount();
+        // Clear local data after deletion
+        await logout();
+        return const Right(null);
+      } catch (e) {
+        return Left(AuthFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<SessionModel>>> getSessions() async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final sessions = await _remoteDataSource.getSessions();
+        return Right(sessions);
+      } catch (e) {
+        return Left(AuthFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Map<String, String>?> getBiometricCredentials() async {
+    return _localDataSource.getCredentials();
+  }
+
+  @override
+  Future<void> clearBiometricCredentials() async {
+    await _localDataSource.clearCredentials();
   }
 }

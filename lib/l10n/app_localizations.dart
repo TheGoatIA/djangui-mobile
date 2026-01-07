@@ -2005,6 +2005,132 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Erreur inconnue'**
   String get unknownError;
+
+  /// No description provided for @deleteAccountDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est permanente et toutes vos données seront perdues.'**
+  String get deleteAccountDescription;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ceci supprimera définitivement votre compte et toutes les données associées.'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @securitySettings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres de Sécurité'**
+  String get securitySettings;
+
+  /// No description provided for @activeSessions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sessions Actives'**
+  String get activeSessions;
+
+  /// No description provided for @biometrics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Biométrie'**
+  String get biometrics;
+
+  /// No description provided for @enableBiometrics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer la biométrie'**
+  String get enableBiometrics;
+
+  /// No description provided for @biometricsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisez FaceID ou votre empreinte digitale pour déverrouiller l\'application'**
+  String get biometricsDescription;
+
+  /// No description provided for @dangerZone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Zone de Danger'**
+  String get dangerZone;
+
+  /// No description provided for @currentSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session Actuelle'**
+  String get currentSession;
+
+  /// No description provided for @lastActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière Activité'**
+  String get lastActive;
+
+  /// No description provided for @location.
+  ///
+  /// In fr, this message translates to:
+  /// **'Localisation'**
+  String get location;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer le mot de passe'**
+  String get changePassword;
+
+  /// No description provided for @changePasswordDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez votre mot de passe actuel et un nouveau pour le mettre à jour.'**
+  String get changePasswordDescription;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe actuel'**
+  String get currentPassword;
+
+  /// No description provided for @confirmNewPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le nouveau mot de passe'**
+  String get confirmNewPassword;
+
+  /// No description provided for @updatePassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre à jour le mot de passe'**
+  String get updatePassword;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le mot de passe doit contenir au moins 6 caractères'**
+  String get passwordTooShort;
+
+  /// No description provided for @noSessionsFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune session active trouvée'**
+  String get noSessionsFound;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe mis à jour avec succès'**
+  String get passwordChanged;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le compte'**
+  String get deleteAccount;
+
+  /// No description provided for @uploadingImage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargement de l\'image...'**
+  String get uploadingImage;
 }
 
 class _AppLocalizationsDelegate

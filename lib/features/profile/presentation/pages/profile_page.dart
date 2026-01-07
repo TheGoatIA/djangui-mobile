@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -10,6 +11,9 @@ import '../../../../features/settings/presentation/bloc/settings_bloc.dart';
 import '../../../gamification/presentation/widgets/badges_list.dart';
 import '../../../../core/constants/route_constants.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../di/injection.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Import dotenv
+import '../../../upload/domain/repositories/upload_repository.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -29,11 +33,33 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
     if (image != null) {
-      final bytes = await image.readAsBytes();
-      final base64Image = base64Encode(bytes);
       if (mounted) {
-        context.read<AuthBloc>().add(
-          AuthUpdateProfileRequested(avatar: base64Image),
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.uploadingImage),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+
+        final uploadRepo = getIt<UploadRepository>();
+        final result = await uploadRepo.uploadAvatar(image.path);
+
+        result.fold(
+          (failure) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(failure.message),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          },
+          (response) {
+            if (mounted) {
+              context.read<AuthBloc>().add(AuthRefreshUserRequested());
+            }
+          },
         );
       }
     }
@@ -160,31 +186,48 @@ class _ProfilePageState extends State<ProfilePage> {
 
           return Stack(
             children: [
-              SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    _buildProfileHeader(
-                      context,
-                      name,
-                      user?.email ?? '',
-                      user?.avatar,
-                    ),
-                    const SizedBox(height: 24),
-                    if (user != null && user.badges.isNotEmpty) ...[
-                      BadgesList(
-                        badgeIds: user.badges.map((e) => e.toString()).toList(),
+              RefreshIndicator(
+                onRefresh: () async {
+                  context.read<AuthBloc>().add(AuthRefreshUserRequested());
+                  // Small delay to ensure the user sees the refresh action and the bloc has time to react
+                  await Future.delayed(const Duration(seconds: 1));
+                },
+                child: SingleChildScrollView(
+                  physics:
+                      const AlwaysScrollableScrollPhysics(), // Ensure scroll is possible even if content is short
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      _buildProfileHeader(
+                        context,
+                        name,
+                        user?.email ?? '',
+                        user?.avatar,
                       ),
                       const SizedBox(height: 24),
+                      if (user != null && user.badges.isNotEmpty) ...[
+                        BadgesList(
+                          badgeIds: user.badges
+                              .map((e) => e.toString())
+                              .toList(),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                      if (user != null && !user.isPremium) ...[
+                        _buildPremiumBanner(context),
+                        const SizedBox(height: 24),
+                      ] else if (user != null && user.isPremium) ...[
+                        _buildPremiumStatusCard(
+                          context,
+                          user.subscription?.endDate,
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                      _buildSettingsSection(context),
+                      const SizedBox(height: 32),
+                      _buildLogoutButton(context),
                     ],
-                    if (user != null && user.role != 'premium') ...[
-                      _buildPremiumBanner(context),
-                      const SizedBox(height: 24),
-                    ],
-                    _buildSettingsSection(context),
-                    const SizedBox(height: 32),
-                    _buildLogoutButton(context),
-                  ],
+                  ),
                 ),
               ),
               if (state.status == AuthStatus.loading)
@@ -214,7 +257,13 @@ class _ProfilePageState extends State<ProfilePage> {
                 backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty)
                     ? (avatarUrl.startsWith('http')
                               ? NetworkImage(avatarUrl)
-                              : MemoryImage(base64Decode(avatarUrl)))
+                              : (avatarUrl.startsWith(
+                                      '/',
+                                    ) // Handle relative URL
+                                    ? NetworkImage(
+                                        '${dotenv.env['API_BASE_URL']?.replaceAll('/api/v1', '') ?? ''}$avatarUrl',
+                                      )
+                                    : MemoryImage(base64Decode(avatarUrl))))
                           as ImageProvider
                     : null,
                 child: (avatarUrl == null || avatarUrl.isEmpty)
@@ -282,7 +331,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildSettingsTile(
             Icons.security_outlined,
             AppLocalizations.of(context)!.security,
-            onTap: () {},
+            onTap: () => context.push(RouteConstants.security),
           ),
           const Divider(height: 1, color: Colors.transparent),
           BlocBuilder<SettingsBloc, SettingsState>(
@@ -420,7 +469,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                   child: Text(
                     AppLocalizations.of(context)!.logout,
-                    style: const TextStyle(color: AppColors.error),
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -564,6 +616,75 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPremiumStatusCard(BuildContext context, DateTime? endDate) {
+    final dateFormat = DateFormat('dd MMMM yyyy', 'fr');
+    final formattedDate = endDate != null
+        ? dateFormat.format(endDate)
+        : 'Date de renouvellement inconnue';
+
+    return GestureDetector(
+      onTap: () => context.push(RouteConstants.subscription),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFD700).withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.star_rounded,
+                    color: Color(0xFFFFD700),
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Membre Premium',
+                        style: AppTextStyles.h3.copyWith(fontSize: 18),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        endDate != null
+                            ? 'Expire le : $formattedDate'
+                            : 'Abonnement actif',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: AppColors.textSecondary),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

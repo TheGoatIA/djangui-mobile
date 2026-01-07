@@ -15,6 +15,14 @@ abstract class PaymentApiService extends ChopperService {
     @Body() Map<String, dynamic> body,
   );
 
+  @Get(path: ApiConstants.verifyPayment)
+  Future<Response<Map<String, dynamic>>> verifyTransaction(
+    @Path('reference') String reference,
+  );
+
+  @Get(path: ApiConstants.paymentHistory)
+  Future<Response<Map<String, dynamic>>> getPaymentHistory();
+
   static PaymentApiService create(ChopperClient client) =>
       _$PaymentApiService(client);
 }

@@ -19,6 +19,7 @@ import '../features/subscription/data/datasources/payment_api_service.dart';
 import '../features/reports/data/datasources/reports_api_service.dart';
 import '../features/system/data/datasources/system_api_service.dart';
 import '../features/notifications/data/datasources/notification_api_service.dart';
+import '../features/upload/data/datasources/upload_api_service.dart';
 import 'injection.dart';
 
 @module
@@ -82,6 +83,10 @@ abstract class RegisterModule {
   @lazySingleton
   NotificationApiService get notificationApiService =>
       NotificationApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  UploadApiService get uploadApiService =>
+      UploadApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
   AppDatabase get database => AppDatabase();

@@ -92,8 +92,16 @@ class UserSubscription {
   final String? plan;
   final String? status;
   final bool? autoRenew;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
-  UserSubscription({this.plan, this.status, this.autoRenew});
+  UserSubscription({
+    this.plan,
+    this.status,
+    this.autoRenew,
+    this.startDate,
+    this.endDate,
+  });
 
   factory UserSubscription.fromJson(Map<String, dynamic> json) =>
       _$UserSubscriptionFromJson(json);

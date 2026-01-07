@@ -13,6 +13,9 @@ class ApiConstants {
   static const String resetPassword = '/auth/reset-password';
   static const String verifyEmail = '/auth/verify-email';
   static const String me = '/auth/me';
+  static const String changePassword = '/auth/change-password';
+  static const String deleteMe = '/auth/delete-me';
+  static const String sessions = '/auth/sessions';
 
   // Transactions
   static const String transactions = '/transactions';
@@ -49,6 +52,8 @@ class ApiConstants {
   // Payments
   static const String notchPayInit = '/payments/init/notchpay';
   static const String stripeCheckout = '/payments/checkout/stripe';
+  static const String verifyPayment = '/payments/verify/{reference}';
+  static const String paymentHistory = '/payments';
 
   // Notifications
   static const String notifications = '/notifications';

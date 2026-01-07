@@ -64,7 +64,7 @@ abstract class AuthApiService extends ChopperService {
   );
 
   @Get(path: ApiConstants.me)
-  Future<Response<BaseResponse<UserModel>>> getProfile();
+  Future<Response<BaseResponse<Map<String, dynamic>>>> getUserProfile();
 
   @Patch(path: ApiConstants.me)
   Future<Response<BaseResponse<Map<String, dynamic>>>> updateProfile(
@@ -75,6 +75,16 @@ abstract class AuthApiService extends ChopperService {
   Future<Response<BaseResponse<dynamic>>> updateDeviceInfo(
     @Body() DeviceInfoRequest body,
   );
+  @Patch(path: ApiConstants.changePassword)
+  Future<Response<BaseResponse<dynamic>>> changePassword(
+    @Body() Map<String, dynamic> body,
+  );
+
+  @Delete(path: ApiConstants.deleteMe)
+  Future<Response<BaseResponse<dynamic>>> deleteAccount();
+
+  @Get(path: ApiConstants.sessions)
+  Future<Response<BaseResponse<Map<String, dynamic>>>> getSessions();
 
   static AuthApiService create(ChopperClient client) =>
       _$AuthApiService(client);

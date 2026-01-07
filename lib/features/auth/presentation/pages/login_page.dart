@@ -7,6 +7,9 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../l10n/app_localizations.dart';
+import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
+import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/auth_bloc.dart';
 
 class LoginPage extends StatefulWidget {
@@ -117,19 +120,107 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 32),
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
-                      return AppButton(
-                        text: AppLocalizations.of(context)!.loginAction,
-                        isLoading: state.status == AuthStatus.loading,
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            context.read<AuthBloc>().add(
-                              AuthLoginRequested(
-                                email: _emailController.text,
-                                password: _passwordController.text,
-                              ),
-                            );
-                          }
-                        },
+                      return Column(
+                        children: [
+                          AppButton(
+                            text: AppLocalizations.of(context)!.loginAction,
+                            isLoading: state.status == AuthStatus.loading,
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                context.read<AuthBloc>().add(
+                                  AuthLoginRequested(
+                                    email: _emailController.text,
+                                    password: _passwordController.text,
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          BlocBuilder<SettingsBloc, SettingsState>(
+                            builder: (context, settingsState) {
+                              if (settingsState.biometricsEnabled) {
+                                return OutlinedButton(
+                                  onPressed: () async {
+                                    final localAuth = LocalAuthentication();
+                                    final authBloc = context.read<AuthBloc>();
+                                    try {
+                                      final didAuthenticate = await localAuth
+                                          .authenticate(
+                                            localizedReason:
+                                                'Please authenticate to login',
+                                          );
+                                      if (didAuthenticate) {
+                                        authBloc.add(
+                                          AuthBiometricLoginRequested(),
+                                        );
+                                      }
+                                    } on PlatformException catch (e) {
+                                      String message = 'Authentication error';
+                                      if (e.code == 'noCredentialsSet' ||
+                                          e.code == 'NotEnrolled') {
+                                        message =
+                                            'No biometrics set up on this device. Please enroll a fingerprint/face in system settings.';
+                                      } else if (e.code == 'NotAvailable') {
+                                        message =
+                                            'Biometric authentication is not available on this device.';
+                                      }
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(content: Text(message)),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'An unexpected error occurred',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    minimumSize: const Size(
+                                      double.infinity,
+                                      56,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    side: const BorderSide(
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.fingerprint,
+                                        color: AppColors.primary,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        'Login with Biometrics',
+                                        style: AppTextStyles.bodyLarge.copyWith(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                        ],
                       );
                     },
                   ),

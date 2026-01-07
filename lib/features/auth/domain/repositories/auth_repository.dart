@@ -4,6 +4,7 @@ import '../../data/models/auth_response.dart';
 import '../../data/models/user_model.dart';
 import '../../data/models/login_request.dart';
 import '../../data/models/register_request.dart';
+import '../../data/models/session_model.dart';
 
 abstract class AuthRepository {
   Future<Either<Failure, AuthResponse>> login(LoginRequest request);
@@ -40,4 +41,12 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> refreshToken();
   Future<Either<Failure, void>> updateFcmToken(String token);
   Future<void> updateDeviceInfo();
+  Future<Either<Failure, void>> changePassword(
+    String currentPassword,
+    String newPassword,
+  );
+  Future<Either<Failure, void>> deleteAccount();
+  Future<Either<Failure, List<SessionModel>>> getSessions();
+  Future<Map<String, String>?> getBiometricCredentials();
+  Future<void> clearBiometricCredentials();
 }

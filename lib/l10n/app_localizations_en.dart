@@ -1000,4 +1000,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unknownError => 'Unknown error';
+
+  @override
+  String get deleteAccountDescription =>
+      'Are you sure you want to delete your account? This action is permanent and all your data will be lost.';
+
+  @override
+  String get deleteAccountWarning =>
+      'This will permanently remove your account and all associated data.';
+
+  @override
+  String get securitySettings => 'Security Settings';
+
+  @override
+  String get activeSessions => 'Active Sessions';
+
+  @override
+  String get biometrics => 'Biometrics';
+
+  @override
+  String get enableBiometrics => 'Enable Biometrics';
+
+  @override
+  String get biometricsDescription =>
+      'Use FaceID or Fingerprint to unlock the app';
+
+  @override
+  String get dangerZone => 'Danger Zone';
+
+  @override
+  String get currentSession => 'Current Session';
+
+  @override
+  String get lastActive => 'Last Active';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String get changePassword => 'Change Password';
+
+  @override
+  String get changePasswordDescription =>
+      'Enter your current password and a new one to update it.';
+
+  @override
+  String get currentPassword => 'Current Password';
+
+  @override
+  String get confirmNewPassword => 'Confirm New Password';
+
+  @override
+  String get updatePassword => 'Update Password';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get noSessionsFound => 'No active sessions found';
+
+  @override
+  String get passwordChanged => 'Password updated successfully';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get uploadingImage => 'Uploading image...';
 }

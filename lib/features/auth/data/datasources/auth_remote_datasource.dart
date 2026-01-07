@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'auth_api_service.dart';
 import 'auth_local_datasource.dart';
@@ -7,6 +8,7 @@ import '../models/login_request.dart';
 import '../models/register_request.dart';
 import '../models/user_model.dart';
 import '../models/device_info_request.dart';
+import '../models/session_model.dart';
 import '../../../../core/network/api_response_extensions.dart';
 
 abstract class AuthRemoteDataSource {
@@ -27,6 +29,10 @@ abstract class AuthRemoteDataSource {
   Future<Map<String, String>> refreshToken(String refreshToken);
   Future<void> updateFcmToken(String token);
   Future<void> updateDeviceInfo(DeviceInfoRequest request);
+  Future<void> changePassword(String currentPassword, String newPassword);
+  Future<void> deleteAccount();
+  Future<List<SessionModel>> getSessions();
+  Future<UserModel> getCurrentUser();
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -180,6 +186,95 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> updateDeviceInfo(DeviceInfoRequest request) async {
     final response = await _apiService.updateDeviceInfo(request);
     if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final response = await _apiService.changePassword({
+      'currentPassword': currentPassword,
+      'newPassword': newPassword,
+    });
+    if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    final response = await _apiService.deleteAccount();
+    if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<List<SessionModel>> getSessions() async {
+    final response = await _apiService.getSessions();
+    if (response.isSuccessful && response.body?.data != null) {
+      try {
+        final data = response.body!.data as Map<String, dynamic>;
+        final sessionsJson = data['sessions'] as List<dynamic>?;
+
+        if (sessionsJson == null) return [];
+
+        final List<SessionModel> sessions = [];
+        for (final s in sessionsJson) {
+          if (s is Map<String, dynamic>) {
+            try {
+              sessions.add(SessionModel.fromJson(s));
+            } catch (e) {
+              // Log the specific session that failed
+              debugPrint('❌ Error parsing session: $e\nSession data: $s');
+            }
+          }
+        }
+        return sessions;
+      } catch (e) {
+        throw Exception('Error processing sessions data: $e');
+      }
+    } else {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<UserModel> getCurrentUser() async {
+    final response = await _apiService.getUserProfile();
+    if (response.isSuccessful && response.body?.data != null) {
+      final data = response.body!.data!;
+      // Handle wrapped user object if present
+      final userMap = data.containsKey('user')
+          ? Map<String, dynamic>.from(data['user'] as Map<String, dynamic>)
+          : Map<String, dynamic>.from(data);
+
+      Map<String, dynamic> finalJson = userMap;
+
+      // If the wrapped object (or direct object) is missing _id but has keys alongside it?
+      // Wait, if data has 'user' AND '_id', we prioritize 'user'.
+
+      // Merge top-level fields into userMap if they are missing?
+      // Actually, looking at the log: data has 'user', AND '_id', 'email' etc at top level.
+      // But 'user' object also has 'preferences', 'subscription' etc.
+      // It seems 'data' IS the user object but ALSO contains a 'user' field?
+      // No, the error said 'Null is not subtype of String' when treating data as UserModel.
+      // If data was treated as UserModel, and it had _id (from log), it should have worked.
+      // UNLESS the log I saw was partially misleading or I misinterpreted which keys are where.
+
+      // Safest approach:
+      // If 'user' key exists and is a Map, use it.
+      // Ensure _id exists.
+
+      if (finalJson.containsKey('id') && !finalJson.containsKey('_id')) {
+        finalJson['_id'] = finalJson['id'];
+      }
+
+      return UserModel.fromJson(finalJson);
+    } else {
       throw Exception(response.errorMessage);
     }
   }

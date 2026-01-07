@@ -139,6 +139,14 @@ import 'package:djangui/features/transactions/domain/repositories/transaction_re
     as _i461;
 import 'package:djangui/features/transactions/presentation/bloc/transactions_bloc.dart'
     as _i492;
+import 'package:djangui/features/upload/data/datasources/upload_api_service.dart'
+    as _i945;
+import 'package:djangui/features/upload/data/datasources/upload_remote_datasource.dart'
+    as _i486;
+import 'package:djangui/features/upload/data/repositories/upload_repository_impl.dart'
+    as _i804;
+import 'package:djangui/features/upload/domain/repositories/upload_repository.dart'
+    as _i152;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
@@ -192,6 +200,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => registerModule.systemApiService);
     gh.lazySingleton<_i331.NotificationApiService>(
         () => registerModule.notificationApiService);
+    gh.lazySingleton<_i945.UploadApiService>(
+        () => registerModule.uploadApiService);
     gh.lazySingleton<_i730.AppDatabase>(() => registerModule.database);
     gh.lazySingleton<_i974.Logger>(() => registerModule.logger);
     gh.lazySingleton<_i2.NotificationRemoteDataSource>(() =>
@@ -204,6 +214,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i540.ChallengeRemoteDataSource>(() =>
         _i540.ChallengeRemoteDataSourceImpl(gh<_i181.ChallengeApiService>()));
     gh.lazySingleton<_i574.NetworkInfo>(() => _i574.NetworkInfoImpl());
+    gh.lazySingleton<_i486.UploadRemoteDataSource>(
+        () => _i486.UploadRemoteDataSourceImpl(gh<_i945.UploadApiService>()));
     gh.lazySingleton<_i29.PaymentService>(
         () => _i29.PaymentService(gh<_i816.PaymentApiService>()));
     gh.lazySingleton<_i957.NotificationRepository>(
@@ -242,6 +254,10 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i209.ChallengeLocalDataSource>(),
               gh<_i574.NetworkInfo>(),
             ));
+    gh.lazySingleton<_i152.UploadRepository>(() => _i804.UploadRepositoryImpl(
+          gh<_i486.UploadRemoteDataSource>(),
+          gh<_i574.NetworkInfo>(),
+        ));
     gh.lazySingleton<_i912.GoalRemoteDataSource>(
         () => _i912.GoalRemoteDataSourceImpl(gh<_i615.GoalApiService>()));
     gh.factory<_i800.NotificationsBloc>(

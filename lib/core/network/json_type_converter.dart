@@ -10,6 +10,14 @@ class JsonToTypeConverter extends JsonConverter {
   const JsonToTypeConverter(this.typeDecoders);
 
   @override
+  Request convertRequest(Request request) {
+    if (request.multipart) {
+      return request;
+    }
+    return super.convertRequest(request);
+  }
+
+  @override
   FutureOr<Response<ResultType>> convertResponse<ResultType, Item>(
     Response response,
   ) async {

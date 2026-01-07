@@ -26,3 +26,12 @@ class LocaleChanged extends SettingsEvent {
 }
 
 class LoadSettings extends SettingsEvent {}
+
+class ToggleBiometrics extends SettingsEvent {
+  final bool enabled;
+
+  const ToggleBiometrics(this.enabled);
+
+  @override
+  List<Object> get props => [enabled];
+}

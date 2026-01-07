@@ -96,6 +96,12 @@ UserSubscription _$UserSubscriptionFromJson(Map<String, dynamic> json) =>
       plan: json['plan'] as String?,
       status: json['status'] as String?,
       autoRenew: json['autoRenew'] as bool?,
+      startDate: json['startDate'] == null
+          ? null
+          : DateTime.parse(json['startDate'] as String),
+      endDate: json['endDate'] == null
+          ? null
+          : DateTime.parse(json['endDate'] as String),
     );
 
 Map<String, dynamic> _$UserSubscriptionToJson(UserSubscription instance) =>
@@ -103,4 +109,6 @@ Map<String, dynamic> _$UserSubscriptionToJson(UserSubscription instance) =>
       'plan': instance.plan,
       'status': instance.status,
       'autoRenew': instance.autoRenew,
+      'startDate': instance.startDate?.toIso8601String(),
+      'endDate': instance.endDate?.toIso8601String(),
     };

@@ -1007,4 +1007,72 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get unknownError => 'Erreur inconnue';
+
+  @override
+  String get deleteAccountDescription =>
+      'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est permanente et toutes vos données seront perdues.';
+
+  @override
+  String get deleteAccountWarning =>
+      'Ceci supprimera définitivement votre compte et toutes les données associées.';
+
+  @override
+  String get securitySettings => 'Paramètres de Sécurité';
+
+  @override
+  String get activeSessions => 'Sessions Actives';
+
+  @override
+  String get biometrics => 'Biométrie';
+
+  @override
+  String get enableBiometrics => 'Activer la biométrie';
+
+  @override
+  String get biometricsDescription =>
+      'Utilisez FaceID ou votre empreinte digitale pour déverrouiller l\'application';
+
+  @override
+  String get dangerZone => 'Zone de Danger';
+
+  @override
+  String get currentSession => 'Session Actuelle';
+
+  @override
+  String get lastActive => 'Dernière Activité';
+
+  @override
+  String get location => 'Localisation';
+
+  @override
+  String get changePassword => 'Changer le mot de passe';
+
+  @override
+  String get changePasswordDescription =>
+      'Entrez votre mot de passe actuel et un nouveau pour le mettre à jour.';
+
+  @override
+  String get currentPassword => 'Mot de passe actuel';
+
+  @override
+  String get confirmNewPassword => 'Confirmer le nouveau mot de passe';
+
+  @override
+  String get updatePassword => 'Mettre à jour le mot de passe';
+
+  @override
+  String get passwordTooShort =>
+      'Le mot de passe doit contenir au moins 6 caractères';
+
+  @override
+  String get noSessionsFound => 'Aucune session active trouvée';
+
+  @override
+  String get passwordChanged => 'Mot de passe mis à jour avec succès';
+
+  @override
+  String get deleteAccount => 'Supprimer le compte';
+
+  @override
+  String get uploadingImage => 'Téléchargement de l\'image...';
 }

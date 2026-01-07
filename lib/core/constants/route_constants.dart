@@ -22,4 +22,8 @@ class RouteConstants {
   static const String subscription = '/subscription';
   static const String about = '/about';
   static const String notifications = '/notifications';
+  static const String security = '/security';
+  static const String changePassword = '/change-password';
+  static const String sessions = '/sessions';
+  static const String paymentSuccess = '/payment/success';
 }

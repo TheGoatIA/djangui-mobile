@@ -31,6 +31,10 @@ import '../features/profile/presentation/pages/profile_page.dart';
 import '../features/subscription/presentation/pages/subscription_page.dart';
 import '../features/settings/presentation/pages/about_page.dart';
 import '../features/notifications/presentation/pages/notifications_page.dart';
+import '../features/auth/presentation/pages/security_page.dart';
+import '../features/auth/presentation/pages/change_password_page.dart';
+import '../features/auth/presentation/pages/sessions_page.dart';
+import '../features/subscription/presentation/pages/payment_success_page.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
@@ -40,6 +44,22 @@ final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: RouteConstants.splash,
   debugLogDiagnostics: true,
+  redirect: (context, state) {
+    // Handle djangui scheme deep links
+    if (state.uri.scheme == 'djangui') {
+      // If the link is djangui://payment/success, GoRouter might see:
+      // host: payment, path: /success
+      if (state.uri.host == 'payment' && state.uri.path == '/success') {
+        return '${RouteConstants.paymentSuccess}?${state.uri.query}';
+      }
+      // If the link is djangui://somehost/payment/success
+      // path: /payment/success
+      if (state.uri.path == '/payment/success') {
+        return '${RouteConstants.paymentSuccess}?${state.uri.query}';
+      }
+    }
+    return null;
+  },
   routes: [
     GoRoute(
       path: RouteConstants.splash,
@@ -263,6 +283,42 @@ final appRouter = GoRouter(
         state: state,
         child: const NotificationsPage(),
       ),
+    ),
+    GoRoute(
+      path: RouteConstants.security,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const SecurityPage(),
+      ),
+    ),
+    GoRoute(
+      path: RouteConstants.changePassword,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const ChangePasswordPage(),
+      ),
+    ),
+    GoRoute(
+      path: RouteConstants.sessions,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const SessionsPage(),
+      ),
+    ),
+    GoRoute(
+      path: RouteConstants.paymentSuccess,
+      pageBuilder: (context, state) {
+        final ref = state.uri.queryParameters['ref'];
+        final status = state.uri.queryParameters['status'];
+        return buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: PaymentSuccessPage(ref: ref, status: status),
+        );
+      },
     ),
   ],
 );

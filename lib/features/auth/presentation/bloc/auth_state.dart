@@ -10,6 +10,9 @@ enum AuthStatus {
   passwordResetSuccess,
   codeSent,
   phoneLinked,
+  passwordChanged,
+  accountDeleted,
+  sessionsLoaded,
 }
 
 class AuthState extends Equatable {
@@ -17,12 +20,14 @@ class AuthState extends Equatable {
   final AuthResponse? authResponse;
   final String? errorMessage;
   final String? verificationId;
+  final List<SessionModel> sessions;
 
   const AuthState({
     this.status = AuthStatus.initial,
     this.authResponse,
     this.errorMessage,
     this.verificationId,
+    this.sessions = const [],
   });
 
   factory AuthState.initial() => const AuthState();
@@ -32,12 +37,14 @@ class AuthState extends Equatable {
     AuthResponse? authResponse,
     String? errorMessage,
     String? verificationId,
+    List<SessionModel>? sessions,
   }) {
     return AuthState(
       status: status ?? this.status,
       authResponse: authResponse ?? this.authResponse,
       errorMessage: errorMessage ?? this.errorMessage,
       verificationId: verificationId ?? this.verificationId,
+      sessions: sessions ?? this.sessions,
     );
   }
 
@@ -47,5 +54,6 @@ class AuthState extends Equatable {
     authResponse,
     errorMessage,
     verificationId,
+    sessions,
   ];
 }

@@ -8,11 +8,13 @@ part of 'upload_model.dart';
 
 UploadResponseModel _$UploadResponseModelFromJson(Map<String, dynamic> json) =>
     UploadResponseModel(
-      url: json['url'] as String,
+      avatarUrl: json['avatarUrl'] as String?,
+      url: json['url'] as String?,
     );
 
 Map<String, dynamic> _$UploadResponseModelToJson(
         UploadResponseModel instance) =>
     <String, dynamic>{
+      'avatarUrl': instance.avatarUrl,
       'url': instance.url,
     };

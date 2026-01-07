@@ -40,12 +40,12 @@ final class _$UploadApiService extends UploadApiService {
 
   @override
   Future<Response<BaseResponse<UploadResponseModel>>> uploadAvatar(
-      String filePath) {
+      MultipartFile file) {
     final Uri $url = Uri.parse('/upload/avatar');
     final List<PartValue> $parts = <PartValue>[
-      PartValueFile<String>(
+      PartValueFile<MultipartFile>(
         'avatar',
-        filePath,
+        file,
       )
     ];
     final Request $request = Request(

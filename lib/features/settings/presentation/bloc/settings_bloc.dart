@@ -15,11 +15,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<LoadSettings>(_onLoadSettings);
     on<ThemeChanged>(_onThemeChanged);
     on<LocaleChanged>(_onLocaleChanged);
+    on<ToggleBiometrics>(_onToggleBiometrics);
   }
 
   void _onLoadSettings(LoadSettings event, Emitter<SettingsState> emit) {
     final themeIndex = _prefs.getInt('theme_mode');
     final languageCode = _prefs.getString('language_code');
+    final biometricsEnabled = _prefs.getBool('biometrics_enabled') ?? false;
 
     emit(
       state.copyWith(
@@ -29,6 +31,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         locale: languageCode != null
             ? Locale(languageCode)
             : const Locale('fr'),
+        biometricsEnabled: biometricsEnabled,
       ),
     );
   }
@@ -47,5 +50,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   ) async {
     await _prefs.setString('language_code', event.locale.languageCode);
     emit(state.copyWith(locale: event.locale));
+  }
+
+  Future<void> _onToggleBiometrics(
+    ToggleBiometrics event,
+    Emitter<SettingsState> emit,
+  ) async {
+    await _prefs.setBool('biometrics_enabled', event.enabled);
+    emit(state.copyWith(biometricsEnabled: event.enabled));
   }
 }

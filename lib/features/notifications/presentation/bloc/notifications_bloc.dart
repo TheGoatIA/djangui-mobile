@@ -51,9 +51,13 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
         ),
       ),
       (notifications) {
-        final allNotifications =
-            event.refresh ? notifications : List.of(state.notifications)
-              ..addAll(notifications);
+        List<NotificationModel> allNotifications;
+        if (event.refresh) {
+          allNotifications = notifications;
+        } else {
+          allNotifications = List.of(state.notifications)
+            ..addAll(notifications);
+        }
 
         emit(
           state.copyWith(

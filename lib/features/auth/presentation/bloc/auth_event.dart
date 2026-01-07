@@ -128,3 +128,24 @@ class AuthLinkPhoneRequested extends AuthEvent {
   @override
   List<Object?> get props => [verificationId, smsCode];
 }
+
+class AuthChangePasswordRequested extends AuthEvent {
+  final String currentPassword;
+  final String newPassword;
+
+  const AuthChangePasswordRequested({
+    required this.currentPassword,
+    required this.newPassword,
+  });
+
+  @override
+  List<Object?> get props => [currentPassword, newPassword];
+}
+
+class AuthDeleteAccountRequested extends AuthEvent {}
+
+class AuthGetSessionsRequested extends AuthEvent {}
+
+class AuthBiometricLoginRequested extends AuthEvent {}
+
+class AuthRefreshUserRequested extends AuthEvent {}

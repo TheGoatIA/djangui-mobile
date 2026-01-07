@@ -44,4 +44,26 @@ final class _$PaymentApiService extends PaymentApiService {
     );
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
+
+  @override
+  Future<Response<Map<String, dynamic>>> verifyTransaction(String reference) {
+    final Uri $url = Uri.parse('/payments/verify/${reference}');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
+  }
+
+  @override
+  Future<Response<Map<String, dynamic>>> getPaymentHistory() {
+    final Uri $url = Uri.parse('/payments');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
+  }
 }

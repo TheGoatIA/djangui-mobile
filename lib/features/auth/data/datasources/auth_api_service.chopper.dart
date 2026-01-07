@@ -168,14 +168,15 @@ final class _$AuthApiService extends AuthApiService {
   }
 
   @override
-  Future<Response<BaseResponse<UserModel>>> getProfile() {
+  Future<Response<BaseResponse<Map<String, dynamic>>>> getUserProfile() {
     final Uri $url = Uri.parse('/auth/me');
     final Request $request = Request(
       'GET',
       $url,
       client.baseUrl,
     );
-    return client.send<BaseResponse<UserModel>, UserModel>($request);
+    return client.send<BaseResponse<Map<String, dynamic>>,
+        Map<String, dynamic>>($request);
   }
 
   @override
@@ -205,5 +206,42 @@ final class _$AuthApiService extends AuthApiService {
       body: $body,
     );
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> changePassword(
+      Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/auth/change-password');
+    final $body = body;
+    final Request $request = Request(
+      'PATCH',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> deleteAccount() {
+    final Uri $url = Uri.parse('/auth/delete-me');
+    final Request $request = Request(
+      'DELETE',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<Map<String, dynamic>>>> getSessions() {
+    final Uri $url = Uri.parse('/auth/sessions');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseResponse<Map<String, dynamic>>,
+        Map<String, dynamic>>($request);
   }
 }

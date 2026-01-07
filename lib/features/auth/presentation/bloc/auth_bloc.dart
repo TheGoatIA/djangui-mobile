@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import '../../data/models/auth_response.dart';
 import '../../data/models/login_request.dart';
 import '../../data/models/register_request.dart';
+import '../../data/models/session_model.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 part 'auth_event.dart';
@@ -26,6 +27,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthPhoneVerificationRequested>(_onAuthPhoneVerificationRequested);
     on<AuthPhoneSignInRequested>(_onAuthPhoneSignInRequested);
     on<AuthLinkPhoneRequested>(_onAuthLinkPhoneRequested);
+    on<AuthChangePasswordRequested>(_onAuthChangePasswordRequested);
+    on<AuthDeleteAccountRequested>(_onAuthDeleteAccountRequested);
+    on<AuthGetSessionsRequested>(_onAuthGetSessionsRequested);
+    on<AuthBiometricLoginRequested>(_onAuthBiometricLoginRequested);
+    on<AuthRefreshUserRequested>(_onAuthRefreshUserRequested);
     on<_AuthInternalCodeSent>(_onAuthInternalCodeSent);
     on<_AuthInternalError>(_onAuthInternalError);
   }
@@ -303,6 +309,94 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                 tokens: Tokens(accessToken: '', refreshToken: ''),
                 user: user,
               ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onAuthChangePasswordRequested(
+    AuthChangePasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.changePassword(
+      event.currentPassword,
+      event.newPassword,
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (_) => emit(state.copyWith(status: AuthStatus.passwordChanged)),
+    );
+  }
+
+  Future<void> _onAuthDeleteAccountRequested(
+    AuthDeleteAccountRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.deleteAccount();
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (_) => emit(
+        state.copyWith(status: AuthStatus.unauthenticated, authResponse: null),
+      ),
+    );
+  }
+
+  Future<void> _onAuthGetSessionsRequested(
+    AuthGetSessionsRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.getSessions();
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (sessions) => emit(
+        state.copyWith(status: AuthStatus.sessionsLoaded, sessions: sessions),
+      ),
+    );
+  }
+
+  Future<void> _onAuthBiometricLoginRequested(
+    AuthBiometricLoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    final credentials = await _authRepository.getBiometricCredentials();
+    if (credentials != null) {
+      add(
+        AuthLoginRequested(
+          email: credentials['email']!,
+          password: credentials['password']!,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          status: AuthStatus.error,
+          errorMessage:
+              'No biometric credentials found. Please login normally.',
+        ),
+      );
+    }
+  }
+
+  Future<void> _onAuthRefreshUserRequested(
+    AuthRefreshUserRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    final result = await _authRepository.getCurrentUser();
+    result.fold(
+      (failure) => null, // Sliently fail or maybe log it
+      (user) => emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          authResponse: state.authResponse?.copyWith(user: user),
         ),
       ),
     );
