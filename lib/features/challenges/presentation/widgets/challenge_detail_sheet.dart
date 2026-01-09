@@ -63,7 +63,7 @@ class ChallengeDetailSheet extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Theme.of(context).colorScheme.outlineVariant,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -74,14 +74,16 @@ class ChallengeDetailSheet extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
                   challenge.type == 'saving'
                       ? Icons.savings
                       : Icons.shopping_bag,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 32,
                 ),
               ),
@@ -99,7 +101,7 @@ class ChallengeDetailSheet extends StatelessWidget {
                     Text(
                       _getLocalizedType(context, challenge.type).toUpperCase(),
                       style: AppTextStyles.labelLarge.copyWith(
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -119,7 +121,7 @@ class ChallengeDetailSheet extends StatelessWidget {
           Text(
             challenge.description,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 24),
@@ -131,7 +133,7 @@ class ChallengeDetailSheet extends StatelessWidget {
                 value: AppLocalizations.of(
                   context,
                 )!.daysCount(challenge.durationDays),
-                color: Colors.blue,
+                color: AppColors.info,
               ),
               const SizedBox(width: 12),
               _InfoCard(
@@ -140,7 +142,7 @@ class ChallengeDetailSheet extends StatelessWidget {
                 value: AppLocalizations.of(
                   context,
                 )!.points(challenge.rewardPoints),
-                color: Colors.amber,
+                color: AppColors.warning,
               ),
               const SizedBox(width: 12),
               _InfoCard(
@@ -168,8 +170,12 @@ class ChallengeDetailSheet extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 12,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
+                valueColor: AlwaysStoppedAnimation(
+                  Theme.of(context).colorScheme.primary,
+                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -180,7 +186,7 @@ class ChallengeDetailSheet extends StatelessWidget {
                 )!.percentCompleted((progress * 100).toStringAsFixed(0)),
                 style: AppTextStyles.bodySmall.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -214,12 +220,16 @@ class ChallengeDetailSheet extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: isJoined
                     ? (isCompleted
-                          ? Colors.green
+                          ? AppColors.success
                           : (isWeekReadyToValidate
-                                ? AppColors.secondary
-                                : AppColors.outline))
-                    : AppColors.primary,
-                foregroundColor: Colors.white,
+                                ? Theme.of(context).colorScheme.secondary
+                                : Theme.of(context).colorScheme.outline))
+                    : Theme.of(context).colorScheme.primary,
+                foregroundColor: isJoined && isCompleted
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : (isJoined && !isWeekReadyToValidate
+                          ? Theme.of(context).colorScheme.onSurfaceVariant
+                          : Theme.of(context).colorScheme.onPrimary),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -238,7 +248,6 @@ class ChallengeDetailSheet extends StatelessWidget {
                       )!.startChallenge.toUpperCase(),
                 style: AppTextStyles.bodyLarge.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
                 ),
               ),
             ),
@@ -253,7 +262,7 @@ class ChallengeDetailSheet extends StatelessWidget {
                 child: Text(
                   AppLocalizations.of(context)!.unjoinChallenge,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.error,
+                    color: Theme.of(context).colorScheme.error,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -283,7 +292,9 @@ class ChallengeDetailSheet extends StatelessWidget {
               Navigator.pop(dialogContext); // Close dialog
               Navigator.pop(context); // Close sheet
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(AppLocalizations.of(context)!.unjoinAction),
           ),
         ],
@@ -356,12 +367,17 @@ class ChallengeDetailSheet extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, color: AppColors.primary),
+                  Icon(
+                    Icons.info_outline,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -375,7 +391,7 @@ class ChallengeDetailSheet extends StatelessWidget {
                           '${pendingWeek.targetAmount.toStringAsFixed(0)} XAF',
                           style: AppTextStyles.bodyLarge.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ],
@@ -388,7 +404,7 @@ class ChallengeDetailSheet extends StatelessWidget {
             Text(
               '${AppLocalizations.of(context)!.week} ${pendingWeek.weekNumber}',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -496,13 +512,15 @@ class _WeeklyTargetCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isReady
-            ? AppColors.primary.withValues(alpha: 0.05)
-            : Colors.grey.withValues(alpha: 0.05),
+            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.05)
+            : Theme.of(context).colorScheme.outline.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: (isReady ? AppColors.primary : Colors.grey).withValues(
-            alpha: 0.1,
-          ),
+          color:
+              (isReady
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.outline)
+                  .withValues(alpha: 0.1),
         ),
       ),
       child: Column(
@@ -514,7 +532,9 @@ class _WeeklyTargetCard extends StatelessWidget {
               Text(
                 '${AppLocalizations.of(context)!.week} $weekNumber',
                 style: AppTextStyles.labelLarge.copyWith(
-                  color: isReady ? AppColors.primary : AppColors.textSecondary,
+                  color: isReady
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -525,13 +545,13 @@ class _WeeklyTargetCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
+                    color: AppColors.warning.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.daysRemaining(nextInDays!),
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: Colors.orange[800],
+                      color: AppColors.warning,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -547,7 +567,7 @@ class _WeeklyTargetCard extends StatelessWidget {
                   Text(
                     AppLocalizations.of(context)!.amountToContribute,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   Text(
@@ -555,8 +575,8 @@ class _WeeklyTargetCard extends StatelessWidget {
                     style: AppTextStyles.h3.copyWith(
                       fontWeight: FontWeight.bold,
                       color: isReady
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -564,7 +584,9 @@ class _WeeklyTargetCard extends StatelessWidget {
               const Spacer(),
               Icon(
                 isReady ? Icons.pending_actions : Icons.lock_clock_outlined,
-                color: isReady ? AppColors.primary : AppColors.outline,
+                color: isReady
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline,
                 size: 32,
               ),
             ],
@@ -605,7 +627,7 @@ class _InfoCard extends StatelessWidget {
             Text(
               label,
               style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             Text(

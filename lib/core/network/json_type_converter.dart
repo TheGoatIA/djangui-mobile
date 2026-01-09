@@ -99,26 +99,61 @@ class JsonToTypeConverter extends JsonConverter {
     }
 
     if (typeDecoders.containsKey(T)) {
+      if (T.toString().contains('SupportTicketModel')) {
+        getIt<Logger>().d(
+          '[JsonToTypeConverter] Decoding SupportTicketModel. Keys: ${json.keys.toList()}',
+        );
+        // Check for null values in expected fields
+        for (final key in [
+          '_id',
+          'subject',
+          'message',
+          'status',
+          'category',
+          'createdAt',
+        ]) {
+          if (json[key] == null) {
+            getIt<Logger>().w(
+              '[JsonToTypeConverter] Missing or Null field: $key',
+            );
+          }
+        }
+      }
       return typeDecoders[T]!(json);
+    }
+
+    // Try a more flexible check if T is a class (for different Type instances)
+    for (final key in typeDecoders.keys) {
+      if (key.toString() == T.toString()) {
+        return typeDecoders[key]!(json);
+      }
     }
 
     // Automatic handle for BaseResponse and BaseListResponse
     // This makes it scalable: you only need to register the Item type.
     final String typeString = T.toString();
 
-    if (typeString.startsWith('BaseResponse')) {
-      // Guard against Chopper's type inference if it passes BaseResponse as Item
-      if (Item.toString().startsWith('BaseResponse') || Item == dynamic) {
-        return _createBaseResponse<dynamic>(json);
-      }
-      return _createBaseResponse<Item>(json);
-    }
+    // Log for debugging
+    getIt<Logger>().d(
+      '[JsonToTypeConverter] Decoding type: $T (Item: $Item, String: $typeString)',
+    );
 
     if (typeString.startsWith('BaseListResponse')) {
-      if (Item.toString().startsWith('BaseResponse') || Item == dynamic) {
-        return _createBaseListResponse<dynamic>(json);
+      if (Item.toString() != 'dynamic' &&
+          !Item.toString().startsWith('BaseResponse')) {
+        return _createBaseListResponse<Item>(json);
       }
-      return _createBaseListResponse<Item>(json);
+      return _createBaseListResponse<dynamic>(json);
+    }
+
+    if (typeString.startsWith('BaseResponse')) {
+      if (Item.toString() != 'dynamic' &&
+          !Item.toString().startsWith('BaseResponse')) {
+        // Fallback: if we see a list but Item is not a list, it might be BaseResponse<List<Item>>
+        // This is where the old cast error happened.
+        return _createBaseResponse<Item>(json);
+      }
+      return _createBaseResponse<dynamic>(json);
     }
 
     getIt<Logger>().w(
@@ -136,10 +171,21 @@ class JsonToTypeConverter extends JsonConverter {
         return _decodeMap<I, dynamic>(data) as I;
       }
       if (data is List) {
-        return data
-                .map((e) => _decodeMap<I, dynamic>(e as Map<String, dynamic>))
-                .toList()
-            as I;
+        final List<dynamic> decodedList = data.map((e) {
+          if (e is Map<String, dynamic>) {
+            return e;
+          }
+          return e;
+        }).toList();
+
+        // If I is exactly List<SupportTicketModel>, casting List<dynamic> will fail in Dart.
+        // We can try to cast it if it matches the expected type I.
+        try {
+          return decodedList as I;
+        } catch (_) {
+          // If cast fails, we return the dynamic list and hope for the best or it will fail upstream
+          return decodedList as dynamic;
+        }
       }
       return data as I;
     });
@@ -148,6 +194,7 @@ class JsonToTypeConverter extends JsonConverter {
   BaseListResponse<I> _createBaseListResponse<I>(Map<String, dynamic> json) {
     return BaseListResponse<I>.fromJson(json, (data) {
       if (data is Map<String, dynamic>) {
+        // We use I which is the Item type passed by DjanguiListResponse
         return _decodeMap<I, dynamic>(data) as I;
       }
       return data as I;

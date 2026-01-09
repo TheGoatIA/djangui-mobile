@@ -34,10 +34,31 @@ class AppShadows {
 
   static const List<BoxShadow> card = [
     BoxShadow(
-      color: Color(0x0A000000), // Very light shadow
+      color: Color(0x0F000000), // Slightly darker: 6% opacity
       offset: Offset(0, 4),
-      blurRadius: 24,
+      blurRadius: 20,
       spreadRadius: 0,
+    ),
+    BoxShadow(
+      color: Color(0x05000000), // Very soft outer glow: 2% opacity
+      offset: Offset(0, 0),
+      blurRadius: 1,
+      spreadRadius: 1,
+    ),
+  ];
+
+  static const List<BoxShadow> premium = [
+    BoxShadow(
+      color: Color(0x14000000), // 8% opacity
+      offset: Offset(0, 10),
+      blurRadius: 30,
+      spreadRadius: -5,
+    ),
+    BoxShadow(
+      color: Color(0x0A000000), // 4% opacity
+      offset: Offset(0, 4),
+      blurRadius: 12,
+      spreadRadius: -2,
     ),
   ];
 }

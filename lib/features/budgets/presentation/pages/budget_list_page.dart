@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/budgets_bloc.dart';
 import '../bloc/budgets_event.dart';
@@ -12,6 +11,7 @@ import '../bloc/budgets_state.dart';
 import '../../data/models/budget_model.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../widgets/budget_detail_sheet.dart';
+import '../../../../core/theme/app_shadows.dart';
 
 class BudgetListPage extends StatelessWidget {
   const BudgetListPage({super.key});
@@ -19,7 +19,7 @@ class BudgetListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.myBudgets)),
       body: BlocBuilder<BudgetsBloc, BudgetsState>(
         builder: (context, state) {
@@ -37,7 +37,7 @@ class BudgetListPage extends StatelessWidget {
                   Text(
                     AppLocalizations.of(context)!.noBudgetDefined,
                     style: AppTextStyles.bodyLarge.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -75,8 +75,8 @@ class BudgetListPage extends StatelessWidget {
             );
           }
         },
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
       ),
     );
   }
@@ -93,7 +93,9 @@ class _BudgetItem extends StatelessWidget {
         ? (budget.totalSpent / budget.totalAllocated).clamp(0.0, 1.0)
         : 0.0;
     final isOverBudget = budget.totalSpent > budget.totalAllocated;
-    final color = isOverBudget ? AppColors.error : AppColors.primary;
+    final color = isOverBudget
+        ? Theme.of(context).colorScheme.error
+        : Theme.of(context).colorScheme.primary;
 
     return InkWell(
       onTap: () {
@@ -110,13 +112,7 @@ class _BudgetItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: AppShadows.card,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,9 +137,9 @@ class _BudgetItem extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () => _showDeleteDialog(context),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.delete_outline,
-                    color: AppColors.error,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -167,13 +163,13 @@ class _BudgetItem extends StatelessWidget {
                 Text(
                   '${AppLocalizations.of(context)!.spentLabel}: ${budget.totalSpent.toStringAsFixed(0)} XAF',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 Text(
                   '${AppLocalizations.of(context)!.limitLabel}: ${budget.totalAllocated.toStringAsFixed(0)} XAF',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -200,7 +196,9 @@ class _BudgetItem extends StatelessWidget {
               context.read<BudgetsBloc>().add(DeleteBudgetRequested(budget.id));
               Navigator.pop(dialogContext);
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],

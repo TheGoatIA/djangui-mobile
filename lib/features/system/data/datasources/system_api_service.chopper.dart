@@ -36,4 +36,16 @@ final class _$SystemApiService extends SystemApiService {
     return client.send<BaseResponse<VersionCheckResponse>,
         VersionCheckResponse>($request);
   }
+
+  @override
+  Future<Response<BaseResponse<PublicSettingsModel>>> getPublicSettings() {
+    final Uri $url = Uri.parse('/system/public-settings');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client
+        .send<BaseResponse<PublicSettingsModel>, PublicSettingsModel>($request);
+  }
 }

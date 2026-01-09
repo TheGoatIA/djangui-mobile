@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../di/injection.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/notifications_bloc.dart';
 import '../widgets/notification_item.dart';
@@ -41,11 +40,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
           getIt<NotificationsBloc>()
             ..add(const FetchNotificationsRequested(refresh: true)),
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.notifications),
           centerTitle: true,
-          backgroundColor: AppColors.surface,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
@@ -80,10 +79,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline,
                       size: 48,
-                      color: AppColors.error,
+                      color: Theme.of(context).colorScheme.error,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -112,13 +111,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Icon(
                       Icons.notifications_off_outlined,
                       size: 64,
-                      color: AppColors.textSecondary.withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       AppLocalizations.of(context)!.noNotifications,
                       style: AppTextStyles.bodyLarge.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],

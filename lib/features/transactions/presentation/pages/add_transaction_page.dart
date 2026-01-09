@@ -228,7 +228,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.addTransactionTitle),
           actions: [
@@ -356,7 +356,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.outline),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
@@ -370,7 +372,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                   value: null,
                                   child: Text(
                                     AppLocalizations.of(context)!.none,
-                                    style: const TextStyle(color: Colors.grey),
+                                    style: TextStyle(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ),
                                 ...state.goals.map((goal) {
@@ -442,7 +448,9 @@ class _TypeButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected ? color : Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: isSelected ? color : AppColors.outline),
+            border: Border.all(
+              color: isSelected ? color : Theme.of(context).colorScheme.outline,
+            ),
           ),
           child: Center(
             child: Text(

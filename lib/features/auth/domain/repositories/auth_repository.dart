@@ -47,6 +47,9 @@ abstract class AuthRepository {
   );
   Future<Either<Failure, void>> deleteAccount();
   Future<Either<Failure, List<SessionModel>>> getSessions();
+  Future<Either<Failure, void>> revokeSession(String sessionId);
+  Future<Either<Failure, void>> revokeAllOtherSessions();
   Future<Map<String, String>?> getBiometricCredentials();
   Future<void> clearBiometricCredentials();
+  Future<void> logConnection();
 }

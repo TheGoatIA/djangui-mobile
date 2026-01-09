@@ -16,6 +16,7 @@ class ApiConstants {
   static const String changePassword = '/auth/change-password';
   static const String deleteMe = '/auth/delete-me';
   static const String sessions = '/auth/sessions';
+  static const String connection = '/auth/connection';
 
   // Transactions
   static const String transactions = '/transactions';
@@ -60,4 +61,10 @@ class ApiConstants {
   static const String notifications = '/notifications';
   static const String notificationsMarkRead = '/notifications/mark-all-read';
   static const String notificationsUnreadCount = '/notifications/unread-count';
+
+  // Support
+  static const String supportTickets = '/support/tickets';
+
+  // System
+  static const String publicSettings = '/system/public-settings';
 }

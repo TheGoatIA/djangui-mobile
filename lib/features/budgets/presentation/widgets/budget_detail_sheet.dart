@@ -17,7 +17,9 @@ class BudgetDetailSheet extends StatelessWidget {
         ? (budget.totalSpent / budget.totalAllocated).clamp(0.0, 1.0)
         : 0.0;
     final bool isOverBudget = budget.totalSpent > budget.totalAllocated;
-    final Color mainColor = isOverBudget ? AppColors.error : AppColors.primary;
+    final Color mainColor = isOverBudget
+        ? Theme.of(context).colorScheme.error
+        : Theme.of(context).colorScheme.primary;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -34,7 +36,7 @@ class BudgetDetailSheet extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Theme.of(context).colorScheme.outlineVariant,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -57,7 +59,7 @@ class BudgetDetailSheet extends StatelessWidget {
                       Localizations.localeOf(context).languageCode,
                     ).format(DateTime(budget.period.year, budget.period.month)),
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -86,10 +88,12 @@ class BudgetDetailSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: Theme.of(context).colorScheme.surfaceContainer,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: AppColors.outline.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
               ),
             ),
             child: Column(
@@ -100,7 +104,7 @@ class BudgetDetailSheet extends StatelessWidget {
                     _SummaryItem(
                       label: l10n.allocated,
                       amount: budget.totalAllocated,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     _SummaryItem(
                       label: l10n.spent,
@@ -172,7 +176,7 @@ class _SummaryItem extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 4),
@@ -186,7 +190,7 @@ class _SummaryItem extends StatelessWidget {
         Text(
           'XAF',
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],
@@ -205,7 +209,9 @@ class _CategoryItem extends StatelessWidget {
         ? (category.spent / category.allocated).clamp(0.0, 1.0)
         : 0.0;
     final isOver = category.spent > category.allocated;
-    final color = isOver ? AppColors.error : AppColors.primary;
+    final color = isOver
+        ? Theme.of(context).colorScheme.error
+        : Theme.of(context).colorScheme.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,7 +228,9 @@ class _CategoryItem extends StatelessWidget {
             Text(
               '${category.spent.toStringAsFixed(0)} / ${category.allocated.toStringAsFixed(0)} XAF',
               style: AppTextStyles.bodySmall.copyWith(
-                color: isOver ? AppColors.error : AppColors.textSecondary,
+                color: isOver
+                    ? Theme.of(context).colorScheme.error
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],

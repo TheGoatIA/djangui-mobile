@@ -35,7 +35,7 @@ class TransactionDetailPage extends StatelessWidget {
         }
 
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
             title: Text(l10n.transactions),
             backgroundColor: Colors.transparent,
@@ -144,7 +144,7 @@ class TransactionDetailPage extends StatelessWidget {
                 Text(
                   'ID: ${transaction.id}',
                   style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -176,10 +176,16 @@ class _InfoTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.05),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
+            child: Icon(
+              icon,
+              color: Theme.of(context).colorScheme.primary,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -189,7 +195,7 @@ class _InfoTile extends StatelessWidget {
                 Text(
                   label,
                   style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 Text(value, style: AppTextStyles.bodyLarge),

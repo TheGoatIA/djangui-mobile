@@ -13,6 +13,7 @@ enum AuthStatus {
   passwordChanged,
   accountDeleted,
   sessionsLoaded,
+  sessionRevoked,
 }
 
 class AuthState extends Equatable {

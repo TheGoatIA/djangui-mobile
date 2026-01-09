@@ -14,7 +14,10 @@ import '../models/user_model.dart';
 import '../models/login_request.dart';
 import '../models/register_request.dart';
 import '../models/device_info_request.dart';
+import '../models/connection_request.dart';
 import '../models/session_model.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -454,6 +457,34 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, void>> revokeSession(String sessionId) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        await _remoteDataSource.revokeSession(sessionId);
+        return const Right(null);
+      } catch (e) {
+        return Left(AuthFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> revokeAllOtherSessions() async {
+    if (await _networkInfo.isConnected) {
+      try {
+        await _remoteDataSource.revokeAllOtherSessions();
+        return const Right(null);
+      } catch (e) {
+        return Left(AuthFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
   Future<Map<String, String>?> getBiometricCredentials() async {
     return _localDataSource.getCredentials();
   }
@@ -461,5 +492,53 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> clearBiometricCredentials() async {
     await _localDataSource.clearCredentials();
+  }
+
+  @override
+  Future<void> logConnection() async {
+    if (await _networkInfo.isConnected) {
+      try {
+        // 1. Get IP and Location info
+        String? ip;
+        String? country;
+        String? city;
+
+        try {
+          final response = await http
+              .get(Uri.parse('https://ip-api.com/json'))
+              .timeout(const Duration(seconds: 5));
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            ip = data['query'] as String?;
+            country = data['country'] as String?;
+            city = data['city'] as String?;
+          }
+        } catch (e) {
+          debugPrint('⚠️ [AuthRepository] Failed to fetch IP/Location: $e');
+        }
+
+        // 2. Get Device info
+        final deviceInfoPlugin = DeviceInfoPlugin();
+        String device = 'Unknown Device';
+        if (Platform.isAndroid) {
+          final androidInfo = await deviceInfoPlugin.androidInfo;
+          device = '${androidInfo.manufacturer} ${androidInfo.model}';
+        } else if (Platform.isIOS) {
+          final iosInfo = await deviceInfoPlugin.iosInfo;
+          device = iosInfo.name;
+        }
+
+        final request = ConnectionRequest(
+          ip: ip,
+          country: country,
+          city: city,
+          device: device,
+        );
+
+        await _remoteDataSource.logConnection(request);
+      } catch (e) {
+        debugPrint('⚠️ [AuthRepository] Failed to log connection: $e');
+      }
+    }
   }
 }

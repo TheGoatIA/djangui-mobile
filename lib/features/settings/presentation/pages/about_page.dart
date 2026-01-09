@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class AboutPage extends StatelessWidget {
@@ -9,7 +8,7 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.aboutDjangui)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -20,22 +19,24 @@ class AboutPage extends StatelessWidget {
               'assets/images/logo.png',
               width: 100,
               height: 100,
-              errorBuilder: (context, error, stackTrace) => const Icon(
+              errorBuilder: (context, error, stackTrace) => Icon(
                 Icons.account_balance_wallet,
                 size: 80,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 24),
             Text(
               AppLocalizations.of(context)!.appTitle,
-              style: AppTextStyles.h1.copyWith(color: AppColors.primary),
+              style: AppTextStyles.h1.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.versionInfo('1.0.0', '1'),
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 32),
@@ -46,14 +47,17 @@ class AboutPage extends StatelessWidget {
             ),
             const SizedBox(height: 48),
             _buildInfoTile(
+              context,
               AppLocalizations.of(context)!.developedBy,
               'Boris Gauty',
             ),
             _buildInfoTile(
+              context,
               AppLocalizations.of(context)!.contact,
               'support@djangui.com',
             ),
             _buildInfoTile(
+              context,
               AppLocalizations.of(context)!.website,
               'www.djangui.com',
             ),
@@ -61,7 +65,7 @@ class AboutPage extends StatelessWidget {
             Text(
               AppLocalizations.of(context)!.copyrightInfo,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -70,7 +74,7 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoTile(String title, String value) {
+  Widget _buildInfoTile(BuildContext context, String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -79,7 +83,7 @@ class AboutPage extends StatelessWidget {
           Text(
             title,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           Text(

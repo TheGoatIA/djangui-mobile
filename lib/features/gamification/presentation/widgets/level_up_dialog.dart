@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class LevelUpDialog extends StatelessWidget {
@@ -24,11 +23,11 @@ class LevelUpDialog extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: Theme.of(context).shadowColor.withValues(alpha: 0.2),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -40,7 +39,9 @@ class LevelUpDialog extends StatelessWidget {
                 const SizedBox(height: 40), // Space for animation
                 Text(
                   'Félicitations !',
-                  style: AppTextStyles.h2.copyWith(color: AppColors.primary),
+                  style: AppTextStyles.h2.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -52,7 +53,7 @@ class LevelUpDialog extends StatelessWidget {
                 Text(
                   'Niveau $newLevel',
                   style: AppTextStyles.h1.copyWith(
-                    color: AppColors.accent,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 48,
                   ),
                   textAlign: TextAlign.center,
@@ -60,7 +61,9 @@ class LevelUpDialog extends StatelessWidget {
                 const SizedBox(height: 24),
                 Text(
                   'Continuez comme ça pour débloquer de nouveaux badges et fonctionnalités !',
-                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
@@ -68,15 +71,6 @@ class LevelUpDialog extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: onContinue,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 0,
-                    ),
                     child: const Text(
                       'Continuer',
                       style: TextStyle(

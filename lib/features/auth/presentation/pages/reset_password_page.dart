@@ -50,7 +50,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage ?? l10n.resetError),
-                backgroundColor: AppColors.error,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           }
@@ -58,7 +58,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         builder: (context, state) {
           final l10n = AppLocalizations.of(context)!;
           return Scaffold(
-            backgroundColor: AppColors.background,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -77,7 +77,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       Text(
                         l10n.newPasswordSubtitle,
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 32),

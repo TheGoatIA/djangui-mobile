@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -20,6 +19,7 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   bool _timerFinished = false;
+  bool _versionCheckFinished = false;
 
   @override
   void initState() {
@@ -29,21 +29,23 @@ class _SplashPageState extends State<SplashPage> {
         setState(() {
           _timerFinished = true;
         });
-        _checkVersionAndNavigate();
+        _checkAuthAndNavigate();
       }
     });
+    _checkVersionAndNavigate();
   }
 
   Future<void> _checkVersionAndNavigate() async {
-    // 1. Check App Version
+    // 1. Check App Version with timeout
     try {
       final systemRepo = getIt<SystemRepository>();
-      final versionInfo = await systemRepo.checkVersion();
+      final versionInfo = await systemRepo.checkVersion().timeout(
+        const Duration(seconds: 5),
+      );
 
       if (!mounted) return;
 
       if (versionInfo.forceUpdate) {
-        // Show Blocking Dialog
         _showUpdateDialog(versionInfo.updateUrl, true);
         return;
       }
@@ -51,23 +53,24 @@ class _SplashPageState extends State<SplashPage> {
       if (versionInfo.maintenanceMode) {
         _showMaintenanceDialog(versionInfo.maintenanceMessage);
         return;
-      } else if (versionInfo.updateAvailable) {
-        // Show Optional Dialog (optional flow, we can just proceed for now or show snackbar)
-        // For this task, we verify logic mostly. Let's just log it.
-        debugPrint('📲 Update available: ${versionInfo.latestVersion}');
       }
     } catch (e) {
-      debugPrint('⚠️ Remote version check failed: $e');
-      // Proceed even if check fails (robustness)
+      debugPrint('⚠️ Remote version check failed or timed out: $e');
     }
 
     if (!mounted) return;
+    setState(() {
+      _versionCheckFinished = true;
+    });
     _checkAuthAndNavigate();
   }
 
   void _checkAuthAndNavigate() {
+    if (!mounted) return;
     final state = context.read<AuthBloc>().state;
-    if (!_timerFinished) return;
+
+    // Wait for BOTH timer AND version check (or its timeout)
+    if (!_timerFinished || !_versionCheckFinished) return;
 
     if (state.status == AuthStatus.authenticated ||
         state.status == AuthStatus.unauthenticated) {
@@ -94,13 +97,11 @@ class _SplashPageState extends State<SplashPage> {
         debugPrint('🌊 [SplashPage] Auth state changed: ${state.status}');
         if (state.status == AuthStatus.authenticated ||
             state.status == AuthStatus.unauthenticated) {
-          // If auth state changes while on splash (e.g. from listener), we might re-trigger.
-          // But usually we wait for timer + version.
-          // Let's rely on _checkVersionAndNavigate calling _checkAuth.
+          _checkAuthAndNavigate();
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.primary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -108,8 +109,8 @@ class _SplashPageState extends State<SplashPage> {
               // Logo
               Container(
                 padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onPrimary,
                   shape: BoxShape.circle,
                 ),
                 child: Image.asset(AppAssets.logo, width: 80, height: 80),
@@ -118,7 +119,7 @@ class _SplashPageState extends State<SplashPage> {
               Text(
                 AppLocalizations.of(context)!.appTitle,
                 style: AppTextStyles.headlineLarge.copyWith(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                   fontWeight: FontWeight.bold,
                 ),
               ),

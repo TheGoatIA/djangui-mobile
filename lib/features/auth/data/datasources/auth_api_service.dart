@@ -3,8 +3,8 @@ import '../../../../core/constants/api_constants.dart';
 import '../models/login_request.dart';
 import '../models/register_request.dart';
 import '../models/auth_response.dart';
-import '../models/user_model.dart';
 import '../models/device_info_request.dart';
+import '../models/connection_request.dart';
 import '../../../../core/network/models/base_response.dart';
 
 part 'auth_api_service.chopper.dart';
@@ -85,6 +85,19 @@ abstract class AuthApiService extends ChopperService {
 
   @Get(path: ApiConstants.sessions)
   Future<Response<BaseResponse<Map<String, dynamic>>>> getSessions();
+
+  @Delete(path: ApiConstants.sessions)
+  Future<Response<BaseResponse<dynamic>>> revokeAllOtherSessions();
+
+  @Delete(path: '${ApiConstants.sessions}/{sessionId}')
+  Future<Response<BaseResponse<dynamic>>> revokeSession(
+    @Path('sessionId') String sessionId,
+  );
+
+  @Post(path: ApiConstants.connection)
+  Future<Response<BaseResponse<dynamic>>> logConnection(
+    @Body() ConnectionRequest body,
+  );
 
   static AuthApiService create(ChopperClient client) =>
       _$AuthApiService(client);

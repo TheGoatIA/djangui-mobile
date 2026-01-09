@@ -60,11 +60,13 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 56,
-      textStyle: AppTextStyles.h3.copyWith(color: AppColors.primary),
+      textStyle: AppTextStyles.h3.copyWith(
+        color: Theme.of(context).colorScheme.primary,
+      ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.outline),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
     );
 
@@ -85,7 +87,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.errorMessage ?? l10n.genericError),
-              backgroundColor: AppColors.error,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -107,7 +109,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 Text(
                   widget.phoneNumber,
                   style: AppTextStyles.bodyLarge.copyWith(
-                    color: AppColors.secondary,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                   textAlign: TextAlign.center,
                 ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
@@ -119,7 +121,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     defaultPinTheme: defaultPinTheme,
                     focusedPinTheme: defaultPinTheme.copyWith(
                       decoration: defaultPinTheme.decoration!.copyWith(
-                        border: Border.all(color: AppColors.primary, width: 2),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 2,
+                        ),
                       ),
                     ),
                     onCompleted: _onVerify,

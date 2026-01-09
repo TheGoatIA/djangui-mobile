@@ -24,7 +24,7 @@ class SubscriptionPage extends StatelessWidget {
     final priceInfo = paymentService.getSubscriptionPrice(user?.country);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.upgradeToPremiumTitle),
         elevation: 0,
@@ -40,9 +40,9 @@ class SubscriptionPage extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              const Icon(
+              Icon(
                 Icons.star_rounded,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 size: 80,
               ),
               const SizedBox(height: 16),
@@ -56,7 +56,7 @@ class SubscriptionPage extends StatelessWidget {
                 AppLocalizations.of(context)!.premiumWelcomeSubtitle,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 40),
@@ -116,7 +116,9 @@ class SubscriptionPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(AppLocalizations.of(context)!.confirm),
           ),
         ],
@@ -145,7 +147,7 @@ class SubscriptionPage extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.errorOccurred),
-            backgroundColor: AppColors.error,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -180,7 +182,7 @@ class SubscriptionPage extends StatelessWidget {
                   child: Text(
                     AppLocalizations.of(context)!.noPaymentFound,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -201,7 +203,9 @@ class SubscriptionPage extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppColors.outline.withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.5),
                     ),
                   ),
                   child: Row(
@@ -245,7 +249,9 @@ class SubscriptionPage extends StatelessWidget {
                                 'dd MMM yyyy, HH:mm',
                               ).format(payment.createdAt),
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -300,7 +306,9 @@ class SubscriptionPage extends StatelessWidget {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isBestValue ? AppColors.primary : AppColors.outline,
+          color: isBestValue
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.outline,
           width: isBestValue ? 2 : 1,
         ),
         boxShadow: [
@@ -318,13 +326,13 @@ class SubscriptionPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 AppLocalizations.of(context)!.bestValue,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
@@ -336,7 +344,9 @@ class SubscriptionPage extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             price,
-            style: AppTextStyles.h2.copyWith(color: AppColors.primary),
+            style: AppTextStyles.h2.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
           const SizedBox(height: 24),
           ...features.map(
@@ -360,7 +370,7 @@ class SubscriptionPage extends StatelessWidget {
             AppButton(
               text: AppLocalizations.of(context)!.currentPlan,
               onPressed: () {},
-              color: AppColors.outline,
+              color: Theme.of(context).colorScheme.outline,
             )
           else if (isPremium)
             // Case: Showing Premium card while on Free plan
@@ -373,7 +383,7 @@ class SubscriptionPage extends StatelessWidget {
             AppButton(
               text: AppLocalizations.of(context)!.revertToFree,
               onPressed: onTap ?? () {},
-              color: AppColors.error,
+              color: Theme.of(context).colorScheme.error,
             ),
         ],
       ),
@@ -403,6 +413,7 @@ class SubscriptionPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             _buildPaymentMethod(
+              context,
               icon: Icons.phone_android,
               title: 'NotchPay (${AppLocalizations.of(context)!.mobileMoney})',
               subtitle: AppLocalizations.of(
@@ -412,6 +423,7 @@ class SubscriptionPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _buildPaymentMethod(
+              context,
               icon: Icons.credit_card,
               title: 'Stripe (${AppLocalizations.of(context)!.bankCard})',
               subtitle: AppLocalizations.of(
@@ -426,7 +438,8 @@ class SubscriptionPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPaymentMethod({
+  Widget _buildPaymentMethod(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String subtitle,
@@ -437,7 +450,7 @@ class SubscriptionPage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.outline),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -445,10 +458,12 @@ class SubscriptionPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: AppColors.primary),
+              child: Icon(icon, color: Theme.of(context).colorScheme.primary),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -465,7 +480,10 @@ class SubscriptionPage extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+            Icon(
+              Icons.chevron_right,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ],
         ),
       ),

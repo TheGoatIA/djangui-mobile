@@ -8,6 +8,7 @@ import '../models/login_request.dart';
 import '../models/register_request.dart';
 import '../models/user_model.dart';
 import '../models/device_info_request.dart';
+import '../models/connection_request.dart';
 import '../models/session_model.dart';
 import '../../../../core/network/api_response_extensions.dart';
 
@@ -32,7 +33,10 @@ abstract class AuthRemoteDataSource {
   Future<void> changePassword(String currentPassword, String newPassword);
   Future<void> deleteAccount();
   Future<List<SessionModel>> getSessions();
+  Future<void> revokeSession(String sessionId);
+  Future<void> revokeAllOtherSessions();
   Future<UserModel> getCurrentUser();
+  Future<void> logConnection(ConnectionRequest request);
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -243,6 +247,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
+  Future<void> revokeSession(String sessionId) async {
+    final response = await _apiService.revokeSession(sessionId);
+    if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<void> revokeAllOtherSessions() async {
+    final response = await _apiService.revokeAllOtherSessions();
+    if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
   Future<UserModel> getCurrentUser() async {
     final response = await _apiService.getUserProfile();
     if (response.isSuccessful && response.body?.data != null) {
@@ -276,6 +296,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return UserModel.fromJson(finalJson);
     } else {
       throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<void> logConnection(ConnectionRequest request) async {
+    final response = await _apiService.logConnection(request);
+    if (!response.isSuccessful) {
+      debugPrint(
+        '⚠️ [AuthRemoteDataSource] Failed to log connection: ${response.errorMessage}',
+      );
     }
   }
 }

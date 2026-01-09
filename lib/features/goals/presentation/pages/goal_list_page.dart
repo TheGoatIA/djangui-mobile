@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
 import '../bloc/goals_bloc.dart';
@@ -11,6 +10,7 @@ import '../bloc/goals_state.dart';
 import '../../data/models/goal_model.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/services/share_service.dart';
+import '../../../../core/theme/app_shadows.dart';
 
 class GoalListPage extends StatelessWidget {
   const GoalListPage({super.key});
@@ -18,7 +18,7 @@ class GoalListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.myGoals)),
       body: BlocBuilder<GoalsBloc, GoalsState>(
         builder: (context, state) {
@@ -36,7 +36,7 @@ class GoalListPage extends StatelessWidget {
                   Text(
                     AppLocalizations.of(context)!.noGoalDefined,
                     style: AppTextStyles.bodyLarge.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -72,8 +72,8 @@ class GoalListPage extends StatelessWidget {
             );
           }
         },
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
       ),
     );
   }
@@ -98,13 +98,7 @@ class _GoalItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: AppShadows.card,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +115,7 @@ class _GoalItem extends StatelessWidget {
                 PopupMenuButton(
                   icon: Icon(
                     Icons.more_vert,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     size: 20,
                   ),
                   onSelected: (value) {
@@ -152,15 +146,17 @@ class _GoalItem extends StatelessWidget {
                       value: 'delete',
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.delete_outline,
                             size: 20,
-                            color: AppColors.error,
+                            color: Theme.of(context).colorScheme.error,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             AppLocalizations.of(context)!.delete,
-                            style: const TextStyle(color: AppColors.error),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
                           ),
                         ],
                       ),
@@ -176,14 +172,14 @@ class _GoalItem extends StatelessWidget {
                 Text(
                   '${goal.currentAmount.toStringAsFixed(0)} F / ${goal.targetAmount.toStringAsFixed(0)} F',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   '${(progress * 100).toStringAsFixed(0)}%',
                   style: AppTextStyles.labelLarge.copyWith(
-                    color: Colors.grey[600],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -193,9 +189,11 @@ class _GoalItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: LinearProgressIndicator(
                 value: progress,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  AppColors.primary,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).colorScheme.primary,
                 ),
                 minHeight: 10,
               ),
@@ -206,7 +204,7 @@ class _GoalItem extends StatelessWidget {
                 Icon(
                   Icons.calendar_today,
                   size: 14,
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 6),
                 Text(
@@ -216,7 +214,7 @@ class _GoalItem extends StatelessWidget {
                         )!.daysRemaining(daysRemaining)
                       : AppLocalizations.of(context)!.deadlinePassed,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -243,7 +241,9 @@ class _GoalItem extends StatelessWidget {
               context.read<GoalsBloc>().add(DeleteGoalRequested(goal.id));
               Navigator.pop(dialogContext);
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],

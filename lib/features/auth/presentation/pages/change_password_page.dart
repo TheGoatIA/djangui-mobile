@@ -26,7 +26,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(title: Text(l10n.changePassword)),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -42,7 +42,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage ?? l10n.genericError),
-                backgroundColor: AppColors.error,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           }
@@ -57,7 +57,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 Text(
                   l10n.changePasswordDescription,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -157,7 +157,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         ),
                       ),
                       child: state.status == AuthStatus.loading
-                          ? const CircularProgressIndicator(color: Colors.white)
+                          ? CircularProgressIndicator(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            )
                           : Text(l10n.updatePassword),
                     );
                   },

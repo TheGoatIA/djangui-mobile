@@ -60,7 +60,7 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: _isLoading
@@ -82,14 +82,18 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
                     decoration: BoxDecoration(
                       color: _isVerified
                           ? AppColors.success.withValues(alpha: 0.1)
-                          : AppColors.error.withValues(alpha: 0.1),
+                          : Theme.of(
+                              context,
+                            ).colorScheme.error.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       _isVerified
                           ? Icons.check_circle_rounded
                           : Icons.error_outline_rounded,
-                      color: _isVerified ? AppColors.success : AppColors.error,
+                      color: _isVerified
+                          ? AppColors.success
+                          : Theme.of(context).colorScheme.error,
                       size: 80,
                     ),
                   ),
@@ -108,7 +112,7 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
                         : 'Nous n\'avons pas pu confirmer votre paiement.\nVeuillez contacter le support si vous avez été débité.',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   if (widget.ref != null) ...[

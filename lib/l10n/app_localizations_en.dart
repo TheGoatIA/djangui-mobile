@@ -1177,4 +1177,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String pricePerMonth(Object price) {
     return '$price / month';
   }
+
+  @override
+  String get revokeAllSessions => 'Revoke All Other Sessions';
+
+  @override
+  String get revokeSession => 'Revoke';
+
+  @override
+  String get confirmRevokeSession =>
+      'Are you sure you want to revoke this session?';
+
+  @override
+  String get confirmRevokeAllSessions =>
+      'Are you sure you want to revoke all other sessions?';
+
+  @override
+  String get sessionRevoked => 'Session revoked successfully';
+
+  @override
+  String get allSessionsRevoked => 'All other sessions revoked successfully';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get legalSection => 'Legal';
+
+  @override
+  String get supportTicketList => 'Support Tickets';
+
+  @override
+  String get createTicket => 'New Support Ticket';
+
+  @override
+  String get ticketSubject => 'Subject';
+
+  @override
+  String get ticketMessage => 'Message';
+
+  @override
+  String get ticketCategory => 'Category';
+
+  @override
+  String get sendTicket => 'Send Ticket';
+
+  @override
+  String get reply => 'Reply';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get open => 'Open';
+
+  @override
+  String get closed => 'Closed';
+
+  @override
+  String get answered => 'Answered';
+
+  @override
+  String get categoryBug => 'Bug';
+
+  @override
+  String get categoryPayment => 'Payment';
+
+  @override
+  String get categoryAccount => 'Account';
+
+  @override
+  String get categoryOther => 'Other';
+
+  @override
+  String get ticketCreatedSuccess => 'Ticket created successfully';
+
+  @override
+  String get aboutApp => 'About App';
 }

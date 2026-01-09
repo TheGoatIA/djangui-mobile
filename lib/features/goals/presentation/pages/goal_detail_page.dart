@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../di/injection.dart';
@@ -52,7 +51,7 @@ class GoalDetailPage extends StatelessWidget {
         final l10n = AppLocalizations.of(context)!;
 
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
             title: Text(goal.name),
             actions: [
@@ -71,7 +70,9 @@ class GoalDetailPage extends StatelessWidget {
                     value: 'delete',
                     child: Text(
                       l10n.delete,
-                      style: const TextStyle(color: AppColors.error),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
                 ],
@@ -153,7 +154,9 @@ class GoalDetailPage extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -181,7 +184,7 @@ class GoalDetailPage extends StatelessWidget {
                           ? l10n.emergencyType
                           : goal.type,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -196,7 +199,7 @@ class GoalDetailPage extends StatelessWidget {
               Text(
                 '${(progress * 100).toStringAsFixed(1)}%',
                 style: AppTextStyles.h3.copyWith(
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontSize: 24,
                 ),
               ),
@@ -205,7 +208,7 @@ class GoalDetailPage extends StatelessWidget {
                     ? l10n.daysRemaining(daysRemaining)
                     : l10n.deadlinePassed,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -215,9 +218,11 @@ class GoalDetailPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
               value: progress,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                AppColors.primary,
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.1),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Theme.of(context).colorScheme.primary,
               ),
               minHeight: 12,
             ),
@@ -241,7 +246,7 @@ class GoalDetailPage extends StatelessWidget {
               l10n.currentAmountLabel,
               goal.currentAmount,
               goal.currency,
-              AppColors.primary,
+              Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 16),
             _buildAmountCard(
@@ -249,7 +254,7 @@ class GoalDetailPage extends StatelessWidget {
               l10n.targetAmountLabel,
               goal.targetAmount,
               goal.currency,
-              AppColors.textSecondary,
+              Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ],
         ),
@@ -278,7 +283,7 @@ class GoalDetailPage extends StatelessWidget {
             Text(
               label,
               style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 4),
@@ -340,13 +345,23 @@ class GoalDetailPage extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.05),
+            color: Theme.of(
+              context,
+            ).colorScheme.primary.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.1),
+            ),
           ),
           child: Row(
             children: [
-              const Icon(Icons.psychology, color: AppColors.primary, size: 32),
+              Icon(
+                Icons.psychology,
+                color: Theme.of(context).colorScheme.primary,
+                size: 32,
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -362,7 +377,7 @@ class GoalDetailPage extends StatelessWidget {
                     Text(
                       strategyDesc,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -430,8 +445,8 @@ class GoalDetailPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: enabled
-              ? AppColors.primary.withValues(alpha: 0.2)
-              : AppColors.outline,
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+              : Theme.of(context).colorScheme.outline,
         ),
       ),
       child: Row(
@@ -439,7 +454,9 @@ class GoalDetailPage extends StatelessWidget {
           Icon(
             icon,
             size: 20,
-            color: enabled ? AppColors.primary : AppColors.textSecondary,
+            color: enabled
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -447,8 +464,8 @@ class GoalDetailPage extends StatelessWidget {
               label,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: enabled
-                    ? AppColors.textPrimary
-                    : AppColors.textSecondary,
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -457,14 +474,16 @@ class GoalDetailPage extends StatelessWidget {
               trailing,
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             )
           else
             Icon(
               enabled ? Icons.check_circle : Icons.radio_button_unchecked,
               size: 20,
-              color: enabled ? AppColors.primary : AppColors.outline,
+              color: enabled
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.outline,
             ),
         ],
       ),
@@ -489,7 +508,9 @@ class GoalDetailPage extends StatelessWidget {
               Navigator.pop(dialogContext); // Dialog
               context.pop(); // Page
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(l10n.delete),
           ),
         ],

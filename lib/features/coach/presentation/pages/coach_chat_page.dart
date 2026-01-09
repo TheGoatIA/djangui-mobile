@@ -46,7 +46,7 @@ class _CoachChatPageState extends State<CoachChatPage> {
     return BlocProvider(
       create: (context) => getIt<CoachBloc>()..add(GetChatHistoryRequested()),
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,13 +94,15 @@ class _CoachChatPageState extends State<CoachChatPage> {
                           Icon(
                             Icons.chat_bubble_outline,
                             size: 64,
-                            color: AppColors.outline,
+                            color: Theme.of(context).colorScheme.outline,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             AppLocalizations.of(context)!.coachWelcomeMessage,
                             style: AppTextStyles.bodyLarge.copyWith(
-                              color: AppColors.textSecondary,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -145,7 +147,7 @@ class _CoachChatPageState extends State<CoachChatPage> {
           AppLocalizations.of(context)!.coachThinking,
           style: AppTextStyles.bodyMedium.copyWith(
             fontStyle: FontStyle.italic,
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -181,7 +183,7 @@ class _CoachChatPageState extends State<CoachChatPage> {
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.typeQuestionHint,
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 10,
                     ),
@@ -195,7 +197,7 @@ class _CoachChatPageState extends State<CoachChatPage> {
             Builder(
               builder: (context) {
                 return CircleAvatar(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   child: IconButton(
                     icon: Icon(
                       Icons.send,
@@ -240,7 +242,7 @@ class _MessageBubble extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: isUser
-              ? AppColors.primary
+              ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20),
@@ -264,10 +266,14 @@ class _MessageBubble extends StatelessWidget {
               data: message.text,
               styleSheet: MarkdownStyleSheet(
                 p: AppTextStyles.bodyMedium.copyWith(
-                  color: isUser ? Colors.white : AppColors.onBackground,
+                  color: isUser
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
                 strong: AppTextStyles.bodyMedium.copyWith(
-                  color: isUser ? Colors.white : AppColors.onBackground,
+                  color: isUser
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -281,7 +287,7 @@ class _MessageBubble extends StatelessWidget {
                     ? Theme.of(
                         context,
                       ).colorScheme.onPrimary.withValues(alpha: 0.7)
-                    : AppColors.textSecondary,
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],

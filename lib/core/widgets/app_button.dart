@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
 class AppButton extends StatelessWidget {
@@ -20,19 +19,22 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = color ?? Theme.of(context).colorScheme.primary;
+    final onPrimaryColor = color != null
+        ? Colors.white
+        : Theme.of(context).colorScheme.onPrimary;
+
     return _ScaleButton(
       onPressed: isLoading ? null : onPressed,
       child: Container(
         width: isFullWidth ? double.infinity : null,
-        height: 56, // Fixed height for consistency
+        height: 56,
         decoration: BoxDecoration(
-          color: isLoading
-              ? (color ?? AppColors.primary).withValues(alpha: 0.7)
-              : (color ?? AppColors.primary),
+          color: isLoading ? primaryColor.withValues(alpha: 0.7) : primaryColor,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: (color ?? AppColors.primary).withValues(alpha: 0.3),
+              color: primaryColor.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -40,18 +42,18 @@ class AppButton extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 24,
                 width: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(onPrimaryColor),
                 ),
               )
             : Text(
                 text,
                 style: AppTextStyles.labelLarge.copyWith(
-                  color: Colors.white,
+                  color: onPrimaryColor,
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
                 ),

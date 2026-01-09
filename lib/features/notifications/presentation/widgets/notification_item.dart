@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../data/models/notification_model.dart';
 
@@ -27,18 +26,23 @@ class NotificationItem extends StatelessWidget {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20.0),
-        color: AppColors.error,
+        color: Theme.of(context).colorScheme.error,
         child: const Icon(Icons.delete_outline, color: Colors.white),
       ),
       child: InkWell(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          color: isRead ? null : AppColors.primary.withValues(alpha: 0.05),
+          color: isRead
+              ? null
+              : Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildIcon(notification.data?['type']?.toString() ?? 'default'),
+              _buildIcon(
+                context,
+                notification.data?['type']?.toString() ?? 'default',
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -55,15 +59,17 @@ class NotificationItem extends StatelessWidget {
                                   ? FontWeight.normal
                                   : FontWeight.bold,
                               color: isRead
-                                  ? AppColors.textPrimary
-                                  : AppColors.primary,
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         ),
                         Text(
                           timeago.format(notification.createdAt, locale: 'fr'),
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                             fontSize: 12,
                           ),
                         ),
@@ -73,7 +79,7 @@ class NotificationItem extends StatelessWidget {
                     Text(
                       notification.body,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -86,8 +92,8 @@ class NotificationItem extends StatelessWidget {
                   margin: const EdgeInsets.only(left: 8, top: 2),
                   width: 8,
                   height: 8,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -98,7 +104,7 @@ class NotificationItem extends StatelessWidget {
     );
   }
 
-  Widget _buildIcon(String type) {
+  Widget _buildIcon(BuildContext context, String type) {
     IconData icon;
     Color color;
 
@@ -109,7 +115,7 @@ class NotificationItem extends StatelessWidget {
         break;
       case 'security':
         icon = Icons.security_outlined;
-        color = Colors.red;
+        color = Theme.of(context).colorScheme.error;
         break;
       case 'system':
         icon = Icons.info_outline;
@@ -121,7 +127,7 @@ class NotificationItem extends StatelessWidget {
         break;
       default:
         icon = Icons.notifications_none_outlined;
-        color = AppColors.primary;
+        color = Theme.of(context).colorScheme.primary;
     }
 
     return Container(

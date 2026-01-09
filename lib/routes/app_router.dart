@@ -35,6 +35,9 @@ import '../features/auth/presentation/pages/security_page.dart';
 import '../features/auth/presentation/pages/change_password_page.dart';
 import '../features/auth/presentation/pages/sessions_page.dart';
 import '../features/subscription/presentation/pages/payment_success_page.dart';
+import '../features/support/presentation/pages/support_tickets_page.dart';
+import '../features/support/presentation/pages/create_ticket_page.dart';
+import '../features/support/presentation/pages/ticket_details_page.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
@@ -319,6 +322,35 @@ final appRouter = GoRouter(
           child: PaymentSuccessPage(ref: ref, status: status),
         );
       },
+    ),
+    GoRoute(
+      path: RouteConstants.supportTickets,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const SupportTicketsPage(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'create',
+          pageBuilder: (context, state) => buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: const CreateTicketPage(),
+          ),
+        ),
+        GoRoute(
+          path: ':id',
+          pageBuilder: (context, state) {
+            final id = state.pathParameters['id']!;
+            return buildPageWithDefaultTransition(
+              context: context,
+              state: state,
+              child: TicketDetailsPage(ticketId: id),
+            );
+          },
+        ),
+      ],
     ),
   ],
 );

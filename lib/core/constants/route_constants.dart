@@ -26,4 +26,7 @@ class RouteConstants {
   static const String changePassword = '/change-password';
   static const String sessions = '/sessions';
   static const String paymentSuccess = '/payment/success';
+  static const String supportTickets = '/support/tickets';
+  static const String createTicket = '/support/tickets/create';
+  static const String ticketDetails = '/support/tickets/:id';
 }

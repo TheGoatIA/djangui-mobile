@@ -2323,6 +2323,162 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{price} / mois'**
   String pricePerMonth(Object price);
+
+  /// No description provided for @revokeAllSessions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révoquer toutes les autres sessions'**
+  String get revokeAllSessions;
+
+  /// No description provided for @revokeSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révoquer'**
+  String get revokeSession;
+
+  /// No description provided for @confirmRevokeSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir révoquer cette session ?'**
+  String get confirmRevokeSession;
+
+  /// No description provided for @confirmRevokeAllSessions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir révoquer toutes les autres sessions ?'**
+  String get confirmRevokeAllSessions;
+
+  /// No description provided for @sessionRevoked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session révoquée avec succès'**
+  String get sessionRevoked;
+
+  /// No description provided for @allSessionsRevoked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes les autres sessions ont été révoquées avec succès'**
+  String get allSessionsRevoked;
+
+  /// No description provided for @termsOfService.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions d\'utilisation'**
+  String get termsOfService;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Politique de confidentialité'**
+  String get privacyPolicy;
+
+  /// No description provided for @legalSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Légal'**
+  String get legalSection;
+
+  /// No description provided for @supportTicketList.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tickets de support'**
+  String get supportTicketList;
+
+  /// No description provided for @createTicket.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau ticket de support'**
+  String get createTicket;
+
+  /// No description provided for @ticketSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sujet'**
+  String get ticketSubject;
+
+  /// No description provided for @ticketMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message'**
+  String get ticketMessage;
+
+  /// No description provided for @ticketCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie'**
+  String get ticketCategory;
+
+  /// No description provided for @sendTicket.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le ticket'**
+  String get sendTicket;
+
+  /// No description provided for @reply.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répondre'**
+  String get reply;
+
+  /// No description provided for @status.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut'**
+  String get status;
+
+  /// No description provided for @open.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvert'**
+  String get open;
+
+  /// No description provided for @closed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermé'**
+  String get closed;
+
+  /// No description provided for @answered.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répondu'**
+  String get answered;
+
+  /// No description provided for @categoryBug.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bug'**
+  String get categoryBug;
+
+  /// No description provided for @categoryPayment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement'**
+  String get categoryPayment;
+
+  /// No description provided for @categoryAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte'**
+  String get categoryAccount;
+
+  /// No description provided for @categoryOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get categoryOther;
+
+  /// No description provided for @ticketCreatedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ticket créé avec succès'**
+  String get ticketCreatedSuccess;
+
+  /// No description provided for @aboutApp.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos de l\'application'**
+  String get aboutApp;
 }
 
 class _AppLocalizationsDelegate

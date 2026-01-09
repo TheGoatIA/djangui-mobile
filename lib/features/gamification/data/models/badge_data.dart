@@ -52,7 +52,7 @@ class BadgesData {
       name: 'Social',
       description: 'A invité 5 amis',
       icon: Icons.people,
-      color: Colors.blue,
+      color: AppColors.info,
     ),
   };
 

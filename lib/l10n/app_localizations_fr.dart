@@ -1185,4 +1185,85 @@ class AppLocalizationsFr extends AppLocalizations {
   String pricePerMonth(Object price) {
     return '$price / mois';
   }
+
+  @override
+  String get revokeAllSessions => 'Révoquer toutes les autres sessions';
+
+  @override
+  String get revokeSession => 'Révoquer';
+
+  @override
+  String get confirmRevokeSession =>
+      'Êtes-vous sûr de vouloir révoquer cette session ?';
+
+  @override
+  String get confirmRevokeAllSessions =>
+      'Êtes-vous sûr de vouloir révoquer toutes les autres sessions ?';
+
+  @override
+  String get sessionRevoked => 'Session révoquée avec succès';
+
+  @override
+  String get allSessionsRevoked =>
+      'Toutes les autres sessions ont été révoquées avec succès';
+
+  @override
+  String get termsOfService => 'Conditions d\'utilisation';
+
+  @override
+  String get privacyPolicy => 'Politique de confidentialité';
+
+  @override
+  String get legalSection => 'Légal';
+
+  @override
+  String get supportTicketList => 'Tickets de support';
+
+  @override
+  String get createTicket => 'Nouveau ticket de support';
+
+  @override
+  String get ticketSubject => 'Sujet';
+
+  @override
+  String get ticketMessage => 'Message';
+
+  @override
+  String get ticketCategory => 'Catégorie';
+
+  @override
+  String get sendTicket => 'Envoyer le ticket';
+
+  @override
+  String get reply => 'Répondre';
+
+  @override
+  String get status => 'Statut';
+
+  @override
+  String get open => 'Ouvert';
+
+  @override
+  String get closed => 'Fermé';
+
+  @override
+  String get answered => 'Répondu';
+
+  @override
+  String get categoryBug => 'Bug';
+
+  @override
+  String get categoryPayment => 'Paiement';
+
+  @override
+  String get categoryAccount => 'Compte';
+
+  @override
+  String get categoryOther => 'Autre';
+
+  @override
+  String get ticketCreatedSuccess => 'Ticket créé avec succès';
+
+  @override
+  String get aboutApp => 'À propos de l\'application';
 }

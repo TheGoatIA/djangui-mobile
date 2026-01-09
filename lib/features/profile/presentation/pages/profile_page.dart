@@ -14,7 +14,11 @@ import 'package:go_router/go_router.dart';
 import '../../../../di/injection.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../auth/data/models/user_model.dart';
-import '../../../upload/domain/repositories/upload_repository.dart';
+import 'package:djangui/features/upload/domain/repositories/upload_repository.dart';
+import 'package:djangui/features/system/presentation/bloc/system_bloc.dart';
+import 'package:djangui/features/system/presentation/bloc/system_state.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -155,7 +159,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.profile),
         actions: [
@@ -174,7 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   state.errorMessage ??
                       AppLocalizations.of(context)!.genericError,
                 ),
-                backgroundColor: AppColors.error,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           }
@@ -190,12 +194,10 @@ class _ProfilePageState extends State<ProfilePage> {
               RefreshIndicator(
                 onRefresh: () async {
                   context.read<AuthBloc>().add(AuthRefreshUserRequested());
-                  // Small delay to ensure the user sees the refresh action and the bloc has time to react
                   await Future.delayed(const Duration(seconds: 1));
                 },
                 child: SingleChildScrollView(
-                  physics:
-                      const AlwaysScrollableScrollPhysics(), // Ensure scroll is possible even if content is short
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
@@ -251,13 +253,11 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               CircleAvatar(
                 radius: 50,
-                backgroundColor: AppColors.primary,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty)
                     ? (avatarUrl.startsWith('http')
                               ? NetworkImage(avatarUrl)
-                              : (avatarUrl.startsWith(
-                                      '/',
-                                    ) // Handle relative URL
+                              : (avatarUrl.startsWith('/')
                                     ? NetworkImage(
                                         '${dotenv.env['API_BASE_URL']?.replaceAll('/api/v1', '') ?? ''}$avatarUrl',
                                       )
@@ -265,7 +265,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           as ImageProvider
                     : null,
                 child: (avatarUrl == null || avatarUrl.isEmpty)
-                    ? const Icon(Icons.person, size: 50, color: Colors.white)
+                    ? Icon(
+                        Icons.person,
+                        size: 50,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      )
                     : null,
               ),
               Positioned(
@@ -283,10 +287,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.camera_alt,
                     size: 20,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
@@ -298,7 +302,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Text(
           email,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],
@@ -340,7 +344,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 trailing: Text(
                   state.locale.languageCode == 'fr' ? 'Français' : 'English',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 onTap: () =>
@@ -358,7 +362,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 return Text(
                   phone ?? '',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 );
               },
@@ -380,7 +384,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 return Text(
                   country ?? AppLocalizations.of(context)!.notSet,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 );
               },
@@ -404,7 +408,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 trailing: Text(
                   _getThemeName(context, state.themeMode),
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 onTap: () =>
@@ -416,7 +420,57 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildSettingsTile(
             Icons.help_outline,
             AppLocalizations.of(context)!.helpSupport,
-            onTap: () => context.push(RouteConstants.about),
+            onTap: () => context.push(RouteConstants.supportTickets),
+          ),
+          const Divider(height: 1, color: Colors.transparent),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.legalSection,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          BlocBuilder<SystemBloc, SystemState>(
+            builder: (context, state) {
+              return Column(
+                children: [
+                  _buildSettingsTile(
+                    Icons.description_outlined,
+                    AppLocalizations.of(context)!.termsOfService,
+                    onTap: () async {
+                      final url = state.settings?.termsOfServiceUrl;
+                      if (url != null) {
+                        await launchUrl(Uri.parse(url));
+                      }
+                    },
+                  ),
+                  const Divider(height: 1, color: Colors.transparent),
+                  _buildSettingsTile(
+                    Icons.privacy_tip_outlined,
+                    AppLocalizations.of(context)!.privacyPolicy,
+                    onTap: () async {
+                      final url = state.settings?.privacyPolicyUrl;
+                      if (url != null) {
+                        await launchUrl(Uri.parse(url));
+                      }
+                    },
+                  ),
+                  const Divider(height: 1, color: Colors.transparent),
+                  _buildSettingsTile(
+                    Icons.info_outline,
+                    AppLocalizations.of(context)!.aboutApp,
+                    onTap: () => _showAboutDialog(context),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -433,14 +487,22 @@ class _ProfilePageState extends State<ProfilePage> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.1),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: AppColors.primary, size: 20),
+        child: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.primary,
+          size: 20,
+        ),
       ),
       title: Text(title, style: AppTextStyles.bodyMedium),
       trailing:
-          trailing ?? Icon(Icons.chevron_right, color: AppColors.textSecondary),
+          trailing ??
+          Icon(
+            Icons.chevron_right,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
       onTap: onTap,
     );
   }
@@ -467,8 +529,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                   child: Text(
                     AppLocalizations.of(context)!.logout,
-                    style: const TextStyle(
-                      color: AppColors.error,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -481,17 +543,33 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: AppColors.error),
+            side: BorderSide(color: Theme.of(context).colorScheme.error),
           ),
         ),
         child: Text(
           AppLocalizations.of(context)!.logout,
-          style: const TextStyle(
-            color: AppColors.error,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.error,
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _showAboutDialog(BuildContext context) async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+
+    showAboutDialog(
+      context: context,
+      applicationName: packageInfo.appName,
+      applicationVersion: '${packageInfo.version}+${packageInfo.buildNumber}',
+      applicationIcon: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.asset('assets/images/logo.png', width: 60, height: 60),
+      ),
+      applicationLegalese: '© 2026 Djangui Team',
     );
   }
 
@@ -554,15 +632,18 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, Color(0xFF8E44AD)],
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary,
+            const Color(0xFF8E44AD),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -605,7 +686,7 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () => context.push(RouteConstants.subscription),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                foregroundColor: AppColors.primary,
+                foregroundColor: Theme.of(context).colorScheme.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -633,7 +714,9 @@ class _ProfilePageState extends State<ProfilePage> {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+          ),
           boxShadow: [
             BoxShadow(
               color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
@@ -682,15 +765,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                     )!.activeSubscription),
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: user.subscription?.status == 'cancelled'
-                              ? AppColors.error
-                              : AppColors.textSecondary,
+                              ? Theme.of(context).colorScheme.error
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ],
             ),
           ],
@@ -711,7 +797,9 @@ class _ProfilePageState extends State<ProfilePage> {
       title: Text(label),
       leading: Icon(
         isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-        color: isSelected ? AppColors.primary : AppColors.textSecondary,
+        color: isSelected
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       onTap: () => onChanged(mode),
     );
@@ -766,7 +854,9 @@ class _ProfilePageState extends State<ProfilePage> {
       title: Text(label),
       leading: Icon(
         isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-        color: isSelected ? AppColors.primary : AppColors.textSecondary,
+        color: isSelected
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       onTap: () => onChanged(value),
     );
@@ -830,7 +920,9 @@ class _ProfilePageState extends State<ProfilePage> {
       title: Text(label),
       leading: Icon(
         isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-        color: isSelected ? AppColors.primary : AppColors.textSecondary,
+        color: isSelected
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       onTap: () {
         context.read<AuthBloc>().add(AuthUpdateProfileRequested(country: code));

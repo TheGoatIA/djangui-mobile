@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../bloc/budgets_bloc.dart';
@@ -138,7 +137,7 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.addBudgetTitle),
         ),
@@ -192,9 +191,11 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                     return Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade200),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                        ),
                       ),
                       child: Column(
                         children: [
@@ -237,9 +238,9 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                               ),
                               if (_categoryItems.length > 1)
                                 IconButton(
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.delete,
-                                    color: AppColors.error,
+                                    color: Theme.of(context).colorScheme.error,
                                   ),
                                   onPressed: () => _removeCategory(index),
                                 ),

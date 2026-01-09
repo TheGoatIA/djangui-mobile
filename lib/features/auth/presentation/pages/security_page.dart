@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
 import '../../../../core/constants/route_constants.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
@@ -60,7 +59,7 @@ class _SecurityPageState extends State<SecurityPage> {
       builder: (dialogContext) => AlertDialog(
         title: Text(
           AppLocalizations.of(context)!.deleteAccount,
-          style: const TextStyle(color: AppColors.error),
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
         ),
         content: Text(AppLocalizations.of(context)!.deleteAccountDescription),
         actions: [
@@ -74,8 +73,8 @@ class _SecurityPageState extends State<SecurityPage> {
               context.read<AuthBloc>().add(AuthDeleteAccountRequested());
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
             ),
             child: Text(AppLocalizations.of(context)!.delete),
           ),
@@ -89,7 +88,7 @@ class _SecurityPageState extends State<SecurityPage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(title: Text(l10n.security)),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -97,7 +96,7 @@ class _SecurityPageState extends State<SecurityPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage ?? l10n.genericError),
-                backgroundColor: AppColors.error,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           }
@@ -128,7 +127,7 @@ class _SecurityPageState extends State<SecurityPage> {
                   return SwitchListTile(
                     secondary: Icon(
                       _getBiometricIcon(),
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     title: Text(l10n.enableBiometrics),
                     subtitle: Text(l10n.biometricsDescription),
@@ -150,7 +149,7 @@ class _SecurityPageState extends State<SecurityPage> {
                               ),
                             );
                           },
-                    activeThumbColor: AppColors.primary,
+                    activeThumbColor: Theme.of(context).colorScheme.primary,
                   );
                 },
               ),
@@ -167,7 +166,7 @@ class _SecurityPageState extends State<SecurityPage> {
     return Text(
       title.toUpperCase(),
       style: AppTextStyles.bodySmall.copyWith(
-        color: AppColors.textSecondary,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         fontWeight: FontWeight.bold,
         letterSpacing: 1.2,
       ),
@@ -180,9 +179,12 @@ class _SecurityPageState extends State<SecurityPage> {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(icon, color: AppColors.primary),
+      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
       title: Text(title, style: AppTextStyles.bodyLarge),
-      trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
       onTap: onTap,
       contentPadding: EdgeInsets.zero,
     );
@@ -195,20 +197,23 @@ class _SecurityPageState extends State<SecurityPage> {
         _buildSectionTitle(l10n.dangerZone),
         const SizedBox(height: 12),
         Card(
-          color: AppColors.error.withValues(alpha: 0.05),
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.05),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: AppColors.error, width: 0.5),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.error,
+              width: 0.5,
+            ),
           ),
           child: ListTile(
-            leading: const Icon(
+            leading: Icon(
               Icons.delete_forever_outlined,
-              color: AppColors.error,
+              color: Theme.of(context).colorScheme.error,
             ),
             title: Text(
               l10n.deleteAccount,
-              style: const TextStyle(
-                color: AppColors.error,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
                 fontWeight: FontWeight.bold,
               ),
             ),

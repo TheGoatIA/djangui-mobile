@@ -17,6 +17,7 @@ import '../bloc/dashboard_bloc.dart';
 import '../../../../core/services/sms_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../../../core/theme/app_shadows.dart';
 
 import '../../../../core/services/notification_service.dart';
 
@@ -100,7 +101,7 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Builder(
           builder: (context) {
             return Scaffold(
-              backgroundColor: AppColors.background,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               appBar: _buildAppBar(context),
               body: RefreshIndicator(
                 onRefresh: () async {
@@ -175,7 +176,7 @@ class _DashboardPageState extends State<DashboardPage> {
           Text(
             AppLocalizations.of(context)!.greeting,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           BlocBuilder<AuthBloc, AuthState>(
@@ -220,15 +221,18 @@ class _DashboardPageState extends State<DashboardPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryDark],
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary,
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -252,7 +256,7 @@ class _DashboardPageState extends State<DashboardPage> {
               return Text(
                 '${NumberFormat.decimalPattern('fr').format(balance)} FCFA',
                 style: AppTextStyles.headlineLarge.copyWith(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                   fontWeight: FontWeight.bold,
                 ),
               );
@@ -332,19 +336,19 @@ class _DashboardPageState extends State<DashboardPage> {
             _buildActionItem(
               Icons.add_circle_outline,
               AppLocalizations.of(context)!.invest,
-              AppColors.primary,
+              Theme.of(context).colorScheme.primary,
               onTap: () => context.push('${RouteConstants.investments}/add'),
             ),
             _buildActionItem(
               Icons.bar_chart_outlined,
               AppLocalizations.of(context)!.insights,
-              AppColors.secondary,
+              Theme.of(context).colorScheme.secondary,
               onTap: () => context.push(RouteConstants.insights),
             ),
             _buildActionItem(
               Icons.sms_outlined,
               AppLocalizations.of(context)!.importSms,
-              AppColors.accent,
+              Theme.of(context).colorScheme.tertiary,
               onTap: () async {
                 final authState = context.read<AuthBloc>().state;
                 final isPremium =
@@ -464,6 +468,7 @@ class _DashboardPageState extends State<DashboardPage> {
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
+              boxShadow: AppShadows.card,
             ),
             child: Icon(icon, color: color),
           ),
@@ -512,7 +517,7 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Text(
               AppLocalizations.of(context)!.noRecentActivities,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           );
@@ -535,6 +540,7 @@ class _DashboardPageState extends State<DashboardPage> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
+                boxShadow: AppShadows.card,
               ),
               child: Row(
                 children: [
@@ -564,7 +570,9 @@ class _DashboardPageState extends State<DashboardPage> {
                         Text(
                           t.category,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -583,7 +591,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       Text(
                         DateFormat.yMMMd('fr').format(t.date),
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],

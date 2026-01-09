@@ -149,3 +149,12 @@ class AuthGetSessionsRequested extends AuthEvent {}
 class AuthBiometricLoginRequested extends AuthEvent {}
 
 class AuthRefreshUserRequested extends AuthEvent {}
+
+class AuthRevokeSessionRequested extends AuthEvent {
+  final String sessionId;
+  const AuthRevokeSessionRequested(this.sessionId);
+  @override
+  List<Object?> get props => [sessionId];
+}
+
+class AuthRevokeAllSessionsRequested extends AuthEvent {}

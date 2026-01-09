@@ -47,14 +47,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   state.errorMessage ??
                       AppLocalizations.of(context)!.genericError,
                 ),
-                backgroundColor: AppColors.error,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           }
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: AppColors.background,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -78,7 +78,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       Text(
                         AppLocalizations.of(context)!.forgotPasswordSubtitle,
                         style: AppTextStyles.bodyLarge.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 32),

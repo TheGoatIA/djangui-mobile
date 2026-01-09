@@ -13,6 +13,7 @@ import '../../../budgets/presentation/bloc/budgets_bloc.dart';
 import '../../../budgets/presentation/bloc/budgets_event.dart';
 import '../../../goals/presentation/bloc/goals_bloc.dart';
 import '../../../goals/presentation/bloc/goals_event.dart';
+import '../../../../core/theme/app_shadows.dart';
 
 class TransactionListPage extends StatelessWidget {
   const TransactionListPage({super.key});
@@ -20,7 +21,7 @@ class TransactionListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.transactions),
         actions: [
@@ -63,7 +64,7 @@ class TransactionListPage extends StatelessWidget {
                   Text(
                     AppLocalizations.of(context)!.noRecentActivities,
                     style: AppTextStyles.bodyLarge.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -96,22 +97,19 @@ class TransactionListPage extends StatelessWidget {
             '${RouteConstants.transactions}/add',
           );
           if (refresh == true && context.mounted) {
-            // Refresh transactions
             context.read<TransactionsBloc>().add(
               const GetTransactionsRequested(forceRefresh: true),
             );
-            // Refresh Budgets
             context.read<BudgetsBloc>().add(
               const GetBudgetsRequested(forceRefresh: true),
             );
-            // Refresh Goals
             context.read<GoalsBloc>().add(
               const GetGoalsRequested(forceRefresh: true),
             );
           }
         },
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
       ),
     );
   }
@@ -140,13 +138,7 @@ class _TransactionItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: AppShadows.card,
         ),
         child: Row(
           children: [
@@ -172,7 +164,7 @@ class _TransactionItem extends StatelessWidget {
                   Text(
                     transaction.category,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -189,11 +181,9 @@ class _TransactionItem extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  DateFormat(
-                    'dd MMM',
-                  ).format(transaction.date), // Should ideally be localized
+                  DateFormat('dd MMM').format(transaction.date),
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],

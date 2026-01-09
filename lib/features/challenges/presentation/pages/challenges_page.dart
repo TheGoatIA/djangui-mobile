@@ -9,6 +9,7 @@ import 'package:djangui/features/challenges/presentation/bloc/challenges_state.d
 import 'package:djangui/features/challenges/data/models/challenge_model.dart';
 import 'package:djangui/features/challenges/presentation/widgets/challenge_detail_sheet.dart';
 import 'package:djangui/l10n/app_localizations.dart';
+import 'package:djangui/core/theme/app_shadows.dart';
 
 class ChallengesPage extends StatelessWidget {
   const ChallengesPage({super.key});
@@ -20,7 +21,7 @@ class ChallengesPage extends StatelessWidget {
         ..add(const GetChallengesRequested())
         ..add(GetUserChallengesRequested()),
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.challengesTitle),
         ),
@@ -33,7 +34,7 @@ class ChallengesPage extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.errorMessage!),
-                  backgroundColor: AppColors.error,
+                  backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               );
             }
@@ -51,10 +52,10 @@ class ChallengesPage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.error_outline,
                         size: 64,
-                        color: AppColors.error,
+                        color: Theme.of(context).colorScheme.error,
                       ),
                       const SizedBox(height: 16),
                       Padding(
@@ -64,7 +65,7 @@ class ChallengesPage extends StatelessWidget {
                               AppLocalizations.of(context)!.genericError,
                           textAlign: TextAlign.center,
                           style: AppTextStyles.bodyLarge.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -90,13 +91,13 @@ class ChallengesPage extends StatelessWidget {
                       Icon(
                         Icons.emoji_events_outlined,
                         size: 64,
-                        color: AppColors.outline,
+                        color: Theme.of(context).colorScheme.outline,
                       ),
                       const SizedBox(height: 16),
                       Text(
                         AppLocalizations.of(context)!.noChallenges,
                         style: AppTextStyles.bodyLarge.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -173,13 +174,7 @@ class _ChallengeCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: AppShadows.card,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,14 +184,16 @@ class _ChallengeCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     challenge.type == 'saving'
                         ? Icons.savings
                         : Icons.shopping_bag,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 24,
                   ),
                 ),
@@ -216,7 +213,7 @@ class _ChallengeCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -228,19 +225,23 @@ class _ChallengeCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.amber.withValues(alpha: 0.2),
+                    color: AppColors.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 14),
+                      const Icon(
+                        Icons.star,
+                        color: AppColors.warning,
+                        size: 14,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         AppLocalizations.of(
                           context,
                         )!.points(challenge.rewardPoints),
                         style: AppTextStyles.labelSmall.copyWith(
-                          color: Colors.amber[800],
+                          color: AppColors.warning,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -262,7 +263,7 @@ class _ChallengeCard extends StatelessWidget {
                         ).toUpperCase(),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isJoined
-                        ? AppColors.textSecondary
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
                         : _getDifficultyColor(challenge.difficulty),
                     fontWeight: isJoined ? FontWeight.normal : FontWeight.bold,
                   ),
@@ -272,7 +273,7 @@ class _ChallengeCard extends StatelessWidget {
                     '${(progress * 100).toStringAsFixed(0)}%',
                     style: AppTextStyles.bodySmall.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
               ],
@@ -282,9 +283,11 @@ class _ChallengeCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: LinearProgressIndicator(
                 value: isJoined ? progress : 0,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  AppColors.primary,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).colorScheme.primary,
                 ),
                 minHeight: 8,
               ),
@@ -298,7 +301,7 @@ class _ChallengeCard extends StatelessWidget {
                     Icon(
                       Icons.timer_outlined,
                       size: 14,
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -308,7 +311,7 @@ class _ChallengeCard extends StatelessWidget {
                             )!.daysRemaining(daysLeft)
                           : AppLocalizations.of(context)!.finished,
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -318,8 +321,8 @@ class _ChallengeCard extends StatelessWidget {
                     userChallenge?.status.toUpperCase() ?? '',
                     style: AppTextStyles.labelSmall.copyWith(
                       color: userChallenge?.status == 'active'
-                          ? Colors.blue
-                          : Colors.green,
+                          ? AppColors.info
+                          : AppColors.success,
                       fontWeight: FontWeight.bold,
                     ),
                   )
@@ -327,7 +330,7 @@ class _ChallengeCard extends StatelessWidget {
                   Text(
                     AppLocalizations.of(context)!.join,
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

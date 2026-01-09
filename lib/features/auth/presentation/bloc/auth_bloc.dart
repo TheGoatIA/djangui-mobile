@@ -32,6 +32,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthGetSessionsRequested>(_onAuthGetSessionsRequested);
     on<AuthBiometricLoginRequested>(_onAuthBiometricLoginRequested);
     on<AuthRefreshUserRequested>(_onAuthRefreshUserRequested);
+    on<AuthRevokeSessionRequested>(_onAuthRevokeSessionRequested);
+    on<AuthRevokeAllSessionsRequested>(_onAuthRevokeAllSessionsRequested);
     on<_AuthInternalCodeSent>(_onAuthInternalCodeSent);
     on<_AuthInternalError>(_onAuthInternalError);
   }
@@ -93,6 +95,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
       (response) {
         _authRepository.updateDeviceInfo();
+        _authRepository.logConnection();
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
@@ -132,6 +135,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
       (response) {
         _authRepository.updateDeviceInfo();
+        _authRepository.logConnection();
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
@@ -169,6 +173,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         (user) {
           debugPrint('🔑 [AuthBloc] Session recovered for user: ${user.email}');
           _authRepository.updateDeviceInfo(); // Fire and forget
+          _authRepository.logConnection();
           emit(
             state.copyWith(
               status: AuthStatus.authenticated,
@@ -203,6 +208,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
       (response) {
         _authRepository.updateDeviceInfo();
+        _authRepository.logConnection();
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
@@ -233,6 +239,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
       (response) {
         _authRepository.updateDeviceInfo();
+        _authRepository.logConnection();
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
@@ -399,6 +406,40 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           authResponse: state.authResponse?.copyWith(user: user),
         ),
       ),
+    );
+  }
+
+  Future<void> _onAuthRevokeSessionRequested(
+    AuthRevokeSessionRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.revokeSession(event.sessionId);
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (_) {
+        emit(state.copyWith(status: AuthStatus.sessionRevoked));
+        add(AuthGetSessionsRequested());
+      },
+    );
+  }
+
+  Future<void> _onAuthRevokeAllSessionsRequested(
+    AuthRevokeAllSessionsRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.revokeAllOtherSessions();
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (_) {
+        emit(state.copyWith(status: AuthStatus.sessionRevoked));
+        add(AuthGetSessionsRequested());
+      },
     );
   }
 }

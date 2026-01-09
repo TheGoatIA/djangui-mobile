@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
 import '../bloc/insights_bloc.dart';
@@ -14,6 +13,7 @@ import '../../data/datasources/ai_remote_datasource.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/theme/app_shadows.dart';
 
 class InsightsPage extends StatelessWidget {
   const InsightsPage({super.key});
@@ -24,7 +24,7 @@ class InsightsPage extends StatelessWidget {
       create: (context) =>
           getIt<InsightsBloc>()..add(const GetInsightsRequested()),
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.insightsTitle),
         ),
@@ -118,9 +118,13 @@ class InsightsPage extends StatelessWidget {
           context.read<InsightsBloc>().add(GetInsightsRequested(period: value));
         }
       },
-      selectedColor: AppColors.primary.withValues(alpha: 0.2),
+      selectedColor: Theme.of(
+        context,
+      ).colorScheme.primary.withValues(alpha: 0.2),
       labelStyle: TextStyle(
-        color: isSelected ? AppColors.primary : AppColors.textSecondary,
+        color: isSelected
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
     );
@@ -136,13 +140,7 @@ class InsightsPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppShadows.card,
       ),
       child: data.isEmpty
           ? Center(child: Text(AppLocalizations.of(context)!.noDataAvailable))
@@ -152,7 +150,7 @@ class InsightsPage extends StatelessWidget {
                 centerSpaceRadius: 40,
                 sections: data.map((item) {
                   return PieChartSectionData(
-                    color: _parseColor(item.color),
+                    color: _parseColor(context, item.color),
                     value: item.percentage,
                     title: '${item.percentage.toStringAsFixed(0)}%',
                     radius: 60,
@@ -176,11 +174,11 @@ class InsightsPage extends StatelessWidget {
       height: 250,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -199,12 +197,14 @@ class InsightsPage extends StatelessWidget {
                       return FlSpot(e.key.toDouble(), e.value.amount);
                     }).toList(),
                     isCurved: true,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     barWidth: 4,
                     dotData: FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
                     ),
                   ),
                 ],
@@ -222,12 +222,15 @@ class InsightsPage extends StatelessWidget {
       children: [
         _buildSectionTitle(AppLocalizations.of(context)!.categoryDetails),
         const SizedBox(height: 16),
-        ...distribution.map((item) => _buildCategoryItem(item)),
+        ...distribution.map((item) => _buildCategoryItem(context, item)),
       ],
     );
   }
 
-  Widget _buildCategoryItem(CategoryDistributionModel item) {
+  Widget _buildCategoryItem(
+    BuildContext context,
+    CategoryDistributionModel item,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -236,7 +239,7 @@ class InsightsPage extends StatelessWidget {
             width: 12,
             height: 12,
             decoration: BoxDecoration(
-              color: _parseColor(item.color),
+              color: _parseColor(context, item.color),
               shape: BoxShape.circle,
             ),
           ),
@@ -264,11 +267,15 @@ class InsightsPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.outline),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
         ),
         child: Column(
           children: [
-            const Icon(Icons.lock_outline, color: AppColors.primary, size: 40),
+            Icon(
+              Icons.lock_outline,
+              color: Theme.of(context).colorScheme.primary,
+              size: 40,
+            ),
             const SizedBox(height: 12),
             Text(
               AppLocalizations.of(context)!.aiAnalysisTitle,
@@ -279,7 +286,7 @@ class InsightsPage extends StatelessWidget {
               AppLocalizations.of(context)!.aiAnalysisPremiumRestriction,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 16),
@@ -302,30 +309,34 @@ class InsightsPage extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.primary.withValues(alpha: 0.1),
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                 Theme.of(context).colorScheme.surface,
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.2),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.auto_awesome,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     AppLocalizations.of(context)!.aiAnalysisTitle,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -347,11 +358,11 @@ class InsightsPage extends StatelessWidget {
     );
   }
 
-  Color _parseColor(String colorString) {
+  Color _parseColor(BuildContext context, String colorString) {
     try {
       return Color(int.parse(colorString.replaceFirst('#', '0xFF')));
     } catch (e) {
-      return AppColors.primary;
+      return Theme.of(context).colorScheme.primary;
     }
   }
 }

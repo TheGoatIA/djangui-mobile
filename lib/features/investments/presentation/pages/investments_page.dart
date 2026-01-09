@@ -10,6 +10,7 @@ import '../../../../di/injection.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../bloc/investments_bloc.dart';
+import '../../../../core/theme/app_shadows.dart';
 
 class InvestmentsPage extends StatelessWidget {
   const InvestmentsPage({super.key});
@@ -20,7 +21,7 @@ class InvestmentsPage extends StatelessWidget {
       create: (context) =>
           getIt<InvestmentsBloc>()..add(const LoadInvestments()),
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.myInvestments),
           actions: [
@@ -43,10 +44,10 @@ class InvestmentsPage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.lock_outline,
                         size: 80,
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(height: 24),
                       Text(
@@ -61,7 +62,7 @@ class InvestmentsPage extends StatelessWidget {
                         )!.investmentsPremiumRestriction,
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -103,11 +104,14 @@ class InvestmentsPage extends StatelessWidget {
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
-                          color: AppColors.error,
+                          color: Theme.of(context).colorScheme.error,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         margin: const EdgeInsets.only(bottom: 16),
-                        child: const Icon(Icons.delete, color: Colors.white),
+                        child: Icon(
+                          Icons.delete,
+                          color: Theme.of(context).colorScheme.onError,
+                        ),
                       ),
                       confirmDismiss: (direction) async {
                         return await _showDeleteConfirmation(context);
@@ -142,21 +146,23 @@ class InvestmentsPage extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             AppLocalizations.of(context)!.noInvestments,
-            style: AppTextStyles.h3.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.h3.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             AppLocalizations.of(context)!.startBuildingPortfolio,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () => context.push('${RouteConstants.investments}/add'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
             child: Text(AppLocalizations.of(context)!.addInvestment),
           ),
@@ -179,25 +185,22 @@ class InvestmentsPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppShadows.card,
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: _getIconColor(investment.type).withValues(alpha: 0.1),
+              color: _getIconColor(
+                context,
+                investment.type,
+              ).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               _getIcon(investment.type),
-              color: _getIconColor(investment.type),
+              color: _getIconColor(context, investment.type),
             ),
           ),
           const SizedBox(width: 16),
@@ -214,7 +217,7 @@ class InvestmentsPage extends StatelessWidget {
                 Text(
                   _getTypeName(context, investment.type),
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -234,13 +237,17 @@ class InvestmentsPage extends StatelessWidget {
                   Icon(
                     isPositive ? Icons.arrow_upward : Icons.arrow_downward,
                     size: 14,
-                    color: isPositive ? AppColors.success : AppColors.error,
+                    color: isPositive
+                        ? AppColors.success
+                        : Theme.of(context).colorScheme.error,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '${investment.roi.toStringAsFixed(1)}%',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: isPositive ? AppColors.success : AppColors.error,
+                      color: isPositive
+                          ? AppColors.success
+                          : Theme.of(context).colorScheme.error,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -266,16 +273,16 @@ class InvestmentsPage extends StatelessWidget {
     }
   }
 
-  Color _getIconColor(String type) {
+  Color _getIconColor(BuildContext context, String type) {
     switch (type) {
       case 'crypto':
-        return Colors.orange;
+        return AppColors.warning;
       case 'stock':
-        return Colors.blue;
+        return AppColors.info;
       case 'real_estate':
-        return Colors.purple;
+        return Theme.of(context).colorScheme.tertiary;
       default:
-        return AppColors.primary;
+        return Theme.of(context).colorScheme.primary;
     }
   }
 
@@ -308,7 +315,9 @@ class InvestmentsPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],

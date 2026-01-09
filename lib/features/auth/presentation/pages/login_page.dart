@@ -68,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                   Text(
                     AppLocalizations.of(context)!.loginSubtitle,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 48),
@@ -165,25 +165,23 @@ class _LoginPageState extends State<LoginPage> {
                                         message =
                                             'Biometric authentication is not available on this device.';
                                       }
-                                      if (mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(content: Text(message)),
-                                        );
-                                      }
+                                      if (!context.mounted) return;
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(content: Text(message)),
+                                      );
                                     } catch (e) {
-                                      if (mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'An unexpected error occurred',
-                                            ),
+                                      if (!context.mounted) return;
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'An unexpected error occurred',
                                           ),
-                                        );
-                                      }
+                                        ),
+                                      );
                                     }
                                   },
                                   style: OutlinedButton.styleFrom(
@@ -194,22 +192,28 @@ class _LoginPageState extends State<LoginPage> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
-                                    side: const BorderSide(
-                                      color: AppColors.primary,
+                                    side: BorderSide(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
                                     ),
                                   ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.fingerprint,
-                                        color: AppColors.primary,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
                                       ),
                                       const SizedBox(width: 12),
                                       Text(
                                         'Login with Biometrics',
                                         style: AppTextStyles.bodyLarge.copyWith(
-                                          color: AppColors.primary,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -233,7 +237,9 @@ class _LoginPageState extends State<LoginPage> {
                         child: Text(
                           AppLocalizations.of(context)!.orContinueWith,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: Colors.grey,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -250,7 +256,9 @@ class _LoginPageState extends State<LoginPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      side: const BorderSide(color: AppColors.outline),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -280,7 +288,9 @@ class _LoginPageState extends State<LoginPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      side: const BorderSide(color: AppColors.outline),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

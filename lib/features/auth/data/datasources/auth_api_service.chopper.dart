@@ -244,4 +244,40 @@ final class _$AuthApiService extends AuthApiService {
     return client.send<BaseResponse<Map<String, dynamic>>,
         Map<String, dynamic>>($request);
   }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> revokeAllOtherSessions() {
+    final Uri $url = Uri.parse('/auth/sessions');
+    final Request $request = Request(
+      'DELETE',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> revokeSession(String sessionId) {
+    final Uri $url = Uri.parse('/auth/sessions/${sessionId}');
+    final Request $request = Request(
+      'DELETE',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> logConnection(
+      ConnectionRequest body) {
+    final Uri $url = Uri.parse('/auth/connection');
+    final $body = body;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
 }

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -128,7 +127,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(title: Text(AppLocalizations.of(context)!.addGoalTitle)),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -158,6 +157,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                     Expanded(
                       flex: 2,
                       child: _buildDropdown<String>(
+                        context,
                         label: AppLocalizations.of(context)!.goalTypeLabel,
                         value: _selectedType,
                         items: [
@@ -197,6 +197,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                 ),
                 const SizedBox(height: 20),
                 _buildDropdown<String>(
+                  context,
                   label: AppLocalizations.of(context)!.goalPriorityLabel,
                   value: _selectedPriority,
                   items: [
@@ -243,7 +244,9 @@ class _AddGoalPageState extends State<AddGoalPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.outline),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -255,13 +258,13 @@ class _AddGoalPageState extends State<AddGoalPage> {
                               : DateFormat('dd/MM/yyyy').format(_selectedDate!),
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: _selectedDate == null
-                                ? AppColors.textSecondary
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
                                 : Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         Icon(
                           Icons.calendar_today,
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           size: 20,
                         ),
                       ],
@@ -286,7 +289,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                           _showAdvanced
                               ? Icons.keyboard_arrow_up
                               : Icons.keyboard_arrow_down,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ],
                     ),
@@ -295,12 +298,14 @@ class _AddGoalPageState extends State<AddGoalPage> {
                 if (_showAdvanced) ...[
                   const SizedBox(height: 16),
                   _buildSwitchTile(
+                    context,
                     label: AppLocalizations.of(context)!.enableSurplusLabel,
                     value: _enableSurplus,
                     onChanged: (value) =>
                         setState(() => _enableSurplus = value),
                   ),
                   _buildSwitchTile(
+                    context,
                     label: AppLocalizations.of(context)!.enableRoundupLabel,
                     value: _enableRoundup,
                     onChanged: (value) =>
@@ -333,7 +338,8 @@ class _AddGoalPageState extends State<AddGoalPage> {
     );
   }
 
-  Widget _buildDropdown<T>({
+  Widget _buildDropdown<T>(
+    BuildContext context, {
     required String label,
     required T value,
     required List<DropdownMenuItem<T>> items,
@@ -345,14 +351,14 @@ class _AddGoalPageState extends State<AddGoalPage> {
         Text(
           label,
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.outline),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
             borderRadius: BorderRadius.circular(12),
           ),
           child: DropdownButtonHideUnderline(
@@ -369,7 +375,8 @@ class _AddGoalPageState extends State<AddGoalPage> {
     );
   }
 
-  Widget _buildSwitchTile({
+  Widget _buildSwitchTile(
+    BuildContext context, {
     required String label,
     required bool value,
     required ValueChanged<bool> onChanged,
@@ -379,7 +386,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
       value: value,
       onChanged: onChanged,
       contentPadding: EdgeInsets.zero,
-      activeThumbColor: AppColors.primary,
+      activeThumbColor: Theme.of(context).colorScheme.primary,
     );
   }
 
@@ -408,14 +415,14 @@ class _AddGoalPageState extends State<AddGoalPage> {
         Text(
           l10n.strategyLabel,
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.outline),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
             borderRadius: BorderRadius.circular(12),
           ),
           child: DropdownButtonHideUnderline(
@@ -434,7 +441,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                       Text(
                         strategy.$3,
                         style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 10,
                         ),
                         maxLines: 1,

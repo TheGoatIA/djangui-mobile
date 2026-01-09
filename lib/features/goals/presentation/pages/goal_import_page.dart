@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../di/injection.dart';
@@ -60,7 +59,9 @@ class GoalImportPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
@@ -69,17 +70,19 @@ class GoalImportPage extends StatelessWidget {
                         Text(
                           AppLocalizations.of(context)!.sharedGoal,
                           style: AppTextStyles.labelLarge.copyWith(
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(goal.name, style: AppTextStyles.h2),
                         const SizedBox(height: 16),
                         _buildRow(
+                          context,
                           AppLocalizations.of(context)!.targetAmount,
                           '${goal.targetAmount.toStringAsFixed(0)} F',
                         ),
                         _buildRow(
+                          context,
                           AppLocalizations.of(context)!.deadline,
                           _formatDate(goal.deadline),
                         ),
@@ -115,7 +118,7 @@ class GoalImportPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(String label, String value) {
+  Widget _buildRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -124,7 +127,7 @@ class GoalImportPage extends StatelessWidget {
           Text(
             label,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           Text(
