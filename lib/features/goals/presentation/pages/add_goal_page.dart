@@ -11,6 +11,9 @@ import '../bloc/goals_bloc.dart';
 import '../bloc/goals_event.dart';
 import '../bloc/goals_state.dart';
 import '../../data/models/goal_model.dart';
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../di/injection.dart';
 
 class AddGoalPage extends StatefulWidget {
   const AddGoalPage({super.key});
@@ -27,6 +30,9 @@ class _AddGoalPageState extends State<AddGoalPage> {
   final _emojiController = TextEditingController();
   final _percentageController = TextEditingController(text: '0');
 
+  final GlobalKey _nameKey = GlobalKey();
+  final GlobalKey _amountKey = GlobalKey();
+
   String _selectedType = 'savings';
   String _selectedPriority = 'medium';
   String _selectedStrategy = 'custom';
@@ -34,6 +40,48 @@ class _AddGoalPageState extends State<AddGoalPage> {
   bool _enableSurplus = false;
   bool _enableRoundup = false;
   bool _showAdvanced = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('add_goal')) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(context).startShowCase([_nameKey, _amountKey]);
+        tutorialService.markTutorialAsSeen('add_goal');
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _amountController.dispose();
+    _emojiController.dispose();
+    _percentageController.dispose();
+    super.dispose();
+  }
 
   void _onStrategyChanged(String strategy) {
     setState(() {
@@ -49,16 +97,6 @@ class _AddGoalPageState extends State<AddGoalPage> {
         _showAdvanced = true;
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    _amountController.dispose();
-    _emojiController.dispose();
-    _percentageController.dispose();
-    super.dispose();
   }
 
   void _onSave(BuildContext context) {
@@ -126,211 +164,235 @@ class _AddGoalPageState extends State<AddGoalPage> {
           );
         }
       },
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.addGoalTitle)),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppTextField(
-                  controller: _nameController,
-                  label: AppLocalizations.of(context)!.goalNameLabel,
-                  hint: AppLocalizations.of(context)!.goalNameHint,
-                  validator: (value) => (value == null || value.isEmpty)
-                      ? AppLocalizations.of(context)!.requiredField
-                      : null,
-                ),
-                const SizedBox(height: 20),
-                AppTextField(
-                  controller: _descriptionController,
-                  label: AppLocalizations.of(context)!.goalDescriptionLabel,
-                  hint: AppLocalizations.of(context)!.goalDescriptionHint,
-                  maxLines: 2,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: _buildDropdown<String>(
-                        context,
-                        label: AppLocalizations.of(context)!.goalTypeLabel,
-                        value: _selectedType,
-                        items: [
-                          DropdownMenuItem(
-                            value: 'emergency',
-                            child: Text(
-                              AppLocalizations.of(context)!.emergencyType,
+      child: ShowCaseWidget(
+        builder: (context) => Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            title: Text(AppLocalizations.of(context)!.addGoalTitle),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Showcase(
+                    key: _nameKey,
+                    title: AppLocalizations.of(context)!.goalNameLabel,
+                    description: AppLocalizations.of(context)!.goalNameHint,
+                    child: AppTextField(
+                      controller: _nameController,
+                      label: AppLocalizations.of(context)!.goalNameLabel,
+                      hint: AppLocalizations.of(context)!.goalNameHint,
+                      validator: (value) => (value == null || value.isEmpty)
+                          ? AppLocalizations.of(context)!.requiredField
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  AppTextField(
+                    controller: _descriptionController,
+                    label: AppLocalizations.of(context)!.goalDescriptionLabel,
+                    hint: AppLocalizations.of(context)!.goalDescriptionHint,
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: _buildDropdown<String>(
+                          context,
+                          label: AppLocalizations.of(context)!.goalTypeLabel,
+                          value: _selectedType,
+                          items: [
+                            DropdownMenuItem(
+                              value: 'emergency',
+                              child: Text(
+                                AppLocalizations.of(context)!.emergencyType,
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'savings',
+                              child: Text(
+                                AppLocalizations.of(context)!.savingsType,
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'investment',
+                              child: Text(
+                                AppLocalizations.of(context)!.investmentType,
+                              ),
+                            ),
+                          ],
+                          onChanged: (value) =>
+                              setState(() => _selectedType = value!),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: AppTextField(
+                          controller: _emojiController,
+                          label: AppLocalizations.of(context)!.goalEmojiLabel,
+                          hint: '🎯',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  _buildDropdown<String>(
+                    context,
+                    label: AppLocalizations.of(context)!.goalPriorityLabel,
+                    value: _selectedPriority,
+                    items: [
+                      DropdownMenuItem(
+                        value: 'high',
+                        child: Text(AppLocalizations.of(context)!.highPriority),
+                      ),
+                      DropdownMenuItem(
+                        value: 'medium',
+                        child: Text(
+                          AppLocalizations.of(context)!.mediumPriority,
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'low',
+                        child: Text(AppLocalizations.of(context)!.lowPriority),
+                      ),
+                    ],
+                    onChanged: (value) =>
+                        setState(() => _selectedPriority = value!),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildStrategyDropdown(),
+                  const SizedBox(height: 20),
+                  Showcase(
+                    key: _amountKey,
+                    title: AppLocalizations.of(context)!.targetAmountLabel,
+                    description: AppLocalizations.of(context)!.amountHint,
+                    child: AppTextField(
+                      controller: _amountController,
+                      label: AppLocalizations.of(context)!.targetAmountLabel,
+                      hint: AppLocalizations.of(context)!.amountHint,
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return AppLocalizations.of(context)!.requiredField;
+                        }
+                        if (double.tryParse(value) == null) {
+                          return AppLocalizations.of(context)!.invalidNumber;
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  InkWell(
+                    onTap: () => _selectDate(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _selectedDate == null
+                                ? AppLocalizations.of(context)!.deadlineLabel
+                                : DateFormat(
+                                    'dd/MM/yyyy',
+                                  ).format(_selectedDate!),
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: _selectedDate == null
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant
+                                  : Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
-                          DropdownMenuItem(
-                            value: 'savings',
-                            child: Text(
-                              AppLocalizations.of(context)!.savingsType,
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'investment',
-                            child: Text(
-                              AppLocalizations.of(context)!.investmentType,
-                            ),
+                          Icon(
+                            Icons.calendar_today,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                            size: 20,
                           ),
                         ],
-                        onChanged: (value) =>
-                            setState(() => _selectedType = value!),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: AppTextField(
-                        controller: _emojiController,
-                        label: AppLocalizations.of(context)!.goalEmojiLabel,
-                        hint: '🎯',
-                        textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  InkWell(
+                    onTap: () => setState(() => _showAdvanced = !_showAdvanced),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.autoSaveRulesTitle,
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            _showAdvanced
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ],
                       ),
+                    ),
+                  ),
+                  if (_showAdvanced) ...[
+                    const SizedBox(height: 16),
+                    _buildSwitchTile(
+                      context,
+                      label: AppLocalizations.of(context)!.enableSurplusLabel,
+                      value: _enableSurplus,
+                      onChanged: (value) =>
+                          setState(() => _enableSurplus = value),
+                    ),
+                    _buildSwitchTile(
+                      context,
+                      label: AppLocalizations.of(context)!.enableRoundupLabel,
+                      value: _enableRoundup,
+                      onChanged: (value) =>
+                          setState(() => _enableRoundup = value),
+                    ),
+                    const SizedBox(height: 16),
+                    AppTextField(
+                      controller: _percentageController,
+                      label: AppLocalizations.of(
+                        context,
+                      )!.percentageIncomeLabel,
+                      hint: '0',
+                      keyboardType: TextInputType.number,
+                      suffix: const Text('%'),
                     ),
                   ],
-                ),
-                const SizedBox(height: 20),
-                _buildDropdown<String>(
-                  context,
-                  label: AppLocalizations.of(context)!.goalPriorityLabel,
-                  value: _selectedPriority,
-                  items: [
-                    DropdownMenuItem(
-                      value: 'high',
-                      child: Text(AppLocalizations.of(context)!.highPriority),
-                    ),
-                    DropdownMenuItem(
-                      value: 'medium',
-                      child: Text(AppLocalizations.of(context)!.mediumPriority),
-                    ),
-                    DropdownMenuItem(
-                      value: 'low',
-                      child: Text(AppLocalizations.of(context)!.lowPriority),
-                    ),
-                  ],
-                  onChanged: (value) =>
-                      setState(() => _selectedPriority = value!),
-                ),
-                const SizedBox(height: 20),
-                _buildStrategyDropdown(),
-                const SizedBox(height: 20),
-                AppTextField(
-                  controller: _amountController,
-                  label: AppLocalizations.of(context)!.targetAmountLabel,
-                  hint: AppLocalizations.of(context)!.amountHint,
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context)!.requiredField;
-                    }
-                    if (double.tryParse(value) == null) {
-                      return AppLocalizations.of(context)!.invalidNumber;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                InkWell(
-                  onTap: () => _selectDate(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _selectedDate == null
-                              ? AppLocalizations.of(context)!.deadlineLabel
-                              : DateFormat('dd/MM/yyyy').format(_selectedDate!),
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: _selectedDate == null
-                                ? Theme.of(context).colorScheme.onSurfaceVariant
-                                : Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                        Icon(
-                          Icons.calendar_today,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          size: 20,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                InkWell(
-                  onTap: () => setState(() => _showAdvanced = !_showAdvanced),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.autoSaveRulesTitle,
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Spacer(),
-                        Icon(
-                          _showAdvanced
-                              ? Icons.keyboard_arrow_up
-                              : Icons.keyboard_arrow_down,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (_showAdvanced) ...[
-                  const SizedBox(height: 16),
-                  _buildSwitchTile(
-                    context,
-                    label: AppLocalizations.of(context)!.enableSurplusLabel,
-                    value: _enableSurplus,
-                    onChanged: (value) =>
-                        setState(() => _enableSurplus = value),
-                  ),
-                  _buildSwitchTile(
-                    context,
-                    label: AppLocalizations.of(context)!.enableRoundupLabel,
-                    value: _enableRoundup,
-                    onChanged: (value) =>
-                        setState(() => _enableRoundup = value),
-                  ),
-                  const SizedBox(height: 16),
-                  AppTextField(
-                    controller: _percentageController,
-                    label: AppLocalizations.of(context)!.percentageIncomeLabel,
-                    hint: '0',
-                    keyboardType: TextInputType.number,
-                    suffix: const Text('%'),
+                  const SizedBox(height: 40),
+                  BlocBuilder<GoalsBloc, GoalsState>(
+                    builder: (context, state) {
+                      return AppButton(
+                        text: AppLocalizations.of(context)!.saveGoalAction,
+                        isLoading: state.status == GoalsStatus.loading,
+                        onPressed: () => _onSave(context),
+                      );
+                    },
                   ),
                 ],
-                const SizedBox(height: 40),
-                BlocBuilder<GoalsBloc, GoalsState>(
-                  builder: (context, state) {
-                    return AppButton(
-                      text: AppLocalizations.of(context)!.saveGoalAction,
-                      isLoading: state.status == GoalsStatus.loading,
-                      onPressed: () => _onSave(context),
-                    );
-                  },
-                ),
-              ],
+              ),
             ),
           ),
         ),

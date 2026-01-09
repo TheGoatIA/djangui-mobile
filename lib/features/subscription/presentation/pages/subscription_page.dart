@@ -12,8 +12,64 @@ import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/subscription/data/models/payment_model.dart';
 // import 'package:go_router/go_router.dart';
 
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
+
 class SubscriptionPage extends StatelessWidget {
   const SubscriptionPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SubscriptionView();
+  }
+}
+
+class SubscriptionView extends StatefulWidget {
+  const SubscriptionView({super.key});
+
+  @override
+  State<SubscriptionView> createState() => _SubscriptionViewState();
+}
+
+class _SubscriptionViewState extends State<SubscriptionView> {
+  final GlobalKey _premiumPlanKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('subscription')) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(context).startShowCase([_premiumPlanKey]);
+        tutorialService.markTutorialAsSeen('subscription');
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +88,6 @@ class SubscriptionPage extends StatelessWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           context.read<AuthBloc>().add(AuthRefreshUserRequested());
-          // Wait a bit to let the bloc update (optional, but good for UX)
           await Future.delayed(const Duration(seconds: 1));
         },
         child: SingleChildScrollView(
@@ -77,22 +132,29 @@ class SubscriptionPage extends StatelessWidget {
                     : null,
               ),
               const SizedBox(height: 24),
-              _buildPlanCard(
-                context,
-                title: AppLocalizations.of(context)!.premiumPlan,
-                price: priceInfo.formattedPrice, // Dynamic price
-                features: [
-                  AppLocalizations.of(context)!.featureInvestments,
-                  AppLocalizations.of(context)!.featureOCR,
-                  AppLocalizations.of(context)!.featureAIReports,
-                  AppLocalizations.of(context)!.featureBulkImport,
-                ],
-                isPremium: true,
-                isBestValue: true,
-                isCurrentPlan: (user?.isPremium ?? false),
-                onTap: !(user?.isPremium ?? false)
-                    ? () => _showPaymentOptions(context, priceInfo)
-                    : null,
+              Showcase(
+                key: _premiumPlanKey,
+                title: AppLocalizations.of(context)!.tutorialSubscriptionTitle,
+                description: AppLocalizations.of(
+                  context,
+                )!.tutorialSubscriptionDesc,
+                child: _buildPlanCard(
+                  context,
+                  title: AppLocalizations.of(context)!.premiumPlan,
+                  price: priceInfo.formattedPrice,
+                  features: [
+                    AppLocalizations.of(context)!.featureInvestments,
+                    AppLocalizations.of(context)!.featureOCR,
+                    AppLocalizations.of(context)!.featureAIReports,
+                    AppLocalizations.of(context)!.featureBulkImport,
+                  ],
+                  isPremium: true,
+                  isBestValue: true,
+                  isCurrentPlan: (user?.isPremium ?? false),
+                  onTap: !(user?.isPremium ?? false)
+                      ? () => _showPaymentOptions(context, priceInfo)
+                      : null,
+                ),
               ),
               const SizedBox(height: 48),
               _buildHistorySection(context),

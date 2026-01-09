@@ -12,6 +12,9 @@ import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../bloc/investments_bloc.dart';
 import '../../../../core/theme/app_shadows.dart';
 
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
+
 class InvestmentsPage extends StatelessWidget {
   const InvestmentsPage({super.key});
 
@@ -20,115 +23,209 @@ class InvestmentsPage extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
           getIt<InvestmentsBloc>()..add(const LoadInvestments()),
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.myInvestments),
-          actions: [
-            IconButton(
+      child: const InvestmentsView(),
+    );
+  }
+}
+
+class InvestmentsView extends StatefulWidget {
+  const InvestmentsView({super.key});
+
+  @override
+  State<InvestmentsView> createState() => _InvestmentsViewState();
+}
+
+class _InvestmentsViewState extends State<InvestmentsView> {
+  final GlobalKey _premiumKey = GlobalKey();
+  final GlobalKey _listKey = GlobalKey();
+  final GlobalKey _addKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('investments')) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        final authState = context.read<AuthBloc>().state;
+        final isPremium = authState.authResponse?.user.isPremium ?? false;
+
+        if (!isPremium) {
+          ShowCaseWidget.of(context).startShowCase([_premiumKey]);
+        } else {
+          ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
+        }
+        tutorialService.markTutorialAsSeen('investments');
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.myInvestments),
+        actions: [
+          Showcase(
+            key: _addKey,
+            title: AppLocalizations.of(context)!.tutorialAddInvestmentTitle,
+            description: AppLocalizations.of(
+              context,
+            )!.tutorialAddInvestmentDesc,
+            child: IconButton(
               icon: const Icon(Icons.add),
               onPressed: () =>
                   context.push('${RouteConstants.investments}/add'),
             ),
-          ],
-        ),
-        body: BlocBuilder<AuthBloc, AuthState>(
-          // Listen to AuthBloc for premium status
-          builder: (context, authState) {
-            final isPremium = authState.authResponse?.user.isPremium ?? false;
+          ),
+        ],
+      ),
+      body: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
+          final isPremium = authState.authResponse?.user.isPremium ?? false;
 
-            if (!isPremium) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.lock_outline,
-                        size: 80,
-                        color: Theme.of(context).colorScheme.primary,
+          if (!isPremium) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.lock_outline,
+                      size: 80,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      AppLocalizations.of(context)!.premiumWelcomeTitle,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.h3,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      AppLocalizations.of(
+                        context,
+                      )!.investmentsPremiumRestriction,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                      const SizedBox(height: 24),
-                      Text(
-                        AppLocalizations.of(context)!.premiumWelcomeTitle,
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.h3,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.investmentsPremiumRestriction,
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      AppButton(
+                    ),
+                    const SizedBox(height: 32),
+                    Showcase(
+                      key: _premiumKey,
+                      title: AppLocalizations.of(
+                        context,
+                      )!.tutorialSubscriptionTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialSubscriptionDesc,
+                      child: AppButton(
                         text: AppLocalizations.of(context)!.upgradeToPremium,
                         onPressed: () =>
                             context.push(RouteConstants.subscription),
                       ),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            return BlocBuilder<InvestmentsBloc, InvestmentsState>(
-              builder: (context, state) {
-                if (state.status == InvestmentsStatus.loading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state.status == InvestmentsStatus.error) {
-                  return Center(
-                    child: Text(
-                      state.errorMessage ??
-                          AppLocalizations.of(context)!.errorOccurred,
                     ),
-                  );
-                } else if (state.investments.isEmpty) {
-                  return _buildEmptyState(context);
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: state.investments.length,
-                  itemBuilder: (context, index) {
-                    final investment = state.investments[index];
-                    return Dismissible(
-                      key: Key(investment.id),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.error,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        margin: const EdgeInsets.only(bottom: 16),
-                        child: Icon(
-                          Icons.delete,
-                          color: Theme.of(context).colorScheme.onError,
-                        ),
-                      ),
-                      confirmDismiss: (direction) async {
-                        return await _showDeleteConfirmation(context);
-                      },
-                      onDismissed: (direction) {
-                        context.read<InvestmentsBloc>().add(
-                          DeleteInvestment(investment.id),
-                        );
-                      },
-                      child: _buildInvestmentCard(context, investment),
-                    );
-                  },
-                );
-              },
+                  ],
+                ),
+              ),
             );
-          },
-        ),
+          }
+
+          return BlocBuilder<InvestmentsBloc, InvestmentsState>(
+            builder: (context, state) {
+              if (state.status == InvestmentsStatus.loading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state.status == InvestmentsStatus.error) {
+                return Center(
+                  child: Text(
+                    state.errorMessage ??
+                        AppLocalizations.of(context)!.errorOccurred,
+                  ),
+                );
+              } else if (state.investments.isEmpty) {
+                return _buildEmptyState(context);
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(20),
+                itemCount: state.investments.length,
+                itemBuilder: (context, index) {
+                  final investment = state.investments[index];
+                  final widget = _buildInvestmentCard(context, investment);
+
+                  final dismissible = Dismissible(
+                    key: Key(investment.id),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.error,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: Icon(
+                        Icons.delete,
+                        color: Theme.of(context).colorScheme.onError,
+                      ),
+                    ),
+                    confirmDismiss: (direction) async {
+                      return await _showDeleteConfirmation(context);
+                    },
+                    onDismissed: (direction) {
+                      context.read<InvestmentsBloc>().add(
+                        DeleteInvestment(investment.id),
+                      );
+                    },
+                    child: widget,
+                  );
+
+                  if (index == 0) {
+                    return Showcase(
+                      key: _listKey,
+                      title: AppLocalizations.of(
+                        context,
+                      )!.tutorialInvestmentsTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialInvestmentsDesc,
+                      child: dismissible,
+                    );
+                  }
+
+                  return dismissible;
+                },
+              );
+            },
+          );
+        },
       ),
     );
   }

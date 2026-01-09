@@ -2479,6 +2479,222 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'À propos de l\'application'**
   String get aboutApp;
+
+  /// No description provided for @tutorialGamificationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue sur votre Dashboard'**
+  String get tutorialGamificationTitle;
+
+  /// No description provided for @tutorialGamificationDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ici vous pouvez suivre votre progression, vos points et vos badges.'**
+  String get tutorialGamificationDesc;
+
+  /// No description provided for @tutorialBalanceCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Solde Total'**
+  String get tutorialBalanceCardTitle;
+
+  /// No description provided for @tutorialBalanceCardDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visualisez rapidement l\'ensemble de vos avoirs et vos revenus mensuels.'**
+  String get tutorialBalanceCardDesc;
+
+  /// No description provided for @tutorialQuickActionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actions Rapides'**
+  String get tutorialQuickActionsTitle;
+
+  /// No description provided for @tutorialQuickActionsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez une transaction, investissez ou consultez vos rapports en un clic.'**
+  String get tutorialQuickActionsDesc;
+
+  /// No description provided for @tutorialInsightsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyses Détaillées'**
+  String get tutorialInsightsTitle;
+
+  /// No description provided for @tutorialInsightsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtrez par période pour voir l\'évolution de vos finances.'**
+  String get tutorialInsightsDesc;
+
+  /// No description provided for @resetTutorials.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinitialiser les tutoriels'**
+  String get resetTutorials;
+
+  /// No description provided for @resetTutorialsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommencez toutes les visites guidées pour revoir comment utiliser l\'application.'**
+  String get resetTutorialsDesc;
+
+  /// No description provided for @resetTutorialsConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous réinitialiser tous les tutoriels ? Ils s\'afficheront à nouveau lors de vos prochaines visites.'**
+  String get resetTutorialsConfirm;
+
+  /// No description provided for @resetTutorialsSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tutoriels réinitialisés avec succès'**
+  String get resetTutorialsSuccess;
+
+  /// No description provided for @tutorialChallengesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défis & Objectifs'**
+  String get tutorialChallengesTitle;
+
+  /// No description provided for @tutorialChallengesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relevez des défis pour améliorer votre santé financière.'**
+  String get tutorialChallengesDesc;
+
+  /// No description provided for @tutorialBudgetsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des Budgets'**
+  String get tutorialBudgetsTitle;
+
+  /// No description provided for @tutorialBudgetsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez et suivez vos limites de dépenses par catégorie.'**
+  String get tutorialBudgetsDesc;
+
+  /// No description provided for @tutorialGoalsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectifs d\'Épargne'**
+  String get tutorialGoalsTitle;
+
+  /// No description provided for @tutorialGoalsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Définissez des projets et suivez votre progression pour les réaliser.'**
+  String get tutorialGoalsDesc;
+
+  /// No description provided for @tutorialTransactionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique des Transactions'**
+  String get tutorialTransactionsTitle;
+
+  /// No description provided for @tutorialTransactionsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultez le détail de toutes vos entrées et sorties d\'argent.'**
+  String get tutorialTransactionsDesc;
+
+  /// No description provided for @tutorialInvestmentsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos Investissements'**
+  String get tutorialInvestmentsTitle;
+
+  /// No description provided for @tutorialInvestmentsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivez la performance de vos placements et faites fructifier votre argent.'**
+  String get tutorialInvestmentsDesc;
+
+  /// No description provided for @tutorialProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Profil'**
+  String get tutorialProfileTitle;
+
+  /// No description provided for @tutorialProfileDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérez vos informations personnelles, votre abonnement et vos paramètres.'**
+  String get tutorialProfileDesc;
+
+  /// No description provided for @tutorialAddTransactionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une Transaction'**
+  String get tutorialAddTransactionTitle;
+
+  /// No description provided for @tutorialAddTransactionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez les détails pour garder un œil sur votre budget.'**
+  String get tutorialAddTransactionDesc;
+
+  /// No description provided for @tutorialAddGoalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvel Objectif'**
+  String get tutorialAddGoalTitle;
+
+  /// No description provided for @tutorialAddGoalDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnez un nom à votre projet et fixez-vous un montant cible.'**
+  String get tutorialAddGoalDesc;
+
+  /// No description provided for @tutorialAddBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau Budget'**
+  String get tutorialAddBudgetTitle;
+
+  /// No description provided for @tutorialAddBudgetDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allouez une somme précise à une catégorie pour ce mois.'**
+  String get tutorialAddBudgetDesc;
+
+  /// No description provided for @tutorialAddInvestmentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau Placement'**
+  String get tutorialAddInvestmentTitle;
+
+  /// No description provided for @tutorialAddInvestmentDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diversifiez votre portefeuille en ajoutant un nouvel investissement.'**
+  String get tutorialAddInvestmentDesc;
+
+  /// No description provided for @tutorialOCRTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scan de Reçu'**
+  String get tutorialOCRTitle;
+
+  /// No description provided for @tutorialOCRDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisez l\'IA pour saisir automatiquement vos transactions à partir de vos photos.'**
+  String get tutorialOCRDesc;
+
+  /// No description provided for @tutorialSubscriptionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Djangui Premium'**
+  String get tutorialSubscriptionTitle;
+
+  /// No description provided for @tutorialSubscriptionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez tous les avantages exclusifs pour booster vos finances.'**
+  String get tutorialSubscriptionDesc;
 }
 
 class _AppLocalizationsDelegate

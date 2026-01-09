@@ -1257,4 +1257,130 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutApp => 'About App';
+
+  @override
+  String get tutorialGamificationTitle => 'Welcome to your Dashboard';
+
+  @override
+  String get tutorialGamificationDesc =>
+      'Here you can track your progress, points, and badges.';
+
+  @override
+  String get tutorialBalanceCardTitle => 'Your Total Balance';
+
+  @override
+  String get tutorialBalanceCardDesc =>
+      'Quickly view all your assets and monthly income.';
+
+  @override
+  String get tutorialQuickActionsTitle => 'Quick Actions';
+
+  @override
+  String get tutorialQuickActionsDesc =>
+      'Add a transaction, invest, or check your reports in one click.';
+
+  @override
+  String get tutorialInsightsTitle => 'Detailed Analysis';
+
+  @override
+  String get tutorialInsightsDesc =>
+      'Filter by period to see your financial evolution.';
+
+  @override
+  String get resetTutorials => 'Reset Tutorials';
+
+  @override
+  String get resetTutorialsDesc =>
+      'Recommencez toutes les visites guidées pour revoir comment utiliser l\'application.';
+
+  @override
+  String get resetTutorialsConfirm =>
+      'Do you want to reset all tutorials? They will be shown again during your next visits.';
+
+  @override
+  String get resetTutorialsSuccess => 'Tutorials reset successfully';
+
+  @override
+  String get tutorialChallengesTitle => 'Challenges & Goals';
+
+  @override
+  String get tutorialChallengesDesc =>
+      'Take on challenges to improve your financial health.';
+
+  @override
+  String get tutorialBudgetsTitle => 'Budget Management';
+
+  @override
+  String get tutorialBudgetsDesc =>
+      'Create and track your spending limits by category.';
+
+  @override
+  String get tutorialGoalsTitle => 'Savings Goals';
+
+  @override
+  String get tutorialGoalsDesc =>
+      'Set projects and track your progress to achieve them.';
+
+  @override
+  String get tutorialTransactionsTitle => 'Transaction History';
+
+  @override
+  String get tutorialTransactionsDesc =>
+      'View the details of all your money inflows and outflows.';
+
+  @override
+  String get tutorialInvestmentsTitle => 'Your Investments';
+
+  @override
+  String get tutorialInvestmentsDesc =>
+      'Track the performance of your investments and grow your money.';
+
+  @override
+  String get tutorialProfileTitle => 'Your Profile';
+
+  @override
+  String get tutorialProfileDesc =>
+      'Manage your personal information, subscription, and settings.';
+
+  @override
+  String get tutorialAddTransactionTitle => 'Add a Transaction';
+
+  @override
+  String get tutorialAddTransactionDesc =>
+      'Enter details to keep an eye on your budget.';
+
+  @override
+  String get tutorialAddGoalTitle => 'New Goal';
+
+  @override
+  String get tutorialAddGoalDesc =>
+      'Give your project a name and set a target amount.';
+
+  @override
+  String get tutorialAddBudgetTitle => 'New Budget';
+
+  @override
+  String get tutorialAddBudgetDesc =>
+      'Allocate a precise amount to a category for this month.';
+
+  @override
+  String get tutorialAddInvestmentTitle => 'New Investment';
+
+  @override
+  String get tutorialAddInvestmentDesc =>
+      'Diversify your portfolio by adding a new investment.';
+
+  @override
+  String get tutorialOCRTitle => 'Receipt Scan';
+
+  @override
+  String get tutorialOCRDesc =>
+      'Use AI to automatically capture your transactions from your photos.';
+
+  @override
+  String get tutorialSubscriptionTitle => 'Djangui Premium';
+
+  @override
+  String get tutorialSubscriptionDesc =>
+      'Discover all the exclusive benefits to boost your finances.';
 }

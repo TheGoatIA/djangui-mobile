@@ -10,6 +10,9 @@ import '../bloc/budgets_state.dart';
 import '../../data/models/budget_model.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/constants/app_categories.dart';
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../di/injection.dart';
 
 class AddBudgetPage extends StatefulWidget {
   const AddBudgetPage({super.key});
@@ -35,10 +38,48 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
 
   DateTime _selectedDate = DateTime.now();
 
+  final GlobalKey _categoryKey = GlobalKey();
+  final GlobalKey _amountKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     _addCategory();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('add_budget')) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(context).startShowCase([_categoryKey, _amountKey]);
+        tutorialService.markTutorialAsSeen('add_budget');
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    for (final item in _categoryItems) {
+      item.dispose();
+    }
+    super.dispose();
   }
 
   void _addCategory() {
@@ -54,14 +95,6 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
         item.dispose();
       });
     }
-  }
-
-  @override
-  void dispose() {
-    for (final item in _categoryItems) {
-      item.dispose();
-    }
-    super.dispose();
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -115,6 +148,46 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
     }
   }
 
+  Widget _buildCategoryDropdown(_CategoryRowItem item) {
+    return DropdownButtonFormField<String>(
+      initialValue: item.selectedCategory,
+      decoration: InputDecoration(
+        labelText: AppLocalizations.of(context)!.categoryLabel,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      hint: Text(AppLocalizations.of(context)!.categoryHint),
+      items: AppCategories.categories.map((String category) {
+        return DropdownMenuItem<String>(value: category, child: Text(category));
+      }).toList(),
+      onChanged: (String? newValue) {
+        setState(() {
+          item.selectedCategory = newValue;
+        });
+      },
+      validator: (value) => (value == null || value.isEmpty)
+          ? AppLocalizations.of(context)!.requiredField
+          : null,
+    );
+  }
+
+  Widget _buildAmountField(_CategoryRowItem item) {
+    return AppTextField(
+      controller: item.amountController,
+      label: AppLocalizations.of(context)!.amountLabel,
+      hint: AppLocalizations.of(context)!.amountHint,
+      keyboardType: TextInputType.number,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return AppLocalizations.of(context)!.requiredField;
+        }
+        if (double.tryParse(value) == null) {
+          return AppLocalizations.of(context)!.invalidNumber;
+        }
+        return null;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<BudgetsBloc, BudgetsState>(
@@ -136,154 +209,128 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
           );
         }
       },
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.addBudgetTitle),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InkWell(
-                  onTap: () => _selectDate(context),
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.monthAndYear,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+      child: ShowCaseWidget(
+        builder: (context) => Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            title: Text(AppLocalizations.of(context)!.addBudgetTitle),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InkWell(
+                    onTap: () => _selectDate(context),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.monthAndYear,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        suffixIcon: const Icon(Icons.calendar_today),
                       ),
-                      suffixIcon: const Icon(Icons.calendar_today),
-                    ),
-                    child: Text(
-                      '${_selectedDate.month}/${_selectedDate.year}',
-                      style: const TextStyle(fontSize: 16),
+                      child: Text(
+                        '${_selectedDate.month}/${_selectedDate.year}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.categories,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    TextButton.icon(
-                      onPressed: _addCategory,
-                      icon: const Icon(Icons.add),
-                      label: Text(AppLocalizations.of(context)!.add),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _categoryItems.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = _categoryItems[index];
-                    return Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outlineVariant,
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.categories,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      TextButton.icon(
+                        onPressed: _addCategory,
+                        icon: const Icon(Icons.add),
+                        label: Text(AppLocalizations.of(context)!.add),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _categoryItems.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      final item = _categoryItems[index];
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
                         ),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: DropdownButtonFormField<String>(
-                                  initialValue: item.selectedCategory,
-                                  decoration: InputDecoration(
-                                    labelText: AppLocalizations.of(
-                                      context,
-                                    )!.categoryLabel,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: index == 0
+                                      ? Showcase(
+                                          key: _categoryKey,
+                                          title: AppLocalizations.of(
+                                            context,
+                                          )!.categoryLabel,
+                                          description: AppLocalizations.of(
+                                            context,
+                                          )!.categoryHint,
+                                          child: _buildCategoryDropdown(item),
+                                        )
+                                      : _buildCategoryDropdown(item),
+                                ),
+                                if (_categoryItems.length > 1)
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.delete,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.error,
                                     ),
+                                    onPressed: () => _removeCategory(index),
                                   ),
-                                  hint: Text(
-                                    AppLocalizations.of(context)!.categoryHint,
-                                  ),
-                                  items: AppCategories.categories.map((
-                                    String category,
-                                  ) {
-                                    return DropdownMenuItem<String>(
-                                      value: category,
-                                      child: Text(category),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      item.selectedCategory = newValue;
-                                    });
-                                  },
-                                  validator: (value) =>
-                                      (value == null || value.isEmpty)
-                                      ? AppLocalizations.of(
-                                          context,
-                                        )!.requiredField
-                                      : null,
-                                ),
-                              ),
-                              if (_categoryItems.length > 1)
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.delete,
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
-                                  onPressed: () => _removeCategory(index),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          AppTextField(
-                            controller: item.amountController,
-                            label: AppLocalizations.of(
-                              context,
-                            )!.amountLabel, // Changed label
-                            hint: AppLocalizations.of(context)!.amountHint,
-                            keyboardType: TextInputType.number,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppLocalizations.of(
-                                  context,
-                                )!.requiredField;
-                              }
-                              if (double.tryParse(value) == null) {
-                                return AppLocalizations.of(
-                                  context,
-                                )!.invalidNumber;
-                              }
-                              return null;
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 40),
-                BlocBuilder<BudgetsBloc, BudgetsState>(
-                  builder: (context, state) {
-                    return AppButton(
-                      text: AppLocalizations.of(context)!.createBudgetAction,
-                      isLoading: state.status == BudgetsStatus.loading,
-                      onPressed: () => _onSave(context),
-                    );
-                  },
-                ),
-              ],
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            index == 0
+                                ? Showcase(
+                                    key: _amountKey,
+                                    title: AppLocalizations.of(
+                                      context,
+                                    )!.tutorialAddBudgetTitle,
+                                    description: AppLocalizations.of(
+                                      context,
+                                    )!.tutorialAddBudgetDesc,
+                                    child: _buildAmountField(item),
+                                  )
+                                : _buildAmountField(item),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                  BlocBuilder<BudgetsBloc, BudgetsState>(
+                    builder: (context, state) {
+                      return AppButton(
+                        text: AppLocalizations.of(context)!.createBudgetAction,
+                        isLoading: state.status == BudgetsStatus.loading,
+                        onPressed: () => _onSave(context),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -65,7 +65,12 @@ class NotificationItem extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          timeago.format(notification.createdAt, locale: 'fr'),
+                          timeago.format(
+                            notification.createdAt,
+                            locale: Localizations.localeOf(
+                              context,
+                            ).languageCode,
+                          ),
                           style: AppTextStyles.bodySmall.copyWith(
                             color: Theme.of(
                               context,

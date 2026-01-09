@@ -14,6 +14,8 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/theme/app_shadows.dart';
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
 
 class InsightsPage extends StatelessWidget {
   const InsightsPage({super.key});
@@ -23,45 +25,122 @@ class InsightsPage extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
           getIt<InsightsBloc>()..add(const GetInsightsRequested()),
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.insightsTitle),
-        ),
-        body: BlocBuilder<InsightsBloc, InsightsState>(
-          builder: (context, state) {
-            if (state.status == InsightsStatus.loading &&
-                state.distribution.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      child: const InsightsView(),
+    );
+  }
+}
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildPeriodSelector(context, state.period),
-                  const SizedBox(height: 24),
-                  _buildAINarrativeCard(context),
-                  const SizedBox(height: 32),
-                  _buildSectionTitle(
-                    AppLocalizations.of(context)!.spendingDistribution,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildPieChartCard(state.distribution, context),
-                  const SizedBox(height: 32),
-                  _buildSectionTitle(
-                    AppLocalizations.of(context)!.spendingTrends,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildLineChartCard(state.trends, context),
-                  const SizedBox(height: 32),
-                  _buildTopCategories(state.distribution, context),
-                ],
-              ),
-            );
-          },
-        ),
+class InsightsView extends StatefulWidget {
+  const InsightsView({super.key});
+
+  @override
+  State<InsightsView> createState() => _InsightsViewState();
+}
+
+class _InsightsViewState extends State<InsightsView> {
+  final GlobalKey _periodKey = GlobalKey();
+  final GlobalKey _aiReportKey = GlobalKey();
+  final GlobalKey _chartsKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Watch for tutorial reset
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    super.dispose();
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('insights')) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(
+          context,
+        ).startShowCase([_periodKey, _aiReportKey, _chartsKey]);
+        tutorialService.markTutorialAsSeen('insights');
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.insightsTitle)),
+      body: BlocBuilder<InsightsBloc, InsightsState>(
+        builder: (context, state) {
+          if (state.status == InsightsStatus.loading &&
+              state.distribution.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Showcase(
+                  key: _periodKey,
+                  title: AppLocalizations.of(context)!.tutorialInsightsTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.tutorialInsightsDesc,
+                  child: _buildPeriodSelector(context, state.period),
+                ),
+                const SizedBox(height: 24),
+                Showcase(
+                  key: _aiReportKey,
+                  title: AppLocalizations.of(context)!.aiAnalysisTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.aiAnalysisPremiumRestriction,
+                  child: _buildAINarrativeCard(context),
+                ),
+                const SizedBox(height: 32),
+                _buildSectionTitle(
+                  AppLocalizations.of(context)!.spendingDistribution,
+                ),
+                const SizedBox(height: 16),
+                Showcase(
+                  key: _chartsKey,
+                  title: AppLocalizations.of(context)!.spendingDistribution,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.spendingDistribution,
+                  child: _buildPieChartCard(state.distribution, context),
+                ),
+                const SizedBox(height: 32),
+                _buildSectionTitle(
+                  AppLocalizations.of(context)!.spendingTrends,
+                ),
+                const SizedBox(height: 16),
+                _buildLineChartCard(state.trends, context),
+                const SizedBox(height: 32),
+                _buildTopCategories(state.distribution, context),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -188,8 +267,8 @@ class InsightsPage extends StatelessWidget {
           ? Center(child: Text(AppLocalizations.of(context)!.noDataAvailable))
           : LineChart(
               LineChartData(
-                gridData: FlGridData(show: false),
-                titlesData: FlTitlesData(show: false),
+                gridData: const FlGridData(show: false),
+                titlesData: const FlTitlesData(show: false),
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
@@ -199,7 +278,7 @@ class InsightsPage extends StatelessWidget {
                     isCurved: true,
                     color: Theme.of(context).colorScheme.primary,
                     barWidth: 4,
-                    dotData: FlDotData(show: false),
+                    dotData: const FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: true,
                       color: Theme.of(

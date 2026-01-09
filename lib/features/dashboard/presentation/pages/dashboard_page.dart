@@ -18,149 +18,211 @@ import '../../../../core/services/sms_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_shadows.dart';
-
 import '../../../../core/services/notification_service.dart';
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
 
-class DashboardPage extends StatefulWidget {
+class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
+      child: const DashboardView(),
+    );
+  }
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class DashboardView extends StatefulWidget {
+  const DashboardView({super.key});
+
+  @override
+  State<DashboardView> createState() => _DashboardViewState();
+}
+
+class _DashboardViewState extends State<DashboardView> {
+  final GlobalKey _gamificationKey = GlobalKey();
+  final GlobalKey _balanceKey = GlobalKey();
+  final GlobalKey _quickActionsKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     // Sync FCM token when dashboard loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getIt<NotificationService>().syncFcmToken();
+      _startTutorial();
     });
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Watch for tutorial reset
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    super.dispose();
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('dashboard')) {
+      try {
+        final shell = StatefulNavigationShell.of(context);
+        if (shell.currentIndex != 0) return;
+      } catch (_) {
+        if (ModalRoute.of(context)?.isCurrent != true) return;
+      }
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(
+          context,
+        ).startShowCase([_gamificationKey, _balanceKey, _quickActionsKey]);
+        tutorialService.markTutorialAsSeen('dashboard');
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) =>
-              getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state.status == AuthStatus.unauthenticated) {
+              context.go(RouteConstants.login);
+            }
+          },
         ),
-      ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<AuthBloc, AuthState>(
-            listener: (context, state) {
-              if (state.status == AuthStatus.unauthenticated) {
-                context.go(RouteConstants.login);
-              }
-            },
-          ),
-          BlocListener<AuthBloc, AuthState>(
-            listenWhen: (previous, current) {
-              return previous.status == AuthStatus.authenticated &&
-                  current.status == AuthStatus.authenticated &&
-                  previous.authResponse?.user != null &&
-                  current.authResponse?.user != null &&
-                  current.authResponse!.user.level >
-                      previous.authResponse!.user.level;
-            },
-            listener: (context, state) {
-              showDialog(
-                context: context,
-                builder: (_) => LevelUpDialog(
-                  newLevel: state.authResponse!.user.level,
-                  onContinue: () => Navigator.of(context).pop(),
-                ),
-              );
-            },
-          ),
-          BlocListener<TransactionsBloc, TransactionsState>(
-            listenWhen: (previous, current) =>
-                current.status == TransactionsStatus.success &&
-                previous.status != TransactionsStatus.success,
-            listener: (context, state) {
-              // Refresh dashboard when a transaction is added/updated successfully
-              context.read<DashboardBloc>().add(GetDashboardDataRequested());
-            },
-          ),
-          BlocListener<AuthBloc, AuthState>(
-            listenWhen: (previous, current) {
-              // Listen for significant profile changes that affect dashboard (e.g. monthlyIncome)
-              if (previous.authResponse?.user == null ||
-                  current.authResponse?.user == null) {
-                return false;
-              }
-              return previous.authResponse!.user != current.authResponse!.user;
-            },
-            listener: (context, state) {
-              context.read<DashboardBloc>().add(GetDashboardDataRequested());
-            },
-          ),
-        ],
-        child: Builder(
-          builder: (context) {
-            return Scaffold(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              appBar: _buildAppBar(context),
-              body: RefreshIndicator(
-                onRefresh: () async {
-                  context.read<DashboardBloc>().add(
-                    GetDashboardDataRequested(),
-                  );
-                  context.read<TransactionsBloc>().add(
-                    const GetTransactionsRequested(forceRefresh: true),
-                  );
-                },
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const GamificationHeader(),
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: _buildBalanceCard(context)
-                            .animate()
-                            .fade(duration: 500.ms)
-                            .slideY(
-                              begin: 0.1,
-                              end: 0,
-                              curve: Curves.easeOutQuad,
-                            ),
-                      ),
-                      const SizedBox(height: 24),
-                      _buildQuickActions(context)
-                          .animate(delay: 200.ms)
-                          .fade(duration: 500.ms)
-                          .slideY(
-                            begin: 0.1,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                          ),
-                      const SizedBox(height: 32),
-                      _buildSectionHeader(
-                        context,
-                        AppLocalizations.of(context)!.recentActivities,
-                        () => context.push(RouteConstants.transactions),
-                      ).animate(delay: 300.ms).fade(),
-                      const SizedBox(height: 16),
-                      _buildRecentActivities(context)
-                          .animate(delay: 400.ms)
-                          .fade(duration: 500.ms)
-                          .slideY(
-                            begin: 0.1,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                          ),
-                    ],
-                  ),
-                ),
+        BlocListener<AuthBloc, AuthState>(
+          listenWhen: (previous, current) {
+            return previous.status == AuthStatus.authenticated &&
+                current.status == AuthStatus.authenticated &&
+                previous.authResponse?.user != null &&
+                current.authResponse?.user != null &&
+                current.authResponse!.user.level >
+                    previous.authResponse!.user.level;
+          },
+          listener: (context, state) {
+            showDialog(
+              context: context,
+              builder: (_) => LevelUpDialog(
+                newLevel: state.authResponse!.user.level,
+                onContinue: () => Navigator.of(context).pop(),
               ),
             );
           },
+        ),
+        BlocListener<TransactionsBloc, TransactionsState>(
+          listenWhen: (previous, current) =>
+              current.status == TransactionsStatus.success &&
+              previous.status != TransactionsStatus.success,
+          listener: (context, state) {
+            // Refresh dashboard when a transaction is added/updated successfully
+            context.read<DashboardBloc>().add(GetDashboardDataRequested());
+          },
+        ),
+        BlocListener<AuthBloc, AuthState>(
+          listenWhen: (previous, current) {
+            // Listen for significant profile changes that affect dashboard (e.g. monthlyIncome)
+            if (previous.authResponse?.user == null ||
+                current.authResponse?.user == null) {
+              return false;
+            }
+            return previous.authResponse!.user != current.authResponse!.user;
+          },
+          listener: (context, state) {
+            context.read<DashboardBloc>().add(GetDashboardDataRequested());
+          },
+        ),
+      ],
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        appBar: _buildAppBar(context),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            context.read<DashboardBloc>().add(GetDashboardDataRequested());
+            context.read<TransactionsBloc>().add(
+              const GetTransactionsRequested(forceRefresh: true),
+            );
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Showcase(
+                  key: _gamificationKey,
+                  title: AppLocalizations.of(
+                    context,
+                  )!.tutorialGamificationTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.tutorialGamificationDesc,
+                  child: const GamificationHeader(),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child:
+                      Showcase(
+                            key: _balanceKey,
+                            title: AppLocalizations.of(
+                              context,
+                            )!.tutorialBalanceCardTitle,
+                            description: AppLocalizations.of(
+                              context,
+                            )!.tutorialBalanceCardDesc,
+                            child: _buildBalanceCard(context),
+                          )
+                          .animate()
+                          .fade(duration: 500.ms)
+                          .slideY(
+                            begin: 0.1,
+                            end: 0,
+                            curve: Curves.easeOutQuad,
+                          ),
+                ),
+                const SizedBox(height: 24),
+                Showcase(
+                      key: _quickActionsKey,
+                      title: AppLocalizations.of(
+                        context,
+                      )!.tutorialQuickActionsTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialQuickActionsDesc,
+                      child: _buildQuickActions(context),
+                    )
+                    .animate(delay: 200.ms)
+                    .fade(duration: 500.ms)
+                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+                const SizedBox(height: 32),
+                _buildSectionHeader(
+                  context,
+                  AppLocalizations.of(context)!.recentActivities,
+                  () => context.push(RouteConstants.transactions),
+                ).animate(delay: 300.ms).fade(),
+                const SizedBox(height: 16),
+                _buildRecentActivities(context)
+                    .animate(delay: 400.ms)
+                    .fade(duration: 500.ms)
+                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+              ],
+            ),
+          ),
         ),
       ),
     );

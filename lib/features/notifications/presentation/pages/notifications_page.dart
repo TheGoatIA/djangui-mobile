@@ -7,6 +7,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/notifications_bloc.dart';
 import '../widgets/notification_item.dart';
 
+import 'package:timeago/timeago.dart' as timeago;
+
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
 
@@ -18,19 +20,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize timeago locales if needed, focusing on French for now as example
-    // In a real app with multiple languages, you might want to load this dynamically based on current locale
-    // However, timeago includes 'fr' messages by default but not loaded, or we use setLocaleMessages
-    // The standard timeago package includes 'en' and 'en_short'. To use others:
-    // timeago.setLocaleMessages('fr', timeago.FrMessages());
-    // Since we don't know if 'timeago' package exports FrMessages directly without importing specific file,
-    // we'll try basic setup. If imports are needed, we assume build_runner would have failed or analysis would show.
-    // Actually, usually: import 'package:timeago/timeago.dart' as timeago;
-    // timeago.setLocaleMessages('fr', timeago.FrMessages());  <-- FrMessages needs import 'package:timeago/src/messages/fr_messages.dart' (if visible)
-    // or typically the package exports them. Let's assume standard usage.
-    // Wait, standard usage often requires importing the message file.
-    // ex: import 'package:timeago/src/messages/fr_messages.dart' as fr_messages;
-    // then: timeago.setLocaleMessages('fr', fr_messages.FrMessages());
+    timeago.setLocaleMessages('fr', FrMessages());
   }
 
   @override
@@ -136,7 +126,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
               child: ListView.separated(
                 itemCount:
                     state.notifications.length + (state.hasReachedMax ? 0 : 1),
-                separatorBuilder: (context, index) => const Divider(height: 1),
+                separatorBuilder: (context, index) =>
+                    const Divider(height: 1, color: Colors.transparent),
                 itemBuilder: (context, index) {
                   if (index >= state.notifications.length) {
                     context.read<NotificationsBloc>().add(
@@ -175,4 +166,39 @@ class _NotificationsPageState extends State<NotificationsPage> {
       ),
     );
   }
+}
+
+class FrMessages implements timeago.LookupMessages {
+  @override
+  String prefixAgo() => 'il y a';
+  @override
+  String prefixFromNow() => "dans";
+  @override
+  String suffixAgo() => '';
+  @override
+  String suffixFromNow() => '';
+  @override
+  String lessThanOneMinute(int seconds) => "moins d'une minute";
+  @override
+  String aboutAMinute(int minutes) => "environ une minute";
+  @override
+  String minutes(int minutes) => "environ $minutes minutes";
+  @override
+  String aboutAnHour(int minutes) => "environ une heure";
+  @override
+  String hours(int hours) => "environ $hours heures";
+  @override
+  String aDay(int hours) => "environ un jour";
+  @override
+  String days(int days) => "environ $days jours";
+  @override
+  String aboutAMonth(int days) => "environ un mois";
+  @override
+  String months(int months) => "environ $months mois";
+  @override
+  String aboutAYear(int year) => "environ un an";
+  @override
+  String years(int years) => "environ $years ans";
+  @override
+  String wordSeparator() => " ";
 }

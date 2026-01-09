@@ -17,6 +17,7 @@ import 'package:djangui/core/services/payment_service.dart' as _i29;
 import 'package:djangui/core/services/share_service.dart' as _i69;
 import 'package:djangui/core/services/sms_service.dart' as _i252;
 import 'package:djangui/core/services/sync_service.dart' as _i316;
+import 'package:djangui/core/services/tutorial_service.dart' as _i897;
 import 'package:djangui/di/register_module.dart' as _i153;
 import 'package:djangui/features/auth/data/datasources/auth_api_service.dart'
     as _i651;
@@ -221,6 +222,8 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i331.NotificationApiService>()));
     gh.factory<_i754.SettingsBloc>(
         () => _i754.SettingsBloc(gh<_i460.SharedPreferences>()));
+    gh.lazySingleton<_i897.TutorialService>(
+        () => _i897.TutorialService(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i959.BudgetRemoteDataSource>(
         () => _i959.BudgetRemoteDataSourceImpl(gh<_i876.BudgetApiService>()));
     gh.lazySingleton<_i540.ChallengeRemoteDataSource>(() =>

@@ -13,70 +13,174 @@ import '../../../../l10n/app_localizations.dart';
 import '../widgets/budget_detail_sheet.dart';
 import '../../../../core/theme/app_shadows.dart';
 
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../di/injection.dart';
+
 class BudgetListPage extends StatelessWidget {
   const BudgetListPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const BudgetListView();
+  }
+}
+
+class BudgetListView extends StatefulWidget {
+  const BudgetListView({super.key});
+
+  @override
+  State<BudgetListView> createState() => _BudgetListViewState();
+}
+
+class _BudgetListViewState extends State<BudgetListView> {
+  final GlobalKey _listKey = GlobalKey();
+  final GlobalKey _addKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('budgets')) {
+      try {
+        final shell = StatefulNavigationShell.of(context);
+        if (shell.currentIndex != 2) return;
+      } catch (_) {
+        if (ModalRoute.of(context)?.isCurrent != true) return;
+      }
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
+        tutorialService.markTutorialAsSeen('budgets');
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.myBudgets)),
-      body: BlocBuilder<BudgetsBloc, BudgetsState>(
-        builder: (context, state) {
-          if (state.status == BudgetsStatus.loading && state.budgets.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+      body: BlocListener<BudgetsBloc, BudgetsState>(
+        listener: (context, state) {
+          if (state.status == BudgetsStatus.success) {
+            _startTutorial();
           }
+        },
+        child: BlocBuilder<BudgetsBloc, BudgetsState>(
+          builder: (context, state) {
+            if (state.status == BudgetsStatus.loading &&
+                state.budgets.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state.budgets.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(AppAssets.emptyBudget, width: 150, height: 150),
-                  const SizedBox(height: 16),
-                  Text(
-                    AppLocalizations.of(context)!.noBudgetDefined,
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+            if (state.budgets.isEmpty) {
+              return Center(
+                child: Showcase(
+                  key: _listKey,
+                  title: AppLocalizations.of(context)!.tutorialBudgetsTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.tutorialBudgetsDesc,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        AppAssets.emptyBudget,
+                        width: 150,
+                        height: 150,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        AppLocalizations.of(context)!.noBudgetDefined,
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+              );
+            }
+
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<BudgetsBloc>().add(
+                  const GetBudgetsRequested(forceRefresh: true),
+                );
+              },
+              child: ListView.separated(
+                padding: const EdgeInsets.all(20),
+                itemCount: state.budgets.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final budget = state.budgets[index];
+                  final widget = _BudgetItem(budget: budget);
+
+                  if (index == 0) {
+                    return Showcase(
+                      key: _listKey,
+                      title: AppLocalizations.of(context)!.tutorialBudgetsTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialBudgetsDesc,
+                      child: widget,
+                    );
+                  }
+
+                  return widget;
+                },
               ),
             );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
+          },
+        ),
+      ),
+      floatingActionButton: Showcase(
+        key: _addKey,
+        title: AppLocalizations.of(context)!.tutorialAddBudgetTitle,
+        description: AppLocalizations.of(context)!.tutorialAddBudgetDesc,
+        child: FloatingActionButton(
+          heroTag: 'budgets_fab',
+          onPressed: () async {
+            final refresh = await context.push<bool>(
+              '${RouteConstants.budgets}/add',
+            );
+            if (refresh == true && context.mounted) {
               context.read<BudgetsBloc>().add(
                 const GetBudgetsRequested(forceRefresh: true),
               );
-            },
-            child: ListView.separated(
-              padding: const EdgeInsets.all(20),
-              itemCount: state.budgets.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final budget = state.budgets[index];
-                return _BudgetItem(budget: budget);
-              },
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'budgets_fab',
-        onPressed: () async {
-          final refresh = await context.push<bool>(
-            '${RouteConstants.budgets}/add',
-          );
-          if (refresh == true && context.mounted) {
-            context.read<BudgetsBloc>().add(
-              const GetBudgetsRequested(forceRefresh: true),
-            );
-          }
-        },
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
+            }
+          },
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: Icon(
+            Icons.add,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
       ),
     );
   }

@@ -19,6 +19,8 @@ import 'package:djangui/features/system/presentation/bloc/system_bloc.dart';
 import 'package:djangui/features/system/presentation/bloc/system_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import '../../../../core/services/tutorial_service.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -28,7 +30,55 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final GlobalKey _resetTutorialsKey = GlobalKey();
   final ImagePicker _picker = ImagePicker();
+  final GlobalKey _profileHeaderKey = GlobalKey();
+  final GlobalKey _settingsKey = GlobalKey();
+  final GlobalKey _premiumKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('profile')) {
+      try {
+        final shell = StatefulNavigationShell.of(context);
+        if (shell.currentIndex != 4) return;
+      } catch (_) {
+        if (ModalRoute.of(context)?.isCurrent != true) return;
+      }
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(
+          context,
+        ).startShowCase([_profileHeaderKey, _settingsKey, _premiumKey]);
+        tutorialService.markTutorialAsSeen('profile');
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    super.dispose();
+  }
 
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(
@@ -201,11 +251,20 @@ class _ProfilePageState extends State<ProfilePage> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      _buildProfileHeader(
-                        context,
-                        name,
-                        user?.email ?? '',
-                        user?.avatar,
+                      Showcase(
+                        key: _profileHeaderKey,
+                        title: AppLocalizations.of(
+                          context,
+                        )!.tutorialProfileTitle,
+                        description: AppLocalizations.of(
+                          context,
+                        )!.tutorialProfileDesc,
+                        child: _buildProfileHeader(
+                          context,
+                          name,
+                          user?.email ?? '',
+                          user?.avatar,
+                        ),
                       ),
                       const SizedBox(height: 24),
                       if (user != null && user.badges.isNotEmpty) ...[
@@ -217,13 +276,38 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 24),
                       ],
                       if (user != null && !user.isPremium) ...[
-                        _buildPremiumBanner(context),
+                        Showcase(
+                          key: _premiumKey,
+                          title: AppLocalizations.of(
+                            context,
+                          )!.tutorialSubscriptionTitle,
+                          description: AppLocalizations.of(
+                            context,
+                          )!.tutorialSubscriptionDesc,
+                          child: _buildPremiumBanner(context),
+                        ),
                         const SizedBox(height: 24),
                       ] else if (user != null && user.isPremium) ...[
-                        _buildPremiumStatusCard(context, user),
+                        Showcase(
+                          key: _premiumKey,
+                          title: AppLocalizations.of(
+                            context,
+                          )!.tutorialSubscriptionTitle,
+                          description: AppLocalizations.of(
+                            context,
+                          )!.tutorialSubscriptionDesc,
+                          child: _buildPremiumStatusCard(context, user),
+                        ),
                         const SizedBox(height: 24),
                       ],
-                      _buildSettingsSection(context),
+                      Showcase(
+                        key: _settingsKey,
+                        title: AppLocalizations.of(context)!.settings,
+                        description: AppLocalizations.of(
+                          context,
+                        )!.tutorialProfileDesc, // Reuse or find better
+                        child: _buildSettingsSection(context),
+                      ),
                       const SizedBox(height: 32),
                       _buildLogoutButton(context),
                     ],
@@ -417,6 +501,19 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
           const Divider(height: 1, color: Colors.transparent),
+          Showcase(
+            key: _resetTutorialsKey,
+            title: AppLocalizations.of(context)!.resetTutorials,
+            description: AppLocalizations.of(
+              context,
+            )!.resetTutorialsDesc, // Assuming this exists or using resetTutorials
+            child: _buildSettingsTile(
+              Icons.restart_alt_outlined,
+              AppLocalizations.of(context)!.resetTutorials,
+              onTap: () => _resetTutorials(context),
+            ),
+          ),
+          const Divider(height: 1, color: Colors.transparent),
           _buildSettingsTile(
             Icons.help_outline,
             AppLocalizations.of(context)!.helpSupport,
@@ -557,9 +654,45 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Future<void> _resetTutorials(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.resetTutorials),
+        content: Text(AppLocalizations.of(context)!.resetTutorialsConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(
+              AppLocalizations.of(context)!.confirm,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final tutorialService = getIt<TutorialService>();
+      await tutorialService.resetAllTutorials();
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.resetTutorialsSuccess),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+  }
+
   Future<void> _showAboutDialog(BuildContext context) async {
     final packageInfo = await PackageInfo.fromPlatform();
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     showAboutDialog(
       context: context,

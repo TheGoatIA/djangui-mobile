@@ -15,8 +15,66 @@ import '../../../goals/presentation/bloc/goals_bloc.dart';
 import '../../../goals/presentation/bloc/goals_event.dart';
 import '../../../../core/theme/app_shadows.dart';
 
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../di/injection.dart';
+
 class TransactionListPage extends StatelessWidget {
   const TransactionListPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const TransactionListView();
+  }
+}
+
+class TransactionListView extends StatefulWidget {
+  const TransactionListView({super.key});
+
+  @override
+  State<TransactionListView> createState() => _TransactionListViewState();
+}
+
+class _TransactionListViewState extends State<TransactionListView> {
+  final GlobalKey _listKey = GlobalKey();
+  final GlobalKey _addKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('transactions')) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
+        tutorialService.markTutorialAsSeen('transactions');
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,22 +110,29 @@ class TransactionListPage extends StatelessWidget {
 
           if (state.transactions.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    AppAssets.emptyTransactions,
-                    width: 150,
-                    height: 150,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    AppLocalizations.of(context)!.noRecentActivities,
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+              child: Showcase(
+                key: _listKey,
+                title: AppLocalizations.of(context)!.tutorialTransactionsTitle,
+                description: AppLocalizations.of(
+                  context,
+                )!.tutorialTransactionsDesc,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      AppAssets.emptyTransactions,
+                      width: 150,
+                      height: 150,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Text(
+                      AppLocalizations.of(context)!.noRecentActivities,
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -84,32 +149,55 @@ class TransactionListPage extends StatelessWidget {
               separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final transaction = state.transactions[index];
-                return _TransactionItem(transaction: transaction);
+                final widget = _TransactionItem(transaction: transaction);
+
+                if (index == 0) {
+                  return Showcase(
+                    key: _listKey,
+                    title: AppLocalizations.of(
+                      context,
+                    )!.tutorialTransactionsTitle,
+                    description: AppLocalizations.of(
+                      context,
+                    )!.tutorialTransactionsDesc,
+                    child: widget,
+                  );
+                }
+
+                return widget;
               },
             ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'transactions_fab',
-        onPressed: () async {
-          final refresh = await context.push<bool>(
-            '${RouteConstants.transactions}/add',
-          );
-          if (refresh == true && context.mounted) {
-            context.read<TransactionsBloc>().add(
-              const GetTransactionsRequested(forceRefresh: true),
+      floatingActionButton: Showcase(
+        key: _addKey,
+        title: AppLocalizations.of(context)!.tutorialAddTransactionTitle,
+        description: AppLocalizations.of(context)!.tutorialAddTransactionDesc,
+        child: FloatingActionButton(
+          heroTag: 'transactions_fab',
+          onPressed: () async {
+            final refresh = await context.push<bool>(
+              '${RouteConstants.transactions}/add',
             );
-            context.read<BudgetsBloc>().add(
-              const GetBudgetsRequested(forceRefresh: true),
-            );
-            context.read<GoalsBloc>().add(
-              const GetGoalsRequested(forceRefresh: true),
-            );
-          }
-        },
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
+            if (refresh == true && context.mounted) {
+              context.read<TransactionsBloc>().add(
+                const GetTransactionsRequested(forceRefresh: true),
+              );
+              context.read<BudgetsBloc>().add(
+                const GetBudgetsRequested(forceRefresh: true),
+              );
+              context.read<GoalsBloc>().add(
+                const GetGoalsRequested(forceRefresh: true),
+              );
+            }
+          },
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: Icon(
+            Icons.add,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
       ),
     );
   }

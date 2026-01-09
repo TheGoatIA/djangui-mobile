@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:djangui/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'core/services/tutorial_service.dart';
 
 import 'di/injection.dart';
 import 'routes/app_router.dart';
@@ -22,6 +24,7 @@ import 'features/budgets/presentation/bloc/budgets_event.dart';
 import 'features/support/presentation/bloc/support_bloc.dart';
 import 'features/system/presentation/bloc/system_bloc.dart';
 import 'features/system/presentation/bloc/system_event.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,21 +73,28 @@ class MyApp extends StatelessWidget {
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
-          return MaterialApp.router(
-            title: 'Djangui',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: state.themeMode,
-            locale: state.locale,
-            routerConfig: appRouter,
-            localizationsDelegates: [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: AppLocalizations.supportedLocales,
+          return ChangeNotifierProvider.value(
+            value: getIt<TutorialService>(),
+            child: ShowCaseWidget(
+              builder: (context) => MaterialApp.router(
+                title: 'Djangui',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: state.themeMode,
+                locale: state.locale,
+                routerConfig: appRouter,
+                builder: (context, child) =>
+                    ShowCaseWidget(builder: (context) => child!),
+                localizationsDelegates: [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: AppLocalizations.supportedLocales,
+              ),
+            ),
           );
         },
       ),

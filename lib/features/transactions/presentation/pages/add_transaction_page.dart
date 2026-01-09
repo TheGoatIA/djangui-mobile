@@ -17,6 +17,8 @@ import '../../../goals/presentation/bloc/goals_bloc.dart';
 import '../../../goals/presentation/bloc/goals_state.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
 
 class AddTransactionPage extends StatefulWidget {
   final String? initialGoalId;
@@ -38,6 +40,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   String? _selectedGoalId;
   bool _isScanning = false;
 
+  final GlobalKey _scanKey = GlobalKey();
+  final GlobalKey _amountKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -45,8 +50,44 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     if (_selectedGoalId != null) {
       _type = 'income';
     }
-    // Reset status to prevent immediate pop if previous state was success
     context.read<TransactionsBloc>().add(ResetTransactionsStatus());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('add_transaction')) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(context).startShowCase([_scanKey, _amountKey]);
+        tutorialService.markTutorialAsSeen('add_transaction');
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    _amountController.dispose();
+    _descriptionController.dispose();
+    _subcategoryController.dispose();
+    _merchantController.dispose();
+    _locationController.dispose();
+    super.dispose();
   }
 
   Future<void> _onScanReceipt() async {
@@ -162,16 +203,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _descriptionController.dispose();
-    _subcategoryController.dispose();
-    _merchantController.dispose();
-    _locationController.dispose();
-    super.dispose();
-  }
-
   void _onSave(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       final authState = context.read<AuthBloc>().state;
@@ -244,10 +275,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 ),
               )
             else
-              IconButton(
-                icon: const Icon(Icons.qr_code_scanner),
-                onPressed: _onScanReceipt,
-                tooltip: AppLocalizations.of(context)!.scanReceiptTooltip,
+              Showcase(
+                key: _scanKey,
+                title: AppLocalizations.of(context)!.tutorialOCRTitle,
+                description: AppLocalizations.of(context)!.tutorialOCRDesc,
+                child: IconButton(
+                  icon: const Icon(Icons.qr_code_scanner),
+                  onPressed: _onScanReceipt,
+                  tooltip: AppLocalizations.of(context)!.scanReceiptTooltip,
+                ),
               ),
           ],
         ),
@@ -281,20 +317,29 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                AppTextField(
-                  controller: _amountController,
-                  label: AppLocalizations.of(context)!.amountLabel,
-                  hint: AppLocalizations.of(context)!.amountHint,
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context)!.requiredField;
-                    }
-                    if (double.tryParse(value) == null) {
-                      return AppLocalizations.of(context)!.invalidNumber;
-                    }
-                    return null;
-                  },
+                Showcase(
+                  key: _amountKey,
+                  title: AppLocalizations.of(
+                    context,
+                  )!.tutorialAddTransactionTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.tutorialAddTransactionDesc,
+                  child: AppTextField(
+                    controller: _amountController,
+                    label: AppLocalizations.of(context)!.amountLabel,
+                    hint: AppLocalizations.of(context)!.amountHint,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return AppLocalizations.of(context)!.requiredField;
+                      }
+                      if (double.tryParse(value) == null) {
+                        return AppLocalizations.of(context)!.invalidNumber;
+                      }
+                      return null;
+                    },
+                  ),
                 ),
                 const SizedBox(height: 20),
                 DropdownButtonFormField<String>(

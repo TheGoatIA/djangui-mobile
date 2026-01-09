@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../di/injection.dart';
@@ -65,6 +65,8 @@ class NotificationService {
           'Djangui Notifications',
           importance: Importance.max,
           priority: Priority.high,
+          icon: 'ic_notification',
+          color: Color(0xFF10B981),
         );
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
     const NotificationDetails details = NotificationDetails(

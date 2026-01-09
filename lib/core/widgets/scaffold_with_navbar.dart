@@ -5,6 +5,8 @@ import 'package:djangui/l10n/app_localizations.dart';
 import '../utils/responsive_utils.dart';
 import '../constants/route_constants.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../di/injection.dart';
+import '../../core/services/tutorial_service.dart';
 
 class ScaffoldWithNavBar extends StatelessWidget {
   const ScaffoldWithNavBar({required this.navigationShell, super.key});
@@ -88,6 +90,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
       index,
       initialLocation: index == navigationShell.currentIndex,
     );
+    // Trigger tutorial check for the new tab
+    getIt<TutorialService>().triggerTutorialCheck();
   }
 
   List<NavigationDestination> _buildDestinations(BuildContext context) {

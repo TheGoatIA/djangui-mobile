@@ -12,68 +12,168 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../core/services/share_service.dart';
 import '../../../../core/theme/app_shadows.dart';
 
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
+
 class GoalListPage extends StatelessWidget {
   const GoalListPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const GoalListView();
+  }
+}
+
+class GoalListView extends StatefulWidget {
+  const GoalListView({super.key});
+
+  @override
+  State<GoalListView> createState() => _GoalListViewState();
+}
+
+class _GoalListViewState extends State<GoalListView> {
+  final GlobalKey _listKey = GlobalKey();
+  final GlobalKey _addKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('goals')) {
+      try {
+        final shell = StatefulNavigationShell.of(context);
+        if (shell.currentIndex != 3) return;
+      } catch (_) {
+        if (ModalRoute.of(context)?.isCurrent != true) return;
+      }
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
+        tutorialService.markTutorialAsSeen('goals');
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.myGoals)),
-      body: BlocBuilder<GoalsBloc, GoalsState>(
-        builder: (context, state) {
-          if (state.status == GoalsStatus.loading && state.goals.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+      body: BlocListener<GoalsBloc, GoalsState>(
+        listener: (context, state) {
+          if (state.status == GoalsStatus.success) {
+            _startTutorial();
           }
+        },
+        child: BlocBuilder<GoalsBloc, GoalsState>(
+          builder: (context, state) {
+            if (state.status == GoalsStatus.loading && state.goals.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state.goals.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(AppAssets.emptyGoals, width: 150, height: 150),
-                  const SizedBox(height: 16),
-                  Text(
-                    AppLocalizations.of(context)!.noGoalDefined,
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+            if (state.goals.isEmpty) {
+              return Center(
+                child: Showcase(
+                  key: _listKey,
+                  title: AppLocalizations.of(context)!.tutorialGoalsTitle,
+                  description: AppLocalizations.of(context)!.tutorialGoalsDesc,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        AppAssets.emptyGoals,
+                        width: 150,
+                        height: 150,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        AppLocalizations.of(context)!.noGoalDefined,
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+              );
+            }
+
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<GoalsBloc>().add(
+                  const GetGoalsRequested(forceRefresh: true),
+                );
+              },
+              child: ListView.separated(
+                padding: const EdgeInsets.all(20),
+                itemCount: state.goals.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final goal = state.goals[index];
+                  final widget = _GoalItem(goal: goal);
+
+                  if (index == 0) {
+                    return Showcase(
+                      key: _listKey,
+                      title: AppLocalizations.of(context)!.tutorialGoalsTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialGoalsDesc,
+                      child: widget,
+                    );
+                  }
+
+                  return widget;
+                },
               ),
             );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
+          },
+        ),
+      ),
+      floatingActionButton: Showcase(
+        key: _addKey,
+        title: AppLocalizations.of(context)!.tutorialAddGoalTitle,
+        description: AppLocalizations.of(context)!.tutorialAddGoalDesc,
+        child: FloatingActionButton(
+          heroTag: 'goals_fab',
+          onPressed: () async {
+            final result = await context.pushNamed<bool>('goal-add');
+            if (result == true && context.mounted) {
               context.read<GoalsBloc>().add(
                 const GetGoalsRequested(forceRefresh: true),
               );
-            },
-            child: ListView.separated(
-              padding: const EdgeInsets.all(20),
-              itemCount: state.goals.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final goal = state.goals[index];
-                return _GoalItem(goal: goal);
-              },
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'goals_fab',
-        onPressed: () async {
-          final result = await context.pushNamed<bool>('goal-add');
-          if (result == true && context.mounted) {
-            context.read<GoalsBloc>().add(
-              const GetGoalsRequested(forceRefresh: true),
-            );
-          }
-        },
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
+            }
+          },
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: Icon(
+            Icons.add,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
       ),
     );
   }
