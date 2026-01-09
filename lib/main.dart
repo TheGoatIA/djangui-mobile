@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:djangui/l10n/app_localizations.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'core/services/tutorial_service.dart';
 
@@ -77,7 +77,7 @@ class MyApp extends StatelessWidget {
             value: getIt<TutorialService>(),
             child: ShowCaseWidget(
               builder: (context) => MaterialApp.router(
-                title: 'Djangui',
+                title: 'Kauri',
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.lightTheme,
                 darkTheme: AppTheme.darkTheme,

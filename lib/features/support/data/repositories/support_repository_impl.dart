@@ -1,10 +1,10 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
-import 'package:djangui/core/errors/failures.dart';
-import 'package:djangui/core/network/network_info.dart';
-import 'package:djangui/features/support/data/datasources/support_api_service.dart';
-import 'package:djangui/features/support/data/models/support_ticket_model.dart';
-import 'package:djangui/features/support/domain/repositories/support_repository.dart';
+import 'package:kauri/core/errors/failures.dart';
+import 'package:kauri/core/network/network_info.dart';
+import 'package:kauri/features/support/data/datasources/support_api_service.dart';
+import 'package:kauri/features/support/data/models/support_ticket_model.dart';
+import 'package:kauri/features/support/domain/repositories/support_repository.dart';
 
 @LazySingleton(as: SupportRepository)
 class SupportRepositoryImpl implements SupportRepository {

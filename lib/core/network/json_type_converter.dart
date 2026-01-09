@@ -194,7 +194,7 @@ class JsonToTypeConverter extends JsonConverter {
   BaseListResponse<I> _createBaseListResponse<I>(Map<String, dynamic> json) {
     return BaseListResponse<I>.fromJson(json, (data) {
       if (data is Map<String, dynamic>) {
-        // We use I which is the Item type passed by DjanguiListResponse
+        // We use I which is the Item type passed by KauriListResponse
         return _decodeMap<I, dynamic>(data) as I;
       }
       return data as I;

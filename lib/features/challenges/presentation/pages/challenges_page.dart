@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:djangui/core/theme/app_colors.dart';
-import 'package:djangui/core/theme/app_text_styles.dart';
-import 'package:djangui/di/injection.dart';
-import 'package:djangui/features/challenges/presentation/bloc/challenges_bloc.dart';
-import 'package:djangui/features/challenges/presentation/bloc/challenges_event.dart';
-import 'package:djangui/features/challenges/presentation/bloc/challenges_state.dart';
-import 'package:djangui/features/challenges/data/models/challenge_model.dart';
-import 'package:djangui/features/challenges/presentation/widgets/challenge_detail_sheet.dart';
-import 'package:djangui/l10n/app_localizations.dart';
-import 'package:djangui/core/theme/app_shadows.dart';
+import 'package:kauri/core/theme/app_colors.dart';
+import 'package:kauri/core/theme/app_text_styles.dart';
+import 'package:kauri/di/injection.dart';
+import 'package:kauri/features/challenges/presentation/bloc/challenges_bloc.dart';
+import 'package:kauri/features/challenges/presentation/bloc/challenges_event.dart';
+import 'package:kauri/features/challenges/presentation/bloc/challenges_state.dart';
+import 'package:kauri/features/challenges/data/models/challenge_model.dart';
+import 'package:kauri/features/challenges/presentation/widgets/challenge_detail_sheet.dart';
+import 'package:kauri/l10n/app_localizations.dart';
+import 'package:kauri/core/theme/app_shadows.dart';
 
 import 'package:showcaseview/showcaseview.dart';
-import 'package:djangui/core/services/tutorial_service.dart';
+import 'package:kauri/core/services/tutorial_service.dart';
 
 class ChallengesPage extends StatelessWidget {
   const ChallengesPage({super.key});

@@ -1,6 +1,6 @@
-# 🚀 Djangui - Gestion Financière Intelligente
+# 🚀 Kauri - Gestion Financière Intelligente
 
-Djangui est une application mobile de gestion financière moderne, conçue pour aider les utilisateurs à épargner, investir et gérer leurs tontines de manière intelligente et sécurisée. L'application utilise une architecture Clean, un design system propriétaire et des fonctionnalités d'IA pour une expérience utilisateur premium.
+Kauri est une application mobile de gestion financière moderne, conçue pour aider les utilisateurs à épargner, investir et gérer leurs tontines de manière intelligente et sécurisée. L'application utilise une architecture Clean, un design system propriétaire et des fonctionnalités d'IA pour une expérience utilisateur premium.
 
 ---
 
@@ -38,8 +38,8 @@ Avant de commencer, assurez-vous d'avoir installé :
 
 1.  **Cloner le projet** :
     ```bash
-    git clone https://github.com/votre-repo/djangui.git
-    cd djangui
+    git clone https://github.com/votre-repo/Kauri.git
+    cd Kauri
     ```
 
 2.  **Installer les dépendances** :
@@ -70,12 +70,12 @@ Avant de commencer, assurez-vous d'avoir installé :
 
 ### Android
 1. Allez sur la [Console Firebase](https://console.firebase.google.com/).
-2. Ajoutez un projet Android avec le package `cm.tbg.djangui`.
+2. Ajoutez un projet Android avec le package `cm.tbg.Kauri`.
 3. Téléchargez le fichier `google-services.json` et placez-le dans `android/app/`.
 4. Le projet est déjà configuré pour lire ce fichier.
 
 ### iOS
-1. Ajoutez une application iOS au projet Firebase avec l'ID `cm.tbg.djangui`.
+1. Ajoutez une application iOS au projet Firebase avec l'ID `cm.tbg.Kauri`.
 2. Téléchargez `GoogleService-Info.plist` et ajoutez-le au projet via Xcode dans `Runner/`.
 3. Assurez-vous que le fichier est bien inclus dans la cible "Runner".
 
@@ -97,8 +97,8 @@ Le projet utilise **GitHub Actions** pour automatiser les tests et les builds.
 ---
 
 ## 🏷 Rebranding & Identité
-- **Nom du Package** : `cm.tbg.djangui`
-- **Nom de l'App** : `Djangui`
+- **Nom du Package** : `cm.tbg.Kauri`
+- **Nom de l'App** : `Kauri`
 - **Logo** : Stocké dans `assets/images/logo.png`.
 - Pour régénérer les icônes :
   ```bash

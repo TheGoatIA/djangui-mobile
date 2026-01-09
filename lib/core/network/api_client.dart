@@ -1,28 +1,28 @@
 import 'package:chopper/chopper.dart' hide HttpLoggingInterceptor;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:djangui/features/ai_tools/data/models/ai_tools_model.dart';
-import 'package:djangui/features/auth/data/models/auth_response.dart';
-import 'package:djangui/features/auth/data/models/user_model.dart';
-import 'package:djangui/features/auth/data/models/badge_model.dart';
-import 'package:djangui/features/budgets/data/models/budget_model.dart';
-import 'package:djangui/features/challenges/data/models/challenge_model.dart';
-import 'package:djangui/features/goals/data/models/goal_model.dart';
-import 'package:djangui/features/insights/data/models/insight_model.dart';
-import 'package:djangui/features/investments/data/models/investment_model.dart';
-import 'package:djangui/features/payments/data/models/payment_model.dart';
-import 'package:djangui/features/reports/data/models/reports_model.dart';
-import 'package:djangui/features/transactions/data/models/transaction_model.dart';
-import 'package:djangui/features/upload/data/models/upload_model.dart';
-import 'package:djangui/features/coach/data/models/chat_message_model.dart';
-import 'package:djangui/features/system/data/models/version_check_response.dart';
-import 'package:djangui/features/system/data/models/public_settings_model.dart';
-import 'package:djangui/features/support/data/models/support_ticket_model.dart';
-import 'package:djangui/features/notifications/data/models/notification_model.dart';
+import 'package:kauri/features/ai_tools/data/models/ai_tools_model.dart';
+import 'package:kauri/features/auth/data/models/auth_response.dart';
+import 'package:kauri/features/auth/data/models/user_model.dart';
+import 'package:kauri/features/auth/data/models/badge_model.dart';
+import 'package:kauri/features/budgets/data/models/budget_model.dart';
+import 'package:kauri/features/challenges/data/models/challenge_model.dart';
+import 'package:kauri/features/goals/data/models/goal_model.dart';
+import 'package:kauri/features/insights/data/models/insight_model.dart';
+import 'package:kauri/features/investments/data/models/investment_model.dart';
+import 'package:kauri/features/payments/data/models/payment_model.dart';
+import 'package:kauri/features/reports/data/models/reports_model.dart';
+import 'package:kauri/features/transactions/data/models/transaction_model.dart';
+import 'package:kauri/features/upload/data/models/upload_model.dart';
+import 'package:kauri/features/coach/data/models/chat_message_model.dart';
+import 'package:kauri/features/system/data/models/version_check_response.dart';
+import 'package:kauri/features/system/data/models/public_settings_model.dart';
+import 'package:kauri/features/support/data/models/support_ticket_model.dart';
+import 'package:kauri/features/notifications/data/models/notification_model.dart';
 import 'json_type_converter.dart';
 import 'interceptors.dart';
 import 'authenticator.dart';
 
-class DjanguiApiClient {
+class KauriApiClient {
   static ChopperClient create() {
     final baseUrl =
         dotenv.env['API_BASE_URL'] ?? 'http://localhost:3000/api/v1';
@@ -30,7 +30,7 @@ class DjanguiApiClient {
     return ChopperClient(
       baseUrl: Uri.parse(baseUrl),
       interceptors: [AuthInterceptor(), HttpLoggingInterceptor()],
-      authenticator: DjanguiAuthenticator(),
+      authenticator: KauriAuthenticator(),
       converter: JsonToTypeConverter({
         AuthResponse: (json) => AuthResponse.fromJson(json),
         UserModel: (json) => UserModel.fromJson(json),

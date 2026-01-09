@@ -1,6 +1,6 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:djangui/core/errors/failures.dart';
-import 'package:djangui/features/support/data/models/support_ticket_model.dart';
+import 'package:kauri/core/errors/failures.dart';
+import 'package:kauri/features/support/data/models/support_ticket_model.dart';
 
 abstract class SupportRepository {
   Future<Either<Failure, List<SupportTicketModel>>> getTickets();

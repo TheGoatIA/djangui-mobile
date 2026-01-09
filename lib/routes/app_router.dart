@@ -48,14 +48,14 @@ final appRouter = GoRouter(
   initialLocation: RouteConstants.splash,
   debugLogDiagnostics: true,
   redirect: (context, state) {
-    // Handle djangui scheme deep links
-    if (state.uri.scheme == 'djangui') {
-      // If the link is djangui://payment/success, GoRouter might see:
+    // Handle Kauri scheme deep links
+    if (state.uri.scheme == 'Kauri') {
+      // If the link is Kauri://payment/success, GoRouter might see:
       // host: payment, path: /success
       if (state.uri.host == 'payment' && state.uri.path == '/success') {
         return '${RouteConstants.paymentSuccess}?${state.uri.query}';
       }
-      // If the link is djangui://somehost/payment/success
+      // If the link is Kauri://somehost/payment/success
       // path: /payment/success
       if (state.uri.path == '/payment/success') {
         return '${RouteConstants.paymentSuccess}?${state.uri.query}';

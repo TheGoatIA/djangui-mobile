@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
-import 'package:djangui/core/errors/failures.dart';
-import 'package:djangui/core/network/network_info.dart';
-import 'package:djangui/features/challenges/data/datasources/challenge_local_datasource.dart';
-import 'package:djangui/features/challenges/data/datasources/challenge_remote_datasource.dart';
-import 'package:djangui/features/challenges/domain/repositories/challenge_repository.dart';
-import 'package:djangui/features/challenges/data/models/challenge_model.dart';
+import 'package:kauri/core/errors/failures.dart';
+import 'package:kauri/core/network/network_info.dart';
+import 'package:kauri/features/challenges/data/datasources/challenge_local_datasource.dart';
+import 'package:kauri/features/challenges/data/datasources/challenge_remote_datasource.dart';
+import 'package:kauri/features/challenges/domain/repositories/challenge_repository.dart';
+import 'package:kauri/features/challenges/data/models/challenge_model.dart';
 
 @LazySingleton(as: ChallengeRepository)
 class ChallengeRepositoryImpl implements ChallengeRepository {

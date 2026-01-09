@@ -1,7 +1,7 @@
 import 'package:chopper/chopper.dart';
-import 'package:djangui/core/constants/api_constants.dart';
-import 'package:djangui/features/challenges/data/models/challenge_model.dart';
-import 'package:djangui/core/network/models/base_response.dart';
+import 'package:kauri/core/constants/api_constants.dart';
+import 'package:kauri/features/challenges/data/models/challenge_model.dart';
+import 'package:kauri/core/network/models/base_response.dart';
 
 part 'challenge_api_service.chopper.dart';
 

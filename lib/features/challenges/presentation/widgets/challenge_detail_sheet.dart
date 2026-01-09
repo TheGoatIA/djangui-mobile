@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:djangui/core/theme/app_colors.dart';
-import 'package:djangui/core/theme/app_text_styles.dart';
-import 'package:djangui/l10n/app_localizations.dart';
-import 'package:djangui/features/challenges/presentation/bloc/challenges_bloc.dart';
-import 'package:djangui/features/challenges/presentation/bloc/challenges_event.dart';
-import 'package:djangui/features/challenges/data/models/challenge_model.dart';
+import 'package:kauri/core/theme/app_colors.dart';
+import 'package:kauri/core/theme/app_text_styles.dart';
+import 'package:kauri/l10n/app_localizations.dart';
+import 'package:kauri/features/challenges/presentation/bloc/challenges_bloc.dart';
+import 'package:kauri/features/challenges/presentation/bloc/challenges_event.dart';
+import 'package:kauri/features/challenges/data/models/challenge_model.dart';
 
 class ChallengeDetailSheet extends StatelessWidget {
   final ChallengeModel challenge;

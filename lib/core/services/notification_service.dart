@@ -31,7 +31,7 @@ class NotificationService {
       if (message.notification != null) {
         showLocalNotification(
           id: message.hashCode,
-          title: message.notification!.title ?? 'Djangui',
+          title: message.notification!.title ?? 'Kauri',
           body: message.notification!.body ?? '',
         );
       }
@@ -61,8 +61,8 @@ class NotificationService {
   }) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-          'djangui_channel',
-          'Djangui Notifications',
+          'Kauri_channel',
+          'Kauri Notifications',
           importance: Importance.max,
           priority: Priority.high,
           icon: 'ic_notification',

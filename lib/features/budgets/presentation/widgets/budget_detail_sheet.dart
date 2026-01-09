@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:djangui/core/theme/app_colors.dart';
-import 'package:djangui/core/theme/app_text_styles.dart';
-import 'package:djangui/l10n/app_localizations.dart';
-import 'package:djangui/features/budgets/data/models/budget_model.dart';
+import 'package:kauri/core/theme/app_colors.dart';
+import 'package:kauri/core/theme/app_text_styles.dart';
+import 'package:kauri/l10n/app_localizations.dart';
+import 'package:kauri/features/budgets/data/models/budget_model.dart';
 
 class BudgetDetailSheet extends StatelessWidget {
   final BudgetModel budget;

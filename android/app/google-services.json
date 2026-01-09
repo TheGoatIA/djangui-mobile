@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:323526784336:android:ae3419b9ec952b57ca6855",
         "android_client_info": {
-          "package_name": "cm.tbg.djangui"
+          "package_name": "cm.tbg.kauri"
         }
       },
       "oauth_client": [
@@ -34,7 +34,7 @@
               "client_id": "323526784336-54lh5a8iqb1j0oc9i7uu3n5q246b9qlo.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "cm.tbg.djangui"
+                "bundle_id": "cm.tbg.kauri"
               }
             }
           ]

@@ -29,7 +29,7 @@ abstract class RegisterModule {
   FlutterSecureStorage get secureStorage => const FlutterSecureStorage();
 
   @lazySingleton
-  ChopperClient get chopperClient => DjanguiApiClient.create();
+  ChopperClient get chopperClient => KauriApiClient.create();
 
   @preResolve
   Future<SharedPreferences> get prefs => SharedPreferences.getInstance();

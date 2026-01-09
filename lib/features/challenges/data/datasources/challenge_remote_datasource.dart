@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
-import 'package:djangui/features/challenges/data/datasources/challenge_api_service.dart';
-import 'package:djangui/features/challenges/data/models/challenge_model.dart';
+import 'package:kauri/features/challenges/data/datasources/challenge_api_service.dart';
+import 'package:kauri/features/challenges/data/models/challenge_model.dart';
 import '../../../../core/network/api_response_extensions.dart';
 
 abstract class ChallengeRemoteDataSource {

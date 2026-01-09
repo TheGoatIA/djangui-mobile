@@ -1,4 +1,4 @@
-package cm.tbg.djangui
+package cm.tbg.kauri
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

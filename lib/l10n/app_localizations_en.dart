@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Djangui';
+  String get appTitle => 'Kauri';
 
   @override
   String get welcome => 'Welcome';
@@ -118,7 +118,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
-  String get onboardingTitle1 => 'Welcome to Djangui';
+  String get onboardingTitle1 => 'Welcome to Kauri';
 
   @override
   String get onboardingDesc1 =>
@@ -181,7 +181,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createAccount => 'Create an Account';
 
   @override
-  String get registerSubtitle => 'Join Djangui and start saving smartly.';
+  String get registerSubtitle => 'Join Kauri and start saving smartly.';
 
   @override
   String get firstName => 'First Name';
@@ -709,7 +709,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get discoverOffers => 'Discover Offers';
 
   @override
-  String get aboutDjangui => 'About Djangui';
+  String get aboutKauri => 'About Kauri';
 
   @override
   String versionInfo(String version, String buildNumber) {
@@ -718,10 +718,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutDescription =>
-      'Djangui is a modern solution to manage your savings and tontines autonomously. Our mission is to democratize financial management through technology.';
+      'Kauri is a modern solution to manage your savings and tontines autonomously. Our mission is to democratize financial management through technology.';
 
   @override
-  String get developedBy => 'Developed with ❤️ by the Djangui Team';
+  String get developedBy => 'Developed with ❤️ by the Kauri Team';
 
   @override
   String get contact => 'Contact';
@@ -730,7 +730,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get website => 'Website';
 
   @override
-  String get copyrightInfo => '© 2024 Djangui. All rights reserved.';
+  String get copyrightInfo => '© 2024 Kauri. All rights reserved.';
 
   @override
   String get takePhoto => 'Take Photo';
@@ -980,7 +980,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateRequiredMessage =>
-      'A new version of Djangui is available. Please update to continue using the app.';
+      'A new version of Kauri is available. Please update to continue using the app.';
 
   @override
   String get updateNow => 'Update Now';
@@ -1378,7 +1378,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Use AI to automatically capture your transactions from your photos.';
 
   @override
-  String get tutorialSubscriptionTitle => 'Djangui Premium';
+  String get tutorialSubscriptionTitle => 'Kauri Premium';
 
   @override
   String get tutorialSubscriptionDesc =>

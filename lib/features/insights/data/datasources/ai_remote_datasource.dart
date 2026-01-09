@@ -1,5 +1,5 @@
 import 'package:injectable/injectable.dart';
-import 'package:djangui/features/insights/data/datasources/ai_api_service.dart';
+import 'package:kauri/features/insights/data/datasources/ai_api_service.dart';
 import '../../../../core/network/api_response_extensions.dart';
 
 @lazySingleton

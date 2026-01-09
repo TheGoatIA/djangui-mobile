@@ -1,6 +1,6 @@
 {
     "@@locale": "fr",
-    "appTitle": "Djangui",
+    "appTitle": "Kauri",
     "welcome": "Bienvenue",
     "login": "Connexion",
     "register": "S'inscrire",
@@ -36,7 +36,7 @@
     "date": "Date",
     "description": "Description",
     "save": "Enregistrer",
-    "onboardingTitle1": "Bienvenue sur Djangui",
+    "onboardingTitle1": "Bienvenue sur Kauri",
     "onboardingDesc1": "La solution moderne pour gérer vos tontines et épargner en groupe en toute sécurité.",
     "onboardingTitle2": "Épargne Collective",
     "onboardingDesc2": "Créez ou rejoignez des tontines avec vos proches et suivez les cotisations en temps réel.",
@@ -56,7 +56,7 @@
     "retry": "Réessayer",
     "noAccountQuestion": "Vous n'avez pas de compte ?",
     "createAccount": "Créer un compte",
-    "registerSubtitle": "Rejoignez Djangui et commencez à épargner intelligemment.",
+    "registerSubtitle": "Rejoignez Kauri et commencez à épargner intelligemment.",
     "firstName": "Prénom",
     "firstNameHint": "Jean",
     "lastName": "Nom",
@@ -274,7 +274,7 @@
     "upgradeToPremium": "Passer au Premium",
     "premiumBannerDescription": "Débloquez des analyses avancées, des objectifs illimités et un support prioritaire.",
     "discoverOffers": "Découvrir les offres",
-    "aboutDjangui": "À propos de Djangui",
+    "aboutKauri": "À propos de Kauri",
     "versionInfo": "Version {version} ({buildNumber})",
     "@versionInfo": {
         "placeholders": {
@@ -286,11 +286,11 @@
             }
         }
     },
-    "aboutDescription": "Djangui est une solution moderne pour gérer votre épargne et vos tontines en toute autonomie. Notre mission est de démocratiser la gestion financière via la technologie.",
-    "developedBy": "Développé avec ❤️ par l'équipe Djangui",
+    "aboutDescription": "Kauri est une solution moderne pour gérer votre épargne et vos tontines en toute autonomie. Notre mission est de démocratiser la gestion financière via la technologie.",
+    "developedBy": "Développé avec ❤️ par l'équipe Kauri",
     "contact": "Contact",
     "website": "Site web",
-    "copyrightInfo": "© 2024 Djangui. Tous droits réservés.",
+    "copyrightInfo": "© 2024 Kauri. Tous droits réservés.",
     "takePhoto": "Prendre une photo",
     "chooseFromGallery": "Choisir depuis la galerie",
     "receiptScannedSuccess": "Reçu scanné avec succès",
@@ -370,7 +370,7 @@
     "monthAndYear": "Mois & Année",
     "add": "Ajouter",
     "updateAvailable": "Mise à jour disponible",
-    "updateRequiredMessage": "Une nouvelle version de Djangui est disponible. Veuillez mettre à jour pour continuer.",
+    "updateRequiredMessage": "Une nouvelle version de Kauri est disponible. Veuillez mettre à jour pour continuer.",
     "updateNow": "Mettre à jour",
     "maintenanceMode": "Mode Maintenance",
     "maintenanceMessage": "L'application est en maintenance. Veuillez réessayer plus tard.",
@@ -490,6 +490,6 @@
     "tutorialAddInvestmentDesc": "Diversifiez votre portefeuille en ajoutant un nouvel investissement.",
     "tutorialOCRTitle": "Scan de Reçu",
     "tutorialOCRDesc": "Utilisez l'IA pour saisir automatiquement vos transactions à partir de vos photos.",
-    "tutorialSubscriptionTitle": "Djangui Premium",
+    "tutorialSubscriptionTitle": "Kauri Premium",
     "tutorialSubscriptionDesc": "Découvrez tous les avantages exclusifs pour booster vos finances."
 }

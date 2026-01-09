@@ -14,9 +14,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../di/injection.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../auth/data/models/user_model.dart';
-import 'package:djangui/features/upload/domain/repositories/upload_repository.dart';
-import 'package:djangui/features/system/presentation/bloc/system_bloc.dart';
-import 'package:djangui/features/system/presentation/bloc/system_state.dart';
+import 'package:kauri/features/upload/domain/repositories/upload_repository.dart';
+import 'package:kauri/features/system/presentation/bloc/system_bloc.dart';
+import 'package:kauri/features/system/presentation/bloc/system_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/services/tutorial_service.dart';
@@ -702,7 +702,7 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: BorderRadius.circular(12),
         child: Image.asset('assets/images/logo.png', width: 60, height: 60),
       ),
-      applicationLegalese: '© 2026 Djangui Team',
+      applicationLegalese: '© 2026 Kauri Team',
     );
   }
 

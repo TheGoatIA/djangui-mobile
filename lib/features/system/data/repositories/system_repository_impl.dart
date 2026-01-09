@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:djangui/features/system/data/models/version_check_response.dart';
-import 'package:djangui/features/system/data/models/public_settings_model.dart';
+import 'package:kauri/features/system/data/models/version_check_response.dart';
+import 'package:kauri/features/system/data/models/public_settings_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/network/api_response_extensions.dart';

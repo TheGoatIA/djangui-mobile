@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>cm.tbg.djangui</string>
+	<string>cm.tbg.kauri</string>
 	<key>PROJECT_ID</key>
 	<string>djangui-9872c</string>
 	<key>STORAGE_BUCKET</key>

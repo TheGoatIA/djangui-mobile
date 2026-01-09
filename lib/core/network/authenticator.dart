@@ -5,7 +5,7 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../di/injection.dart';
 
-class DjanguiAuthenticator extends Authenticator {
+class KauriAuthenticator extends Authenticator {
   @override
   FutureOr<Request?> authenticate(
     Request request,

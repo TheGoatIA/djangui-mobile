@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Djangui'**
+  /// **'Kauri'**
   String get appTitle;
 
   /// No description provided for @welcome.
@@ -317,7 +317,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingTitle1.
   ///
   /// In fr, this message translates to:
-  /// **'Bienvenue sur Djangui'**
+  /// **'Bienvenue sur Kauri'**
   String get onboardingTitle1;
 
   /// No description provided for @onboardingDesc1.
@@ -437,7 +437,7 @@ abstract class AppLocalizations {
   /// No description provided for @registerSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Rejoignez Djangui et commencez à épargner intelligemment.'**
+  /// **'Rejoignez Kauri et commencez à épargner intelligemment.'**
   String get registerSubtitle;
 
   /// No description provided for @firstName.
@@ -1448,11 +1448,11 @@ abstract class AppLocalizations {
   /// **'Découvrir les offres'**
   String get discoverOffers;
 
-  /// No description provided for @aboutDjangui.
+  /// No description provided for @aboutKauri.
   ///
   /// In fr, this message translates to:
-  /// **'À propos de Djangui'**
-  String get aboutDjangui;
+  /// **'À propos de Kauri'**
+  String get aboutKauri;
 
   /// No description provided for @versionInfo.
   ///
@@ -1463,13 +1463,13 @@ abstract class AppLocalizations {
   /// No description provided for @aboutDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Djangui est une solution moderne pour gérer votre épargne et vos tontines en toute autonomie. Notre mission est de démocratiser la gestion financière via la technologie.'**
+  /// **'Kauri est une solution moderne pour gérer votre épargne et vos tontines en toute autonomie. Notre mission est de démocratiser la gestion financière via la technologie.'**
   String get aboutDescription;
 
   /// No description provided for @developedBy.
   ///
   /// In fr, this message translates to:
-  /// **'Développé avec ❤️ par l\'équipe Djangui'**
+  /// **'Développé avec ❤️ par l\'équipe Kauri'**
   String get developedBy;
 
   /// No description provided for @contact.
@@ -1487,7 +1487,7 @@ abstract class AppLocalizations {
   /// No description provided for @copyrightInfo.
   ///
   /// In fr, this message translates to:
-  /// **'© 2024 Djangui. Tous droits réservés.'**
+  /// **'© 2024 Kauri. Tous droits réservés.'**
   String get copyrightInfo;
 
   /// No description provided for @takePhoto.
@@ -1967,7 +1967,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateRequiredMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Une nouvelle version de Djangui est disponible. Veuillez mettre à jour pour continuer.'**
+  /// **'Une nouvelle version de Kauri est disponible. Veuillez mettre à jour pour continuer.'**
   String get updateRequiredMessage;
 
   /// No description provided for @updateNow.
@@ -2687,7 +2687,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialSubscriptionTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Djangui Premium'**
+  /// **'Kauri Premium'**
   String get tutorialSubscriptionTitle;
 
   /// No description provided for @tutorialSubscriptionDesc.

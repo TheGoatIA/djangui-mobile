@@ -9,7 +9,7 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.aboutDjangui)),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.aboutKauri)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -54,12 +54,12 @@ class AboutPage extends StatelessWidget {
             _buildInfoTile(
               context,
               AppLocalizations.of(context)!.contact,
-              'support@djangui.com',
+              'support@Kauri.com',
             ),
             _buildInfoTile(
               context,
               AppLocalizations.of(context)!.website,
-              'www.djangui.com',
+              'www.Kauri.com',
             ),
             const SizedBox(height: 48),
             Text(

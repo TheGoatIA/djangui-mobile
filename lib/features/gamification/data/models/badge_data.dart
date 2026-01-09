@@ -22,7 +22,7 @@ class BadgesData {
     'early_adopter': BadgeData(
       id: 'early_adopter',
       name: 'Pionnier',
-      description: 'Membre fondateur de Djangui',
+      description: 'Membre fondateur de Kauri',
       icon: Icons.flag,
       color: AppColors.accent,
     ),

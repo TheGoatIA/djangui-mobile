@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:djangui/l10n/app_localizations.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import '../utils/responsive_utils.dart';
 import '../constants/route_constants.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';

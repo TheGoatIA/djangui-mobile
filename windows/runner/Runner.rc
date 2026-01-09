@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.djangui" "\0"
-            VALUE "FileDescription", "djangui" "\0"
+            VALUE "CompanyName", "com.Kauri" "\0"
+            VALUE "FileDescription", "Kauri" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "djangui" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.djangui. All rights reserved." "\0"
-            VALUE "OriginalFilename", "djangui.exe" "\0"
-            VALUE "ProductName", "djangui" "\0"
+            VALUE "InternalName", "Kauri" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.Kauri. All rights reserved." "\0"
+            VALUE "OriginalFilename", "Kauri.exe" "\0"
+            VALUE "ProductName", "Kauri" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

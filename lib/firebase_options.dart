@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '323526784336',
     projectId: 'djangui-9872c',
     storageBucket: 'djangui-9872c.firebasestorage.app',
-    iosBundleId: 'cm.tbg.djangui',
+    iosBundleId: 'cm.tbg.kauri',
   );
 }

@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
-import 'package:djangui/features/subscription/data/datasources/payment_api_service.dart';
-import 'package:djangui/features/subscription/data/models/payment_model.dart';
+import 'package:kauri/features/subscription/data/datasources/payment_api_service.dart';
+import 'package:kauri/features/subscription/data/models/payment_model.dart';
 
 @lazySingleton
 class PaymentService {
