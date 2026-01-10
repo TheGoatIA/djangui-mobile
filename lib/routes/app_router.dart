@@ -48,14 +48,14 @@ final appRouter = GoRouter(
   initialLocation: RouteConstants.splash,
   debugLogDiagnostics: true,
   redirect: (context, state) {
-    // Handle Kauri scheme deep links
-    if (state.uri.scheme == 'Kauri') {
-      // If the link is Kauri://payment/success, GoRouter might see:
+    // Handle kauri scheme deep links
+    if (state.uri.scheme == 'kauri') {
+      // If the link is kauri://payment/success, GoRouter might see:
       // host: payment, path: /success
       if (state.uri.host == 'payment' && state.uri.path == '/success') {
         return '${RouteConstants.paymentSuccess}?${state.uri.query}';
       }
-      // If the link is Kauri://somehost/payment/success
+      // If the link is kauri://somehost/payment/success
       // path: /payment/success
       if (state.uri.path == '/payment/success') {
         return '${RouteConstants.paymentSuccess}?${state.uri.query}';
@@ -104,6 +104,7 @@ final appRouter = GoRouter(
         final extras = state.extra as Map<String, dynamic>;
         return OtpVerificationPage(
           phoneNumber: extras['phoneNumber'] as String,
+          countryCode: extras['countryCode'] as String?,
           verificationId: extras['verificationId'] as String,
           isLinking: extras['isLinking'] as bool? ?? false,
         );

@@ -527,7 +527,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectCountryError => 'Please select a country';
 
   @override
-  String get phoneHint => '+237 6xx xxx xxx';
+  String get phoneHint => 'xxxxxxxxx';
 
   @override
   String get resetSuccess => 'Password reset successfully';
@@ -1291,7 +1291,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetTutorialsDesc =>
-      'Recommencez toutes les visites guidées pour revoir comment utiliser l\'application.';
+      'Restart all guided tours to review how to use the application.';
 
   @override
   String get resetTutorialsConfirm =>

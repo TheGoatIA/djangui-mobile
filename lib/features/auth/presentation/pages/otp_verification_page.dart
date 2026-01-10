@@ -12,12 +12,14 @@ import 'package:pinput/pinput.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String phoneNumber;
+  final String? countryCode;
   final String verificationId;
   final bool isLinking;
 
   const OtpVerificationPage({
     super.key,
     required this.phoneNumber,
+    this.countryCode,
     required this.verificationId,
     this.isLinking = false,
   });
@@ -144,7 +146,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 TextButton(
                   onPressed: () {
                     context.read<AuthBloc>().add(
-                      AuthPhoneVerificationRequested(widget.phoneNumber),
+                      AuthPhoneVerificationRequested(
+                        widget.phoneNumber,
+                        widget.countryCode ?? 'CM',
+                      ),
                     );
                   },
                   child: Text(l10n.resendCode),

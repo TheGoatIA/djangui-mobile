@@ -39,6 +39,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   String? _verificationId;
+  String? _tempCountryCode;
 
   void _onAuthInternalCodeSent(
     _AuthInternalCodeSent event,
@@ -61,6 +62,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
+    _tempCountryCode = event.countryCode;
     final result = await _authRepository.verifyPhoneNumber(
       event.phoneNumber,
       onCodeSent: (verificationId) {
@@ -96,6 +98,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (response) {
         _authRepository.updateDeviceInfo();
         _authRepository.logConnection();
+        // Initialize country if we have a temporary country code
+        if (_tempCountryCode != null) {
+          _authRepository.updateProfile(country: _tempCountryCode);
+          _tempCountryCode = null;
+        }
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,

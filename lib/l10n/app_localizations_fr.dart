@@ -530,7 +530,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get selectCountryError => 'Veuillez sélectionner un pays';
 
   @override
-  String get phoneHint => '+237 6xx xxx xxx';
+  String get phoneHint => 'xxxxxxxxx';
 
   @override
   String get resetSuccess => 'Mot de passe réinitialisé avec succès';

@@ -196,7 +196,7 @@
     "country": "Pays",
     "selectCountry": "Sélectionnez votre pays",
     "selectCountryError": "Veuillez sélectionner un pays",
-    "phoneHint": "+237 6xx xxx xxx",
+    "phoneHint": "xxxxxxxxx",
     "resetSuccess": "Mot de passe réinitialisé avec succès",
     "resetError": "Erreur lors de la réinitialisation",
     "resetPasswordTitle": "Réinitialisation",

@@ -1109,7 +1109,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneHint.
   ///
   /// In fr, this message translates to:
-  /// **'+237 6xx xxx xxx'**
+  /// **'xxxxxxxxx'**
   String get phoneHint;
 
   /// No description provided for @resetSuccess.

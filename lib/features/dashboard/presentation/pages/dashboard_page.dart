@@ -21,6 +21,7 @@ import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/services/notification_service.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
+import '../../../../core/utils/currency_helper.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -315,8 +316,18 @@ class _DashboardViewState extends State<DashboardView> {
           BlocBuilder<DashboardBloc, DashboardState>(
             builder: (context, state) {
               final balance = state.report?.walletBalance ?? 0;
+              final userCurrency = context
+                  .read<AuthBloc>()
+                  .state
+                  .authResponse
+                  ?.user
+                  .currency;
+
               return Text(
-                '${NumberFormat.decimalPattern('fr').format(balance)} FCFA',
+                CurrencyHelper.formatAmount(
+                  balance.toDouble(),
+                  currencyCode: userCurrency,
+                ),
                 style: AppTextStyles.headlineLarge.copyWith(
                   color: Theme.of(context).colorScheme.onPrimary,
                   fontWeight: FontWeight.bold,
@@ -328,13 +339,15 @@ class _DashboardViewState extends State<DashboardView> {
           BlocBuilder<DashboardBloc, DashboardState>(
             builder: (context, state) {
               final income = state.report?.monthlyIncome ?? 0;
+              final spent = state.report?.totalSpent ?? 0;
+
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildBalanceInfo(
                     context,
                     AppLocalizations.of(context)!.monthlyIncome,
-                    NumberFormat.decimalPattern('fr').format(income),
+                    income.toDouble(),
                   ),
                   Container(
                     width: 1,
@@ -346,9 +359,7 @@ class _DashboardViewState extends State<DashboardView> {
                   _buildBalanceInfo(
                     context,
                     AppLocalizations.of(context)!.totalExpenses,
-                    NumberFormat.decimalPattern(
-                      'fr',
-                    ).format(state.report?.totalSpent ?? 0),
+                    spent.toDouble(),
                   ),
                 ],
               );
@@ -359,7 +370,14 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  Widget _buildBalanceInfo(BuildContext context, String label, String amount) {
+  Widget _buildBalanceInfo(BuildContext context, String label, double amount) {
+    final userCurrency = context
+        .read<AuthBloc>()
+        .state
+        .authResponse
+        ?.user
+        .currency;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -373,7 +391,7 @@ class _DashboardViewState extends State<DashboardView> {
         ),
         const SizedBox(height: 4),
         Text(
-          '$amount FCFA',
+          CurrencyHelper.formatAmount(amount, currencyCode: userCurrency),
           style: AppTextStyles.bodyLarge.copyWith(
             color: Theme.of(context).colorScheme.onPrimary,
             fontWeight: FontWeight.w600,
@@ -644,7 +662,7 @@ class _DashboardViewState extends State<DashboardView> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '${isIncome ? '+' : '-'}${t.amount.toStringAsFixed(0)} F',
+                        '${isIncome ? '+' : '-'}${CurrencyHelper.formatAmount(t.amount, currencyCode: context.read<AuthBloc>().state.authResponse?.user.currency)}',
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: color,
                           fontWeight: FontWeight.bold,

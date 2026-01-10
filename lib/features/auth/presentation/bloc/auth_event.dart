@@ -102,9 +102,10 @@ class _AuthInternalError extends AuthEvent {
 
 class AuthPhoneVerificationRequested extends AuthEvent {
   final String phoneNumber;
-  const AuthPhoneVerificationRequested(this.phoneNumber);
+  final String countryCode;
+  const AuthPhoneVerificationRequested(this.phoneNumber, this.countryCode);
   @override
-  List<Object?> get props => [phoneNumber];
+  List<Object?> get props => [phoneNumber, countryCode];
 }
 
 class AuthPhoneSignInRequested extends AuthEvent {
