@@ -1,122 +1,76 @@
-# 🚀 Djangui - Gestion Financière Intelligente
+# Kauri - Tontine Numérique & Gestion Financière
 
-Djangui est une application mobile de gestion financière moderne, conçue pour aider les utilisateurs à épargner, investir et gérer leurs tontines de manière intelligente et sécurisée. L'application utilise une architecture Clean, un design system propriétaire et des fonctionnalités d'IA pour une expérience utilisateur premium.
+Kauri est une application mobile moderne, sécurisée et intuitive conçue pour numériser les tontines et offrir aux utilisateurs des outils de gestion financière avancés. Développée avec Flutter, elle offre une expérience fluide pour suivre les épargnes, gérer les budgets et faire fructifier son patrimoine collectivement.
 
----
+![Kauri Header](https://raw.githubusercontent.com/TheGoatIA/djangui-mobile/main/assets/images/logo.png)
 
-## 📋 Sommaire
-- [Architecture](#-architecture)
-- [Prérequis](#-prérequis)
-- [Installation local](#-installation-local)
-- [Configuration Firebase](#-configuration-firebase)
-- [CI/CD & Déploiement](#-cicd--déploiement)
-- [Rebranding & Identité](#-rebranding--identité)
-- [Contribution](#-contribution)
+## ✨ Fonctionnalités Clés
 
----
+- **💰 Tontines Numériques** : Créez ou rejoignez des groupes d'épargne collective avec un suivi transparent des cotisations.
+- **🌍 Support Multi-Devises** : Gérez vos finances dans diverses devises (XAF, EUR, USD, etc.) avec conversion automatique des soldes.
+- **📊 Budgétisation Avancée** : Définissez des limites mensuelles par catégorie et suivez vos dépenses en temps réel.
+- **🎯 Objectifs d'Épargne** : Définissez vos projets, fixez des montants cibles et suivez votre progression avec des stratégies intelligentes.
+- **🤖 Coach IA** : Recevez des conseils financiers personnalisés et des analyses propulsés par l'intelligence artificielle.
+- **📸 Scan de Reçus (OCR)** : Capturez automatiquement vos transactions en scannant vos reçus.
+- **📱 Import SMS** : Importez vos transactions financières directement depuis vos SMS pour un suivi sans effort.
+- **🎮 Gamification** : Gagnez de l'XP, des points et des badges en améliorant votre santé financière.
+- **🔒 Sécurité Maximale** : Connexion biométrique, gestion des sessions et authentification Firebase sécurisée.
 
-## 🏗 Architecture
-L'application suit les principes de la **Clean Architecture** pour assurer la maintenabilité et la testabilité :
-- **Data** : Sources de données (API, SQLite avec Drift, Local Storage).
-- **Domain** : Entités métiers et interfaces des dépôts (Logique pure).
-- **Presentation** : Gestion d'état avec BLoC et composants UI Material 3.
-- **Core** : Thèmes, constantes, utilitaires et configuration réseau.
+## 🚀 Stack Technique
 
----
+- **Framework** : [Flutter](https://flutter.dev/)
+- **Gestion d'État** : [Bloc/Cubit](https://pub.dev/packages/flutter_bloc)
+- **Injection de Dépendances** : [Injectable](https://pub.dev/packages/injectable) / [GetIt](https://pub.dev/packages/get_it)
+- **Réseau** : [Chopper](https://pub.dev/packages/chopper)
+- **Base de Données** : [Drift](https://pub.dev/packages/drift) (SQLite)
+- **Authentification** : Firebase (Google Sign-In, Phone Auth)
+- **Localisation** : [flutter_localizations](https://api.flutter.dev/flutter/flutter_localizations-library.html) (EN/FR)
+- **Analyses & Suivi** : Firebase Crashlytics & Analytics
 
-## 🛠 Prérequis
-Avant de commencer, assurez-vous d'avoir installé :
-- **Flutter SDK** : `3.10.1` ou supérieur.
-- **Dart SDK** : `^3.10.1`.
-- **Java** : JDK 17 (Nécessaire pour le build Android).
-- **CocoaPods** : Pour les dépendances iOS (`sudo gem install cocoapods`).
-- **Android Studio / Xcode** : Pour l'émulation et le build natif.
+## 🛠️ Démarrage Rapide
 
----
+### Prérequis
 
-## 💻 Installation Local
+- SDK Flutter (Dernière version stable)
+- Android Studio / VS Code
+- Configuration de projet Firebase
 
-1.  **Cloner le projet** :
-    ```bash
-    git clone https://github.com/votre-repo/djangui.git
-    cd djangui
-    ```
+### Installation
 
-2.  **Installer les dépendances** :
-    ```bash
-    flutter pub get
-    ```
+1. **Cloner le dépôt** :
+   ```bash
+   git clone https://github.com/TheGoatIA/djangui-mobile.git
+   cd djangui-mobile
+   ```
 
-3.  **Configurer les variables d'environnement** :
-    Créez un fichier `.env` à la racine du projet (copiez `.env.example`) :
-    ```bash
-    API_URL=https://votre-api.com
-    # Ajoutez vos autres clés secrètes ici
-    ```
+2. **Installer les dépendances** :
+   ```bash
+   flutter pub get
+   ```
 
-4.  **Générer le code** (Drift, Chopper, Injectable) :
-    ```bash
-    flutter pub run build_runner build --delete-conflicting-outputs
-    ```
+3. **Configurer l'environnement** :
+   Créez un fichier `.env` à la racine du projet basé sur `.env.example` :
+   ```env
+   BASE_URL=http://votre-api-backend.com/api/v1
+   FIREBASE_API_KEY=votre_cle
+   ...
+   ```
 
-5.  **Lancer l'application** :
-    ```bash
-    flutter run
-    ```
+4. **Lancer l'application** :
+   ```bash
+   flutter run
+   ```
 
----
+## 📖 Documentation
 
-## 🔥 Configuration Firebase
+- [Guide de Déploiement](DEPLOYMENT.md) - Comment déployer l'application mobile et le backend.
+- [Contribution](CONTRIBUTING.md) - Comment contribuer au projet.
+- [Licence](LICENSE) - Licence MIT.
 
-### Android
-1. Allez sur la [Console Firebase](https://console.firebase.google.com/).
-2. Ajoutez un projet Android avec le package `cm.tbg.djangui`.
-3. Téléchargez le fichier `google-services.json` et placez-le dans `android/app/`.
-4. Le projet est déjà configuré pour lire ce fichier.
+## 👥 Auteurs
 
-### iOS
-1. Ajoutez une application iOS au projet Firebase avec l'ID `cm.tbg.djangui`.
-2. Téléchargez `GoogleService-Info.plist` et ajoutez-le au projet via Xcode dans `Runner/`.
-3. Assurez-vous que le fichier est bien inclus dans la cible "Runner".
+- **L'Équipe Kauri** - *Travail initial* - [TheGoatIA](https://github.com/TheGoatIA)
 
----
+## 📄 Licence
 
-## 🚀 CI/CD & Déploiement
-
-Le projet utilise **GitHub Actions** pour automatiser les tests et les builds.
-
-- **Workflows** : Situés dans `.github/workflows/main.yml`.
-- **Lint & Test** : Exécutés à chaque push sur `main` ou `dev`.
-- **Build APK** : Stocké comme artefact après succès des tests.
-- **Build IPA** : Préparé pour iOS (nécessite signature manuelle pour l'App Store).
-
-### Déploiement Manuel
-- **Android** : `flutter build apk --release`
-- **iOS** : `flutter build ios --release --no-codesign`
-
----
-
-## 🏷 Rebranding & Identité
-- **Nom du Package** : `cm.tbg.djangui`
-- **Nom de l'App** : `Djangui`
-- **Logo** : Stocké dans `assets/images/logo.png`.
-- Pour régénérer les icônes :
-  ```bash
-  flutter pub run flutter_launcher_icons:main
-  ```
-
----
-
-## 🤝 Contribution
-1. Créez une branche depuis `dev` (`git checkout -b feature/ma-feature`).
-2. Suivez les templates d'Issue et de Pull Request fournis dans `.github/`.
-3. Assurez-vous que `flutter analyze` ne retourne aucune erreur.
-4. Soumettez votre PR vers `dev`.
-
----
-
-## 📧 Support
-Pour toute question, contactez l'équipe TBG ou soumettez une Issue sur le repository.
-
----
-*Fabriqué avec ❤️ pour une gestion financière d'exception.*
+Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.

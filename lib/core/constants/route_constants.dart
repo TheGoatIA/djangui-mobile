@@ -10,13 +10,24 @@ class RouteConstants {
   static const String onBoarding = '/onboarding';
   static const String dashboard = '/dashboard';
   static const String transactions = '/transactions';
+  static const String transactionDetails = '/transactions/:id';
   static const String budgets = '/budgets';
   static const String investments = '/investments';
   static const String goals = '/goals';
+  static const String goalDetails = '/goals/:id';
   static const String coach = '/coach';
   static const String profile = '/profile';
   static const String challenges = '/challenges';
   static const String insights = '/insights';
   static const String subscription = '/subscription';
   static const String about = '/about';
+  static const String notifications = '/notifications';
+  static const String security = '/security';
+  static const String changePassword = '/change-password';
+  static const String sessions = '/sessions';
+  static const String paymentSuccess = '/payment/success';
+  static const String supportTickets = '/support/tickets';
+  static const String createTicket = '/support/tickets/create';
+  static const String ticketDetails = '/support/tickets/:id';
+  static const String completeProfile = '/complete-profile';
 }

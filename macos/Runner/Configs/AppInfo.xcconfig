@@ -5,10 +5,10 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = djangui
+PRODUCT_NAME = Kauri
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.djangui.djangui
+PRODUCT_BUNDLE_IDENTIFIER = com.Kauri.Kauri
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.djangui. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 com.Kauri. All rights reserved.

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/constants/route_constants.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../di/injection.dart';
@@ -11,10 +12,17 @@ import '../../../../l10n/app_localizations.dart';
 import '../bloc/transactions_bloc.dart';
 import '../../data/models/transaction_model.dart';
 import '../../../../core/services/ocr_service.dart';
+import '../../../../core/constants/app_categories.dart';
+import '../../../goals/presentation/bloc/goals_bloc.dart';
+import '../../../goals/presentation/bloc/goals_state.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
 
 class AddTransactionPage extends StatefulWidget {
-  const AddTransactionPage({super.key});
+  final String? initialGoalId;
+  const AddTransactionPage({super.key, this.initialGoalId});
 
   @override
   State<AddTransactionPage> createState() => _AddTransactionPageState();
@@ -24,11 +32,81 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _categoryController = TextEditingController();
+  String? _selectedCategory;
+  final _subcategoryController = TextEditingController();
+  final _merchantController = TextEditingController();
+  final _locationController = TextEditingController();
   String _type = 'expense';
+  String? _selectedGoalId;
   bool _isScanning = false;
 
+  final GlobalKey _scanKey = GlobalKey();
+  final GlobalKey _amountKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedGoalId = widget.initialGoalId;
+    if (_selectedGoalId != null) {
+      _type = 'income';
+    }
+    context.read<TransactionsBloc>().add(ResetTransactionsStatus());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('add_transaction')) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(context).startShowCase([_scanKey, _amountKey]);
+        tutorialService.markTutorialAsSeen('add_transaction');
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    _amountController.dispose();
+    _descriptionController.dispose();
+    _subcategoryController.dispose();
+    _merchantController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
+
   Future<void> _onScanReceipt() async {
+    final authState = context.read<AuthBloc>().state;
+    final isPremium = authState.authResponse?.user.isPremium ?? false;
+
+    if (!isPremium) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.ocrPremiumRestriction),
+          action: SnackBarAction(
+            label: AppLocalizations.of(context)!.seeOffers,
+            onPressed: () => context.push(RouteConstants.subscription),
+          ),
+        ),
+      );
+      return;
+    }
+
     final ocrService = getIt<OCRService>();
 
     // Show picker source selection
@@ -40,12 +118,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Prendre une photo'),
+              title: Text(AppLocalizations.of(context)!.takePhoto),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Choisir depuis la galerie'),
+              title: Text(AppLocalizations.of(context)!.chooseFromGallery),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
           ],
@@ -71,43 +149,83 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           _descriptionController.text = result.description!;
         }
         if (result.category != null) {
-          _categoryController.text = result.category!;
+          // Try to match scanned category with predefined list
+          final matchedCategory = AppCategories.categories.firstWhere(
+            (c) => c.toLowerCase() == result.category!.toLowerCase(),
+            orElse: () => AppCategories.categories.last, // 'Autres'
+          );
+          _selectedCategory = matchedCategory;
         }
         _isScanning = false;
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Reçu analysé avec succès !')),
-        );
+        final l10n = AppLocalizations.of(context)!;
+
+        // Only show success if we actually found something useful
+        if (result.amount != null || result.description != null) {
+          String details = '';
+          if (result.amount != null && result.description != null) {
+            details =
+                ': ${result.amount!.toStringAsFixed(0)} XAF (${result.description})';
+          } else if (result.amount != null) {
+            details = ': ${result.amount!.toStringAsFixed(0)} XAF';
+          } else if (result.description != null) {
+            details = ': ${result.description}';
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${l10n.receiptScannedSuccess}$details'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        } else {
+          // If no amount or description was found, it's probably not a receipt
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.receiptScannedError),
+              backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
       }
     } catch (e) {
       setState(() => _isScanning = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur lors de l\'analyse du reçu')),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.receiptScannedError),
+          ),
         );
       }
     }
   }
 
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _descriptionController.dispose();
-    _categoryController.dispose();
-    super.dispose();
-  }
-
   void _onSave(BuildContext context) {
     if (_formKey.currentState!.validate()) {
+      final authState = context.read<AuthBloc>().state;
+      final userId = authState.authResponse?.user.id;
+
       final transaction = TransactionModel(
         id: const Uuid().v4(),
+        userId: userId,
         amount: double.parse(_amountController.text),
         type: _type,
-        category: _categoryController.text,
+        category: _selectedCategory ?? AppCategories.categories.last,
+        subcategory: _subcategoryController.text.isNotEmpty
+            ? _subcategoryController.text
+            : null,
         description: _descriptionController.text,
+        merchant: _merchantController.text.isNotEmpty
+            ? _merchantController.text
+            : null,
+        location: _locationController.text.isNotEmpty
+            ? _locationController.text
+            : null,
         date: DateTime.now(),
+        linkedGoalId: _selectedGoalId,
       );
       context.read<TransactionsBloc>().add(
         AddTransactionRequested(transaction),
@@ -117,83 +235,97 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<TransactionsBloc>(),
-      child: BlocListener<TransactionsBloc, TransactionsState>(
-        listener: (context, state) {
-          if (state.status == TransactionsStatus.success) {
-            context.pop(true);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(AppLocalizations.of(context)!.successTransaction),
+    return BlocListener<TransactionsBloc, TransactionsState>(
+      listenWhen: (previous, current) =>
+          previous.status == TransactionsStatus.loading &&
+          current.status == TransactionsStatus.success,
+      listener: (context, state) {
+        if (state.status == TransactionsStatus.success) {
+          context.pop(true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.successTransaction),
+            ),
+          );
+        } else if (state.status == TransactionsStatus.error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.errorMessage ??
+                    AppLocalizations.of(context)!.errorTransaction,
               ),
-            );
-          } else if (state.status == TransactionsStatus.error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.errorMessage ??
-                      AppLocalizations.of(context)!.errorTransaction,
-                ),
-              ),
-            );
-          }
-        },
-        child: Scaffold(
-          backgroundColor: AppColors.background,
-          appBar: AppBar(
-            title: Text(AppLocalizations.of(context)!.addTransactionTitle),
-            actions: [
-              if (_isScanning)
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Center(
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.addTransactionTitle),
+          actions: [
+            if (_isScanning)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                )
-              else
-                IconButton(
+                ),
+              )
+            else
+              Showcase(
+                key: _scanKey,
+                title: AppLocalizations.of(context)!.tutorialOCRTitle,
+                description: AppLocalizations.of(context)!.tutorialOCRDesc,
+                child: IconButton(
                   icon: const Icon(Icons.qr_code_scanner),
                   onPressed: _onScanReceipt,
-                  tooltip: 'Scanner un reçu',
+                  tooltip: AppLocalizations.of(context)!.scanReceiptTooltip,
                 ),
-            ],
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.transactionType,
-                    style: AppTextStyles.bodyMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _TypeButton(
-                        label: AppLocalizations.of(context)!.expense,
-                        isSelected: _type == 'expense',
-                        onTap: () => setState(() => _type = 'expense'),
-                        color: AppColors.error,
-                      ),
-                      const SizedBox(width: 12),
-                      _TypeButton(
-                        label: AppLocalizations.of(context)!.income,
-                        isSelected: _type == 'income',
-                        onTap: () => setState(() => _type = 'income'),
-                        color: AppColors.success,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  AppTextField(
+              ),
+          ],
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.transactionType,
+                  style: AppTextStyles.bodyMedium,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _TypeButton(
+                      label: AppLocalizations.of(context)!.expense,
+                      isSelected: _type == 'expense',
+                      onTap: () => setState(() => _type = 'expense'),
+                      color: AppColors.error,
+                    ),
+                    const SizedBox(width: 12),
+                    _TypeButton(
+                      label: AppLocalizations.of(context)!.income,
+                      isSelected: _type == 'income',
+                      onTap: () => setState(() => _type = 'income'),
+                      color: AppColors.success,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Showcase(
+                  key: _amountKey,
+                  title: AppLocalizations.of(
+                    context,
+                  )!.tutorialAddTransactionTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.tutorialAddTransactionDesc,
+                  child: AppTextField(
                     controller: _amountController,
                     label: AppLocalizations.of(context)!.amountLabel,
                     hint: AppLocalizations.of(context)!.amountHint,
@@ -208,36 +340,128 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
-                  AppTextField(
-                    controller: _categoryController,
-                    label: AppLocalizations.of(context)!.categoryLabel,
-                    hint: AppLocalizations.of(context)!.categoryHint,
-                    validator: (value) => (value == null || value.isEmpty)
-                        ? AppLocalizations.of(context)!.requiredField
-                        : null,
+                ),
+                const SizedBox(height: 20),
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedCategory,
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.categoryLabel,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  AppTextField(
-                    controller: _descriptionController,
-                    label: AppLocalizations.of(context)!.descriptionLabel,
-                    hint: AppLocalizations.of(context)!.descriptionHint,
-                    validator: (value) => (value == null || value.isEmpty)
-                        ? AppLocalizations.of(context)!.requiredField
-                        : null,
-                  ),
-                  const SizedBox(height: 40),
-                  BlocBuilder<TransactionsBloc, TransactionsState>(
-                    builder: (context, state) {
-                      return AppButton(
-                        text: AppLocalizations.of(context)!.saveAction,
-                        isLoading: state.status == TransactionsStatus.loading,
-                        onPressed: () => _onSave(context),
-                      );
-                    },
-                  ),
-                ],
-              ),
+                  hint: Text(AppLocalizations.of(context)!.categoryHint),
+                  items: AppCategories.categories.map((String category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedCategory = newValue;
+                    });
+                  },
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? AppLocalizations.of(context)!.requiredField
+                      : null,
+                ),
+                const SizedBox(height: 20),
+                AppTextField(
+                  controller: _subcategoryController,
+                  label: AppLocalizations.of(context)!.subcategoryLabel,
+                  hint: AppLocalizations.of(context)!.subcategoryHint,
+                ),
+                const SizedBox(height: 20),
+                AppTextField(
+                  controller: _merchantController,
+                  label: AppLocalizations.of(context)!.merchantLabel,
+                  hint: AppLocalizations.of(context)!.merchantHint,
+                ),
+                const SizedBox(height: 20),
+                AppTextField(
+                  controller: _locationController,
+                  label: AppLocalizations.of(context)!.locationLabel,
+                  hint: AppLocalizations.of(context)!.locationHint,
+                ),
+                const SizedBox(height: 20),
+                BlocBuilder<GoalsBloc, GoalsState>(
+                  builder: (context, state) {
+                    if (state.goals.isEmpty) return const SizedBox.shrink();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.linkToGoalLabel,
+                          style: AppTextStyles.bodyMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedGoalId,
+                              isExpanded: true,
+                              hint: Text(
+                                AppLocalizations.of(context)!.selectGoalHint,
+                              ),
+                              items: [
+                                DropdownMenuItem<String>(
+                                  value: null,
+                                  child: Text(
+                                    AppLocalizations.of(context)!.none,
+                                    style: TextStyle(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                                ...state.goals.map((goal) {
+                                  return DropdownMenuItem(
+                                    value: goal.id,
+                                    child: Text(
+                                      "${goal.emoji ?? '🎯'} ${goal.name}",
+                                    ),
+                                  );
+                                }),
+                              ],
+                              onChanged: (value) =>
+                                  setState(() => _selectedGoalId = value),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    );
+                  },
+                ),
+                AppTextField(
+                  controller: _descriptionController,
+                  label: AppLocalizations.of(context)!.descriptionLabel,
+                  hint: AppLocalizations.of(context)!.descriptionHint,
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? AppLocalizations.of(context)!.requiredField
+                      : null,
+                ),
+                const SizedBox(height: 40),
+                BlocBuilder<TransactionsBloc, TransactionsState>(
+                  builder: (context, state) {
+                    return AppButton(
+                      text: AppLocalizations.of(context)!.saveAction,
+                      isLoading: state.status == TransactionsStatus.loading,
+                      onPressed: () => _onSave(context),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
         ),
@@ -267,15 +491,19 @@ class _TypeButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: isSelected ? color : Colors.white,
+            color: isSelected ? color : Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: isSelected ? color : Colors.grey[300]!),
+            border: Border.all(
+              color: isSelected ? color : Theme.of(context).colorScheme.outline,
+            ),
           ),
           child: Center(
             child: Text(
               label,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: isSelected ? Colors.white : Colors.black87,
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),

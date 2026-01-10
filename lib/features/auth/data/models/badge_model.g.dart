@@ -7,10 +7,10 @@ part of 'badge_model.dart';
 // **************************************************************************
 
 BadgeModel _$BadgeModelFromJson(Map<String, dynamic> json) => BadgeModel(
-      name: json['name'] as String,
-      icon: json['icon'] as String,
-      awardedAt: DateTime.parse(json['awardedAt'] as String),
-    );
+  name: json['name'] as String,
+  icon: json['icon'] as String,
+  awardedAt: DateTime.parse(json['awardedAt'] as String),
+);
 
 Map<String, dynamic> _$BadgeModelToJson(BadgeModel instance) =>
     <String, dynamic>{

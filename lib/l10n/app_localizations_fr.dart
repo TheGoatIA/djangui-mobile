@@ -9,7 +9,7 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get appTitle => 'Djangui';
+  String get appTitle => 'Kauri';
 
   @override
   String get welcome => 'Bienvenue';
@@ -31,13 +31,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get forgotPasswordSubtitle =>
-      'Entrez votre email pour recevoir un lien de réinitialisation.';
+      'Entrez votre e-mail pour recevoir un lien de réinitialisation.';
 
   @override
   String get sendResetLink => 'Envoyer le lien';
 
   @override
-  String get emailSent => 'Email envoyé avec succès';
+  String get emailSent => 'E-mail envoyé avec succès';
 
   @override
   String get share => 'Partager';
@@ -85,6 +85,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cancel => 'Annuler';
 
   @override
+  String get none => 'Aucun';
+
+  @override
   String get totalBalance => 'Solde Total';
 
   @override
@@ -94,10 +97,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noRecentActivities => 'Aucune activité récente';
 
   @override
-  String get seeAll => 'Voir tout';
+  String get seeAll => 'Tout voir';
 
   @override
-  String get addTransaction => 'Ajouter une transaction';
+  String get addTransaction => 'Ajouter Transaction';
 
   @override
   String get category => 'Catégorie';
@@ -115,11 +118,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get save => 'Enregistrer';
 
   @override
-  String get onboardingTitle1 => 'Bienvenue sur Djangui';
+  String get onboardingTitle1 => 'Bienvenue sur Kauri';
 
   @override
   String get onboardingDesc1 =>
-      'La solution moderne pour gérer vos tontines et épargner en groupe en toute sécurité.';
+      'La solution moderne pour gérer vos tontines et épargner ensemble en toute sécurité.';
 
   @override
   String get onboardingTitle2 => 'Épargne Collective';
@@ -155,10 +158,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get emailHint => 'votre@email.com';
 
   @override
-  String get enterEmailError => 'Veuillez entrer votre email';
+  String get enterEmailError => 'Veuillez entrer votre e-mail';
 
   @override
-  String get invalidEmailError => 'Veuillez entrer un email valide';
+  String get invalidEmailError => 'Veuillez entrer un e-mail valide';
 
   @override
   String get enterPasswordError => 'Veuillez entrer votre mot de passe';
@@ -171,6 +174,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get genericError => 'Une erreur est survenue';
 
   @override
+  String get retry => 'Réessayer';
+
+  @override
   String get noAccountQuestion => 'Vous n\'avez pas de compte ?';
 
   @override
@@ -178,7 +184,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get registerSubtitle =>
-      'Rejoignez Djangui et commencez à épargner intelligemment.';
+      'Rejoignez Kauri et commencez à épargner intelligemment.';
 
   @override
   String get firstName => 'Prénom';
@@ -228,19 +234,24 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get deadlinePassed => 'Echéance passée';
+  String daysCount(int count) {
+    return '$count jours';
+  }
 
   @override
-  String get addTransactionTitle => 'Ajouter une transaction';
+  String get deadlinePassed => 'Date limite dépassée';
 
   @override
-  String get addBudgetTitle => 'Définir un budget';
+  String get addTransactionTitle => 'Ajouter Transaction';
+
+  @override
+  String get addBudgetTitle => 'Définir Budget';
 
   @override
   String get addGoalTitle => 'Nouvel Objectif';
 
   @override
-  String get transactionType => 'Type de transaction';
+  String get transactionType => 'Type de Transaction';
 
   @override
   String get expense => 'Dépense';
@@ -261,52 +272,76 @@ class AppLocalizationsFr extends AppLocalizations {
   String get categoryHint => 'ex: Alimentation, Salaire...';
 
   @override
+  String get subcategoryLabel => 'Sous-catégorie';
+
+  @override
+  String get subcategoryHint => 'ex: Restaurant, Essence...';
+
+  @override
+  String get merchantLabel => 'Commerçant';
+
+  @override
+  String get merchantHint => 'ex: Casino, Shell...';
+
+  @override
+  String get locationLabel => 'Lieu';
+
+  @override
+  String get locationHint => 'ex: Douala, Cameroun';
+
+  @override
+  String get linkToGoalLabel => 'Lier à un objectif';
+
+  @override
+  String get selectGoalHint => 'Sélectionner un objectif (optionnel)';
+
+  @override
   String get descriptionLabel => 'Description';
 
   @override
   String get descriptionHint => 'ex: Courses du mois';
 
   @override
-  String get monthlyLimitLabel => 'Limite mensuelle';
+  String get monthlyLimitLabel => 'Limite Mensuelle';
 
   @override
   String get goalNameLabel => 'Nom de l\'objectif';
 
   @override
-  String get goalNameHint => 'ex: Nouvel iPhone, Voyage...';
+  String get goalNameHint => 'ex: Nouveau Téléphone, Voyage...';
 
   @override
-  String get targetAmountLabel => 'Montant cible';
+  String get targetAmountLabel => 'Montant Cible';
 
   @override
-  String get deadlineLabel => 'Date d\'échéance';
+  String get deadlineLabel => 'Date Limite';
 
   @override
   String get saveAction => 'Enregistrer';
 
   @override
-  String get createBudgetAction => 'Créer le budget';
+  String get createBudgetAction => 'Créer Budget';
 
   @override
-  String get saveGoalAction => 'Sauvegarder';
+  String get saveGoalAction => 'Enregistrer';
 
   @override
   String get successTransaction => 'Transaction ajoutée avec succès';
 
   @override
-  String get errorTransaction => 'Erreur lors de l\'ajout';
+  String get errorTransaction => 'Erreur lors de l\'ajout de la transaction';
 
   @override
   String get successBudget => 'Budget créé avec succès';
 
   @override
-  String get errorBudget => 'Erreur lors de la création';
+  String get errorBudget => 'Erreur lors de la création du budget';
 
   @override
   String get successGoal => 'Objectif créé avec succès';
 
   @override
-  String get errorGoal => 'Erreur lors de la création';
+  String get errorGoal => 'Erreur lors de la création de l\'objectif';
 
   @override
   String get selectDateError => 'Veuillez sélectionner une date';
@@ -356,10 +391,59 @@ class AppLocalizationsFr extends AppLocalizations {
   String get finished => 'Terminé';
 
   @override
-  String get acceptChallenge => 'Relever le défi';
+  String get acceptChallenge => 'Accepter le défi';
 
   @override
   String get completed => 'Complété';
+
+  @override
+  String get difficulty => 'Difficulté';
+
+  @override
+  String get duration => 'Durée';
+
+  @override
+  String get reward => 'Récompense';
+
+  @override
+  String get startChallenge => 'Commencer le défi';
+
+  @override
+  String get validateWeek => 'Valider la semaine';
+
+  @override
+  String get yourProgress => 'Votre progression';
+
+  @override
+  String percentCompleted(String percent) {
+    return '$percent% Complété';
+  }
+
+  @override
+  String get week => 'Semaine';
+
+  @override
+  String get validateWeekTitle => 'Valider la Semaine';
+
+  @override
+  String get enterAmountSaved => 'Entrez le montant épargné cette semaine :';
+
+  @override
+  String get amountToContribute => 'Montant à verser :';
+
+  @override
+  String get confirmValidationTitle => 'Confirmer la validation';
+
+  @override
+  String confirmValidationMessage(Object amount) {
+    return 'Êtes-vous sûr de vouloir valider cette semaine pour $amount XAF ?';
+  }
+
+  @override
+  String get confirm => 'Confirmer';
+
+  @override
+  String get active => 'Actif';
 
   @override
   String get coachTitle => 'Coach IA';
@@ -371,10 +455,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get coachWelcomeMessage => 'Comment puis-je vous aider aujourd\'hui ?';
 
   @override
-  String get coachThinking => 'IA réfléchit...';
+  String get coachThinking => 'L\'IA réfléchit...';
 
   @override
-  String get typeQuestionHint => 'Posez votre question...';
+  String get typeQuestionHint => 'Posez une question...';
 
   @override
   String get insightsTitle => 'Analyses & Rapports';
@@ -383,10 +467,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get spendingDistribution => 'Répartition des Dépenses';
 
   @override
-  String get spendingTrends => 'Tendance des Dépenses';
+  String get spendingTrends => 'Tendances de Dépenses';
 
   @override
-  String get categoryDetails => 'Détail par Catégorie';
+  String get categoryDetails => 'Détails par Catégorie';
 
   @override
   String get weekly => 'Hebdomadaire';
@@ -407,7 +491,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get googleSignIn => 'Continuer avec Google';
 
   @override
-  String get phoneLogin => 'Connexion par numéro';
+  String get phoneLogin => 'Connexion par téléphone';
 
   @override
   String get phoneNumber => 'Numéro de téléphone';
@@ -419,7 +503,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get verify => 'Vérifier';
 
   @override
-  String get enterOtp => 'Entrez le code reçu';
+  String get enterOtp => 'Entrez le code de vérification';
 
   @override
   String get otpCode => 'Code SMS';
@@ -428,8 +512,917 @@ class AppLocalizationsFr extends AppLocalizations {
   String get resendCode => 'Renvoyer le code';
 
   @override
-  String get phoneLinkedSuccess => 'Numéro lié avec succès';
+  String get phoneLinkedSuccess => 'Téléphone lié avec succès';
 
   @override
-  String get invalidPhone => 'Numéro invalide';
+  String get validationSuccess => 'Semaine validée avec succès';
+
+  @override
+  String get invalidPhone => 'Numéro de téléphone invalide';
+
+  @override
+  String get country => 'Pays';
+
+  @override
+  String get selectCountry => 'Sélectionnez votre pays';
+
+  @override
+  String get selectCountryError => 'Veuillez sélectionner un pays';
+
+  @override
+  String get phoneHint => 'xxxxxxxxx';
+
+  @override
+  String get resetSuccess => 'Mot de passe réinitialisé avec succès';
+
+  @override
+  String get resetError => 'Erreur lors de la réinitialisation';
+
+  @override
+  String get resetPasswordTitle => 'Réinitialiser le mot de passe';
+
+  @override
+  String get newPassword => 'Nouveau mot de passe';
+
+  @override
+  String get newPasswordSubtitle =>
+      'Créez un mot de passe fort pour sécuriser votre compte.';
+
+  @override
+  String get confirmPassword => 'Confirmer le mot de passe';
+
+  @override
+  String get passwordsDoNotMatch => 'Les mots de passe ne correspondent pas';
+
+  @override
+  String get resetPasswordAction => 'Réinitialiser';
+
+  @override
+  String get greeting => 'Bonjour,';
+
+  @override
+  String get user => 'Utilisateur';
+
+  @override
+  String get monthlyIncome => 'Revenu Mensuel';
+
+  @override
+  String get totalExpenses => 'Dépenses Totales';
+
+  @override
+  String get quickActions => 'Actions Rapides';
+
+  @override
+  String get invest => 'Investir';
+
+  @override
+  String get insights => 'Analyses';
+
+  @override
+  String get importSms => 'Importer SMS';
+
+  @override
+  String get featureNotAvailableOnIos =>
+      'Fonctionnalité non disponible sur iOS';
+
+  @override
+  String get scanningSms => 'Analyse des SMS en cours...';
+
+  @override
+  String get automatic => 'Automatique';
+
+  @override
+  String transactionsImported(int count) {
+    return '$count transactions importées avec succès';
+  }
+
+  @override
+  String get deleteBudget => 'Supprimer le budget';
+
+  @override
+  String get deleteBudgetConfirmation =>
+      'Êtes-vous sûr de vouloir supprimer ce budget ?';
+
+  @override
+  String get delete => 'Supprimer';
+
+  @override
+  String get smsPermissionRequired =>
+      'Permission SMS requise pour cette fonctionnalité';
+
+  @override
+  String levelLabel(int level) {
+    return 'Niveau $level';
+  }
+
+  @override
+  String xpToNextLevel(int xp) {
+    return '$xp XP pour le niveau suivant';
+  }
+
+  @override
+  String get myInvestments => 'Mes Investissements';
+
+  @override
+  String get addInvestment => 'Ajouter Investissement';
+
+  @override
+  String get noInvestments => 'Aucun Investissement';
+
+  @override
+  String get startBuildingPortfolio => 'Commencez à bâtir votre portefeuille';
+
+  @override
+  String get newInvestment => 'Nouvel Investissement';
+
+  @override
+  String get investmentDetails => 'Détails de l\'investissement';
+
+  @override
+  String get assetNameHint => 'Nom de l\'actif (ex: Bitcoin, Tesla)';
+
+  @override
+  String get assetType => 'Type d\'actif';
+
+  @override
+  String get investedAmount => 'Montant Investi';
+
+  @override
+  String get estimatedROI => 'ROI Estimé (%)';
+
+  @override
+  String get cryptoCurrency => 'Cryptomonnaie';
+
+  @override
+  String get stockMarket => 'Bourse';
+
+  @override
+  String get realEstate => 'Immobilier';
+
+  @override
+  String get other => 'Autre';
+
+  @override
+  String get fieldRequired => 'Champ requis';
+
+  @override
+  String get errorOccurred => 'Une erreur est survenue';
+
+  @override
+  String get importGoal => 'Importer Objectif';
+
+  @override
+  String get goalImportedSuccess => 'Objectif importé avec succès !';
+
+  @override
+  String get sharedGoal => 'Objectif Partagé';
+
+  @override
+  String get targetAmount => 'Montant Cible';
+
+  @override
+  String get deadline => 'Date Limite';
+
+  @override
+  String get addGoalToListPrompt =>
+      'Voulez-vous ajouter cet objectif à votre liste ?';
+
+  @override
+  String get acceptGoal => 'Accepter l\'objectif';
+
+  @override
+  String get aiAnalysisTitle => 'Analyse Financière IA';
+
+  @override
+  String get aiAnalysisUnavailable =>
+      'L\'analyse IA est temporairement indisponible';
+
+  @override
+  String get countryLabel => 'Pays';
+
+  @override
+  String get notSet => 'Non défini';
+
+  @override
+  String get upgradeToPremium => 'Passer Premium';
+
+  @override
+  String get premiumBannerDescription =>
+      'Débloquez des analyses avancées, objectifs illimités et support prioritaire.';
+
+  @override
+  String get discoverOffers => 'Voir les offres';
+
+  @override
+  String get aboutKauri => 'À propos de Kauri';
+
+  @override
+  String versionInfo(String version, String buildNumber) {
+    return 'Version $version ($buildNumber)';
+  }
+
+  @override
+  String get aboutDescription =>
+      'Kauri est une solution moderne pour gérer vos épargnes et tontines de manière autonome. Notre mission est de démocratiser la gestion financière grâce à la technologie.';
+
+  @override
+  String get developedBy => 'Développé avec ❤️ par l\'équipe Kauri';
+
+  @override
+  String get contact => 'Contact';
+
+  @override
+  String get website => 'Site Web';
+
+  @override
+  String get copyrightInfo => '© 2024 Kauri. Tous droits réservés.';
+
+  @override
+  String get takePhoto => 'Prendre une photo';
+
+  @override
+  String get chooseFromGallery => 'Choisir depuis la galerie';
+
+  @override
+  String get receiptScannedSuccess => 'Reçu scanné avec succès';
+
+  @override
+  String get receiptScannedError => 'Erreur lors du scan du reçu';
+
+  @override
+  String get scanReceiptTooltip => 'Scanner reçu';
+
+  @override
+  String get upgradeToPremiumTitle => 'Passez Premium';
+
+  @override
+  String get premiumWelcomeTitle => 'Bienvenue dans Premium';
+
+  @override
+  String get premiumWelcomeSubtitle =>
+      'Profitez de toutes les fonctionnalités avancées';
+
+  @override
+  String get freePlan => 'Gratuit';
+
+  @override
+  String get freePrice => '0 FCFA';
+
+  @override
+  String get freeFeature1 => '3 Budgets max';
+
+  @override
+  String get freeFeature2 => '1 Objectif max';
+
+  @override
+  String get freeFeature3 => 'Analyses basiques';
+
+  @override
+  String get premiumPlan => 'Premium';
+
+  @override
+  String get premiumPrice => '2000 FCFA/mois';
+
+  @override
+  String get premiumFeature1 => 'Budgets Illimités';
+
+  @override
+  String get premiumFeature2 => 'Objectifs Illimités';
+
+  @override
+  String get premiumFeature3 => 'Analyses IA Avancées';
+
+  @override
+  String get premiumFeature4 => 'Support Prioritaire';
+
+  @override
+  String get bestValue => 'Meilleure Offre';
+
+  @override
+  String get upgradeAction => 'S\'abonner Maintenant';
+
+  @override
+  String get currentPlan => 'Plan Actuel';
+
+  @override
+  String get choosePaymentMethodTitle => 'Choisir Méthode de Paiement';
+
+  @override
+  String get paymentInitError => 'Erreur d\'initialisation du paiement';
+
+  @override
+  String get cameroon => 'Cameroun';
+
+  @override
+  String get france => 'France';
+
+  @override
+  String get usa => 'États-Unis';
+
+  @override
+  String get belgium => 'Belgique';
+
+  @override
+  String get canada => 'Canada';
+
+  @override
+  String get unjoinChallenge => 'Quitter le défi';
+
+  @override
+  String get unjoinConfirmationTitle => 'Quitter le défi';
+
+  @override
+  String get unjoinConfirmationMessage =>
+      'Êtes-vous sûr de vouloir quitter ce défi ? Votre progression sera perdue.';
+
+  @override
+  String get unjoinAction => 'Quitter';
+
+  @override
+  String get join => 'REJOINDRE';
+
+  @override
+  String get easyDifficulty => 'Facile';
+
+  @override
+  String get mediumDifficulty => 'Moyen';
+
+  @override
+  String get hardDifficulty => 'Difficile';
+
+  @override
+  String get savingType => 'Épargne';
+
+  @override
+  String get spendingType => 'Dépense';
+
+  @override
+  String get deleteInvestmentConfirmation =>
+      'Êtes-vous sûr de vouloir supprimer cet investissement ?';
+
+  @override
+  String get budgetDetails => 'Détails du Budget';
+
+  @override
+  String get allocated => 'Alloué';
+
+  @override
+  String get spent => 'Dépensé';
+
+  @override
+  String get remaining => 'Restant';
+
+  @override
+  String get categories => 'Catégories';
+
+  @override
+  String get goalDescriptionLabel => 'Description';
+
+  @override
+  String get goalDescriptionHint => 'ex: Épargne de secours';
+
+  @override
+  String get goalTypeLabel => 'Type d\'objectif';
+
+  @override
+  String get goalPriorityLabel => 'Priorité';
+
+  @override
+  String get goalEmojiLabel => 'Emoji';
+
+  @override
+  String get autoSaveRulesTitle => 'Règles d\'Épargne Auto';
+
+  @override
+  String get enableSurplusLabel => 'Épargner le surplus';
+
+  @override
+  String get enableRoundupLabel => 'Arrondir les transactions';
+
+  @override
+  String get percentageIncomeLabel => '% du Revenu';
+
+  @override
+  String get emergencyType => 'Urgence';
+
+  @override
+  String get savingsType => 'Épargne';
+
+  @override
+  String get investmentType => 'Investissement';
+
+  @override
+  String get highPriority => 'Haute';
+
+  @override
+  String get mediumPriority => 'Moyenne';
+
+  @override
+  String get lowPriority => 'Basse';
+
+  @override
+  String get deleteGoalConfirmation =>
+      'Êtes-vous sûr de vouloir supprimer cet objectif ?';
+
+  @override
+  String get strategyLabel => 'Stratégie d\'Épargne';
+
+  @override
+  String get strategy_50_30_20 => 'Règle 50-30-20';
+
+  @override
+  String get strategy_50_30_20_desc =>
+      'Allouez 20% des revenus à l\'épargne (50% besoins, 30% envies).';
+
+  @override
+  String get strategy_progressive => 'Progressive';
+
+  @override
+  String get strategy_progressive_desc =>
+      'Commencez petit et augmentez les contributions avec le temps.';
+
+  @override
+  String get strategy_roundup => 'Arrondi';
+
+  @override
+  String get strategy_roundup_desc =>
+      'Épargnez automatiquement la différence en arrondissant vos dépenses.';
+
+  @override
+  String get strategy_pay_yourself_first => 'Se Payer en Premier';
+
+  @override
+  String get strategy_pay_yourself_first_desc =>
+      'Virement automatique vers l\'épargne dès réception du revenu.';
+
+  @override
+  String get strategy_envelope => 'Enveloppe';
+
+  @override
+  String get strategy_envelope_desc =>
+      'Allouez un montant fixe et arrêtez de dépenser une fois l\'enveloppe vide.';
+
+  @override
+  String get strategy_custom => 'Personnalisée';
+
+  @override
+  String get strategy_custom_desc =>
+      'Contributions flexibles sans règles prédéfinies.';
+
+  @override
+  String get addSavingsAction => 'Ajouter Épargne';
+
+  @override
+  String get currentAmountLabel => 'Épargné';
+
+  @override
+  String get monthAndYear => 'Mois & Année';
+
+  @override
+  String get add => 'Ajouter';
+
+  @override
+  String get updateAvailable => 'Mise à jour disponible';
+
+  @override
+  String get updateRequiredMessage =>
+      'Une nouvelle version de Kauri est disponible. Veuillez mettre à jour pour continuer à utiliser l\'application.';
+
+  @override
+  String get updateNow => 'Mettre à jour';
+
+  @override
+  String get maintenanceMode => 'Mode Maintenance';
+
+  @override
+  String get maintenanceMessage =>
+      'L\'application est actuellement en maintenance. Veuillez réessayer plus tard.';
+
+  @override
+  String get markAllAsRead => 'Tout marquer comme lu';
+
+  @override
+  String get noNotifications => 'Aucune notification';
+
+  @override
+  String get unknownError => 'Erreur inconnue';
+
+  @override
+  String get deleteAccountDescription =>
+      'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est définitive et toutes vos données seront perdues.';
+
+  @override
+  String get deleteAccountWarning =>
+      'Ceci supprimera définitivement votre compte et toutes les données associées.';
+
+  @override
+  String get securitySettings => 'Paramètres de Sécurité';
+
+  @override
+  String get activeSessions => 'Sessions Actives';
+
+  @override
+  String get biometrics => 'Biométrie';
+
+  @override
+  String get enableBiometrics => 'Activer la Biométrie';
+
+  @override
+  String get biometricsDescription =>
+      'Utiliser FaceID ou l\'empreinte digitale pour déverrouiller l\'application';
+
+  @override
+  String get dangerZone => 'Zone de Danger';
+
+  @override
+  String get currentSession => 'Session Actuelle';
+
+  @override
+  String get lastActive => 'Dernière Activité';
+
+  @override
+  String get location => 'Lieu';
+
+  @override
+  String get changePassword => 'Changer Mot de Passe';
+
+  @override
+  String get changePasswordDescription =>
+      'Entrez votre mot de passe actuel et le nouveau pour le mettre à jour.';
+
+  @override
+  String get currentPassword => 'Mot de passe actuel';
+
+  @override
+  String get confirmNewPassword => 'Confirmer nouveau mot de passe';
+
+  @override
+  String get updatePassword => 'Mettre à jour';
+
+  @override
+  String get passwordTooShort =>
+      'Le mot de passe doit faire au moins 6 caractères';
+
+  @override
+  String get noSessionsFound => 'Aucune session active trouvée';
+
+  @override
+  String get passwordChanged => 'Mot de passe mis à jour avec succès';
+
+  @override
+  String get deleteAccount => 'Supprimer le Compte';
+
+  @override
+  String get uploadingImage => 'Téléchargement de l\'image...';
+
+  @override
+  String get investmentsPremiumRestriction =>
+      'L\'accès au portefeuille d\'investissement est réservé aux membres Premium.';
+
+  @override
+  String get ocrPremiumRestriction =>
+      'Le scan de reçus est réservé aux membres Premium.';
+
+  @override
+  String get seeOffers => 'Voir les offres';
+
+  @override
+  String get smsImportPremiumRestriction =>
+      'L\'import automatique est réservé aux membres Premium.';
+
+  @override
+  String get aiAnalysisPremiumRestriction =>
+      'Obtenez une analyse détaillée avec le plan Premium.';
+
+  @override
+  String get confirmDowngradeTitle => 'Confirmer le déclassement';
+
+  @override
+  String get confirmDowngradeMessage =>
+      'Êtes-vous sûr de vouloir revenir au plan gratuit ? Les fonctionnalités Premium ne seront plus accessibles.';
+
+  @override
+  String get featureTransactions => 'Gestion des Transactions';
+
+  @override
+  String get featureBudgetsGoals => 'Budgets & Objectifs';
+
+  @override
+  String get featureCoachStandard => 'Coach IA Standard';
+
+  @override
+  String get featureGamification => 'Gamification (XP, Badges)';
+
+  @override
+  String get featureInvestments => 'Investissements (Bourse, Crypto, Immo)';
+
+  @override
+  String get featureOCR => 'OCR / Scan de Reçus';
+
+  @override
+  String get featureAIReports => 'Rapports Narratifs IA';
+
+  @override
+  String get featureBulkImport => 'Import en Masse (CSV/SMS)';
+
+  @override
+  String get revertToFree => 'Revenir au plan gratuit';
+
+  @override
+  String get downgradeRequestSuccess =>
+      'Votre demande de déclassement a été prise en compte.';
+
+  @override
+  String get paymentHistory => 'Historique des Paiements';
+
+  @override
+  String get noPaymentFound => 'Aucun paiement trouvé';
+
+  @override
+  String get mobileMoney => 'Mobile Money';
+
+  @override
+  String get bankCard => 'Carte Bancaire';
+
+  @override
+  String mobileMoneyPlatforms(Object price) {
+    return 'Orange, MTN, Moov... ($price)';
+  }
+
+  @override
+  String bankCardPlatforms(Object price) {
+    return 'Visa, Mastercard... ($price)';
+  }
+
+  @override
+  String get invalidAmount => 'Montant invalide';
+
+  @override
+  String get french => 'Français';
+
+  @override
+  String get english => 'Anglais';
+
+  @override
+  String get unknownRenewalDate => 'Date de renouvellement inconnue';
+
+  @override
+  String get premiumMember => 'Membre Premium';
+
+  @override
+  String expiresOn(Object date) {
+    return 'Expire le : $date';
+  }
+
+  @override
+  String get activeSubscription => 'Abonnement actif';
+
+  @override
+  String get subscriptionCancelled => 'Abonnement annulé';
+
+  @override
+  String pricePerMonth(Object price) {
+    return '$price / mois';
+  }
+
+  @override
+  String get revokeAllSessions => 'Révoquer toutes les autres sessions';
+
+  @override
+  String get revokeSession => 'Révoquer';
+
+  @override
+  String get confirmRevokeSession =>
+      'Êtes-vous sûr de vouloir révoquer cette session ?';
+
+  @override
+  String get confirmRevokeAllSessions =>
+      'Êtes-vous sûr de vouloir révoquer toutes les autres sessions ?';
+
+  @override
+  String get sessionRevoked => 'Session révoquée avec succès';
+
+  @override
+  String get allSessionsRevoked =>
+      'Toutes les autres sessions révoquées avec succès';
+
+  @override
+  String get termsOfService => 'Conditions d\'Utilisation';
+
+  @override
+  String get privacyPolicy => 'Politique de Confidentialité';
+
+  @override
+  String get legalSection => 'Légal';
+
+  @override
+  String get supportTicketList => 'Tickets de Support';
+
+  @override
+  String get createTicket => 'Nouveau Ticket Support';
+
+  @override
+  String get ticketSubject => 'Sujet';
+
+  @override
+  String get ticketMessage => 'Message';
+
+  @override
+  String get ticketCategory => 'Catégorie';
+
+  @override
+  String get sendTicket => 'Envoyer Ticket';
+
+  @override
+  String get reply => 'Répondre';
+
+  @override
+  String get status => 'Statut';
+
+  @override
+  String get open => 'Ouvert';
+
+  @override
+  String get closed => 'Fermé';
+
+  @override
+  String get answered => 'Répondu';
+
+  @override
+  String get categoryBug => 'Bug';
+
+  @override
+  String get categoryPayment => 'Paiement';
+
+  @override
+  String get categoryAccount => 'Compte';
+
+  @override
+  String get categoryOther => 'Autre';
+
+  @override
+  String get ticketCreatedSuccess => 'Ticket créé avec succès';
+
+  @override
+  String get aboutApp => 'À propos de l\'application';
+
+  @override
+  String get tutorialGamificationTitle => 'Bienvenue sur votre Dashboard';
+
+  @override
+  String get tutorialGamificationDesc =>
+      'C\'est ici que vous suivez votre progression, vos points et badges.';
+
+  @override
+  String get tutorialBalanceCardTitle => 'Votre Solde Total';
+
+  @override
+  String get tutorialBalanceCardDesc =>
+      'Visualisez rapidement l\'ensemble de vos avoirs et votre revenu mensuel.';
+
+  @override
+  String get tutorialQuickActionsTitle => 'Actions Rapides';
+
+  @override
+  String get tutorialQuickActionsDesc =>
+      'Ajoutez une transaction, investissez ou consultez vos rapports en un clic.';
+
+  @override
+  String get tutorialInsightsTitle => 'Analyse Détaillée';
+
+  @override
+  String get tutorialInsightsDesc =>
+      'Filtrez par période pour voir votre évolution financière.';
+
+  @override
+  String get resetTutorials => 'Réinitialiser les tutoriels';
+
+  @override
+  String get resetTutorialsDesc =>
+      'Relancez toutes les visites guidées pour revoir comment utiliser l\'application.';
+
+  @override
+  String get resetTutorialsConfirm =>
+      'Voulez-vous réinitialiser tous les tutoriels ? Ils s\'afficheront à nouveau lors de vos prochaines visites.';
+
+  @override
+  String get resetTutorialsSuccess => 'Tutoriels réinitialisés avec succès';
+
+  @override
+  String get tutorialChallengesTitle => 'Défis & Objectifs';
+
+  @override
+  String get tutorialChallengesDesc =>
+      'Relevez des défis pour améliorer votre santé financière.';
+
+  @override
+  String get tutorialBudgetsTitle => 'Gestion des Budgets';
+
+  @override
+  String get tutorialBudgetsDesc =>
+      'Créez et suivez vos limites de dépenses par catégorie.';
+
+  @override
+  String get tutorialGoalsTitle => 'Objectifs d\'Épargne';
+
+  @override
+  String get tutorialGoalsDesc =>
+      'Fixez des projets et suivez votre avancement pour les réaliser.';
+
+  @override
+  String get tutorialTransactionsTitle => 'Historique des Transactions';
+
+  @override
+  String get tutorialTransactionsDesc =>
+      'Consultez le détail de toutes vos entrées et sorties d\'argent.';
+
+  @override
+  String get tutorialInvestmentsTitle => 'Vos Investissements';
+
+  @override
+  String get tutorialInvestmentsDesc =>
+      'Suivez la performance de vos placements et faites fructifier votre argent.';
+
+  @override
+  String get tutorialProfileTitle => 'Votre Profil';
+
+  @override
+  String get tutorialProfileDesc =>
+      'Gérez vos informations personnelles, votre abonnement et vos paramètres.';
+
+  @override
+  String get tutorialAddTransactionTitle => 'Ajouter une Transaction';
+
+  @override
+  String get tutorialAddTransactionDesc =>
+      'Saisissez les détails pour garder un œil sur votre budget.';
+
+  @override
+  String get tutorialAddGoalTitle => 'Nouvel Objectif';
+
+  @override
+  String get tutorialAddGoalDesc =>
+      'Donnez un nom à votre projet et fixez un montant cible.';
+
+  @override
+  String get tutorialAddBudgetTitle => 'Nouveau Budget';
+
+  @override
+  String get tutorialAddBudgetDesc =>
+      'Allouez un montant précis à une catégorie pour ce mois.';
+
+  @override
+  String get tutorialAddInvestmentTitle => 'Nouvel Investissement';
+
+  @override
+  String get tutorialAddInvestmentDesc =>
+      'Diversifiez votre portefeuille en ajoutant un nouvel investissement.';
+
+  @override
+  String get tutorialOCRTitle => 'Scan de Reçu';
+
+  @override
+  String get tutorialOCRDesc =>
+      'Utilisez l\'IA pour saisir automatiquement vos transactions à partir de vos photos.';
+
+  @override
+  String get tutorialSubscriptionTitle => 'Kauri Premium';
+
+  @override
+  String get tutorialSubscriptionDesc =>
+      'Découvrez tous les avantages exclusifs pour booster vos finances.';
+
+  @override
+  String get confirmCountryChange => 'Confirmer le changement de pays';
+
+  @override
+  String get countryChangeWarning =>
+      'Changer de pays convertira le solde de votre portefeuille et nécessitera l\'approbation d\'un administrateur. Êtes-vous sûr de vouloir continuer ?';
+
+  @override
+  String get completeProfile => 'Compléter le profil';
+
+  @override
+  String get completeProfileTitle => 'Dernière étape';
+
+  @override
+  String get completeProfileSubtitle =>
+      'Veuillez indiquer votre nom pour personnaliser votre expérience.';
+
+  @override
+  String get tutorialIncomeTitle => 'Revenu Mensuel';
+
+  @override
+  String get tutorialIncomeDesc =>
+      'Ajoutez votre revenu pour obtenir des conseils budgétaires personnalisés.';
+
+  @override
+  String get updateIncomeTitle => 'Mettre à jour le revenu';
+
+  @override
+  String get incomeLabel => 'Montant mensuel';
+
+  @override
+  String get countryChangeRequestSubmitted =>
+      'Demande de changement de pays soumise avec succès.';
 }

@@ -37,18 +37,67 @@ class OCRService {
     double? amount;
     DateTime? date;
 
-    // Simple heuristic: First non-empty line is often the merchant name (description)
+    final List<double> foundAmounts = [];
+    final List<String> lines = [];
+
     for (final block in recognizedText.blocks) {
       for (final line in block.lines) {
-        if (description == null && line.text.trim().isNotEmpty) {
-          description = line.text.trim();
-        }
+        final text = line.text.trim();
+        if (text.isEmpty) continue;
+
+        lines.add(text);
 
         // Try to find amount
-        amount ??= _extractAmount(line.text);
+        final extractedAmount = _extractAmount(text);
+        if (extractedAmount != null) {
+          foundAmounts.add(extractedAmount);
+
+          // If the line contains "TOTAL" or "NET", prioritize this amount
+          if (text.toUpperCase().contains('TOTAL') ||
+              text.toUpperCase().contains('NET') ||
+              text.toUpperCase().contains('PAYER')) {
+            amount = extractedAmount;
+          }
+        }
 
         // Try to find date
-        date ??= _extractDate(line.text);
+        date ??= _extractDate(text);
+      }
+    }
+
+    // If no total found by keyword, take the largest amount found
+    if (amount == null && foundAmounts.isNotEmpty) {
+      foundAmounts.sort();
+      amount = foundAmounts.last;
+    }
+
+    // Better description: look for the first line that isn't just numbers/dates
+    for (String line in lines) {
+      // Basic check: if more than 50% letters, likely a name
+      final letterCount = line.replaceAll(RegExp(r'[^a-zA-Z]'), '').length;
+      if (letterCount > line.length * 0.5 && line.length > 3) {
+        description = line;
+        break;
+      }
+    }
+
+    // Basic category guessing
+    String? category;
+    if (description != null) {
+      final descUpper = description.toUpperCase();
+      if (descUpper.contains('RESTAURANT') ||
+          descUpper.contains('FOOD') ||
+          descUpper.contains('SNACK')) {
+        category = 'Alimentation';
+      } else if (descUpper.contains('SHELL') ||
+          descUpper.contains('TOTAL') ||
+          descUpper.contains('STATION')) {
+        category = 'Transport';
+      } else if (descUpper.contains('CASINO') || descUpper.contains('SUPER')) {
+        category = 'Alimentation';
+      } else if (descUpper.contains('PHARMACIE') ||
+          descUpper.contains('HOSPITAL')) {
+        category = 'Santé';
       }
     }
 
@@ -56,19 +105,26 @@ class OCRService {
       amount: amount,
       description: description,
       date: date,
-      // Category is hard to guess without NLP, leaving null for user to fill
-      category: null,
+      category: category,
     );
   }
 
   double? _extractAmount(String text) {
     // Matches numbers with currency symbols or standard amount formats
-    // e.g. 12.50, 1,200.00, $12.99, 12€
-    final RegExp amountRegex = RegExp(r'(\d+[.,]\d{2})');
-    final match = amountRegex.firstMatch(text);
-    if (match != null) {
-      String cleanAmount = match.group(1)!.replaceAll(',', '.');
+    // e.g. 12.50, 1,200.00, $12.99, 12€, 5000
+    // Try to find numbers with 2 decimals first
+    final RegExp decimalRegex = RegExp(r'(\d+[.,]\d{2})');
+    final decimalMatch = decimalRegex.firstMatch(text);
+    if (decimalMatch != null) {
+      String cleanAmount = decimalMatch.group(1)!.replaceAll(',', '.');
       return double.tryParse(cleanAmount);
+    }
+
+    // Fallback to integers (at least 3 digits to avoid noise like dates or quantities)
+    final RegExp integerRegex = RegExp(r'(\d{3,})');
+    final integerMatch = integerRegex.firstMatch(text);
+    if (integerMatch != null) {
+      return double.tryParse(integerMatch.group(1)!);
     }
     return null;
   }

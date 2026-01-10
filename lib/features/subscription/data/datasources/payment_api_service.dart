@@ -1,5 +1,5 @@
 import 'package:chopper/chopper.dart';
-import 'package:djangui/core/constants/api_constants.dart';
+import 'package:kauri/core/constants/api_constants.dart';
 
 part 'payment_api_service.chopper.dart';
 
@@ -14,6 +14,17 @@ abstract class PaymentApiService extends ChopperService {
   Future<Response<Map<String, dynamic>>> createStripeCheckout(
     @Body() Map<String, dynamic> body,
   );
+
+  @Get(path: ApiConstants.verifyPayment)
+  Future<Response<Map<String, dynamic>>> verifyTransaction(
+    @Path('reference') String reference,
+  );
+
+  @Get(path: ApiConstants.paymentHistory)
+  Future<Response<Map<String, dynamic>>> getPaymentHistory();
+
+  @Post(path: ApiConstants.cancelSubscription)
+  Future<Response<Map<String, dynamic>>> cancelSubscription();
 
   static PaymentApiService create(ChopperClient client) =>
       _$PaymentApiService(client);

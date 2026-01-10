@@ -20,13 +20,13 @@ class ShareService {
 
     final jsonString = jsonEncode(sharedGoal.toJson());
     final base64Data = base64Encode(utf8.encode(jsonString));
-    final deepLink = 'djangui://share/goal?data=$base64Data';
+    final deepLink = 'Kauri://share/goal?data=$base64Data';
 
     await SharePlus.instance.share(
       ShareParams(
         text:
-            'Rejoins mon objectif financier "${goal.name}" sur Djangui !\n\nClique ici pour l\'importer : $deepLink',
-        subject: 'Objectif Djangui: ${goal.name}',
+            'Rejoins mon objectif financier "${goal.name}" sur Kauri !\n\nClique ici pour l\'importer : $deepLink',
+        subject: 'Objectif Kauri: ${goal.name}',
       ),
     );
   }

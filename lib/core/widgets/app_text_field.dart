@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
 class AppTextField extends StatelessWidget {
@@ -9,6 +8,9 @@ class AppTextField extends StatelessWidget {
   final bool isPassword;
   final TextInputType keyboardType;
   final IconData? prefixIcon;
+  final Widget? suffix;
+  final int maxLines;
+  final TextAlign textAlign;
   final String? Function(String?)? validator;
 
   const AppTextField({
@@ -19,6 +21,9 @@ class AppTextField extends StatelessWidget {
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
+    this.suffix,
+    this.maxLines = 1,
+    this.textAlign = TextAlign.start,
     this.validator,
   });
 
@@ -36,10 +41,21 @@ class AppTextField extends StatelessWidget {
           controller: controller,
           obscureText: isPassword,
           keyboardType: keyboardType,
+          maxLines: maxLines,
+          textAlign: textAlign,
           validator: validator,
           decoration: InputDecoration(
             hintText: hint,
             prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20) : null,
+            suffixIcon: suffix != null
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [suffix!],
+                    ),
+                  )
+                : null,
             filled: true,
             fillColor: Theme.of(context).inputDecorationTheme.fillColor,
             contentPadding: const EdgeInsets.all(16),
@@ -53,14 +69,17 @@ class AppTextField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppColors.primary,
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
                 width: 1.5,
               ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.error, width: 1),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+                width: 1,
+              ),
             ),
           ),
         ),

@@ -16,6 +16,11 @@ import '../features/insights/data/datasources/insight_api_service.dart';
 import '../features/insights/data/datasources/ai_api_service.dart';
 import '../features/investments/data/datasources/investment_api_service.dart';
 import '../features/subscription/data/datasources/payment_api_service.dart';
+import '../features/reports/data/datasources/reports_api_service.dart';
+import '../features/system/data/datasources/system_api_service.dart';
+import '../features/notifications/data/datasources/notification_api_service.dart';
+import '../features/upload/data/datasources/upload_api_service.dart';
+import '../features/support/data/datasources/support_api_service.dart';
 import 'injection.dart';
 
 @module
@@ -24,7 +29,7 @@ abstract class RegisterModule {
   FlutterSecureStorage get secureStorage => const FlutterSecureStorage();
 
   @lazySingleton
-  ChopperClient get chopperClient => DjanguiApiClient.create();
+  ChopperClient get chopperClient => KauriApiClient.create();
 
   @preResolve
   Future<SharedPreferences> get prefs => SharedPreferences.getInstance();
@@ -67,6 +72,26 @@ abstract class RegisterModule {
   @lazySingleton
   PaymentApiService get paymentApiService =>
       PaymentApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  ReportsApiService get reportsApiService =>
+      ReportsApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  SystemApiService get systemApiService =>
+      SystemApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  NotificationApiService get notificationApiService =>
+      NotificationApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  UploadApiService get uploadApiService =>
+      UploadApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  SupportApiService get supportApiService =>
+      SupportApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
   AppDatabase get database => AppDatabase();

@@ -6,7 +6,7 @@ import '../../../../core/database/database.dart';
 import '../../../../core/errors/failures.dart';
 import '../../data/models/investment_model.dart';
 import '../../domain/repositories/investment_repository.dart';
-import 'package:djangui/features/investments/data/datasources/investment_api_service.dart';
+import 'package:kauri/features/investments/data/datasources/investment_api_service.dart';
 
 @LazySingleton(as: InvestmentRepository)
 class InvestmentRepositoryImpl implements InvestmentRepository {

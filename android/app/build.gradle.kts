@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "cm.tbg.djangui"
+    namespace = "cm.tbg.kauri"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -25,7 +25,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "cm.tbg.djangui"
+        applicationId = "cm.tbg.kauri"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

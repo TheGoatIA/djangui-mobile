@@ -1,17 +1,18 @@
 import 'package:injectable/injectable.dart';
-import 'challenge_api_service.dart';
-import '../models/challenge_model.dart';
+import 'package:kauri/features/challenges/data/datasources/challenge_api_service.dart';
+import 'package:kauri/features/challenges/data/models/challenge_model.dart';
+import '../../../../core/network/api_response_extensions.dart';
 
 abstract class ChallengeRemoteDataSource {
   Future<List<ChallengeModel>> getChallenges();
-  Future<List<dynamic>> getUserChallenges();
-  Future<dynamic> joinChallenge(String id);
-  Future<dynamic> validateWeek(
+  Future<List<UserChallengeModel>> getUserChallenges();
+  Future<UserChallengeModel> joinChallenge(String id);
+  Future<UserChallengeModel> validateWeek(
     String userChallengeId,
     int weekNumber,
     double amount,
   );
-  // Future<ChallengeModel> updateProgress(String id, double value); // Removed
+  Future<void> unjoinChallenge(String id);
 }
 
 @LazySingleton(as: ChallengeRemoteDataSource)
@@ -26,44 +27,32 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to fetch challenges',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
   @override
-  Future<List<dynamic>> getUserChallenges() async {
+  Future<List<UserChallengeModel>> getUserChallenges() async {
     final response = await _apiService.getUserChallenges();
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to fetch user challenges',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
   @override
-  Future<dynamic> joinChallenge(String id) async {
+  Future<UserChallengeModel> joinChallenge(String id) async {
     final response = await _apiService.joinChallenge({'challengeId': id});
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to join challenge',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
   @override
-  Future<dynamic> validateWeek(
+  Future<UserChallengeModel> validateWeek(
     String userChallengeId,
     int weekNumber,
     double amount,
@@ -73,14 +62,18 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
       'weekNumber': weekNumber,
       'amount': amount,
     });
-    if (response.isSuccessful) {
-      return response.body?.data;
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to validate week',
-      );
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<void> unjoinChallenge(String id) async {
+    final response = await _apiService.unjoinChallenge(id);
+    if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
     }
   }
 }

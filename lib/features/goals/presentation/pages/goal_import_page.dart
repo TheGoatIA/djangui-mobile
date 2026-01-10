@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../di/injection.dart';
@@ -38,14 +37,20 @@ class GoalImportPage extends StatelessWidget {
         listener: (context, state) {
           if (state.status == GoalsStatus.success) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Objectif importé avec succès !')),
+              SnackBar(
+                content: Text(
+                  AppLocalizations.of(context)!.goalImportedSuccess,
+                ),
+              ),
             );
             context.go(RouteConstants.goals);
           }
         },
         builder: (context, state) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Importer un objectif')),
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context)!.importGoal),
+            ),
             body: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
@@ -54,38 +59,45 @@ class GoalImportPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '🎉 Objectif Partagé',
+                          AppLocalizations.of(context)!.sharedGoal,
                           style: AppTextStyles.labelLarge.copyWith(
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(goal.name, style: AppTextStyles.h2),
                         const SizedBox(height: 16),
                         _buildRow(
-                          'Montant cible',
+                          context,
+                          AppLocalizations.of(context)!.targetAmount,
                           '${goal.targetAmount.toStringAsFixed(0)} F',
                         ),
-                        _buildRow('Date limite', _formatDate(goal.deadline)),
+                        _buildRow(
+                          context,
+                          AppLocalizations.of(context)!.deadline,
+                          _formatDate(goal.deadline),
+                        ),
                       ],
                     ),
                   ),
                   const Spacer(),
                   Text(
-                    'Voulez-vous ajouter cet objectif à votre liste ?',
+                    AppLocalizations.of(context)!.addGoalToListPrompt,
                     style: AppTextStyles.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
                   AppButton(
-                    text: 'Accepter l\'objectif',
+                    text: AppLocalizations.of(context)!.acceptGoal,
                     isLoading: state.status == GoalsStatus.loading,
                     onPressed: () {
                       context.read<GoalsBloc>().add(AddGoalRequested(goal));
@@ -94,7 +106,7 @@ class GoalImportPage extends StatelessWidget {
                   const SizedBox(height: 12),
                   TextButton(
                     onPressed: () => context.go(RouteConstants.dashboard),
-                    child: const Text('Annuler'),
+                    child: Text(AppLocalizations.of(context)!.cancel),
                   ),
                   const SizedBox(height: 24),
                 ],
@@ -106,7 +118,7 @@ class GoalImportPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(String label, String value) {
+  Widget _buildRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -114,7 +126,9 @@ class GoalImportPage extends StatelessWidget {
         children: [
           Text(
             label,
-            style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey[700]),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           Text(
             value,

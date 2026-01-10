@@ -13,6 +13,11 @@ class ApiConstants {
   static const String resetPassword = '/auth/reset-password';
   static const String verifyEmail = '/auth/verify-email';
   static const String me = '/auth/me';
+  static const String changePassword = '/auth/change-password';
+  static const String deleteMe = '/auth/delete-me';
+  static const String sessions = '/auth/sessions';
+  static const String connection = '/auth/connection';
+  static const String requestCountryChange = '/auth/request-country-change';
 
   // Transactions
   static const String transactions = '/transactions';
@@ -49,4 +54,18 @@ class ApiConstants {
   // Payments
   static const String notchPayInit = '/payments/init/notchpay';
   static const String stripeCheckout = '/payments/checkout/stripe';
+  static const String verifyPayment = '/payments/verify/{reference}';
+  static const String paymentHistory = '/payments';
+  static const String cancelSubscription = '/payments/cancel-subscription';
+
+  // Notifications
+  static const String notifications = '/notifications';
+  static const String notificationsMarkRead = '/notifications/mark-all-read';
+  static const String notificationsUnreadCount = '/notifications/unread-count';
+
+  // Support
+  static const String supportTickets = '/support/tickets';
+
+  // System
+  static const String publicSettings = '/system/public-settings';
 }

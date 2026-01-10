@@ -42,15 +42,25 @@ class AuthUpdateProfileRequested extends AuthEvent {
   final String? firstName;
   final String? lastName;
   final String? country;
+  final String? avatar;
+  final double? monthlyIncome;
 
   const AuthUpdateProfileRequested({
     this.firstName,
     this.lastName,
     this.country,
+    this.avatar,
+    this.monthlyIncome,
   });
 
   @override
-  List<Object?> get props => [firstName, lastName, country];
+  List<Object?> get props => [
+    firstName,
+    lastName,
+    country,
+    avatar,
+    monthlyIncome,
+  ];
 }
 
 class AuthLogoutRequested extends AuthEvent {}
@@ -77,7 +87,12 @@ class AuthResetPasswordRequested extends AuthEvent {
   List<Object?> get props => [token, newPassword];
 }
 
-class AuthGoogleSignInRequested extends AuthEvent {}
+class AuthGoogleSignInRequested extends AuthEvent {
+  final String? countryCode;
+  const AuthGoogleSignInRequested({this.countryCode});
+  @override
+  List<Object?> get props => [countryCode];
+}
 
 class _AuthInternalCodeSent extends AuthEvent {
   const _AuthInternalCodeSent();
@@ -92,9 +107,10 @@ class _AuthInternalError extends AuthEvent {
 
 class AuthPhoneVerificationRequested extends AuthEvent {
   final String phoneNumber;
-  const AuthPhoneVerificationRequested(this.phoneNumber);
+  final String countryCode;
+  const AuthPhoneVerificationRequested(this.phoneNumber, this.countryCode);
   @override
-  List<Object?> get props => [phoneNumber];
+  List<Object?> get props => [phoneNumber, countryCode];
 }
 
 class AuthPhoneSignInRequested extends AuthEvent {
@@ -117,4 +133,41 @@ class AuthLinkPhoneRequested extends AuthEvent {
   });
   @override
   List<Object?> get props => [verificationId, smsCode];
+}
+
+class AuthChangePasswordRequested extends AuthEvent {
+  final String currentPassword;
+  final String newPassword;
+
+  const AuthChangePasswordRequested({
+    required this.currentPassword,
+    required this.newPassword,
+  });
+
+  @override
+  List<Object?> get props => [currentPassword, newPassword];
+}
+
+class AuthDeleteAccountRequested extends AuthEvent {}
+
+class AuthGetSessionsRequested extends AuthEvent {}
+
+class AuthBiometricLoginRequested extends AuthEvent {}
+
+class AuthRefreshUserRequested extends AuthEvent {}
+
+class AuthRevokeSessionRequested extends AuthEvent {
+  final String sessionId;
+  const AuthRevokeSessionRequested(this.sessionId);
+  @override
+  List<Object?> get props => [sessionId];
+}
+
+class AuthRevokeAllSessionsRequested extends AuthEvent {}
+
+class AuthRequestCountryChange extends AuthEvent {
+  final String countryCode;
+  const AuthRequestCountryChange(this.countryCode);
+  @override
+  List<Object?> get props => [countryCode];
 }

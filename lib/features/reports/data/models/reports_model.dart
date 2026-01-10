@@ -9,14 +9,16 @@ class DashboardReportModel extends Equatable {
   final double monthlyIncome;
   final double totalSpent;
   final double savingsRate;
-  final BudgetHealthModel budgetHealth;
+  final String currency;
+  final BudgetHealthModel? budgetHealth;
 
   const DashboardReportModel({
     required this.walletBalance,
     required this.monthlyIncome,
     required this.totalSpent,
     required this.savingsRate,
-    required this.budgetHealth,
+    this.currency = 'XAF',
+    this.budgetHealth,
   });
 
   factory DashboardReportModel.fromJson(Map<String, dynamic> json) =>
@@ -29,6 +31,7 @@ class DashboardReportModel extends Equatable {
     monthlyIncome,
     totalSpent,
     savingsRate,
+    currency,
     budgetHealth,
   ];
 }

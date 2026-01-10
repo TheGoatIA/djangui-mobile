@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'transaction_api_service.dart';
 import '../models/transaction_model.dart';
+import '../../../../core/network/api_response_extensions.dart';
 
 abstract class TransactionRemoteDataSource {
   Future<List<TransactionModel>> getTransactions();
@@ -20,11 +21,7 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to fetch transactions',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -32,15 +29,19 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
   Future<TransactionModel> createTransaction(
     TransactionModel transaction,
   ) async {
-    final response = await _apiService.createTransaction(transaction.toJson());
+    final json = transaction.toJson();
+    final Map<String, dynamic> cleanBody = {};
+    json.forEach((key, value) {
+      if (key != '_id' && key != 'id') {
+        cleanBody[key] = value;
+      }
+    });
+
+    final response = await _apiService.createTransaction(cleanBody);
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to create transaction',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 
@@ -48,11 +49,7 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
   Future<void> deleteTransaction(String id) async {
     final response = await _apiService.deleteTransaction(id);
     if (!response.isSuccessful) {
-      throw Exception(
-        response.body?.message ??
-            response.error?.toString() ??
-            'Failed to delete transaction',
-      );
+      throw Exception(response.errorMessage);
     }
   }
 }

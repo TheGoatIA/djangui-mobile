@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:djangui/l10n/app_localizations.dart';
+import 'package:kauri/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'core/services/tutorial_service.dart';
 
 import 'di/injection.dart';
 import 'routes/app_router.dart';
@@ -13,6 +15,18 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'firebase_options.dart';
 import 'features/settings/presentation/bloc/settings_bloc.dart';
+import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/goals/presentation/bloc/goals_bloc.dart';
+import 'features/goals/presentation/bloc/goals_event.dart';
+import 'features/transactions/presentation/bloc/transactions_bloc.dart';
+import 'features/budgets/presentation/bloc/budgets_bloc.dart';
+import 'features/budgets/presentation/bloc/budgets_event.dart';
+import 'features/challenges/presentation/bloc/challenges_bloc.dart';
+import 'features/challenges/presentation/bloc/challenges_event.dart';
+import 'features/support/presentation/bloc/support_bloc.dart';
+import 'features/system/presentation/bloc/system_bloc.dart';
+import 'features/system/presentation/bloc/system_event.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,25 +47,86 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<SettingsBloc>()..add(LoadSettings()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => getIt<SettingsBloc>()..add(LoadSettings()),
+        ),
+        BlocProvider(
+          create: (context) => getIt<AuthBloc>()..add(AuthCheckRequested()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<GoalsBloc>()..add(const GetGoalsRequested()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<TransactionsBloc>()..add(const GetTransactionsRequested()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<BudgetsBloc>()..add(const GetBudgetsRequested()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<ChallengesBloc>()..add(const GetChallengesRequested()),
+        ),
+        BlocProvider(create: (context) => getIt<SupportBloc>()),
+        BlocProvider(
+          create: (context) => getIt<SystemBloc>()
+            ..add(GetPublicSettingsRequested())
+            ..add(GetCountriesRequested()),
+        ),
+      ],
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
-          return MaterialApp.router(
-            title: 'Djangui',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: state.themeMode,
-            locale: state.locale,
-            routerConfig: appRouter,
-            localizationsDelegates: [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: AppLocalizations.supportedLocales,
+          return BlocListener<AuthBloc, AuthState>(
+            listenWhen: (previous, current) {
+              final prevCountry = previous.authResponse?.user.country;
+              final currCountry = current.authResponse?.user.country;
+              return prevCountry != currCountry && currCountry != null;
+            },
+            listener: (context, authState) {
+              debugPrint(
+                '🌍 [MyApp] Country changed/updated. Triggering global data refresh...',
+              );
+              context.read<TransactionsBloc>().add(
+                const GetTransactionsRequested(forceRefresh: true),
+              );
+              context.read<GoalsBloc>().add(
+                const GetGoalsRequested(forceRefresh: true),
+              );
+              context.read<BudgetsBloc>().add(
+                const GetBudgetsRequested(forceRefresh: true),
+              );
+              context.read<ChallengesBloc>().add(
+                const GetChallengesRequested(forceRefresh: true),
+              );
+              context.read<ChallengesBloc>().add(GetUserChallengesRequested());
+            },
+            child: ChangeNotifierProvider.value(
+              value: getIt<TutorialService>(),
+              child: ShowCaseWidget(
+                builder: (context) => MaterialApp.router(
+                  title: 'Kauri',
+                  debugShowCheckedModeBanner: false,
+                  theme: AppTheme.lightTheme,
+                  darkTheme: AppTheme.darkTheme,
+                  themeMode: state.themeMode,
+                  locale: state.locale,
+                  routerConfig: appRouter,
+                  builder: (context, child) =>
+                      ShowCaseWidget(builder: (context) => child!),
+                  localizationsDelegates: [
+                    AppLocalizations.delegate,
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  supportedLocales: AppLocalizations.supportedLocales,
+                ),
+              ),
+            ),
           );
         },
       ),

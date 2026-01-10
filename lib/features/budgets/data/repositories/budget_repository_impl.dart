@@ -64,6 +64,27 @@ class BudgetRepositoryImpl implements BudgetRepository {
   }
 
   @override
+  Future<Either<Failure, BudgetModel>> updateBudget(
+    String id,
+    double totalAllocated,
+  ) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final remoteBudget = await _remoteDataSource.updateBudget(
+          id,
+          totalAllocated,
+        );
+        await _localDataSource.saveBudget(remoteBudget);
+        return Right(remoteBudget);
+      } catch (e) {
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> deleteBudget(String id) async {
     if (await _networkInfo.isConnected) {
       try {

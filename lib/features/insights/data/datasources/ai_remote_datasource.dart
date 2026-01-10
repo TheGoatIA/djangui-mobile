@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
-import 'package:djangui/features/insights/data/datasources/ai_api_service.dart';
+import 'package:kauri/features/insights/data/datasources/ai_api_service.dart';
+import '../../../../core/network/api_response_extensions.dart';
 
 @lazySingleton
 class AIRemoteDataSource {
@@ -13,6 +14,6 @@ class AIRemoteDataSource {
       return response.body!['narrative'] as String? ??
           "Aucune analyse disponible.";
     }
-    return "Erreur lors de la récupération de l'analyse.";
+    throw Exception(response.errorMessage);
   }
 }

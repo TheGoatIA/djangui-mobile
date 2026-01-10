@@ -6,8 +6,8 @@
 -keep class io.flutter.**  { *; }
 -keep class io.flutter.plugins.**  { *; }
 
-# Djangui
--keep class com.djangui.djangui.** { *; }
+# Kauri
+-keep class cm.tbg.kauri.** { *; }
 
 # Drift
 -keep class androidx.room.db.** { *; }

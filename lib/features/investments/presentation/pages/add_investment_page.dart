@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../di/injection.dart';
 import '../../data/models/investment_model.dart';
 import '../bloc/investments_bloc.dart';
@@ -63,8 +63,8 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Nouvel Investissement')),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.newInvestment)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -72,34 +72,45 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Détails de l\'investissement', style: AppTextStyles.h3),
+              Text(
+                AppLocalizations.of(context)!.investmentDetails,
+                style: AppTextStyles.h3,
+              ),
               const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
                 decoration: _inputDecoration(
-                  'Nom de l\'actif (ex: Bitcoin, Tesla)',
+                  context,
+                  AppLocalizations.of(context)!.assetNameHint,
                 ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Champ requis' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? AppLocalizations.of(context)!.fieldRequired
+                    : null,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _selectedType,
-                decoration: _inputDecoration('Type d\'actif'),
-                items: const [
+                decoration: _inputDecoration(
+                  context,
+                  AppLocalizations.of(context)!.assetType,
+                ),
+                items: [
                   DropdownMenuItem(
                     value: 'crypto',
-                    child: Text('Crypto-monnaie'),
+                    child: Text(AppLocalizations.of(context)!.cryptoCurrency),
                   ),
                   DropdownMenuItem(
                     value: 'stock',
-                    child: Text('Action / Bourse'),
+                    child: Text(AppLocalizations.of(context)!.stockMarket),
                   ),
                   DropdownMenuItem(
                     value: 'real_estate',
-                    child: Text('Immobilier'),
+                    child: Text(AppLocalizations.of(context)!.realEstate),
                   ),
-                  DropdownMenuItem(value: 'other', child: Text('Autre')),
+                  DropdownMenuItem(
+                    value: 'other',
+                    child: Text(AppLocalizations.of(context)!.other),
+                  ),
                 ],
                 onChanged: (value) => setState(() => _selectedType = value!),
               ),
@@ -107,10 +118,14 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
               TextFormField(
                 controller: _amountController,
                 keyboardType: TextInputType.number,
-                decoration: _inputDecoration('Montant investi (FCFA)'),
+                decoration: _inputDecoration(
+                  context,
+                  AppLocalizations.of(context)!.investedAmount,
+                ),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Champ requis' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? AppLocalizations.of(context)!.fieldRequired
+                    : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -118,9 +133,13 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: _inputDecoration('ROI estimé (%)'),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Champ requis' : null,
+                decoration: _inputDecoration(
+                  context,
+                  AppLocalizations.of(context)!.estimatedROI,
+                ),
+                validator: (value) => value == null || value.isEmpty
+                    ? AppLocalizations.of(context)!.fieldRequired
+                    : null,
               ),
               const SizedBox(height: 32),
               SizedBox(
@@ -128,14 +147,14 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
                 child: ElevatedButton(
                   onPressed: _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text('Ajouter'),
+                  child: Text(AppLocalizations.of(context)!.addInvestment),
                 ),
               ),
             ],
@@ -145,7 +164,7 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
     );
   }
 
-  InputDecoration _inputDecoration(String label) {
+  InputDecoration _inputDecoration(BuildContext context, String label) {
     return InputDecoration(
       labelText: label,
       border: OutlineInputBorder(
@@ -153,7 +172,7 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
         borderSide: BorderSide.none,
       ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Theme.of(context).colorScheme.surface,
       contentPadding: const EdgeInsets.all(16),
     );
   }

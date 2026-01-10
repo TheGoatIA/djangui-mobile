@@ -13,7 +13,9 @@ abstract class GoalApiService extends ChopperService {
   Future<Response<BaseListResponse<GoalModel>>> getGoals();
 
   @Post()
-  Future<Response<BaseResponse<GoalModel>>> createGoal(@Body() GoalModel goal);
+  Future<Response<BaseResponse<GoalModel>>> createGoal(
+    @Body() Map<String, dynamic> body,
+  );
 
   @Delete(path: '/{id}')
   Future<Response<BaseResponse<dynamic>>> deleteGoal(@Path('id') String id);

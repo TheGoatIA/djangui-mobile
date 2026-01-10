@@ -1,11 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
-import '../../../../core/errors/failures.dart';
-import '../../../../core/network/network_info.dart';
-import '../datasources/challenge_local_datasource.dart';
-import '../datasources/challenge_remote_datasource.dart';
-import '../../domain/repositories/challenge_repository.dart';
-import '../models/challenge_model.dart';
+import 'package:kauri/core/errors/failures.dart';
+import 'package:kauri/core/network/network_info.dart';
+import 'package:kauri/features/challenges/data/datasources/challenge_local_datasource.dart';
+import 'package:kauri/features/challenges/data/datasources/challenge_remote_datasource.dart';
+import 'package:kauri/features/challenges/domain/repositories/challenge_repository.dart';
+import 'package:kauri/features/challenges/data/models/challenge_model.dart';
 
 @LazySingleton(as: ChallengeRepository)
 class ChallengeRepositoryImpl implements ChallengeRepository {
@@ -32,11 +33,30 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
 
     if (await _networkInfo.isConnected) {
       try {
+        debugPrint('🏆 [ChallengeRepository] Fetching remote challenges...');
         final remoteChallenges = await _remoteDataSource.getChallenges();
-        await _localDataSource.clearChallenges();
-        await _localDataSource.saveChallenges(remoteChallenges);
+        debugPrint(
+          '🏆 [ChallengeRepository] Received ${remoteChallenges.length} from remote',
+        );
+
+        try {
+          debugPrint(
+            '🏆 [ChallengeRepository] Clearing and saving to local...',
+          );
+          await _localDataSource.clearChallenges();
+          await _localDataSource.saveChallenges(remoteChallenges);
+          debugPrint('🏆 [ChallengeRepository] Local storage sync successful');
+        } catch (localError) {
+          debugPrint(
+            '🏆 [ChallengeRepository] WARNING: Local storage sync failed: $localError',
+          );
+          // Still return remote results even if local save fails
+        }
+
         return Right(remoteChallenges);
-      } catch (e) {
+      } catch (e, stack) {
+        debugPrint('🏆 [ChallengeRepository] ERROR in remote fetch: $e');
+        debugPrint(stack.toString());
         return Left(ServerFailure(e.toString()));
       }
     } else {
@@ -49,12 +69,15 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
   }
 
   @override
-  Future<Either<Failure, List<dynamic>>> getUserChallenges() async {
+  Future<Either<Failure, List<UserChallengeModel>>> getUserChallenges() async {
     // Try local cache first if offline
     if (!await _networkInfo.isConnected) {
-      final localChallenges = _localDataSource.getUserChallenges();
-      if (localChallenges.isNotEmpty) {
-        return Right(localChallenges);
+      final localChallengesJson = _localDataSource.getUserChallenges();
+      if (localChallengesJson.isNotEmpty) {
+        final localModels = localChallengesJson
+            .map((e) => UserChallengeModel.fromJson(e))
+            .toList();
+        return Right(localModels);
       }
       return Left(NetworkFailure());
     }
@@ -64,14 +87,17 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
       final result = await _remoteDataSource.getUserChallenges();
       // Cache the result
       _localDataSource.saveUserChallenges(
-        result.map((e) => e as Map<String, dynamic>).toList(),
+        result.map((e) => e.toJson()).toList(),
       );
       return Right(result);
     } catch (e) {
       // Fallback to cache on error
-      final localChallenges = _localDataSource.getUserChallenges();
-      if (localChallenges.isNotEmpty) {
-        return Right(localChallenges);
+      final localChallengesJson = _localDataSource.getUserChallenges();
+      if (localChallengesJson.isNotEmpty) {
+        final localModels = localChallengesJson
+            .map((e) => UserChallengeModel.fromJson(e))
+            .toList();
+        return Right(localModels);
       }
       return Left(ServerFailure(e.toString()));
     }
@@ -105,6 +131,20 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
           weekNumber,
           amount,
         );
+        return const Right(null);
+      } catch (e) {
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> unjoinChallenge(String id) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        await _remoteDataSource.unjoinChallenge(id);
         return const Right(null);
       } catch (e) {
         return Left(ServerFailure(e.toString()));

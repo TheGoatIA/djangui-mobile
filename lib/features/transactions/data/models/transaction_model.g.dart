@@ -9,7 +9,7 @@ part of 'transaction_model.dart';
 TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
     TransactionModel(
       id: json['_id'] as String,
-      user: json['user'] as String?,
+      userId: json['userId'] as String?,
       amount: (json['amount'] as num).toDouble(),
       currency: json['currency'] as String? ?? 'XAF',
       type: json['type'] as String,
@@ -17,14 +17,19 @@ TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
       subcategory: json['subcategory'] as String?,
       description: json['description'] as String,
       merchant: json['merchant'] as String?,
+      location: json['location'] as String?,
       date: DateTime.parse(json['date'] as String),
       status: json['status'] as String? ?? 'completed',
       source: json['source'] as String?,
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-              const [],
+          const [],
       isRecurring: json['isRecurring'] as bool? ?? false,
-      recurringInterval: json['recurringInterval'] as String?,
+      recurringFrequency: json['recurringFrequency'] as String?,
+      isAutoCategorized: json['isAutoCategorized'] as bool? ?? false,
+      categorizationConfidence: (json['categorizationConfidence'] as num?)
+          ?.toDouble(),
+      receipt: json['receipt'] as String?,
       linkedGoalId: json['linkedGoalId'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
       createdAt: json['createdAt'] == null
@@ -35,25 +40,36 @@ TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['updatedAt'] as String),
     );
 
-Map<String, dynamic> _$TransactionModelToJson(TransactionModel instance) =>
-    <String, dynamic>{
-      '_id': instance.id,
-      'user': instance.user,
-      'amount': instance.amount,
-      'currency': instance.currency,
-      'type': instance.type,
-      'category': instance.category,
-      'subcategory': instance.subcategory,
-      'description': instance.description,
-      'merchant': instance.merchant,
-      'date': instance.date.toIso8601String(),
-      'status': instance.status,
-      'source': instance.source,
-      'tags': instance.tags,
-      'isRecurring': instance.isRecurring,
-      'recurringInterval': instance.recurringInterval,
-      'linkedGoalId': instance.linkedGoalId,
-      'metadata': instance.metadata,
-      'createdAt': instance.createdAt?.toIso8601String(),
-      'updatedAt': instance.updatedAt?.toIso8601String(),
-    };
+Map<String, dynamic> _$TransactionModelToJson(TransactionModel instance) {
+  final val = <String, dynamic>{'_id': instance.id};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('userId', instance.userId);
+  val['amount'] = instance.amount;
+  val['currency'] = instance.currency;
+  val['type'] = instance.type;
+  val['category'] = instance.category;
+  writeNotNull('subcategory', instance.subcategory);
+  val['description'] = instance.description;
+  writeNotNull('merchant', instance.merchant);
+  writeNotNull('location', instance.location);
+  val['date'] = instance.date.toIso8601String();
+  val['status'] = instance.status;
+  writeNotNull('source', instance.source);
+  val['tags'] = instance.tags;
+  val['isRecurring'] = instance.isRecurring;
+  writeNotNull('recurringFrequency', instance.recurringFrequency);
+  val['isAutoCategorized'] = instance.isAutoCategorized;
+  writeNotNull('categorizationConfidence', instance.categorizationConfidence);
+  writeNotNull('receipt', instance.receipt);
+  writeNotNull('linkedGoalId', instance.linkedGoalId);
+  writeNotNull('metadata', instance.metadata);
+  writeNotNull('createdAt', instance.createdAt?.toIso8601String());
+  writeNotNull('updatedAt', instance.updatedAt?.toIso8601String());
+  return val;
+}

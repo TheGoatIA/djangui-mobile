@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class AboutPage extends StatelessWidget {
@@ -8,8 +8,8 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('À propos de Djangui')),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.aboutKauri)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -19,36 +19,54 @@ class AboutPage extends StatelessWidget {
               'assets/images/logo.png',
               width: 100,
               height: 100,
-              errorBuilder: (context, error, stackTrace) => const Icon(
+              errorBuilder: (context, error, stackTrace) => Icon(
                 Icons.account_balance_wallet,
                 size: 80,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 24),
             Text(
-              'Djangui',
-              style: AppTextStyles.h1.copyWith(color: AppColors.primary),
+              AppLocalizations.of(context)!.appTitle,
+              style: AppTextStyles.h1.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Version 1.0.0',
-              style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+              AppLocalizations.of(context)!.versionInfo('1.0.0', '1'),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 32),
-            const Text(
-              'Djangui est votre compagnon financier ultime pour gérer vos tontines, budgets et investissements avec une expérience utilisateur de classe mondiale.',
+            Text(
+              AppLocalizations.of(context)!.aboutDescription,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyLarge,
             ),
             const SizedBox(height: 48),
-            _buildInfoTile('Développé par', 'Boris Gauty'),
-            _buildInfoTile('Contact', 'support@djangui.com'),
-            _buildInfoTile('Site Web', 'www.djangui.com'),
+            _buildInfoTile(
+              context,
+              AppLocalizations.of(context)!.developedBy,
+              'Boris Gauty',
+            ),
+            _buildInfoTile(
+              context,
+              AppLocalizations.of(context)!.contact,
+              'support@Kauri.com',
+            ),
+            _buildInfoTile(
+              context,
+              AppLocalizations.of(context)!.website,
+              'www.Kauri.com',
+            ),
             const SizedBox(height: 48),
             Text(
-              '© 2024 Djangui inc. Tous droits réservés.',
-              style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+              AppLocalizations.of(context)!.copyrightInfo,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -56,7 +74,7 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoTile(String title, String value) {
+  Widget _buildInfoTile(BuildContext context, String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -64,7 +82,9 @@ class AboutPage extends StatelessWidget {
         children: [
           Text(
             title,
-            style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           Text(
             value,

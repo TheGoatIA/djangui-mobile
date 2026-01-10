@@ -13,6 +13,7 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
     on<GetBudgetsRequested>(_onGetBudgetsRequested);
     on<AddBudgetRequested>(_onAddBudgetRequested);
     on<DeleteBudgetRequested>(_onDeleteBudgetRequested);
+    on<UpdateBudgetRequested>(_onUpdateBudgetRequested);
   }
 
   Future<void> _onGetBudgetsRequested(
@@ -75,6 +76,33 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
         final List<BudgetModel> updatedList = state.budgets
             .where((b) => b.id != event.id)
             .toList();
+        emit(
+          state.copyWith(status: BudgetsStatus.success, budgets: updatedList),
+        );
+      },
+    );
+  }
+
+  Future<void> _onUpdateBudgetRequested(
+    UpdateBudgetRequested event,
+    Emitter<BudgetsState> emit,
+  ) async {
+    emit(state.copyWith(status: BudgetsStatus.loading));
+    final result = await _budgetRepository.updateBudget(
+      event.id,
+      event.totalAllocated,
+    );
+    result.fold<void>(
+      (failure) => emit(
+        state.copyWith(
+          status: BudgetsStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (updatedBudget) {
+        final List<BudgetModel> updatedList = state.budgets.map((b) {
+          return b.id == event.id ? updatedBudget : b;
+        }).toList();
         emit(
           state.copyWith(status: BudgetsStatus.success, budgets: updatedList),
         );

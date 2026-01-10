@@ -34,6 +34,7 @@ class SyncRequests extends Table {
 
 class Transactions extends Table {
   TextColumn get id => text()();
+  TextColumn get userId => text().nullable()();
   RealColumn get amount => real()();
   TextColumn get currency => text().withDefault(const Constant('XAF'))();
   TextColumn get type => text()(); // income, expense, transfer
@@ -41,12 +42,17 @@ class Transactions extends Table {
   TextColumn get subcategory => text().nullable()();
   TextColumn get description => text()();
   TextColumn get merchant => text().nullable()();
+  TextColumn get location => text().nullable()();
   DateTimeColumn get date => dateTime()();
   TextColumn get status => text().withDefault(const Constant('completed'))();
   TextColumn get source => text().nullable()();
   TextColumn get tags => text().withDefault(const Constant('[]'))();
   BoolColumn get isRecurring => boolean().withDefault(const Constant(false))();
-  TextColumn get recurringInterval => text().nullable()();
+  TextColumn get recurringFrequency => text().nullable()();
+  BoolColumn get isAutoCategorized =>
+      boolean().withDefault(const Constant(false))();
+  RealColumn get categorizationConfidence => real().nullable()();
+  TextColumn get receipt => text().nullable()();
   TextColumn get linkedGoalId => text().nullable()();
   TextColumn get metadata => text().nullable()();
   DateTimeColumn get createdAt => dateTime().nullable()();
@@ -74,12 +80,17 @@ class Budgets extends Table {
 class Goals extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get emoji => text().nullable()();
+  TextColumn get type => text().withDefault(const Constant('savings'))();
   RealColumn get targetAmount => real()();
   RealColumn get currentAmount => real()();
   TextColumn get currency => text().withDefault(const Constant('XAF'))();
   DateTimeColumn get deadline => dateTime()();
   TextColumn get category => text().nullable()();
   TextColumn get status => text().withDefault(const Constant('active'))();
+  TextColumn get strategy => text().nullable()(); // JSON
+  TextColumn get autoSaveRules => text().nullable()(); // JSON
   BoolColumn get isShared => boolean().withDefault(const Constant(false))();
   TextColumn get participants => text().withDefault(const Constant('[]'))();
   TextColumn get image => text().nullable()();
@@ -95,11 +106,14 @@ class Challenges extends Table {
   TextColumn get title => text()();
   TextColumn get description => text()();
   TextColumn get type => text()();
-  RealColumn get targetValue => real()();
+  RealColumn get targetValue => real().nullable()();
   RealColumn get currentValue => real()();
   IntColumn get points => integer()();
   DateTimeColumn get startDate => dateTime()();
   DateTimeColumn get endDate => dateTime()();
+  TextColumn get difficulty => text().withDefault(const Constant('medium'))();
+  IntColumn get durationDays => integer().withDefault(const Constant(30))();
+  TextColumn get icon => text().nullable()();
   BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
   TextColumn get participants => text().withDefault(const Constant('[]'))();
   TextColumn get category => text().nullable()();
@@ -154,7 +168,35 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 17;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (Migrator m) async {
+        await m.createAll();
+      },
+      onUpgrade: (Migrator m, int from, int to) async {
+        if (from < 16) {
+          await m.createAll(); // Simplified for v16 catchup if needed
+        }
+        if (from < 17) {
+          await m.addColumn(transactions, transactions.userId);
+          await m.addColumn(transactions, transactions.location);
+          await m.addColumn(transactions, transactions.recurringFrequency);
+          await m.addColumn(transactions, transactions.isAutoCategorized);
+          await m.addColumn(
+            transactions,
+            transactions.categorizationConfidence,
+          );
+          await m.addColumn(transactions, transactions.receipt);
+        }
+      },
+      beforeOpen: (details) async {
+        await customStatement('PRAGMA foreign_keys = ON');
+      },
+    );
+  }
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(() async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
@@ -12,76 +13,208 @@ import '../../../transactions/presentation/bloc/transactions_bloc.dart';
 import '../../../transactions/data/models/transaction_model.dart';
 import '../../../gamification/presentation/widgets/gamification_header.dart';
 import '../../../gamification/presentation/widgets/level_up_dialog.dart';
+import '../bloc/dashboard_bloc.dart';
 import '../../../../core/services/sms_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../../../core/theme/app_shadows.dart';
+import '../../../../core/services/notification_service.dart';
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../core/utils/currency_helper.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => getIt<AuthBloc>()),
-        BlocProvider(
-          create: (context) =>
-              getIt<TransactionsBloc>()..add(const GetTransactionsRequested()),
+    return BlocProvider(
+      create: (context) =>
+          getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
+      child: const DashboardView(),
+    );
+  }
+}
+
+class DashboardView extends StatefulWidget {
+  const DashboardView({super.key});
+
+  @override
+  State<DashboardView> createState() => _DashboardViewState();
+}
+
+class _DashboardViewState extends State<DashboardView> {
+  final GlobalKey _gamificationKey = GlobalKey();
+  final GlobalKey _balanceKey = GlobalKey();
+  final GlobalKey _quickActionsKey = GlobalKey();
+  final GlobalKey _incomeKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    // Sync FCM token when dashboard loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getIt<NotificationService>().syncFcmToken();
+      // Fetch latest transactions
+      context.read<TransactionsBloc>().add(const GetTransactionsRequested());
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Watch for tutorial reset
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    super.dispose();
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('dashboard_v2')) {
+      try {
+        final shell = StatefulNavigationShell.of(context);
+        if (shell.currentIndex != 0) return;
+      } catch (_) {
+        if (ModalRoute.of(context)?.isCurrent != true) return;
+      }
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(context).startShowCase([
+          _gamificationKey,
+          _balanceKey,
+          _incomeKey,
+          _quickActionsKey,
+        ]);
+        tutorialService.markTutorialAsSeen('dashboard_v2');
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state.status == AuthStatus.unauthenticated) {
+              context.read<TransactionsBloc>().add(ResetTransactionsStatus());
+              context.go(RouteConstants.login);
+            }
+          },
+        ),
+        BlocListener<AuthBloc, AuthState>(
+          listenWhen: (previous, current) {
+            return previous.status == AuthStatus.authenticated &&
+                current.status == AuthStatus.authenticated &&
+                previous.authResponse?.user != null &&
+                current.authResponse?.user != null &&
+                current.authResponse!.user.level >
+                    previous.authResponse!.user.level;
+          },
+          listener: (context, state) {
+            showDialog(
+              context: context,
+              builder: (_) => LevelUpDialog(
+                newLevel: state.authResponse!.user.level,
+                onContinue: () => Navigator.of(context).pop(),
+              ),
+            );
+          },
+        ),
+        BlocListener<TransactionsBloc, TransactionsState>(
+          listenWhen: (previous, current) =>
+              current.status == TransactionsStatus.success &&
+              previous.status != TransactionsStatus.success,
+          listener: (context, state) {
+            // Refresh dashboard when a transaction is added/updated successfully
+            context.read<DashboardBloc>().add(GetDashboardDataRequested());
+          },
+        ),
+        BlocListener<AuthBloc, AuthState>(
+          listenWhen: (previous, current) {
+            // Listen for significant profile changes that affect dashboard (e.g. monthlyIncome)
+            if (previous.authResponse?.user == null ||
+                current.authResponse?.user == null) {
+              return false;
+            }
+            return previous.authResponse!.user != current.authResponse!.user;
+          },
+          listener: (context, state) {
+            context.read<DashboardBloc>().add(GetDashboardDataRequested());
+          },
         ),
       ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<AuthBloc, AuthState>(
-            listener: (context, state) {
-              if (state.status == AuthStatus.unauthenticated) {
-                context.go(RouteConstants.login);
-              }
-            },
-          ),
-          BlocListener<AuthBloc, AuthState>(
-            listenWhen: (previous, current) {
-              return previous.status == AuthStatus.authenticated &&
-                  current.status == AuthStatus.authenticated &&
-                  previous.authResponse?.user != null &&
-                  current.authResponse?.user != null &&
-                  current.authResponse!.user.level >
-                      previous.authResponse!.user.level;
-            },
-            listener: (context, state) {
-              showDialog(
-                context: context,
-                builder: (_) => LevelUpDialog(
-                  newLevel: state.authResponse!.user.level,
-                  onContinue: () => Navigator.of(context).pop(),
-                ),
-              );
-            },
-          ),
-          BlocListener<TransactionsBloc, TransactionsState>(
-            listener: (context, state) {
-              // Handle potential global transaction errors here
-            },
-          ),
-        ],
-        child: Scaffold(
-          backgroundColor: AppColors.background,
-          appBar: _buildAppBar(context),
-          body: SingleChildScrollView(
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        appBar: _buildAppBar(context),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            context.read<DashboardBloc>().add(GetDashboardDataRequested());
+            context.read<TransactionsBloc>().add(
+              const GetTransactionsRequested(forceRefresh: true),
+            );
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(bottom: 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const GamificationHeader(),
+                Showcase(
+                  key: _gamificationKey,
+                  title: AppLocalizations.of(
+                    context,
+                  )!.tutorialGamificationTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.tutorialGamificationDesc,
+                  child: const GamificationHeader(),
+                ),
                 const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: _buildBalanceCard(context)
-                      .animate()
-                      .fade(duration: 500.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+                  child:
+                      Showcase(
+                            key: _balanceKey,
+                            title: AppLocalizations.of(
+                              context,
+                            )!.tutorialBalanceCardTitle,
+                            description: AppLocalizations.of(
+                              context,
+                            )!.tutorialBalanceCardDesc,
+                            child: _buildBalanceCard(context),
+                          )
+                          .animate()
+                          .fade(duration: 500.ms)
+                          .slideY(
+                            begin: 0.1,
+                            end: 0,
+                            curve: Curves.easeOutQuad,
+                          ),
                 ),
                 const SizedBox(height: 24),
-                _buildQuickActions(context)
+                Showcase(
+                      key: _quickActionsKey,
+                      title: AppLocalizations.of(
+                        context,
+                      )!.tutorialQuickActionsTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialQuickActionsDesc,
+                      child: _buildQuickActions(context),
+                    )
                     .animate(delay: 200.ms)
                     .fade(duration: 500.ms)
                     .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
@@ -112,13 +245,16 @@ class DashboardPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Bonjour,',
-            style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+            AppLocalizations.of(context)!.greeting,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               final userName =
-                  state.authResponse?.user.fullName ?? 'Utilisateur';
+                  state.authResponse?.user.fullName ??
+                  AppLocalizations.of(context)!.user;
               return Text(
                 userName,
                 style: AppTextStyles.bodyLarge.copyWith(
@@ -131,17 +267,20 @@ class DashboardPage extends StatelessWidget {
       ),
       actions: [
         IconButton(
-          onPressed: () {},
-          icon: const Icon(
+          onPressed: () => context.push(RouteConstants.notifications),
+          icon: Icon(
             Icons.notifications_none_outlined,
-            color: AppColors.onBackground,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         Builder(
           builder: (context) => IconButton(
             onPressed: () =>
                 context.read<AuthBloc>().add(AuthLogoutRequested()),
-            icon: const Icon(Icons.logout, color: AppColors.onBackground),
+            icon: Icon(
+              Icons.logout,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
         ),
       ],
@@ -153,15 +292,18 @@ class DashboardPage extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryDark],
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary,
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -172,47 +314,232 @@ class DashboardPage extends StatelessWidget {
         children: [
           Text(
             AppLocalizations.of(context)!.totalBalance,
-            style: AppTextStyles.labelLarge.copyWith(color: Colors.white70),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '250,000 FCFA',
-            style: AppTextStyles.headlineLarge.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+            style: AppTextStyles.labelLarge.copyWith(
+              color: Theme.of(
+                context,
+              ).colorScheme.onPrimary.withValues(alpha: 0.7),
             ),
           ),
+          const SizedBox(height: 8),
+          BlocBuilder<DashboardBloc, DashboardState>(
+            builder: (context, state) {
+              final balance = state.report?.walletBalance ?? 0;
+              final userCurrency = context
+                  .read<AuthBloc>()
+                  .state
+                  .authResponse
+                  ?.user
+                  .currency;
+
+              final systemState = context.watch<SystemBloc>().state;
+              final currencySymbol = systemState.countries
+                  .firstWhere(
+                    (c) => c.currency == userCurrency,
+                    orElse: () => systemState.countries.firstWhere(
+                      (c) => c.code == 'CM', // Default fallback
+                      orElse: () => systemState.countries.isNotEmpty
+                          ? systemState.countries.first
+                          : throw Exception('No countries loaded'),
+                    ),
+                  )
+                  .currencySymbol;
+
+              return Text(
+                CurrencyHelper.formatAmount(
+                  balance.toDouble(),
+                  currencyCode: userCurrency,
+                  currencySymbol: currencySymbol,
+                ),
+                style: AppTextStyles.headlineLarge.copyWith(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
+          ),
           const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildBalanceInfo('Épargne Personnel', '150,000'),
-              Container(width: 1, height: 40, color: Colors.white24),
-              _buildBalanceInfo('Tontines Actives', '100,000'),
-            ],
+          BlocBuilder<DashboardBloc, DashboardState>(
+            builder: (context, state) {
+              final income = state.report?.monthlyIncome ?? 0;
+              final spent = state.report?.totalSpent ?? 0;
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildBalanceInfo(
+                    context,
+                    AppLocalizations.of(context)!.monthlyIncome,
+                    income.toDouble(),
+                    isIncome: true,
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onPrimary.withValues(alpha: 0.24),
+                  ),
+                  _buildBalanceInfo(
+                    context,
+                    AppLocalizations.of(context)!.totalExpenses,
+                    spent.toDouble(),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBalanceInfo(String label, String amount) {
-    return Column(
+  Widget _buildBalanceInfo(
+    BuildContext context,
+    String label,
+    double amount, {
+    bool isIncome = false,
+  }) {
+    final userCurrency = context
+        .read<AuthBloc>()
+        .state
+        .authResponse
+        ?.user
+        .currency;
+
+    final systemState = context.watch<SystemBloc>().state;
+    // Safe lookup for symbol
+    String? currencySymbol;
+    if (systemState.countries.isNotEmpty) {
+      currencySymbol = systemState.countries
+          .firstWhere(
+            (c) => c.currency == userCurrency,
+            orElse: () => systemState.countries.first,
+          )
+          .currencySymbol;
+    }
+
+    final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(color: Colors.white70),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onPrimary.withValues(alpha: 0.7),
+              ),
+            ),
+            if (isIncome) ...[
+              const SizedBox(width: 4),
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _showEditIncomeDialog(context, amount),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Icon(
+                      Icons.edit_outlined,
+                      size: 14,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onPrimary.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
         const SizedBox(height: 4),
         Text(
-          '$amount FCFA',
+          CurrencyHelper.formatAmount(
+            amount,
+            currencyCode: userCurrency,
+            currencySymbol: currencySymbol,
+          ),
           style: AppTextStyles.bodyLarge.copyWith(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onPrimary,
             fontWeight: FontWeight.w600,
           ),
         ),
       ],
+    );
+
+    if (isIncome) {
+      return Showcase(
+        key: _incomeKey,
+        title: AppLocalizations.of(context)!.tutorialIncomeTitle,
+        description: AppLocalizations.of(context)!.tutorialIncomeDesc,
+        targetShapeBorder: const CircleBorder(),
+        child: content,
+      );
+    }
+
+    return content;
+  }
+
+  void _showEditIncomeDialog(BuildContext context, double currentAmount) {
+    final controller = TextEditingController(
+      text: currentAmount > 0 ? currentAmount.toStringAsFixed(0) : '',
+    );
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.updateIncomeTitle),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: controller,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.incomeLabel,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.money_sharp),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return null; // Allow empty to reset? No, let's require valid number
+                  }
+                  if (double.tryParse(value) == null) {
+                    return AppLocalizations.of(context)!.invalidAmount;
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                final amount = double.tryParse(controller.text) ?? 0.0;
+                context.read<AuthBloc>().add(
+                  AuthUpdateProfileRequested(monthlyIncome: amount),
+                );
+                Navigator.of(context).pop();
+                // Optionally show snackbar or feedback
+              }
+            },
+            child: Text(AppLocalizations.of(context)!.save),
+          ),
+        ],
+      ),
     );
   }
 
@@ -221,7 +548,7 @@ class DashboardPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Actions Rapides',
+          AppLocalizations.of(context)!.quickActions,
           style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
@@ -230,21 +557,53 @@ class DashboardPage extends StatelessWidget {
           children: [
             _buildActionItem(
               Icons.add_circle_outline,
-              'Investir',
-              AppColors.primary,
+              AppLocalizations.of(context)!.invest,
+              Theme.of(context).colorScheme.primary,
               onTap: () => context.push('${RouteConstants.investments}/add'),
             ),
             _buildActionItem(
               Icons.bar_chart_outlined,
-              'Analyses',
-              AppColors.secondary,
+              AppLocalizations.of(context)!.insights,
+              Theme.of(context).colorScheme.secondary,
               onTap: () => context.push(RouteConstants.insights),
             ),
             _buildActionItem(
               Icons.sms_outlined,
-              'Import SMS',
-              AppColors.accent,
+              AppLocalizations.of(context)!.importSms,
+              Theme.of(context).colorScheme.tertiary,
               onTap: () async {
+                final authState = context.read<AuthBloc>().state;
+                final isPremium =
+                    authState.authResponse?.user.isPremium ?? false;
+
+                if (!isPremium) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.smsImportPremiumRestriction,
+                      ),
+                      action: SnackBarAction(
+                        label: AppLocalizations.of(context)!.seeOffers,
+                        onPressed: () =>
+                            context.push(RouteConstants.subscription),
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
+                if (!Platform.isAndroid) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.of(context)!.featureNotAvailableOnIos,
+                      ),
+                    ),
+                  );
+                  return;
+                }
                 final smsService = getIt<SMSService>();
                 final granted = await smsService.requestPermission();
                 if (granted) {
@@ -252,8 +611,10 @@ class DashboardPage extends StatelessWidget {
                   if (!context.mounted) return;
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Recherche de transactions SMS...'),
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(context)!.scanningSms,
+                        ),
                       ),
                     );
                   }
@@ -270,7 +631,7 @@ class DashboardPage extends StatelessWidget {
                             id: const Uuid().v4(),
                             amount: t.amount,
                             type: 'expense',
-                            category: 'Automatique',
+                            category: AppLocalizations.of(context)!.automatic,
                             description: t.description,
                             date: t.date,
                           ),
@@ -281,7 +642,9 @@ class DashboardPage extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            '${transactions.length} transactions importées !',
+                            AppLocalizations.of(
+                              context,
+                            )!.transactionsImported(transactions.length),
                           ),
                         ),
                       );
@@ -290,9 +653,9 @@ class DashboardPage extends StatelessWidget {
                 } else {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content: Text(
-                          'Permission SMS requise pour cette fonctionnalité',
+                          AppLocalizations.of(context)!.smsPermissionRequired,
                         ),
                       ),
                     );
@@ -302,7 +665,7 @@ class DashboardPage extends StatelessWidget {
             ),
             _buildActionItem(
               Icons.smart_toy_outlined,
-              'Coach IA',
+              AppLocalizations.of(context)!.coach,
               Colors.indigo,
               onTap: () => context.push(RouteConstants.coach),
             ),
@@ -327,6 +690,7 @@ class DashboardPage extends StatelessWidget {
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
+              boxShadow: AppShadows.card,
             ),
             child: Icon(icon, color: color),
           ),
@@ -374,7 +738,9 @@ class DashboardPage extends StatelessWidget {
           return Center(
             child: Text(
               AppLocalizations.of(context)!.noRecentActivities,
-              style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           );
         }
@@ -394,8 +760,9 @@ class DashboardPage extends StatelessWidget {
             return Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
+                boxShadow: AppShadows.card,
               ),
               child: Row(
                 children: [
@@ -425,7 +792,9 @@ class DashboardPage extends StatelessWidget {
                         Text(
                           t.category,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: Colors.grey,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -435,7 +804,7 @@ class DashboardPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '${isIncome ? '+' : '-'}${t.amount.toStringAsFixed(0)} F',
+                        '${isIncome ? '+' : '-'}${CurrencyHelper.formatAmount(t.amount, currencyCode: context.read<AuthBloc>().state.authResponse?.user.currency)}',
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: color,
                           fontWeight: FontWeight.bold,
@@ -444,7 +813,7 @@ class DashboardPage extends StatelessWidget {
                       Text(
                         DateFormat.yMMMd('fr').format(t.date),
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: Colors.grey,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],

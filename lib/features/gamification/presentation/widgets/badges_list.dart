@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../data/models/badge_data.dart';
 
@@ -36,6 +37,8 @@ class BadgesList extends StatelessWidget {
 
               if (badge == null) return const SizedBox.shrink();
 
+              final themedColor = _getThemedColor(context, badge.color);
+
               return Tooltip(
                 message: badge.description,
                 triggerMode: TooltipTriggerMode.tap,
@@ -43,11 +46,13 @@ class BadgesList extends StatelessWidget {
                   width: 80,
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: Theme.of(
+                          context,
+                        ).shadowColor.withValues(alpha: 0.05),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -59,10 +64,10 @@ class BadgesList extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: badge.color.withValues(alpha: 0.1),
+                          color: themedColor.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(badge.icon, color: badge.color, size: 24),
+                        child: Icon(badge.icon, color: themedColor, size: 24),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -84,5 +89,13 @@ class BadgesList extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Color _getThemedColor(BuildContext context, Color color) {
+    final colorScheme = Theme.of(context).colorScheme;
+    if (color == AppColors.primary) return colorScheme.primary;
+    if (color == AppColors.secondary) return colorScheme.secondary;
+    if (color == AppColors.accent) return colorScheme.tertiary;
+    return color;
   }
 }

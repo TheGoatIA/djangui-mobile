@@ -3,7 +3,9 @@ import '../../../../core/constants/api_constants.dart';
 import '../models/login_request.dart';
 import '../models/register_request.dart';
 import '../models/auth_response.dart';
-import '../models/user_model.dart';
+import '../models/device_info_request.dart';
+import '../models/connection_request.dart';
+import '../models/country_change_request.dart';
 import '../../../../core/network/models/base_response.dart';
 
 part 'auth_api_service.chopper.dart';
@@ -14,24 +16,22 @@ abstract class AuthApiService extends ChopperService {
   Future<Response<BaseResponse<AuthResponse>>> login(@Body() LoginRequest body);
 
   @Post(path: ApiConstants.firebaseAuth)
-  Future<Response<BaseResponse<AuthResponse>>> firebaseLogin(
+  Future<Response<AuthResponse>> firebaseLogin(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: '/v1/auth/google')
-  Future<Response<BaseResponse<AuthResponse>>> googleLogin(
-    @Body() Map<String, dynamic> body,
-  );
+  @Post(path: '/auth/google')
+  Future<Response<AuthResponse>> googleLogin(@Body() Map<String, dynamic> body);
 
-  @Post(path: '/v1/auth/refresh')
+  @Post(path: ApiConstants.refresh)
   Future<Response<BaseResponse<Map<String, dynamic>>>> refreshToken(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: '/v1/auth/logout')
+  @Post(path: ApiConstants.logout)
   Future<Response<BaseResponse<dynamic>>> logout();
 
-  @Post(path: '/v1/auth/fcm-token')
+  @Post(path: ApiConstants.fcmToken)
   Future<Response<BaseResponse<dynamic>>> updateFcmToken(
     @Body() Map<String, dynamic> body,
   );
@@ -63,12 +63,43 @@ abstract class AuthApiService extends ChopperService {
   );
 
   @Get(path: ApiConstants.me)
-  Future<Response<BaseResponse<UserModel>>> getProfile();
+  Future<Response<BaseResponse<Map<String, dynamic>>>> getUserProfile();
 
   @Patch(path: ApiConstants.me)
-  Future<Response<BaseResponse<UserModel>>> updateProfile(
+  Future<Response<BaseResponse<Map<String, dynamic>>>> updateProfile(
     @Body() Map<String, dynamic> body,
   );
+
+  @Patch(path: '/auth/device')
+  Future<Response<BaseResponse<dynamic>>> updateDeviceInfo(
+    @Body() DeviceInfoRequest body,
+  );
+  @Patch(path: ApiConstants.changePassword)
+  Future<Response<BaseResponse<dynamic>>> changePassword(
+    @Body() Map<String, dynamic> body,
+  );
+
+  @Delete(path: ApiConstants.deleteMe)
+  Future<Response<BaseResponse<dynamic>>> deleteAccount();
+
+  @Get(path: ApiConstants.sessions)
+  Future<Response<BaseResponse<Map<String, dynamic>>>> getSessions();
+
+  @Delete(path: ApiConstants.sessions)
+  Future<Response<BaseResponse<dynamic>>> revokeAllOtherSessions();
+
+  @Delete(path: '${ApiConstants.sessions}/{sessionId}')
+  Future<Response<BaseResponse<dynamic>>> revokeSession(
+    @Path('sessionId') String sessionId,
+  );
+
+  @Post(path: ApiConstants.connection)
+  Future<Response<BaseResponse<dynamic>>> logConnection(
+    @Body() ConnectionRequest body,
+  );
+  @Post(path: ApiConstants.requestCountryChange)
+  Future<Response<BaseResponse<CountryChangeRequestModel>>>
+  requestCountryChange(@Body() Map<String, dynamic> body);
 
   static AuthApiService create(ChopperClient client) =>
       _$AuthApiService(client);

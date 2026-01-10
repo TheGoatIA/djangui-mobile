@@ -9,22 +9,71 @@ import '../bloc/coach_state.dart';
 import '../../data/models/chat_message_model.dart';
 import 'package:intl/intl.dart';
 import '../../../../l10n/app_localizations.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
 
-class CoachChatPage extends StatefulWidget {
+class CoachChatPage extends StatelessWidget {
   const CoachChatPage({super.key});
 
   @override
-  State<CoachChatPage> createState() => _CoachChatPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<CoachBloc>()..add(GetChatHistoryRequested()),
+      child: const CoachChatView(),
+    );
+  }
 }
 
-class _CoachChatPageState extends State<CoachChatPage> {
+class CoachChatView extends StatefulWidget {
+  const CoachChatView({super.key});
+
+  @override
+  State<CoachChatView> createState() => _CoachChatViewState();
+}
+
+class _CoachChatViewState extends State<CoachChatView> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
+  final GlobalKey _inputKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('coach')) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(context).startShowCase([_inputKey]);
+        tutorialService.markTutorialAsSeen('coach');
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Watch for tutorial reset
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
 
   @override
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
     super.dispose();
   }
 
@@ -42,87 +91,93 @@ class _CoachChatPageState extends State<CoachChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<CoachBloc>()..add(GetChatHistoryRequested()),
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(AppLocalizations.of(context)!.coachTitle),
-              Text(
-                AppLocalizations.of(context)!.online,
-                style: const TextStyle(fontSize: 12, color: Colors.green),
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppLocalizations.of(context)!.coachTitle),
+            Text(
+              AppLocalizations.of(context)!.online,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.success,
+                fontSize: 10,
               ),
-            ],
+            ),
+          ],
+        ),
+        actions: [
+          Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.delete_sweep_outlined),
+                onPressed: () =>
+                    context.read<CoachBloc>().add(ClearHistoryRequested()),
+              );
+            },
           ),
-          actions: [
-            Builder(
-              builder: (context) {
-                return IconButton(
-                  icon: const Icon(Icons.delete_sweep_outlined),
-                  onPressed: () =>
-                      context.read<CoachBloc>().add(ClearHistoryRequested()),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: BlocConsumer<CoachBloc, CoachState>(
+              listener: (context, state) {
+                _scrollToBottom();
+              },
+              builder: (context, state) {
+                if (state.status == CoachStatus.loading &&
+                    state.messages.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (state.messages.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          AppLocalizations.of(context)!.coachWelcomeMessage,
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(20),
+                  itemCount: state.messages.length + (state.isSending ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == state.messages.length) {
+                      return _buildTypingIndicator();
+                    }
+                    final message = state.messages[index];
+                    return _MessageBubble(message: message);
+                  },
                 );
               },
             ),
-          ],
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: BlocConsumer<CoachBloc, CoachState>(
-                listener: (context, state) {
-                  _scrollToBottom();
-                },
-                builder: (context, state) {
-                  if (state.status == CoachStatus.loading &&
-                      state.messages.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (state.messages.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.chat_bubble_outline,
-                            size: 64,
-                            color: Colors.grey[300],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            AppLocalizations.of(context)!.coachWelcomeMessage,
-                            style: AppTextStyles.bodyLarge.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(20),
-                    itemCount:
-                        state.messages.length + (state.isSending ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == state.messages.length) {
-                        return _buildTypingIndicator();
-                      }
-                      final message = state.messages[index];
-                      return _MessageBubble(message: message);
-                    },
-                  );
-                },
-              ),
-            ),
-            _buildInputArea(context),
-          ],
-        ),
+          ),
+          Showcase(
+            key: _inputKey,
+            title: AppLocalizations.of(context)!.coachTitle,
+            description: AppLocalizations.of(context)!.typeQuestionHint,
+            child: _buildInputArea(context),
+          ),
+        ],
       ),
     );
   }
@@ -134,12 +189,15 @@ class _CoachChatPageState extends State<CoachChatPage> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           AppLocalizations.of(context)!.coachThinking,
-          style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontStyle: FontStyle.italic,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ),
     );
@@ -149,10 +207,10 @@ class _CoachChatPageState extends State<CoachChatPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -164,7 +222,9 @@ class _CoachChatPageState extends State<CoachChatPage> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: TextField(
@@ -172,7 +232,7 @@ class _CoachChatPageState extends State<CoachChatPage> {
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.typeQuestionHint,
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 10,
                     ),
@@ -186,9 +246,13 @@ class _CoachChatPageState extends State<CoachChatPage> {
             Builder(
               builder: (context) {
                 return CircleAvatar(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                    icon: Icon(
+                      Icons.send,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      size: 20,
+                    ),
                     onPressed: () {
                       if (_messageController.text.trim().isNotEmpty) {
                         context.read<CoachBloc>().add(
@@ -226,7 +290,9 @@ class _MessageBubble extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isUser ? AppColors.primary : Colors.white,
+          color: isUser
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20),
             topRight: const Radius.circular(20),
@@ -236,7 +302,7 @@ class _MessageBubble extends StatelessWidget {
           boxShadow: [
             if (!isUser)
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
                 blurRadius: 5,
                 offset: const Offset(0, 2),
               ),
@@ -245,18 +311,32 @@ class _MessageBubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              message.text,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: isUser ? Colors.white : AppColors.onBackground,
+            MarkdownBody(
+              data: message.text,
+              styleSheet: MarkdownStyleSheet(
+                p: AppTextStyles.bodyMedium.copyWith(
+                  color: isUser
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurface,
+                ),
+                strong: AppTextStyles.bodyMedium.copyWith(
+                  color: isUser
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(height: 4),
             Text(
               DateFormat('HH:mm').format(message.timestamp),
-              style: TextStyle(
+              style: AppTextStyles.bodySmall.copyWith(
                 fontSize: 10,
-                color: isUser ? Colors.white70 : Colors.grey,
+                color: isUser
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.onPrimary.withValues(alpha: 0.7)
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],

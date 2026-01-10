@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/repositories/challenge_repository.dart';
@@ -13,6 +14,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     on<GetUserChallengesRequested>(_onGetUserChallengesRequested);
     on<JoinChallengeRequested>(_onJoinChallengeRequested);
     on<ValidateWeekRequested>(_onValidateWeekRequested);
+    on<UnjoinChallengeRequested>(_onUnjoinChallengeRequested);
   }
 
   Future<void> _onGetChallengesRequested(
@@ -24,18 +26,28 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
       forceRefresh: event.forceRefresh,
     );
     result.fold<void>(
-      (failure) => emit(
-        state.copyWith(
-          status: ChallengesStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
-      (challenges) => emit(
-        state.copyWith(
-          status: ChallengesStatus.success,
-          challenges: challenges,
-        ),
-      ),
+      (failure) {
+        debugPrint(
+          '🏆 [ChallengesBloc] Error fetching challenges: ${failure.message}',
+        );
+        emit(
+          state.copyWith(
+            status: ChallengesStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (challenges) {
+        debugPrint(
+          '🏆 [ChallengesBloc] Fetched ${challenges.length} challenges',
+        );
+        emit(
+          state.copyWith(
+            status: ChallengesStatus.success,
+            challenges: challenges,
+          ),
+        );
+      },
     );
   }
 
@@ -52,12 +64,17 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
           errorMessage: failure.message,
         ),
       ),
-      (userChallenges) => emit(
-        state.copyWith(
-          status: ChallengesStatus.success,
-          userChallenges: userChallenges,
-        ),
-      ),
+      (userChallenges) {
+        debugPrint(
+          '🏆 [ChallengesBloc] Fetched ${userChallenges.length} user challenges',
+        );
+        emit(
+          state.copyWith(
+            status: ChallengesStatus.success,
+            userChallenges: userChallenges,
+          ),
+        );
+      },
     );
   }
 
@@ -101,6 +118,29 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
       ),
       (_) {
         // Success
+        add(GetUserChallengesRequested());
+      },
+    );
+  }
+
+  Future<void> _onUnjoinChallengeRequested(
+    UnjoinChallengeRequested event,
+    Emitter<ChallengesState> emit,
+  ) async {
+    emit(state.copyWith(status: ChallengesStatus.loading));
+    final result = await _challengeRepository.unjoinChallenge(
+      event.userChallengeId,
+    );
+    result.fold<void>(
+      (failure) => emit(
+        state.copyWith(
+          status: ChallengesStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) {
+        // Success, refresh challenges
+        add(const GetChallengesRequested(forceRefresh: true));
         add(GetUserChallengesRequested());
       },
     );

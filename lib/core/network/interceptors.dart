@@ -9,7 +9,24 @@ class AuthInterceptor implements RequestInterceptor {
 
   @override
   FutureOr<Request> onRequest(Request request) async {
-    final String? token = await _storage.read(key: 'auth_token');
+    // Endpoints that don't need the Authorization header
+    final List<String> excludedPaths = [
+      '/auth/login',
+      '/auth/register',
+      '/auth/refresh',
+      '/auth/forgot-password',
+      '/auth/reset-password',
+      '/auth/verify-email',
+      '/auth/firebase',
+    ];
+
+    final bool isExcluded = excludedPaths.any(
+      (path) => request.url.toString().contains(path),
+    );
+
+    if (isExcluded) return request;
+
+    final String? token = await _storage.read(key: 'access_token');
 
     if (token != null) {
       final headers = Map<String, String>.from(request.headers);
@@ -25,8 +42,9 @@ class HttpLoggingInterceptor
   @override
   FutureOr<Request> onRequest(Request request) async {
     if (kDebugMode) {
-      print('🌐 REQUEST: ${request.method} ${request.url}');
-      if (request.body != null) print('📦 Body: ${request.body}');
+      debugPrint('🌐 REQUEST: ${request.method} ${request.url}');
+      debugPrint('📦 Headers: ${request.headers}');
+      if (request.body != null) debugPrint('📦 Body: ${request.body}');
     }
     return request;
   }
@@ -34,8 +52,15 @@ class HttpLoggingInterceptor
   @override
   FutureOr<Response> onResponse(Response response) async {
     if (kDebugMode) {
-      print('✅ RESPONSE: ${response.statusCode} ${response.base.request?.url}');
-      if (response.body != null) print('📥 Body: ${response.body}');
+      debugPrint(
+        '✅ RESPONSE: ${response.statusCode} ${response.base.request?.url}',
+      );
+      if (response.bodyString.isNotEmpty) {
+        debugPrint('📥 Body: ${response.bodyString}');
+      }
+      if (response.error != null) {
+        debugPrint('❌ Error: ${response.error}');
+      }
     }
     return response;
   }

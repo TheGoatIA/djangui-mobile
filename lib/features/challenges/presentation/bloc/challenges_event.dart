@@ -41,3 +41,12 @@ class ValidateWeekRequested extends ChallengesEvent {
   @override
   List<Object?> get props => [userChallengeId, weekNumber, amount];
 }
+
+class UnjoinChallengeRequested extends ChallengesEvent {
+  final String userChallengeId;
+
+  const UnjoinChallengeRequested(this.userChallengeId);
+
+  @override
+  List<Object?> get props => [userChallengeId];
+}

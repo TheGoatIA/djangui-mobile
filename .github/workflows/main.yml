@@ -1,4 +1,4 @@
-name: Djangui CI/CD
+name: Kauri CI/CD
 
 on:
   push:

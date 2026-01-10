@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:djangui/l10n/app_localizations.dart';
-import '../theme/app_colors.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import '../utils/responsive_utils.dart';
+import '../constants/route_constants.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../di/injection.dart';
+import '../../core/services/tutorial_service.dart';
 
 class ScaffoldWithNavBar extends StatelessWidget {
   const ScaffoldWithNavBar({required this.navigationShell, super.key});
@@ -11,6 +15,17 @@ class ScaffoldWithNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state.status == AuthStatus.unauthenticated) {
+          context.go(RouteConstants.login);
+        }
+      },
+      child: _buildScaffold(context),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     // Mobile Layout
     if (ResponsiveUtils.isMobile(context)) {
       return Scaffold(
@@ -20,8 +35,6 @@ class ScaffoldWithNavBar extends StatelessWidget {
           onDestinationSelected: (index) => _onTap(context, index),
           destinations: _buildDestinations(context),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          backgroundColor: AppColors.surface,
-          indicatorColor: AppColors.primary.withValues(alpha: 0.2),
         ),
       );
     }
@@ -34,8 +47,10 @@ class ScaffoldWithNavBar extends StatelessWidget {
             selectedIndex: navigationShell.currentIndex,
             onDestinationSelected: (index) => _onTap(context, index),
             labelType: NavigationRailLabelType.all,
-            backgroundColor: AppColors.surface,
-            indicatorColor: AppColors.primary.withValues(alpha: 0.2),
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            indicatorColor: Theme.of(
+              context,
+            ).colorScheme.primary.withValues(alpha: 0.1),
             leading: Column(
               children: [
                 const SizedBox(height: 16),
@@ -43,13 +58,13 @@ class ScaffoldWithNavBar extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Icon(
                       Icons.account_balance_wallet,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                 ),
@@ -59,10 +74,10 @@ class ScaffoldWithNavBar extends StatelessWidget {
             groupAlignment: -0.9,
             destinations: _buildRailDestinations(context),
           ),
-          const VerticalDivider(
+          VerticalDivider(
             thickness: 1,
             width: 1,
-            color: AppColors.outline,
+            color: Theme.of(context).colorScheme.outline,
           ),
           Expanded(child: navigationShell),
         ],
@@ -75,6 +90,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
       index,
       initialLocation: index == navigationShell.currentIndex,
     );
+    // Trigger tutorial check for the new tab
+    getIt<TutorialService>().triggerTutorialCheck();
   }
 
   List<NavigationDestination> _buildDestinations(BuildContext context) {

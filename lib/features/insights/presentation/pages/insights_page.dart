@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
 import '../bloc/insights_bloc.dart';
 import '../bloc/insights_event.dart';
 import '../bloc/insights_state.dart';
 import '../../data/models/insight_model.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/datasources/ai_remote_datasource.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../../core/constants/route_constants.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/theme/app_shadows.dart';
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
 
 class InsightsPage extends StatelessWidget {
   const InsightsPage({super.key});
@@ -19,45 +25,122 @@ class InsightsPage extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
           getIt<InsightsBloc>()..add(const GetInsightsRequested()),
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.insightsTitle),
-        ),
-        body: BlocBuilder<InsightsBloc, InsightsState>(
-          builder: (context, state) {
-            if (state.status == InsightsStatus.loading &&
-                state.distribution.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      child: const InsightsView(),
+    );
+  }
+}
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildPeriodSelector(context, state.period),
-                  const SizedBox(height: 24),
-                  _buildAINarrativeCard(context),
-                  const SizedBox(height: 32),
-                  _buildSectionTitle(
-                    AppLocalizations.of(context)!.spendingDistribution,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildPieChartCard(state.distribution, context),
-                  const SizedBox(height: 32),
-                  _buildSectionTitle(
-                    AppLocalizations.of(context)!.spendingTrends,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildLineChartCard(state.trends, context),
-                  const SizedBox(height: 32),
-                  _buildTopCategories(state.distribution, context),
-                ],
-              ),
-            );
-          },
-        ),
+class InsightsView extends StatefulWidget {
+  const InsightsView({super.key});
+
+  @override
+  State<InsightsView> createState() => _InsightsViewState();
+}
+
+class _InsightsViewState extends State<InsightsView> {
+  final GlobalKey _periodKey = GlobalKey();
+  final GlobalKey _aiReportKey = GlobalKey();
+  final GlobalKey _chartsKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Watch for tutorial reset
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    super.dispose();
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('insights')) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(
+          context,
+        ).startShowCase([_periodKey, _aiReportKey, _chartsKey]);
+        tutorialService.markTutorialAsSeen('insights');
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.insightsTitle)),
+      body: BlocBuilder<InsightsBloc, InsightsState>(
+        builder: (context, state) {
+          if (state.status == InsightsStatus.loading &&
+              state.distribution.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Showcase(
+                  key: _periodKey,
+                  title: AppLocalizations.of(context)!.tutorialInsightsTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.tutorialInsightsDesc,
+                  child: _buildPeriodSelector(context, state.period),
+                ),
+                const SizedBox(height: 24),
+                Showcase(
+                  key: _aiReportKey,
+                  title: AppLocalizations.of(context)!.aiAnalysisTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.aiAnalysisPremiumRestriction,
+                  child: _buildAINarrativeCard(context),
+                ),
+                const SizedBox(height: 32),
+                _buildSectionTitle(
+                  AppLocalizations.of(context)!.spendingDistribution,
+                ),
+                const SizedBox(height: 16),
+                Showcase(
+                  key: _chartsKey,
+                  title: AppLocalizations.of(context)!.spendingDistribution,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.spendingDistribution,
+                  child: _buildPieChartCard(state.distribution, context),
+                ),
+                const SizedBox(height: 32),
+                _buildSectionTitle(
+                  AppLocalizations.of(context)!.spendingTrends,
+                ),
+                const SizedBox(height: 16),
+                _buildLineChartCard(state.trends, context),
+                const SizedBox(height: 32),
+                _buildTopCategories(state.distribution, context),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -114,9 +197,13 @@ class InsightsPage extends StatelessWidget {
           context.read<InsightsBloc>().add(GetInsightsRequested(period: value));
         }
       },
-      selectedColor: AppColors.primary.withValues(alpha: 0.2),
+      selectedColor: Theme.of(
+        context,
+      ).colorScheme.primary.withValues(alpha: 0.2),
       labelStyle: TextStyle(
-        color: isSelected ? AppColors.primary : Colors.grey[600],
+        color: isSelected
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
     );
@@ -130,15 +217,9 @@ class InsightsPage extends StatelessWidget {
       height: 250,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppShadows.card,
       ),
       child: data.isEmpty
           ? Center(child: Text(AppLocalizations.of(context)!.noDataAvailable))
@@ -148,7 +229,7 @@ class InsightsPage extends StatelessWidget {
                 centerSpaceRadius: 40,
                 sections: data.map((item) {
                   return PieChartSectionData(
-                    color: _parseColor(item.color),
+                    color: _parseColor(context, item.color),
                     value: item.percentage,
                     title: '${item.percentage.toStringAsFixed(0)}%',
                     radius: 60,
@@ -172,11 +253,11 @@ class InsightsPage extends StatelessWidget {
       height: 250,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -186,8 +267,8 @@ class InsightsPage extends StatelessWidget {
           ? Center(child: Text(AppLocalizations.of(context)!.noDataAvailable))
           : LineChart(
               LineChartData(
-                gridData: FlGridData(show: false),
-                titlesData: FlTitlesData(show: false),
+                gridData: const FlGridData(show: false),
+                titlesData: const FlTitlesData(show: false),
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
@@ -195,12 +276,14 @@ class InsightsPage extends StatelessWidget {
                       return FlSpot(e.key.toDouble(), e.value.amount);
                     }).toList(),
                     isCurved: true,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     barWidth: 4,
-                    dotData: FlDotData(show: false),
+                    dotData: const FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
                     ),
                   ),
                 ],
@@ -218,12 +301,15 @@ class InsightsPage extends StatelessWidget {
       children: [
         _buildSectionTitle(AppLocalizations.of(context)!.categoryDetails),
         const SizedBox(height: 16),
-        ...distribution.map((item) => _buildCategoryItem(item)),
+        ...distribution.map((item) => _buildCategoryItem(context, item)),
       ],
     );
   }
 
-  Widget _buildCategoryItem(CategoryDistributionModel item) {
+  Widget _buildCategoryItem(
+    BuildContext context,
+    CategoryDistributionModel item,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -232,7 +318,7 @@ class InsightsPage extends StatelessWidget {
             width: 12,
             height: 12,
             decoration: BoxDecoration(
-              color: _parseColor(item.color),
+              color: _parseColor(context, item.color),
               shape: BoxShape.circle,
             ),
           ),
@@ -251,6 +337,47 @@ class InsightsPage extends StatelessWidget {
   }
 
   Widget _buildAINarrativeCard(BuildContext context) {
+    final authState = context.read<AuthBloc>().state;
+    final isPremium = authState.authResponse?.user.isPremium ?? false;
+
+    if (!isPremium) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.lock_outline,
+              color: Theme.of(context).colorScheme.primary,
+              size: 40,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              AppLocalizations.of(context)!.aiAnalysisTitle,
+              style: AppTextStyles.h3,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppLocalizations.of(context)!.aiAnalysisPremiumRestriction,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            AppButton(
+              text: AppLocalizations.of(context)!.upgradeToPremium,
+              onPressed: () => context.push(RouteConstants.subscription),
+            ),
+          ],
+        ),
+      );
+    }
+
     return FutureBuilder<String>(
       future: getIt<AIRemoteDataSource>().getNarrativeReport(),
       builder: (context, snapshot) {
@@ -260,28 +387,35 @@ class InsightsPage extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppColors.primary.withValues(alpha: 0.1), Colors.white],
+              colors: [
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                Theme.of(context).colorScheme.surface,
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.2),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.auto_awesome,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Analyse IA',
+                    AppLocalizations.of(context)!.aiAnalysisTitle,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -292,7 +426,8 @@ class InsightsPage extends StatelessWidget {
                 const LinearProgressIndicator(minHeight: 2)
               else
                 Text(
-                  snapshot.data ?? 'Analyse indisponible',
+                  snapshot.data ??
+                      AppLocalizations.of(context)!.aiAnalysisUnavailable,
                   style: AppTextStyles.bodyMedium.copyWith(height: 1.5),
                 ),
             ],
@@ -302,11 +437,11 @@ class InsightsPage extends StatelessWidget {
     );
   }
 
-  Color _parseColor(String colorString) {
+  Color _parseColor(BuildContext context, String colorString) {
     try {
       return Color(int.parse(colorString.replaceFirst('#', '0xFF')));
     } catch (e) {
-      return AppColors.primary;
+      return Theme.of(context).colorScheme.primary;
     }
   }
 }

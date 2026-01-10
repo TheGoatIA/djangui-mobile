@@ -1,29 +1,96 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../di/injection.dart';
 import '../bloc/budgets_bloc.dart';
 import '../bloc/budgets_event.dart';
 import '../bloc/budgets_state.dart';
 import '../../data/models/budget_model.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../widgets/budget_detail_sheet.dart';
+import '../../../../core/theme/app_shadows.dart';
+
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../di/injection.dart';
 
 class BudgetListPage extends StatelessWidget {
   const BudgetListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          getIt<BudgetsBloc>()..add(const GetBudgetsRequested()),
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.myBudgets)),
-        body: BlocBuilder<BudgetsBloc, BudgetsState>(
+    return const BudgetListView();
+  }
+}
+
+class BudgetListView extends StatefulWidget {
+  const BudgetListView({super.key});
+
+  @override
+  State<BudgetListView> createState() => _BudgetListViewState();
+}
+
+class _BudgetListViewState extends State<BudgetListView> {
+  final GlobalKey _listKey = GlobalKey();
+  final GlobalKey _addKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('budgets')) {
+      try {
+        final shell = StatefulNavigationShell.of(context);
+        if (shell.currentIndex != 2) return;
+      } catch (_) {
+        if (ModalRoute.of(context)?.isCurrent != true) return;
+      }
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
+        tutorialService.markTutorialAsSeen('budgets');
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      ShowCaseWidget.of(context).dismiss();
+    } catch (_) {}
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.myBudgets)),
+      body: BlocListener<BudgetsBloc, BudgetsState>(
+        listener: (context, state) {
+          if (state.status == BudgetsStatus.success) {
+            _startTutorial();
+          }
+        },
+        child: BlocBuilder<BudgetsBloc, BudgetsState>(
           builder: (context, state) {
             if (state.status == BudgetsStatus.loading &&
                 state.budgets.isEmpty) {
@@ -32,37 +99,87 @@ class BudgetListPage extends StatelessWidget {
 
             if (state.budgets.isEmpty) {
               return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(AppAssets.emptyBudget, width: 150, height: 150),
-                    const SizedBox(height: 16),
-                    Text(
-                      AppLocalizations.of(context)!.noBudgetDefined,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: Colors.grey,
+                child: Showcase(
+                  key: _listKey,
+                  title: AppLocalizations.of(context)!.tutorialBudgetsTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.tutorialBudgetsDesc,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        AppAssets.emptyBudget,
+                        width: 150,
+                        height: 150,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      Text(
+                        AppLocalizations.of(context)!.noBudgetDefined,
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }
 
-            return ListView.separated(
-              padding: const EdgeInsets.all(20),
-              itemCount: state.budgets.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final budget = state.budgets[index];
-                return _BudgetItem(budget: budget);
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<BudgetsBloc>().add(
+                  const GetBudgetsRequested(forceRefresh: true),
+                );
               },
+              child: ListView.separated(
+                padding: const EdgeInsets.all(20),
+                itemCount: state.budgets.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final budget = state.budgets[index];
+                  final widget = _BudgetItem(budget: budget);
+
+                  if (index == 0) {
+                    return Showcase(
+                      key: _listKey,
+                      title: AppLocalizations.of(context)!.tutorialBudgetsTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialBudgetsDesc,
+                      child: widget,
+                    );
+                  }
+
+                  return widget;
+                },
+              ),
             );
           },
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => context.push('${RouteConstants.budgets}/add'),
-          backgroundColor: AppColors.primary,
-          child: const Icon(Icons.add, color: Colors.white),
+      ),
+      floatingActionButton: Showcase(
+        key: _addKey,
+        title: AppLocalizations.of(context)!.tutorialAddBudgetTitle,
+        description: AppLocalizations.of(context)!.tutorialAddBudgetDesc,
+        child: FloatingActionButton(
+          heroTag: 'budgets_fab',
+          onPressed: () async {
+            final refresh = await context.push<bool>(
+              '${RouteConstants.budgets}/add',
+            );
+            if (refresh == true && context.mounted) {
+              context.read<BudgetsBloc>().add(
+                const GetBudgetsRequested(forceRefresh: true),
+              );
+            }
+          },
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: Icon(
+            Icons.add,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
         ),
       ),
     );
@@ -80,65 +197,113 @@ class _BudgetItem extends StatelessWidget {
         ? (budget.totalSpent / budget.totalAllocated).clamp(0.0, 1.0)
         : 0.0;
     final isOverBudget = budget.totalSpent > budget.totalAllocated;
-    final color = isOverBudget ? AppColors.error : AppColors.primary;
+    final color = isOverBudget
+        ? Theme.of(context).colorScheme.error
+        : Theme.of(context).colorScheme.primary;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${budget.period.month}/${budget.period.year}',
-                style: AppTextStyles.bodyLarge.copyWith(
-                  fontWeight: FontWeight.bold,
+    return InkWell(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => BudgetDetailSheet(budget: budget),
+        );
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: AppShadows.card,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  DateFormat.yMMMM(
+                    Localizations.localeOf(context).languageCode,
+                  ).format(DateTime(budget.period.year, budget.period.month)),
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Text(
-                '${(progress * 100).toStringAsFixed(0)}%',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.bold,
+                Text(
+                  '${(progress * 100).toStringAsFixed(0)}%',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: color.withValues(alpha: 0.1),
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-              minHeight: 8,
+                IconButton(
+                  onPressed: () => _showDeleteDialog(context),
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
             ),
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: progress,
+                backgroundColor: color.withValues(alpha: 0.1),
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+                minHeight: 8,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${AppLocalizations.of(context)!.spentLabel}: ${budget.totalSpent.toStringAsFixed(0)} XAF',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                Text(
+                  '${AppLocalizations.of(context)!.limitLabel}: ${budget.totalAllocated.toStringAsFixed(0)} XAF',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.deleteBudget),
+        content: Text(AppLocalizations.of(context)!.deleteBudgetConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${AppLocalizations.of(context)!.spentLabel}: ${budget.totalSpent.toStringAsFixed(0)} F',
-                style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
-              ),
-              Text(
-                '${AppLocalizations.of(context)!.limitLabel}: ${budget.totalAllocated.toStringAsFixed(0)} F',
-                style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
-              ),
-            ],
+          TextButton(
+            onPressed: () {
+              context.read<BudgetsBloc>().add(DeleteBudgetRequested(budget.id));
+              Navigator.pop(dialogContext);
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
