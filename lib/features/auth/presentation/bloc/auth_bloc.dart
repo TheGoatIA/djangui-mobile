@@ -36,6 +36,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthRevokeAllSessionsRequested>(_onAuthRevokeAllSessionsRequested);
     on<_AuthInternalCodeSent>(_onAuthInternalCodeSent);
     on<_AuthInternalError>(_onAuthInternalError);
+    on<AuthRequestCountryChange>(_onAuthRequestCountryChange);
   }
 
   String? _verificationId;
@@ -135,7 +136,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _authRepository.signInWithGoogle();
+    final result = await _authRepository.signInWithGoogle(
+      countryCode: event.countryCode,
+    );
     result.fold(
       (failure) => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
@@ -446,6 +449,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (_) {
         emit(state.copyWith(status: AuthStatus.sessionRevoked));
         add(AuthGetSessionsRequested());
+      },
+    );
+  }
+
+  Future<void> _onAuthRequestCountryChange(
+    AuthRequestCountryChange event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.requestCountryChange(
+      event.countryCode,
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (request) {
+        emit(
+          state.copyWith(
+            status: AuthStatus.countryChangeRequestSubmitted,
+            errorMessage: 'Country change request submitted successfully.',
+          ),
+        );
+        // Optionally refresh user profile if needed, though status is usually PENDING
+        add(AuthRefreshUserRequested());
       },
     );
   }

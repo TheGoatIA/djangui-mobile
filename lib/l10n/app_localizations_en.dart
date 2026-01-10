@@ -1383,4 +1383,38 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tutorialSubscriptionDesc =>
       'Discover all the exclusive benefits to boost your finances.';
+
+  @override
+  String get confirmCountryChange => 'Confirm Country Change';
+
+  @override
+  String get countryChangeWarning =>
+      'Changing your country will convert your wallet balance and require admin approval. Are you sure you want to proceed?';
+
+  @override
+  String get completeProfile => 'Complete Profile';
+
+  @override
+  String get completeProfileTitle => 'One Last Step';
+
+  @override
+  String get completeProfileSubtitle =>
+      'Please tell us your name to personalize your experience.';
+
+  @override
+  String get tutorialIncomeTitle => 'Monthly Income';
+
+  @override
+  String get tutorialIncomeDesc =>
+      'Add your income to get personalized budget advice.';
+
+  @override
+  String get updateIncomeTitle => 'Update Income';
+
+  @override
+  String get incomeLabel => 'Monthly Amount';
+
+  @override
+  String get countryChangeRequestSubmitted =>
+      'Country change request submitted successfully.';
 }

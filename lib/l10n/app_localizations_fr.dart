@@ -31,13 +31,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get forgotPasswordSubtitle =>
-      'Entrez votre email pour recevoir un lien de réinitialisation.';
+      'Entrez votre e-mail pour recevoir un lien de réinitialisation.';
 
   @override
   String get sendResetLink => 'Envoyer le lien';
 
   @override
-  String get emailSent => 'Email envoyé avec succès';
+  String get emailSent => 'E-mail envoyé avec succès';
 
   @override
   String get share => 'Partager';
@@ -97,10 +97,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noRecentActivities => 'Aucune activité récente';
 
   @override
-  String get seeAll => 'Voir tout';
+  String get seeAll => 'Tout voir';
 
   @override
-  String get addTransaction => 'Ajouter une transaction';
+  String get addTransaction => 'Ajouter Transaction';
 
   @override
   String get category => 'Catégorie';
@@ -122,7 +122,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingDesc1 =>
-      'La solution moderne pour gérer vos tontines et épargner en groupe en toute sécurité.';
+      'La solution moderne pour gérer vos tontines et épargner ensemble en toute sécurité.';
 
   @override
   String get onboardingTitle2 => 'Épargne Collective';
@@ -158,10 +158,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get emailHint => 'votre@email.com';
 
   @override
-  String get enterEmailError => 'Veuillez entrer votre email';
+  String get enterEmailError => 'Veuillez entrer votre e-mail';
 
   @override
-  String get invalidEmailError => 'Veuillez entrer un email valide';
+  String get invalidEmailError => 'Veuillez entrer un e-mail valide';
 
   @override
   String get enterPasswordError => 'Veuillez entrer votre mot de passe';
@@ -239,19 +239,19 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get deadlinePassed => 'Echéance passée';
+  String get deadlinePassed => 'Date limite dépassée';
 
   @override
-  String get addTransactionTitle => 'Ajouter une transaction';
+  String get addTransactionTitle => 'Ajouter Transaction';
 
   @override
-  String get addBudgetTitle => 'Définir un budget';
+  String get addBudgetTitle => 'Définir Budget';
 
   @override
   String get addGoalTitle => 'Nouvel Objectif';
 
   @override
-  String get transactionType => 'Type de transaction';
+  String get transactionType => 'Type de Transaction';
 
   @override
   String get expense => 'Dépense';
@@ -275,10 +275,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get subcategoryLabel => 'Sous-catégorie';
 
   @override
-  String get subcategoryHint => 'ex: Restaurant, Carburant...';
+  String get subcategoryHint => 'ex: Restaurant, Essence...';
 
   @override
-  String get merchantLabel => 'Marchand';
+  String get merchantLabel => 'Commerçant';
 
   @override
   String get merchantHint => 'ex: Casino, Shell...';
@@ -302,46 +302,46 @@ class AppLocalizationsFr extends AppLocalizations {
   String get descriptionHint => 'ex: Courses du mois';
 
   @override
-  String get monthlyLimitLabel => 'Limite mensuelle';
+  String get monthlyLimitLabel => 'Limite Mensuelle';
 
   @override
   String get goalNameLabel => 'Nom de l\'objectif';
 
   @override
-  String get goalNameHint => 'ex: Nouvel iPhone, Voyage...';
+  String get goalNameHint => 'ex: Nouveau Téléphone, Voyage...';
 
   @override
-  String get targetAmountLabel => 'Montant cible';
+  String get targetAmountLabel => 'Montant Cible';
 
   @override
-  String get deadlineLabel => 'Date d\'échéance';
+  String get deadlineLabel => 'Date Limite';
 
   @override
   String get saveAction => 'Enregistrer';
 
   @override
-  String get createBudgetAction => 'Créer le budget';
+  String get createBudgetAction => 'Créer Budget';
 
   @override
-  String get saveGoalAction => 'Sauvegarder';
+  String get saveGoalAction => 'Enregistrer';
 
   @override
   String get successTransaction => 'Transaction ajoutée avec succès';
 
   @override
-  String get errorTransaction => 'Erreur lors de l\'ajout';
+  String get errorTransaction => 'Erreur lors de l\'ajout de la transaction';
 
   @override
   String get successBudget => 'Budget créé avec succès';
 
   @override
-  String get errorBudget => 'Erreur lors de la création';
+  String get errorBudget => 'Erreur lors de la création du budget';
 
   @override
   String get successGoal => 'Objectif créé avec succès';
 
   @override
-  String get errorGoal => 'Erreur lors de la création';
+  String get errorGoal => 'Erreur lors de la création de l\'objectif';
 
   @override
   String get selectDateError => 'Veuillez sélectionner une date';
@@ -391,7 +391,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get finished => 'Terminé';
 
   @override
-  String get acceptChallenge => 'Relever le défi';
+  String get acceptChallenge => 'Accepter le défi';
 
   @override
   String get completed => 'Complété';
@@ -409,27 +409,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get startChallenge => 'Commencer le défi';
 
   @override
-  String get validateWeek => 'Valider ma semaine';
+  String get validateWeek => 'Valider la semaine';
 
   @override
-  String get yourProgress => 'Votre Progression';
+  String get yourProgress => 'Votre progression';
 
   @override
   String percentCompleted(String percent) {
-    return '$percent% complété';
+    return '$percent% Complété';
   }
 
   @override
   String get week => 'Semaine';
 
   @override
-  String get validateWeekTitle => 'Valider la semaine';
+  String get validateWeekTitle => 'Valider la Semaine';
 
   @override
   String get enterAmountSaved => 'Entrez le montant épargné cette semaine :';
 
   @override
-  String get amountToContribute => 'Montant à cotiser :';
+  String get amountToContribute => 'Montant à verser :';
 
   @override
   String get confirmValidationTitle => 'Confirmer la validation';
@@ -455,10 +455,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get coachWelcomeMessage => 'Comment puis-je vous aider aujourd\'hui ?';
 
   @override
-  String get coachThinking => 'IA réfléchit...';
+  String get coachThinking => 'L\'IA réfléchit...';
 
   @override
-  String get typeQuestionHint => 'Posez votre question...';
+  String get typeQuestionHint => 'Posez une question...';
 
   @override
   String get insightsTitle => 'Analyses & Rapports';
@@ -467,10 +467,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get spendingDistribution => 'Répartition des Dépenses';
 
   @override
-  String get spendingTrends => 'Tendance des Dépenses';
+  String get spendingTrends => 'Tendances de Dépenses';
 
   @override
-  String get categoryDetails => 'Détail par Catégorie';
+  String get categoryDetails => 'Détails par Catégorie';
 
   @override
   String get weekly => 'Hebdomadaire';
@@ -491,7 +491,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get googleSignIn => 'Continuer avec Google';
 
   @override
-  String get phoneLogin => 'Connexion par numéro';
+  String get phoneLogin => 'Connexion par téléphone';
 
   @override
   String get phoneNumber => 'Numéro de téléphone';
@@ -503,7 +503,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get verify => 'Vérifier';
 
   @override
-  String get enterOtp => 'Entrez le code reçu';
+  String get enterOtp => 'Entrez le code de vérification';
 
   @override
   String get otpCode => 'Code SMS';
@@ -512,13 +512,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get resendCode => 'Renvoyer le code';
 
   @override
-  String get phoneLinkedSuccess => 'Numéro lié avec succès';
+  String get phoneLinkedSuccess => 'Téléphone lié avec succès';
 
   @override
   String get validationSuccess => 'Semaine validée avec succès';
 
   @override
-  String get invalidPhone => 'Numéro invalide';
+  String get invalidPhone => 'Numéro de téléphone invalide';
 
   @override
   String get country => 'Pays';
@@ -539,7 +539,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get resetError => 'Erreur lors de la réinitialisation';
 
   @override
-  String get resetPasswordTitle => 'Réinitialisation';
+  String get resetPasswordTitle => 'Réinitialiser le mot de passe';
 
   @override
   String get newPassword => 'Nouveau mot de passe';
@@ -555,7 +555,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get passwordsDoNotMatch => 'Les mots de passe ne correspondent pas';
 
   @override
-  String get resetPasswordAction => 'Réinitialiser le mot de passe';
+  String get resetPasswordAction => 'Réinitialiser';
 
   @override
   String get greeting => 'Bonjour,';
@@ -579,21 +579,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get insights => 'Analyses';
 
   @override
-  String get importSms => 'Import SMS';
+  String get importSms => 'Importer SMS';
 
   @override
   String get featureNotAvailableOnIos =>
       'Fonctionnalité non disponible sur iOS';
 
   @override
-  String get scanningSms => 'Recherche de transactions SMS...';
+  String get scanningSms => 'Analyse des SMS en cours...';
 
   @override
   String get automatic => 'Automatique';
 
   @override
   String transactionsImported(int count) {
-    return '$count transactions importées !';
+    return '$count transactions importées avec succès';
   }
 
   @override
@@ -617,21 +617,20 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String xpToNextLevel(int xp) {
-    return '$xp XP pour le prochain niveau';
+    return '$xp XP pour le niveau suivant';
   }
 
   @override
   String get myInvestments => 'Mes Investissements';
 
   @override
-  String get addInvestment => 'Ajouter un investissement';
+  String get addInvestment => 'Ajouter Investissement';
 
   @override
-  String get noInvestments => 'Aucun investissement';
+  String get noInvestments => 'Aucun Investissement';
 
   @override
-  String get startBuildingPortfolio =>
-      'Commencez à construire votre portefeuille';
+  String get startBuildingPortfolio => 'Commencez à bâtir votre portefeuille';
 
   @override
   String get newInvestment => 'Nouvel Investissement';
@@ -646,13 +645,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get assetType => 'Type d\'actif';
 
   @override
-  String get investedAmount => 'Montant investi';
+  String get investedAmount => 'Montant Investi';
 
   @override
-  String get estimatedROI => 'ROI estimé (%)';
+  String get estimatedROI => 'ROI Estimé (%)';
 
   @override
-  String get cryptoCurrency => 'Crypto-monnaie';
+  String get cryptoCurrency => 'Cryptomonnaie';
 
   @override
   String get stockMarket => 'Bourse';
@@ -670,7 +669,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get errorOccurred => 'Une erreur est survenue';
 
   @override
-  String get importGoal => 'Importer un objectif';
+  String get importGoal => 'Importer Objectif';
 
   @override
   String get goalImportedSuccess => 'Objectif importé avec succès !';
@@ -679,10 +678,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sharedGoal => 'Objectif Partagé';
 
   @override
-  String get targetAmount => 'Montant cible';
+  String get targetAmount => 'Montant Cible';
 
   @override
-  String get deadline => 'Date limite';
+  String get deadline => 'Date Limite';
 
   @override
   String get addGoalToListPrompt =>
@@ -692,27 +691,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get acceptGoal => 'Accepter l\'objectif';
 
   @override
-  String get aiAnalysisTitle => 'Analyse Financière par IA';
+  String get aiAnalysisTitle => 'Analyse Financière IA';
 
   @override
   String get aiAnalysisUnavailable =>
-      'L\'analyse par IA est actuellement indisponible';
+      'L\'analyse IA est temporairement indisponible';
 
   @override
   String get countryLabel => 'Pays';
 
   @override
-  String get notSet => 'Non renseigné';
+  String get notSet => 'Non défini';
 
   @override
-  String get upgradeToPremium => 'Passer au Premium';
+  String get upgradeToPremium => 'Passer Premium';
 
   @override
   String get premiumBannerDescription =>
-      'Débloquez des analyses avancées, des objectifs illimités et un support prioritaire.';
+      'Débloquez des analyses avancées, objectifs illimités et support prioritaire.';
 
   @override
-  String get discoverOffers => 'Découvrir les offres';
+  String get discoverOffers => 'Voir les offres';
 
   @override
   String get aboutKauri => 'À propos de Kauri';
@@ -724,7 +723,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get aboutDescription =>
-      'Kauri est une solution moderne pour gérer votre épargne et vos tontines en toute autonomie. Notre mission est de démocratiser la gestion financière via la technologie.';
+      'Kauri est une solution moderne pour gérer vos épargnes et tontines de manière autonome. Notre mission est de démocratiser la gestion financière grâce à la technologie.';
 
   @override
   String get developedBy => 'Développé avec ❤️ par l\'équipe Kauri';
@@ -733,7 +732,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get contact => 'Contact';
 
   @override
-  String get website => 'Site web';
+  String get website => 'Site Web';
 
   @override
   String get copyrightInfo => '© 2024 Kauri. Tous droits réservés.';
@@ -751,13 +750,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get receiptScannedError => 'Erreur lors du scan du reçu';
 
   @override
-  String get scanReceiptTooltip => 'Scanner un reçu';
+  String get scanReceiptTooltip => 'Scanner reçu';
 
   @override
-  String get upgradeToPremiumTitle => 'Passer au Premium';
+  String get upgradeToPremiumTitle => 'Passez Premium';
 
   @override
-  String get premiumWelcomeTitle => 'Bienvenue au Premium';
+  String get premiumWelcomeTitle => 'Bienvenue dans Premium';
 
   @override
   String get premiumWelcomeSubtitle =>
@@ -773,7 +772,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get freeFeature1 => '3 Budgets max';
 
   @override
-  String get freeFeature2 => '1 Goal max';
+  String get freeFeature2 => '1 Objectif max';
 
   @override
   String get freeFeature3 => 'Analyses basiques';
@@ -785,31 +784,31 @@ class AppLocalizationsFr extends AppLocalizations {
   String get premiumPrice => '2000 FCFA/mois';
 
   @override
-  String get premiumFeature1 => 'Budgets illimités';
+  String get premiumFeature1 => 'Budgets Illimités';
 
   @override
-  String get premiumFeature2 => 'Objectifs illimités';
+  String get premiumFeature2 => 'Objectifs Illimités';
 
   @override
-  String get premiumFeature3 => 'Analyses IA avancées';
+  String get premiumFeature3 => 'Analyses IA Avancées';
 
   @override
-  String get premiumFeature4 => 'Support prioritaire';
+  String get premiumFeature4 => 'Support Prioritaire';
 
   @override
-  String get bestValue => 'Meilleure offre';
+  String get bestValue => 'Meilleure Offre';
 
   @override
-  String get upgradeAction => 'S\'abonner maintenant';
+  String get upgradeAction => 'S\'abonner Maintenant';
 
   @override
-  String get currentPlan => 'Plan actuel';
+  String get currentPlan => 'Plan Actuel';
 
   @override
-  String get choosePaymentMethodTitle => 'Choisir le mode de paiement';
+  String get choosePaymentMethodTitle => 'Choisir Méthode de Paiement';
 
   @override
-  String get paymentInitError => 'Erreur lors de l\'initialisation du paiement';
+  String get paymentInitError => 'Erreur d\'initialisation du paiement';
 
   @override
   String get cameroon => 'Cameroun';
@@ -859,10 +858,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get deleteInvestmentConfirmation =>
-      'Voulez-vous vraiment supprimer cet investissement ?';
+      'Êtes-vous sûr de vouloir supprimer cet investissement ?';
 
   @override
-  String get budgetDetails => 'Détails du budget';
+  String get budgetDetails => 'Détails du Budget';
 
   @override
   String get allocated => 'Alloué';
@@ -892,7 +891,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get goalEmojiLabel => 'Emoji';
 
   @override
-  String get autoSaveRulesTitle => 'Règles d\'épargne auto';
+  String get autoSaveRulesTitle => 'Règles d\'Épargne Auto';
 
   @override
   String get enableSurplusLabel => 'Épargner le surplus';
@@ -901,7 +900,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get enableRoundupLabel => 'Arrondir les transactions';
 
   @override
-  String get percentageIncomeLabel => '% des revenus';
+  String get percentageIncomeLabel => '% du Revenu';
 
   @override
   String get emergencyType => 'Urgence';
@@ -923,7 +922,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get deleteGoalConfirmation =>
-      'Voulez-vous vraiment supprimer cet objectif ?';
+      'Êtes-vous sûr de vouloir supprimer cet objectif ?';
 
   @override
   String get strategyLabel => 'Stratégie d\'Épargne';
@@ -933,45 +932,45 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get strategy_50_30_20_desc =>
-      'Allouer 20% des revenus à l\'épargne (50% besoins, 30% envies).';
+      'Allouez 20% des revenus à l\'épargne (50% besoins, 30% envies).';
 
   @override
   String get strategy_progressive => 'Progressive';
 
   @override
   String get strategy_progressive_desc =>
-      'Commencer doucement et augmenter avec le temps.';
+      'Commencez petit et augmentez les contributions avec le temps.';
 
   @override
-  String get strategy_roundup => 'Arrondi (Roundup)';
+  String get strategy_roundup => 'Arrondi';
 
   @override
   String get strategy_roundup_desc =>
-      'Épargne indolore : arrondit vos dépenses et épargne la différence.';
+      'Épargnez automatiquement la différence en arrondissant vos dépenses.';
 
   @override
-  String get strategy_pay_yourself_first => 'Se payer en premier';
+  String get strategy_pay_yourself_first => 'Se Payer en Premier';
 
   @override
   String get strategy_pay_yourself_first_desc =>
-      'Virement automatique dès la réception du salaire.';
+      'Virement automatique vers l\'épargne dès réception du revenu.';
 
   @override
-  String get strategy_envelope => 'Enveloppes';
+  String get strategy_envelope => 'Enveloppe';
 
   @override
   String get strategy_envelope_desc =>
-      'Montant fixe alloué, fin de dépense une fois l\'enveloppe vide.';
+      'Allouez un montant fixe et arrêtez de dépenser une fois l\'enveloppe vide.';
 
   @override
-  String get strategy_custom => 'Personnalisé';
+  String get strategy_custom => 'Personnalisée';
 
   @override
   String get strategy_custom_desc =>
-      'Versements libres sans règles prédéfinies.';
+      'Contributions flexibles sans règles prédéfinies.';
 
   @override
-  String get addSavingsAction => 'Ajouter une épargne';
+  String get addSavingsAction => 'Ajouter Épargne';
 
   @override
   String get currentAmountLabel => 'Épargné';
@@ -987,7 +986,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get updateRequiredMessage =>
-      'Une nouvelle version de Kauri est disponible. Veuillez mettre à jour pour continuer.';
+      'Une nouvelle version de Kauri est disponible. Veuillez mettre à jour pour continuer à utiliser l\'application.';
 
   @override
   String get updateNow => 'Mettre à jour';
@@ -997,7 +996,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get maintenanceMessage =>
-      'L\'application est en maintenance. Veuillez réessayer plus tard.';
+      'L\'application est actuellement en maintenance. Veuillez réessayer plus tard.';
 
   @override
   String get markAllAsRead => 'Tout marquer comme lu';
@@ -1010,7 +1009,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get deleteAccountDescription =>
-      'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est permanente et toutes vos données seront perdues.';
+      'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est définitive et toutes vos données seront perdues.';
 
   @override
   String get deleteAccountWarning =>
@@ -1026,11 +1025,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get biometrics => 'Biométrie';
 
   @override
-  String get enableBiometrics => 'Activer la biométrie';
+  String get enableBiometrics => 'Activer la Biométrie';
 
   @override
   String get biometricsDescription =>
-      'Utilisez FaceID ou votre empreinte digitale pour déverrouiller l\'application';
+      'Utiliser FaceID ou l\'empreinte digitale pour déverrouiller l\'application';
 
   @override
   String get dangerZone => 'Zone de Danger';
@@ -1042,27 +1041,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get lastActive => 'Dernière Activité';
 
   @override
-  String get location => 'Localisation';
+  String get location => 'Lieu';
 
   @override
-  String get changePassword => 'Changer le mot de passe';
+  String get changePassword => 'Changer Mot de Passe';
 
   @override
   String get changePasswordDescription =>
-      'Entrez votre mot de passe actuel et un nouveau pour le mettre à jour.';
+      'Entrez votre mot de passe actuel et le nouveau pour le mettre à jour.';
 
   @override
   String get currentPassword => 'Mot de passe actuel';
 
   @override
-  String get confirmNewPassword => 'Confirmer le nouveau mot de passe';
+  String get confirmNewPassword => 'Confirmer nouveau mot de passe';
 
   @override
-  String get updatePassword => 'Mettre à jour le mot de passe';
+  String get updatePassword => 'Mettre à jour';
 
   @override
   String get passwordTooShort =>
-      'Le mot de passe doit contenir au moins 6 caractères';
+      'Le mot de passe doit faire au moins 6 caractères';
 
   @override
   String get noSessionsFound => 'Aucune session active trouvée';
@@ -1071,21 +1070,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get passwordChanged => 'Mot de passe mis à jour avec succès';
 
   @override
-  String get deleteAccount => 'Supprimer le compte';
+  String get deleteAccount => 'Supprimer le Compte';
 
   @override
   String get uploadingImage => 'Téléchargement de l\'image...';
 
   @override
   String get investmentsPremiumRestriction =>
-      'L\'accès au portefeuille d\'investissements est réservé aux membres Premium.';
+      'L\'accès au portefeuille d\'investissement est réservé aux membres Premium.';
 
   @override
   String get ocrPremiumRestriction =>
       'Le scan de reçus est réservé aux membres Premium.';
 
   @override
-  String get seeOffers => 'Voir Offres';
+  String get seeOffers => 'Voir les offres';
 
   @override
   String get smsImportPremiumRestriction =>
@@ -1093,7 +1092,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get aiAnalysisPremiumRestriction =>
-      'Obtenez des analyses détaillées avec le plan Premium.';
+      'Obtenez une analyse détaillée avec le plan Premium.';
 
   @override
   String get confirmDowngradeTitle => 'Confirmer le déclassement';
@@ -1106,7 +1105,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get featureTransactions => 'Gestion des Transactions';
 
   @override
-  String get featureBudgetsGoals => 'Budgétisation & Objectifs';
+  String get featureBudgetsGoals => 'Budgets & Objectifs';
 
   @override
   String get featureCoachStandard => 'Coach IA Standard';
@@ -1115,7 +1114,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get featureGamification => 'Gamification (XP, Badges)';
 
   @override
-  String get featureInvestments => 'Investissements (Actions, Crypto, Immo)';
+  String get featureInvestments => 'Investissements (Bourse, Crypto, Immo)';
 
   @override
   String get featureOCR => 'OCR / Scan de Reçus';
@@ -1124,17 +1123,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get featureAIReports => 'Rapports Narratifs IA';
 
   @override
-  String get featureBulkImport => 'Import de Masse (CSV/SMS)';
+  String get featureBulkImport => 'Import en Masse (CSV/SMS)';
 
   @override
   String get revertToFree => 'Revenir au plan gratuit';
 
   @override
   String get downgradeRequestSuccess =>
-      'Votre demande de résiliation a été prise en compte.';
+      'Votre demande de déclassement a été prise en compte.';
 
   @override
-  String get paymentHistory => 'Historique des paiements';
+  String get paymentHistory => 'Historique des Paiements';
 
   @override
   String get noPaymentFound => 'Aucun paiement trouvé';
@@ -1205,22 +1204,22 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get allSessionsRevoked =>
-      'Toutes les autres sessions ont été révoquées avec succès';
+      'Toutes les autres sessions révoquées avec succès';
 
   @override
-  String get termsOfService => 'Conditions d\'utilisation';
+  String get termsOfService => 'Conditions d\'Utilisation';
 
   @override
-  String get privacyPolicy => 'Politique de confidentialité';
+  String get privacyPolicy => 'Politique de Confidentialité';
 
   @override
   String get legalSection => 'Légal';
 
   @override
-  String get supportTicketList => 'Tickets de support';
+  String get supportTicketList => 'Tickets de Support';
 
   @override
-  String get createTicket => 'Nouveau ticket de support';
+  String get createTicket => 'Nouveau Ticket Support';
 
   @override
   String get ticketSubject => 'Sujet';
@@ -1232,7 +1231,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get ticketCategory => 'Catégorie';
 
   @override
-  String get sendTicket => 'Envoyer le ticket';
+  String get sendTicket => 'Envoyer Ticket';
 
   @override
   String get reply => 'Répondre';
@@ -1272,14 +1271,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tutorialGamificationDesc =>
-      'Ici vous pouvez suivre votre progression, vos points et vos badges.';
+      'C\'est ici que vous suivez votre progression, vos points et badges.';
 
   @override
   String get tutorialBalanceCardTitle => 'Votre Solde Total';
 
   @override
   String get tutorialBalanceCardDesc =>
-      'Visualisez rapidement l\'ensemble de vos avoirs et vos revenus mensuels.';
+      'Visualisez rapidement l\'ensemble de vos avoirs et votre revenu mensuel.';
 
   @override
   String get tutorialQuickActionsTitle => 'Actions Rapides';
@@ -1289,18 +1288,18 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ajoutez une transaction, investissez ou consultez vos rapports en un clic.';
 
   @override
-  String get tutorialInsightsTitle => 'Analyses Détaillées';
+  String get tutorialInsightsTitle => 'Analyse Détaillée';
 
   @override
   String get tutorialInsightsDesc =>
-      'Filtrez par période pour voir l\'évolution de vos finances.';
+      'Filtrez par période pour voir votre évolution financière.';
 
   @override
   String get resetTutorials => 'Réinitialiser les tutoriels';
 
   @override
   String get resetTutorialsDesc =>
-      'Recommencez toutes les visites guidées pour revoir comment utiliser l\'application.';
+      'Relancez toutes les visites guidées pour revoir comment utiliser l\'application.';
 
   @override
   String get resetTutorialsConfirm =>
@@ -1328,7 +1327,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tutorialGoalsDesc =>
-      'Définissez des projets et suivez votre progression pour les réaliser.';
+      'Fixez des projets et suivez votre avancement pour les réaliser.';
 
   @override
   String get tutorialTransactionsTitle => 'Historique des Transactions';
@@ -1363,17 +1362,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tutorialAddGoalDesc =>
-      'Donnez un nom à votre projet et fixez-vous un montant cible.';
+      'Donnez un nom à votre projet et fixez un montant cible.';
 
   @override
   String get tutorialAddBudgetTitle => 'Nouveau Budget';
 
   @override
   String get tutorialAddBudgetDesc =>
-      'Allouez une somme précise à une catégorie pour ce mois.';
+      'Allouez un montant précis à une catégorie pour ce mois.';
 
   @override
-  String get tutorialAddInvestmentTitle => 'Nouveau Placement';
+  String get tutorialAddInvestmentTitle => 'Nouvel Investissement';
 
   @override
   String get tutorialAddInvestmentDesc =>
@@ -1392,4 +1391,38 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get tutorialSubscriptionDesc =>
       'Découvrez tous les avantages exclusifs pour booster vos finances.';
+
+  @override
+  String get confirmCountryChange => 'Confirmer le changement de pays';
+
+  @override
+  String get countryChangeWarning =>
+      'Changer de pays convertira le solde de votre portefeuille et nécessitera l\'approbation d\'un administrateur. Êtes-vous sûr de vouloir continuer ?';
+
+  @override
+  String get completeProfile => 'Compléter le profil';
+
+  @override
+  String get completeProfileTitle => 'Dernière étape';
+
+  @override
+  String get completeProfileSubtitle =>
+      'Veuillez indiquer votre nom pour personnaliser votre expérience.';
+
+  @override
+  String get tutorialIncomeTitle => 'Revenu Mensuel';
+
+  @override
+  String get tutorialIncomeDesc =>
+      'Ajoutez votre revenu pour obtenir des conseils budgétaires personnalisés.';
+
+  @override
+  String get updateIncomeTitle => 'Mettre à jour le revenu';
+
+  @override
+  String get incomeLabel => 'Montant mensuel';
+
+  @override
+  String get countryChangeRequestSubmitted =>
+      'Demande de changement de pays soumise avec succès.';
 }

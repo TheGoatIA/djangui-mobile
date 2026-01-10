@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'goal_api_service.dart';
 import '../models/goal_model.dart';
@@ -18,11 +19,17 @@ class GoalRemoteDataSourceImpl implements GoalRemoteDataSource {
 
   @override
   Future<List<GoalModel>> getGoals() async {
-    final response = await _apiService.getGoals();
-    if (response.isSuccessful && response.body?.data != null) {
-      return response.body!.data!;
-    } else {
-      throw Exception(response.errorMessage);
+    try {
+      final response = await _apiService.getGoals();
+      if (response.isSuccessful && response.body?.data != null) {
+        return response.body!.data!;
+      } else {
+        throw Exception(response.errorMessage);
+      }
+    } catch (e, stack) {
+      debugPrint('🚨 [GoalRemote] Failed to fetch/parse goals: $e');
+      debugPrint(stack.toString());
+      rethrow;
     }
   }
 

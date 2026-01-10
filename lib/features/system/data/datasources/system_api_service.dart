@@ -2,6 +2,7 @@ import 'package:chopper/chopper.dart';
 import '../../../../core/network/models/base_response.dart';
 import '../models/version_check_response.dart';
 import '../models/public_settings_model.dart';
+import '../models/country_model.dart';
 
 part 'system_api_service.chopper.dart';
 
@@ -15,6 +16,9 @@ abstract class SystemApiService extends ChopperService {
 
   @Get(path: '/public-settings')
   Future<Response<BaseResponse<PublicSettingsModel>>> getPublicSettings();
+
+  @Get(path: '/countries')
+  Future<Response<BaseResponse<CountryListResponse>>> getCountries();
 
   static SystemApiService create(ChopperClient client) =>
       _$SystemApiService(client);

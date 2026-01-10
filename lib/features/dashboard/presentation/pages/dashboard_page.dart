@@ -22,6 +22,7 @@ import '../../../../core/services/notification_service.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../core/utils/currency_helper.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -47,6 +48,7 @@ class _DashboardViewState extends State<DashboardView> {
   final GlobalKey _gamificationKey = GlobalKey();
   final GlobalKey _balanceKey = GlobalKey();
   final GlobalKey _quickActionsKey = GlobalKey();
+  final GlobalKey _incomeKey = GlobalKey();
 
   @override
   void initState() {
@@ -54,6 +56,8 @@ class _DashboardViewState extends State<DashboardView> {
     // Sync FCM token when dashboard loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getIt<NotificationService>().syncFcmToken();
+      // Fetch latest transactions
+      context.read<TransactionsBloc>().add(const GetTransactionsRequested());
       _startTutorial();
     });
   }
@@ -78,7 +82,7 @@ class _DashboardViewState extends State<DashboardView> {
 
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('dashboard')) {
+    if (!tutorialService.hasSeenTutorial('dashboard_v2')) {
       try {
         final shell = StatefulNavigationShell.of(context);
         if (shell.currentIndex != 0) return;
@@ -87,10 +91,13 @@ class _DashboardViewState extends State<DashboardView> {
       }
       Future.delayed(const Duration(milliseconds: 500), () {
         if (!mounted) return;
-        ShowCaseWidget.of(
-          context,
-        ).startShowCase([_gamificationKey, _balanceKey, _quickActionsKey]);
-        tutorialService.markTutorialAsSeen('dashboard');
+        ShowCaseWidget.of(context).startShowCase([
+          _gamificationKey,
+          _balanceKey,
+          _incomeKey,
+          _quickActionsKey,
+        ]);
+        tutorialService.markTutorialAsSeen('dashboard_v2');
       });
     }
   }
@@ -102,6 +109,7 @@ class _DashboardViewState extends State<DashboardView> {
         BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state.status == AuthStatus.unauthenticated) {
+              context.read<TransactionsBloc>().add(ResetTransactionsStatus());
               context.go(RouteConstants.login);
             }
           },
@@ -323,10 +331,24 @@ class _DashboardViewState extends State<DashboardView> {
                   ?.user
                   .currency;
 
+              final systemState = context.watch<SystemBloc>().state;
+              final currencySymbol = systemState.countries
+                  .firstWhere(
+                    (c) => c.currency == userCurrency,
+                    orElse: () => systemState.countries.firstWhere(
+                      (c) => c.code == 'CM', // Default fallback
+                      orElse: () => systemState.countries.isNotEmpty
+                          ? systemState.countries.first
+                          : throw Exception('No countries loaded'),
+                    ),
+                  )
+                  .currencySymbol;
+
               return Text(
                 CurrencyHelper.formatAmount(
                   balance.toDouble(),
                   currencyCode: userCurrency,
+                  currencySymbol: currencySymbol,
                 ),
                 style: AppTextStyles.headlineLarge.copyWith(
                   color: Theme.of(context).colorScheme.onPrimary,
@@ -348,6 +370,7 @@ class _DashboardViewState extends State<DashboardView> {
                     context,
                     AppLocalizations.of(context)!.monthlyIncome,
                     income.toDouble(),
+                    isIncome: true,
                   ),
                   Container(
                     width: 1,
@@ -370,7 +393,12 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  Widget _buildBalanceInfo(BuildContext context, String label, double amount) {
+  Widget _buildBalanceInfo(
+    BuildContext context,
+    String label,
+    double amount, {
+    bool isIncome = false,
+  }) {
     final userCurrency = context
         .read<AuthBloc>()
         .state
@@ -378,26 +406,140 @@ class _DashboardViewState extends State<DashboardView> {
         ?.user
         .currency;
 
-    return Column(
+    final systemState = context.watch<SystemBloc>().state;
+    // Safe lookup for symbol
+    String? currencySymbol;
+    if (systemState.countries.isNotEmpty) {
+      currencySymbol = systemState.countries
+          .firstWhere(
+            (c) => c.currency == userCurrency,
+            orElse: () => systemState.countries.first,
+          )
+          .currencySymbol;
+    }
+
+    final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: Theme.of(
-              context,
-            ).colorScheme.onPrimary.withValues(alpha: 0.7),
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onPrimary.withValues(alpha: 0.7),
+              ),
+            ),
+            if (isIncome) ...[
+              const SizedBox(width: 4),
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _showEditIncomeDialog(context, amount),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Icon(
+                      Icons.edit_outlined,
+                      size: 14,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onPrimary.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
         const SizedBox(height: 4),
         Text(
-          CurrencyHelper.formatAmount(amount, currencyCode: userCurrency),
+          CurrencyHelper.formatAmount(
+            amount,
+            currencyCode: userCurrency,
+            currencySymbol: currencySymbol,
+          ),
           style: AppTextStyles.bodyLarge.copyWith(
             color: Theme.of(context).colorScheme.onPrimary,
             fontWeight: FontWeight.w600,
           ),
         ),
       ],
+    );
+
+    if (isIncome) {
+      return Showcase(
+        key: _incomeKey,
+        title: AppLocalizations.of(context)!.tutorialIncomeTitle,
+        description: AppLocalizations.of(context)!.tutorialIncomeDesc,
+        targetShapeBorder: const CircleBorder(),
+        child: content,
+      );
+    }
+
+    return content;
+  }
+
+  void _showEditIncomeDialog(BuildContext context, double currentAmount) {
+    final controller = TextEditingController(
+      text: currentAmount > 0 ? currentAmount.toStringAsFixed(0) : '',
+    );
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.updateIncomeTitle),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: controller,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.incomeLabel,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.money_sharp),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return null; // Allow empty to reset? No, let's require valid number
+                  }
+                  if (double.tryParse(value) == null) {
+                    return AppLocalizations.of(context)!.invalidAmount;
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                final amount = double.tryParse(controller.text) ?? 0.0;
+                context.read<AuthBloc>().add(
+                  AuthUpdateProfileRequested(monthlyIncome: amount),
+                );
+                Navigator.of(context).pop();
+                // Optionally show snackbar or feedback
+              }
+            },
+            child: Text(AppLocalizations.of(context)!.save),
+          ),
+        ],
+      ),
     );
   }
 

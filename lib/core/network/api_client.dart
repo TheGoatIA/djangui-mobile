@@ -18,6 +18,8 @@ import 'package:kauri/features/system/data/models/version_check_response.dart';
 import 'package:kauri/features/system/data/models/public_settings_model.dart';
 import 'package:kauri/features/support/data/models/support_ticket_model.dart';
 import 'package:kauri/features/notifications/data/models/notification_model.dart';
+import 'package:kauri/features/system/data/models/country_model.dart';
+import 'package:kauri/features/auth/data/models/country_change_request.dart';
 import 'json_type_converter.dart';
 import 'interceptors.dart';
 import 'authenticator.dart';
@@ -62,6 +64,10 @@ class KauriApiClient {
         SupportTicketReplyModel: (json) =>
             SupportTicketReplyModel.fromJson(json),
         NotificationModel: (json) => NotificationModel.fromJson(json),
+        CountryModel: (json) => CountryModel.fromJson(json),
+        CountryListResponse: (json) => CountryListResponse.fromJson(json),
+        CountryChangeRequestModel: (json) =>
+            CountryChangeRequestModel.fromJson(json),
       }),
       errorConverter: JsonToTypeConverter({
         AuthResponse: (json) => AuthResponse.fromJson(json),

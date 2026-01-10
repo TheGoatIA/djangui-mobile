@@ -5,7 +5,7 @@ part 'challenge_model.g.dart';
 
 @JsonSerializable()
 class ChallengeModel extends Equatable {
-  @JsonKey(name: '_id')
+  @JsonKey(name: '_id', fromJson: _idFromJson)
   final String id;
   final String title;
   final String description;
@@ -15,6 +15,11 @@ class ChallengeModel extends Equatable {
   final int durationDays;
   final int rewardPoints;
   final String? icon;
+
+  static String _idFromJson(dynamic id) {
+    if (id is Map) return id['\$oid'] ?? id['_id'] ?? id['id'] ?? '';
+    return id?.toString() ?? '';
+  }
 
   const ChallengeModel({
     required this.id,
@@ -28,8 +33,10 @@ class ChallengeModel extends Equatable {
     this.icon,
   });
 
-  factory ChallengeModel.fromJson(Map<String, dynamic> json) =>
-      _$ChallengeModelFromJson(json);
+  factory ChallengeModel.fromJson(Map<String, dynamic> json) {
+    final data = json['request'] ?? json;
+    return _$ChallengeModelFromJson(data as Map<String, dynamic>);
+  }
   Map<String, dynamic> toJson() => _$ChallengeModelToJson(this);
 
   @override
@@ -48,7 +55,7 @@ class ChallengeModel extends Equatable {
 
 @JsonSerializable()
 class UserChallengeModel extends Equatable {
-  @JsonKey(name: '_id')
+  @JsonKey(name: '_id', fromJson: _idFromJson)
   final String id;
   final String status;
   final double progress;
@@ -60,6 +67,11 @@ class UserChallengeModel extends Equatable {
   final List<ChallengeWeekModel>? weeks;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+
+  static String _idFromJson(dynamic id) {
+    if (id is Map) return id['\$oid'] ?? id['_id'] ?? id['id'] ?? '';
+    return id?.toString() ?? '';
+  }
 
   const UserChallengeModel({
     required this.id,
@@ -73,8 +85,10 @@ class UserChallengeModel extends Equatable {
     this.updatedAt,
   });
 
-  factory UserChallengeModel.fromJson(Map<String, dynamic> json) =>
-      _$UserChallengeModelFromJson(json);
+  factory UserChallengeModel.fromJson(Map<String, dynamic> json) {
+    final data = json['request'] ?? json;
+    return _$UserChallengeModelFromJson(data as Map<String, dynamic>);
+  }
   Map<String, dynamic> toJson() => _$UserChallengeModelToJson(this);
 
   @override
@@ -93,12 +107,17 @@ class UserChallengeModel extends Equatable {
 
 @JsonSerializable()
 class ChallengeWeekModel extends Equatable {
-  @JsonKey(name: '_id')
+  @JsonKey(name: '_id', fromJson: _idFromJson)
   final String id;
   final int weekNumber;
   final double targetAmount;
   final double savedAmount;
   final String status;
+
+  static String _idFromJson(dynamic id) {
+    if (id is Map) return id['\$oid'] ?? id['_id'] ?? id['id'] ?? '';
+    return id?.toString() ?? '';
+  }
 
   const ChallengeWeekModel({
     required this.id,
@@ -108,8 +127,10 @@ class ChallengeWeekModel extends Equatable {
     required this.status,
   });
 
-  factory ChallengeWeekModel.fromJson(Map<String, dynamic> json) =>
-      _$ChallengeWeekModelFromJson(json);
+  factory ChallengeWeekModel.fromJson(Map<String, dynamic> json) {
+    final data = json['request'] ?? json;
+    return _$ChallengeWeekModelFromJson(data as Map<String, dynamic>);
+  }
   Map<String, dynamic> toJson() => _$ChallengeWeekModelToJson(this);
 
   @override

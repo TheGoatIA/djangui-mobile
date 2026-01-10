@@ -14,6 +14,7 @@ enum AuthStatus {
   accountDeleted,
   sessionsLoaded,
   sessionRevoked,
+  countryChangeRequestSubmitted,
 }
 
 class AuthState extends Equatable {

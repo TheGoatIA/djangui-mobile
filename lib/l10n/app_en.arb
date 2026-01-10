@@ -491,5 +491,15 @@
     "tutorialOCRTitle": "Receipt Scan",
     "tutorialOCRDesc": "Use AI to automatically capture your transactions from your photos.",
     "tutorialSubscriptionTitle": "Kauri Premium",
-    "tutorialSubscriptionDesc": "Discover all the exclusive benefits to boost your finances."
+    "tutorialSubscriptionDesc": "Discover all the exclusive benefits to boost your finances.",
+    "confirmCountryChange": "Confirm Country Change",
+    "countryChangeWarning": "Changing your country will convert your wallet balance and require admin approval. Are you sure you want to proceed?",
+    "completeProfile": "Complete Profile",
+    "completeProfileTitle": "One Last Step",
+    "completeProfileSubtitle": "Please tell us your name to personalize your experience.",
+    "tutorialIncomeTitle": "Monthly Income",
+    "tutorialIncomeDesc": "Add your income to get personalized budget advice.",
+    "updateIncomeTitle": "Update Income",
+    "incomeLabel": "Monthly Amount",
+    "countryChangeRequestSubmitted": "Country change request submitted successfully."
 }

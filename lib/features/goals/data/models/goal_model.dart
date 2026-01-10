@@ -60,7 +60,7 @@ class GoalContributionModel extends Equatable {
 
 @JsonSerializable()
 class GoalModel extends Equatable {
-  @JsonKey(name: '_id')
+  @JsonKey(name: '_id', fromJson: _idFromJson)
   final String id;
   final String name;
   final String? description;
@@ -84,6 +84,11 @@ class GoalModel extends Equatable {
   final String? image;
   final DateTime createdAt;
   final DateTime? updatedAt;
+
+  static String _idFromJson(dynamic id) {
+    if (id is Map) return id['\$oid'] ?? id['_id'] ?? id['id'] ?? '';
+    return id?.toString() ?? '';
+  }
 
   const GoalModel({
     required this.id,
@@ -109,8 +114,11 @@ class GoalModel extends Equatable {
     this.updatedAt,
   });
 
-  factory GoalModel.fromJson(Map<String, dynamic> json) =>
-      _$GoalModelFromJson(json);
+  factory GoalModel.fromJson(Map<String, dynamic> json) {
+    // Handle nested data from some list responses
+    final data = json['request'] ?? json;
+    return _$GoalModelFromJson(data as Map<String, dynamic>);
+  }
 
   Map<String, dynamic> toJson() => _$GoalModelToJson(this);
 

@@ -31,8 +31,7 @@ final class _$AuthApiService extends AuthApiService {
   }
 
   @override
-  Future<Response<BaseResponse<AuthResponse>>> firebaseLogin(
-      Map<String, dynamic> body) {
+  Future<Response<AuthResponse>> firebaseLogin(Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/auth/firebase');
     final $body = body;
     final Request $request = Request(
@@ -41,12 +40,11 @@ final class _$AuthApiService extends AuthApiService {
       client.baseUrl,
       body: $body,
     );
-    return client.send<BaseResponse<AuthResponse>, AuthResponse>($request);
+    return client.send<AuthResponse, AuthResponse>($request);
   }
 
   @override
-  Future<Response<BaseResponse<AuthResponse>>> googleLogin(
-      Map<String, dynamic> body) {
+  Future<Response<AuthResponse>> googleLogin(Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/auth/google');
     final $body = body;
     final Request $request = Request(
@@ -55,7 +53,7 @@ final class _$AuthApiService extends AuthApiService {
       client.baseUrl,
       body: $body,
     );
-    return client.send<BaseResponse<AuthResponse>, AuthResponse>($request);
+    return client.send<AuthResponse, AuthResponse>($request);
   }
 
   @override
@@ -279,5 +277,20 @@ final class _$AuthApiService extends AuthApiService {
       body: $body,
     );
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<CountryChangeRequestModel>>>
+      requestCountryChange(Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/auth/request-country-change');
+    final $body = body;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<CountryChangeRequestModel>,
+        CountryChangeRequestModel>($request);
   }
 }

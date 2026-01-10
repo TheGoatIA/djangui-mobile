@@ -63,7 +63,15 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     _logger.d('💾 [AuthLocal] Clearing all tokens and user data');
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _refreshTokenKey);
+    // Clear all user-related data from tables
     await _db.delete(_db.users).go();
+    await _db.delete(_db.transactions).go();
+    await _db.delete(_db.budgets).go();
+    await _db.delete(_db.goals).go();
+    await _db.delete(_db.challenges).go();
+    await _db.delete(_db.investments).go();
+    await _db.delete(_db.chatMessages).go();
+    await _db.delete(_db.syncRequests).go();
   }
 
   @override

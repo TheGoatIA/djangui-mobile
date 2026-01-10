@@ -5,10 +5,11 @@ import '../../data/models/user_model.dart';
 import '../../data/models/login_request.dart';
 import '../../data/models/register_request.dart';
 import '../../data/models/session_model.dart';
+import '../../data/models/country_change_request.dart';
 
 abstract class AuthRepository {
   Future<Either<Failure, AuthResponse>> login(LoginRequest request);
-  Future<Either<Failure, AuthResponse>> signInWithGoogle();
+  Future<Either<Failure, AuthResponse>> signInWithGoogle({String? countryCode});
   Future<Either<Failure, void>> verifyPhoneNumber(
     String phoneNumber, {
     required Function(String verificationId) onCodeSent,
@@ -52,4 +53,7 @@ abstract class AuthRepository {
   Future<Map<String, String>?> getBiometricCredentials();
   Future<void> clearBiometricCredentials();
   Future<void> logConnection();
+  Future<Either<Failure, CountryChangeRequestModel>> requestCountryChange(
+    String countryCode,
+  );
 }

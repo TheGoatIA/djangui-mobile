@@ -48,4 +48,16 @@ final class _$SystemApiService extends SystemApiService {
     return client
         .send<BaseResponse<PublicSettingsModel>, PublicSettingsModel>($request);
   }
+
+  @override
+  Future<Response<BaseResponse<CountryListResponse>>> getCountries() {
+    final Uri $url = Uri.parse('/system/countries');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client
+        .send<BaseResponse<CountryListResponse>, CountryListResponse>($request);
+  }
 }

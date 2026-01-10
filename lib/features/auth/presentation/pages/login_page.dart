@@ -11,6 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/auth_bloc.dart';
+import '../../../../features/system/presentation/bloc/system_bloc.dart';
+import '../../../../features/system/presentation/bloc/system_state.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -249,7 +251,7 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 24),
                   OutlinedButton(
                     onPressed: () {
-                      context.read<AuthBloc>().add(AuthGoogleSignInRequested());
+                      _showCountrySelectionDialog(context);
                     },
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
@@ -330,6 +332,44 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showCountrySelectionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.selectCountry),
+        content: BlocBuilder<SystemBloc, SystemState>(
+          builder: (context, state) {
+            if (state.countries.isEmpty) {
+              return const SizedBox(
+                height: 100,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: state.countries.where((c) => c.isActive).map((
+                  country,
+                ) {
+                  return ListTile(
+                    title: Text(country.name),
+                    onTap: () {
+                      Navigator.pop(dialogContext);
+                      // Trigger Google Sign-In with selected country
+                      context.read<AuthBloc>().add(
+                        AuthGoogleSignInRequested(countryCode: country.code),
+                      );
+                    },
+                  );
+                }).toList(),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -5,9 +5,9 @@ part 'transaction_model.g.dart';
 
 @JsonSerializable(includeIfNull: false)
 class TransactionModel extends Equatable {
-  @JsonKey(name: '_id')
+  @JsonKey(name: '_id', fromJson: _idFromJson)
   final String id;
-  @JsonKey(name: 'userId')
+  @JsonKey(name: 'userId', fromJson: _userIdFromJson)
   final String? userId;
   final double amount;
   final String currency;
@@ -30,6 +30,16 @@ class TransactionModel extends Equatable {
   final Map<String, dynamic>? metadata;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+
+  static String _idFromJson(dynamic id) {
+    if (id is Map) return id['\$oid'] ?? id['_id'] ?? id['id'] ?? '';
+    return id?.toString() ?? '';
+  }
+
+  static String? _userIdFromJson(dynamic userId) {
+    if (userId is Map) return userId['\$oid'] ?? userId['_id'] ?? userId['id'];
+    return userId?.toString();
+  }
 
   const TransactionModel({
     required this.id,
@@ -57,8 +67,10 @@ class TransactionModel extends Equatable {
     this.updatedAt,
   });
 
-  factory TransactionModel.fromJson(Map<String, dynamic> json) =>
-      _$TransactionModelFromJson(json);
+  factory TransactionModel.fromJson(Map<String, dynamic> json) {
+    final data = json['request'] ?? json;
+    return _$TransactionModelFromJson(data as Map<String, dynamic>);
+  }
 
   Map<String, dynamic> toJson() => _$TransactionModelToJson(this);
 

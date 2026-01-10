@@ -16,6 +16,7 @@ import '../models/register_request.dart';
 import '../models/device_info_request.dart';
 import '../models/connection_request.dart';
 import '../models/session_model.dart';
+import '../models/country_change_request.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -130,18 +131,42 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AuthResponse>> signInWithGoogle() async {
+  Future<Either<Failure, AuthResponse>> signInWithGoogle({
+    String? countryCode,
+  }) async {
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
 
     try {
       await _googleSignIn.initialize();
       final googleUser = await _googleSignIn.authenticate();
+
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
       if (idToken == null) return Left(AuthFailure('No ID Token found'));
 
-      final response = await _remoteDataSource.firebaseLogin(idToken);
+      // 1. Exchange Google ID Token for Firebase credentials
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        idToken: idToken,
+      );
+
+      // 2. Sign in to Firebase
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+
+      // 3. Get the Firebase ID Token (this has the correct audience for the backend)
+      final String? firebaseIdToken = await userCredential.user?.getIdToken();
+
+      if (firebaseIdToken == null) {
+        return Left(AuthFailure('Failed to get Firebase ID Token'));
+      }
+
+      // 4. Send Firebase ID Token to backend
+      final response = await _remoteDataSource.firebaseLogin(
+        firebaseIdToken,
+        country: countryCode,
+      );
+
       await _localDataSource.saveTokens(
         accessToken: response.tokens.accessToken,
         refreshToken: response.tokens.refreshToken,
@@ -539,6 +564,20 @@ class AuthRepositoryImpl implements AuthRepository {
       } catch (e) {
         debugPrint('⚠️ [AuthRepository] Failed to log connection: $e');
       }
+    }
+  }
+
+  @override
+  Future<Either<Failure, CountryChangeRequestModel>> requestCountryChange(
+    String countryCode,
+  ) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+
+    try {
+      final request = await _remoteDataSource.requestCountryChange(countryCode);
+      return Right(request);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
     }
   }
 }

@@ -16,7 +16,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../auth/data/models/user_model.dart';
 import 'package:kauri/features/upload/domain/repositories/upload_repository.dart';
 import 'package:kauri/features/system/presentation/bloc/system_bloc.dart';
-import 'package:kauri/features/system/presentation/bloc/system_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/services/tutorial_service.dart';
@@ -229,6 +228,18 @@ class _ProfilePageState extends State<ProfilePage> {
                       AppLocalizations.of(context)!.genericError,
                 ),
                 backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+            );
+          } else if (state.status == AuthStatus.countryChangeRequestSubmitted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.errorMessage ??
+                      AppLocalizations.of(
+                        context,
+                      )!.countryChangeRequestSubmitted,
+                ),
+                backgroundColor: AppColors.success,
               ),
             );
           }
@@ -1003,47 +1014,37 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.selectCountry),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildCountryOption(
-              context,
-              AppLocalizations.of(context)!.cameroon,
-              'CM',
-              currentCountry,
-            ),
-            _buildCountryOption(
-              context,
-              AppLocalizations.of(context)!.france,
-              'FR',
-              currentCountry,
-            ),
-            _buildCountryOption(
-              context,
-              AppLocalizations.of(context)!.usa,
-              'US',
-              currentCountry,
-            ),
-            _buildCountryOption(
-              context,
-              AppLocalizations.of(context)!.belgium,
-              'BE',
-              currentCountry,
-            ),
-            _buildCountryOption(
-              context,
-              AppLocalizations.of(context)!.canada,
-              'CA',
-              currentCountry,
-            ),
-          ],
+        content: BlocBuilder<SystemBloc, SystemState>(
+          builder: (context, state) {
+            if (state.countries.isEmpty) {
+              return const SizedBox(
+                height: 100,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: state.countries.where((c) => c.isActive).map((
+                  country,
+                ) {
+                  return _buildCountryOption(
+                    context,
+                    country.name,
+                    country.code,
+                    currentCountry,
+                  );
+                }).toList(),
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
   Widget _buildCountryOption(
-    BuildContext context,
+    BuildContext dialogContext,
     String label,
     String code,
     String currentCode,
@@ -1054,12 +1055,41 @@ class _ProfilePageState extends State<ProfilePage> {
       leading: Icon(
         isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
         color: isSelected
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onSurfaceVariant,
+            ? Theme.of(dialogContext).colorScheme.primary
+            : Theme.of(dialogContext).colorScheme.onSurfaceVariant,
       ),
-      onTap: () {
-        context.read<AuthBloc>().add(AuthUpdateProfileRequested(country: code));
-        Navigator.pop(context);
+      onTap: () async {
+        if (isSelected) {
+          Navigator.pop(dialogContext);
+          return;
+        }
+
+        Navigator.pop(dialogContext); // Close selection dialog first
+
+        if (!mounted) return;
+
+        // Show confirmation dialog logic
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (confirmContext) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.confirmCountryChange),
+            content: Text(AppLocalizations.of(context)!.countryChangeWarning),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(confirmContext, false),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(confirmContext, true),
+                child: Text(AppLocalizations.of(context)!.confirm),
+              ),
+            ],
+          ),
+        );
+
+        if (confirmed == true && mounted) {
+          context.read<AuthBloc>().add(AuthRequestCountryChange(code));
+        }
       },
     );
   }

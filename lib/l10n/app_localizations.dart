@@ -143,7 +143,7 @@ abstract class AppLocalizations {
   /// No description provided for @forgotPasswordSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Entrez votre email pour recevoir un lien de réinitialisation.'**
+  /// **'Entrez votre e-mail pour recevoir un lien de réinitialisation.'**
   String get forgotPasswordSubtitle;
 
   /// No description provided for @sendResetLink.
@@ -155,7 +155,7 @@ abstract class AppLocalizations {
   /// No description provided for @emailSent.
   ///
   /// In fr, this message translates to:
-  /// **'Email envoyé avec succès'**
+  /// **'E-mail envoyé avec succès'**
   String get emailSent;
 
   /// No description provided for @share.
@@ -275,13 +275,13 @@ abstract class AppLocalizations {
   /// No description provided for @seeAll.
   ///
   /// In fr, this message translates to:
-  /// **'Voir tout'**
+  /// **'Tout voir'**
   String get seeAll;
 
   /// No description provided for @addTransaction.
   ///
   /// In fr, this message translates to:
-  /// **'Ajouter une transaction'**
+  /// **'Ajouter Transaction'**
   String get addTransaction;
 
   /// No description provided for @category.
@@ -323,7 +323,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingDesc1.
   ///
   /// In fr, this message translates to:
-  /// **'La solution moderne pour gérer vos tontines et épargner en groupe en toute sécurité.'**
+  /// **'La solution moderne pour gérer vos tontines et épargner ensemble en toute sécurité.'**
   String get onboardingDesc1;
 
   /// No description provided for @onboardingTitle2.
@@ -389,13 +389,13 @@ abstract class AppLocalizations {
   /// No description provided for @enterEmailError.
   ///
   /// In fr, this message translates to:
-  /// **'Veuillez entrer votre email'**
+  /// **'Veuillez entrer votre e-mail'**
   String get enterEmailError;
 
   /// No description provided for @invalidEmailError.
   ///
   /// In fr, this message translates to:
-  /// **'Veuillez entrer un email valide'**
+  /// **'Veuillez entrer un e-mail valide'**
   String get invalidEmailError;
 
   /// No description provided for @enterPasswordError.
@@ -539,19 +539,19 @@ abstract class AppLocalizations {
   /// No description provided for @deadlinePassed.
   ///
   /// In fr, this message translates to:
-  /// **'Echéance passée'**
+  /// **'Date limite dépassée'**
   String get deadlinePassed;
 
   /// No description provided for @addTransactionTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ajouter une transaction'**
+  /// **'Ajouter Transaction'**
   String get addTransactionTitle;
 
   /// No description provided for @addBudgetTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Définir un budget'**
+  /// **'Définir Budget'**
   String get addBudgetTitle;
 
   /// No description provided for @addGoalTitle.
@@ -563,7 +563,7 @@ abstract class AppLocalizations {
   /// No description provided for @transactionType.
   ///
   /// In fr, this message translates to:
-  /// **'Type de transaction'**
+  /// **'Type de Transaction'**
   String get transactionType;
 
   /// No description provided for @expense.
@@ -611,13 +611,13 @@ abstract class AppLocalizations {
   /// No description provided for @subcategoryHint.
   ///
   /// In fr, this message translates to:
-  /// **'ex: Restaurant, Carburant...'**
+  /// **'ex: Restaurant, Essence...'**
   String get subcategoryHint;
 
   /// No description provided for @merchantLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Marchand'**
+  /// **'Commerçant'**
   String get merchantLabel;
 
   /// No description provided for @merchantHint.
@@ -665,7 +665,7 @@ abstract class AppLocalizations {
   /// No description provided for @monthlyLimitLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Limite mensuelle'**
+  /// **'Limite Mensuelle'**
   String get monthlyLimitLabel;
 
   /// No description provided for @goalNameLabel.
@@ -677,19 +677,19 @@ abstract class AppLocalizations {
   /// No description provided for @goalNameHint.
   ///
   /// In fr, this message translates to:
-  /// **'ex: Nouvel iPhone, Voyage...'**
+  /// **'ex: Nouveau Téléphone, Voyage...'**
   String get goalNameHint;
 
   /// No description provided for @targetAmountLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Montant cible'**
+  /// **'Montant Cible'**
   String get targetAmountLabel;
 
   /// No description provided for @deadlineLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Date d\'échéance'**
+  /// **'Date Limite'**
   String get deadlineLabel;
 
   /// No description provided for @saveAction.
@@ -701,13 +701,13 @@ abstract class AppLocalizations {
   /// No description provided for @createBudgetAction.
   ///
   /// In fr, this message translates to:
-  /// **'Créer le budget'**
+  /// **'Créer Budget'**
   String get createBudgetAction;
 
   /// No description provided for @saveGoalAction.
   ///
   /// In fr, this message translates to:
-  /// **'Sauvegarder'**
+  /// **'Enregistrer'**
   String get saveGoalAction;
 
   /// No description provided for @successTransaction.
@@ -719,7 +719,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorTransaction.
   ///
   /// In fr, this message translates to:
-  /// **'Erreur lors de l\'ajout'**
+  /// **'Erreur lors de l\'ajout de la transaction'**
   String get errorTransaction;
 
   /// No description provided for @successBudget.
@@ -731,7 +731,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorBudget.
   ///
   /// In fr, this message translates to:
-  /// **'Erreur lors de la création'**
+  /// **'Erreur lors de la création du budget'**
   String get errorBudget;
 
   /// No description provided for @successGoal.
@@ -743,7 +743,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorGoal.
   ///
   /// In fr, this message translates to:
-  /// **'Erreur lors de la création'**
+  /// **'Erreur lors de la création de l\'objectif'**
   String get errorGoal;
 
   /// No description provided for @selectDateError.
@@ -839,7 +839,7 @@ abstract class AppLocalizations {
   /// No description provided for @acceptChallenge.
   ///
   /// In fr, this message translates to:
-  /// **'Relever le défi'**
+  /// **'Accepter le défi'**
   String get acceptChallenge;
 
   /// No description provided for @completed.
@@ -875,19 +875,19 @@ abstract class AppLocalizations {
   /// No description provided for @validateWeek.
   ///
   /// In fr, this message translates to:
-  /// **'Valider ma semaine'**
+  /// **'Valider la semaine'**
   String get validateWeek;
 
   /// No description provided for @yourProgress.
   ///
   /// In fr, this message translates to:
-  /// **'Votre Progression'**
+  /// **'Votre progression'**
   String get yourProgress;
 
   /// No description provided for @percentCompleted.
   ///
   /// In fr, this message translates to:
-  /// **'{percent}% complété'**
+  /// **'{percent}% Complété'**
   String percentCompleted(String percent);
 
   /// No description provided for @week.
@@ -899,7 +899,7 @@ abstract class AppLocalizations {
   /// No description provided for @validateWeekTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Valider la semaine'**
+  /// **'Valider la Semaine'**
   String get validateWeekTitle;
 
   /// No description provided for @enterAmountSaved.
@@ -911,7 +911,7 @@ abstract class AppLocalizations {
   /// No description provided for @amountToContribute.
   ///
   /// In fr, this message translates to:
-  /// **'Montant à cotiser :'**
+  /// **'Montant à verser :'**
   String get amountToContribute;
 
   /// No description provided for @confirmValidationTitle.
@@ -959,13 +959,13 @@ abstract class AppLocalizations {
   /// No description provided for @coachThinking.
   ///
   /// In fr, this message translates to:
-  /// **'IA réfléchit...'**
+  /// **'L\'IA réfléchit...'**
   String get coachThinking;
 
   /// No description provided for @typeQuestionHint.
   ///
   /// In fr, this message translates to:
-  /// **'Posez votre question...'**
+  /// **'Posez une question...'**
   String get typeQuestionHint;
 
   /// No description provided for @insightsTitle.
@@ -983,13 +983,13 @@ abstract class AppLocalizations {
   /// No description provided for @spendingTrends.
   ///
   /// In fr, this message translates to:
-  /// **'Tendance des Dépenses'**
+  /// **'Tendances de Dépenses'**
   String get spendingTrends;
 
   /// No description provided for @categoryDetails.
   ///
   /// In fr, this message translates to:
-  /// **'Détail par Catégorie'**
+  /// **'Détails par Catégorie'**
   String get categoryDetails;
 
   /// No description provided for @weekly.
@@ -1031,7 +1031,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneLogin.
   ///
   /// In fr, this message translates to:
-  /// **'Connexion par numéro'**
+  /// **'Connexion par téléphone'**
   String get phoneLogin;
 
   /// No description provided for @phoneNumber.
@@ -1055,7 +1055,7 @@ abstract class AppLocalizations {
   /// No description provided for @enterOtp.
   ///
   /// In fr, this message translates to:
-  /// **'Entrez le code reçu'**
+  /// **'Entrez le code de vérification'**
   String get enterOtp;
 
   /// No description provided for @otpCode.
@@ -1073,7 +1073,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneLinkedSuccess.
   ///
   /// In fr, this message translates to:
-  /// **'Numéro lié avec succès'**
+  /// **'Téléphone lié avec succès'**
   String get phoneLinkedSuccess;
 
   /// No description provided for @validationSuccess.
@@ -1085,7 +1085,7 @@ abstract class AppLocalizations {
   /// No description provided for @invalidPhone.
   ///
   /// In fr, this message translates to:
-  /// **'Numéro invalide'**
+  /// **'Numéro de téléphone invalide'**
   String get invalidPhone;
 
   /// No description provided for @country.
@@ -1127,7 +1127,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetPasswordTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Réinitialisation'**
+  /// **'Réinitialiser le mot de passe'**
   String get resetPasswordTitle;
 
   /// No description provided for @newPassword.
@@ -1157,7 +1157,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetPasswordAction.
   ///
   /// In fr, this message translates to:
-  /// **'Réinitialiser le mot de passe'**
+  /// **'Réinitialiser'**
   String get resetPasswordAction;
 
   /// No description provided for @greeting.
@@ -1205,7 +1205,7 @@ abstract class AppLocalizations {
   /// No description provided for @importSms.
   ///
   /// In fr, this message translates to:
-  /// **'Import SMS'**
+  /// **'Importer SMS'**
   String get importSms;
 
   /// No description provided for @featureNotAvailableOnIos.
@@ -1217,7 +1217,7 @@ abstract class AppLocalizations {
   /// No description provided for @scanningSms.
   ///
   /// In fr, this message translates to:
-  /// **'Recherche de transactions SMS...'**
+  /// **'Analyse des SMS en cours...'**
   String get scanningSms;
 
   /// No description provided for @automatic.
@@ -1229,7 +1229,7 @@ abstract class AppLocalizations {
   /// No description provided for @transactionsImported.
   ///
   /// In fr, this message translates to:
-  /// **'{count} transactions importées !'**
+  /// **'{count} transactions importées avec succès'**
   String transactionsImported(int count);
 
   /// No description provided for @deleteBudget.
@@ -1265,7 +1265,7 @@ abstract class AppLocalizations {
   /// No description provided for @xpToNextLevel.
   ///
   /// In fr, this message translates to:
-  /// **'{xp} XP pour le prochain niveau'**
+  /// **'{xp} XP pour le niveau suivant'**
   String xpToNextLevel(int xp);
 
   /// No description provided for @myInvestments.
@@ -1277,19 +1277,19 @@ abstract class AppLocalizations {
   /// No description provided for @addInvestment.
   ///
   /// In fr, this message translates to:
-  /// **'Ajouter un investissement'**
+  /// **'Ajouter Investissement'**
   String get addInvestment;
 
   /// No description provided for @noInvestments.
   ///
   /// In fr, this message translates to:
-  /// **'Aucun investissement'**
+  /// **'Aucun Investissement'**
   String get noInvestments;
 
   /// No description provided for @startBuildingPortfolio.
   ///
   /// In fr, this message translates to:
-  /// **'Commencez à construire votre portefeuille'**
+  /// **'Commencez à bâtir votre portefeuille'**
   String get startBuildingPortfolio;
 
   /// No description provided for @newInvestment.
@@ -1319,19 +1319,19 @@ abstract class AppLocalizations {
   /// No description provided for @investedAmount.
   ///
   /// In fr, this message translates to:
-  /// **'Montant investi'**
+  /// **'Montant Investi'**
   String get investedAmount;
 
   /// No description provided for @estimatedROI.
   ///
   /// In fr, this message translates to:
-  /// **'ROI estimé (%)'**
+  /// **'ROI Estimé (%)'**
   String get estimatedROI;
 
   /// No description provided for @cryptoCurrency.
   ///
   /// In fr, this message translates to:
-  /// **'Crypto-monnaie'**
+  /// **'Cryptomonnaie'**
   String get cryptoCurrency;
 
   /// No description provided for @stockMarket.
@@ -1367,7 +1367,7 @@ abstract class AppLocalizations {
   /// No description provided for @importGoal.
   ///
   /// In fr, this message translates to:
-  /// **'Importer un objectif'**
+  /// **'Importer Objectif'**
   String get importGoal;
 
   /// No description provided for @goalImportedSuccess.
@@ -1385,13 +1385,13 @@ abstract class AppLocalizations {
   /// No description provided for @targetAmount.
   ///
   /// In fr, this message translates to:
-  /// **'Montant cible'**
+  /// **'Montant Cible'**
   String get targetAmount;
 
   /// No description provided for @deadline.
   ///
   /// In fr, this message translates to:
-  /// **'Date limite'**
+  /// **'Date Limite'**
   String get deadline;
 
   /// No description provided for @addGoalToListPrompt.
@@ -1409,13 +1409,13 @@ abstract class AppLocalizations {
   /// No description provided for @aiAnalysisTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Analyse Financière par IA'**
+  /// **'Analyse Financière IA'**
   String get aiAnalysisTitle;
 
   /// No description provided for @aiAnalysisUnavailable.
   ///
   /// In fr, this message translates to:
-  /// **'L\'analyse par IA est actuellement indisponible'**
+  /// **'L\'analyse IA est temporairement indisponible'**
   String get aiAnalysisUnavailable;
 
   /// No description provided for @countryLabel.
@@ -1427,25 +1427,25 @@ abstract class AppLocalizations {
   /// No description provided for @notSet.
   ///
   /// In fr, this message translates to:
-  /// **'Non renseigné'**
+  /// **'Non défini'**
   String get notSet;
 
   /// No description provided for @upgradeToPremium.
   ///
   /// In fr, this message translates to:
-  /// **'Passer au Premium'**
+  /// **'Passer Premium'**
   String get upgradeToPremium;
 
   /// No description provided for @premiumBannerDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Débloquez des analyses avancées, des objectifs illimités et un support prioritaire.'**
+  /// **'Débloquez des analyses avancées, objectifs illimités et support prioritaire.'**
   String get premiumBannerDescription;
 
   /// No description provided for @discoverOffers.
   ///
   /// In fr, this message translates to:
-  /// **'Découvrir les offres'**
+  /// **'Voir les offres'**
   String get discoverOffers;
 
   /// No description provided for @aboutKauri.
@@ -1463,7 +1463,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Kauri est une solution moderne pour gérer votre épargne et vos tontines en toute autonomie. Notre mission est de démocratiser la gestion financière via la technologie.'**
+  /// **'Kauri est une solution moderne pour gérer vos épargnes et tontines de manière autonome. Notre mission est de démocratiser la gestion financière grâce à la technologie.'**
   String get aboutDescription;
 
   /// No description provided for @developedBy.
@@ -1481,7 +1481,7 @@ abstract class AppLocalizations {
   /// No description provided for @website.
   ///
   /// In fr, this message translates to:
-  /// **'Site web'**
+  /// **'Site Web'**
   String get website;
 
   /// No description provided for @copyrightInfo.
@@ -1517,19 +1517,19 @@ abstract class AppLocalizations {
   /// No description provided for @scanReceiptTooltip.
   ///
   /// In fr, this message translates to:
-  /// **'Scanner un reçu'**
+  /// **'Scanner reçu'**
   String get scanReceiptTooltip;
 
   /// No description provided for @upgradeToPremiumTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Passer au Premium'**
+  /// **'Passez Premium'**
   String get upgradeToPremiumTitle;
 
   /// No description provided for @premiumWelcomeTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Bienvenue au Premium'**
+  /// **'Bienvenue dans Premium'**
   String get premiumWelcomeTitle;
 
   /// No description provided for @premiumWelcomeSubtitle.
@@ -1559,7 +1559,7 @@ abstract class AppLocalizations {
   /// No description provided for @freeFeature2.
   ///
   /// In fr, this message translates to:
-  /// **'1 Goal max'**
+  /// **'1 Objectif max'**
   String get freeFeature2;
 
   /// No description provided for @freeFeature3.
@@ -1583,55 +1583,55 @@ abstract class AppLocalizations {
   /// No description provided for @premiumFeature1.
   ///
   /// In fr, this message translates to:
-  /// **'Budgets illimités'**
+  /// **'Budgets Illimités'**
   String get premiumFeature1;
 
   /// No description provided for @premiumFeature2.
   ///
   /// In fr, this message translates to:
-  /// **'Objectifs illimités'**
+  /// **'Objectifs Illimités'**
   String get premiumFeature2;
 
   /// No description provided for @premiumFeature3.
   ///
   /// In fr, this message translates to:
-  /// **'Analyses IA avancées'**
+  /// **'Analyses IA Avancées'**
   String get premiumFeature3;
 
   /// No description provided for @premiumFeature4.
   ///
   /// In fr, this message translates to:
-  /// **'Support prioritaire'**
+  /// **'Support Prioritaire'**
   String get premiumFeature4;
 
   /// No description provided for @bestValue.
   ///
   /// In fr, this message translates to:
-  /// **'Meilleure offre'**
+  /// **'Meilleure Offre'**
   String get bestValue;
 
   /// No description provided for @upgradeAction.
   ///
   /// In fr, this message translates to:
-  /// **'S\'abonner maintenant'**
+  /// **'S\'abonner Maintenant'**
   String get upgradeAction;
 
   /// No description provided for @currentPlan.
   ///
   /// In fr, this message translates to:
-  /// **'Plan actuel'**
+  /// **'Plan Actuel'**
   String get currentPlan;
 
   /// No description provided for @choosePaymentMethodTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Choisir le mode de paiement'**
+  /// **'Choisir Méthode de Paiement'**
   String get choosePaymentMethodTitle;
 
   /// No description provided for @paymentInitError.
   ///
   /// In fr, this message translates to:
-  /// **'Erreur lors de l\'initialisation du paiement'**
+  /// **'Erreur d\'initialisation du paiement'**
   String get paymentInitError;
 
   /// No description provided for @cameroon.
@@ -1727,13 +1727,13 @@ abstract class AppLocalizations {
   /// No description provided for @deleteInvestmentConfirmation.
   ///
   /// In fr, this message translates to:
-  /// **'Voulez-vous vraiment supprimer cet investissement ?'**
+  /// **'Êtes-vous sûr de vouloir supprimer cet investissement ?'**
   String get deleteInvestmentConfirmation;
 
   /// No description provided for @budgetDetails.
   ///
   /// In fr, this message translates to:
-  /// **'Détails du budget'**
+  /// **'Détails du Budget'**
   String get budgetDetails;
 
   /// No description provided for @allocated.
@@ -1793,7 +1793,7 @@ abstract class AppLocalizations {
   /// No description provided for @autoSaveRulesTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Règles d\'épargne auto'**
+  /// **'Règles d\'Épargne Auto'**
   String get autoSaveRulesTitle;
 
   /// No description provided for @enableSurplusLabel.
@@ -1811,7 +1811,7 @@ abstract class AppLocalizations {
   /// No description provided for @percentageIncomeLabel.
   ///
   /// In fr, this message translates to:
-  /// **'% des revenus'**
+  /// **'% du Revenu'**
   String get percentageIncomeLabel;
 
   /// No description provided for @emergencyType.
@@ -1853,7 +1853,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteGoalConfirmation.
   ///
   /// In fr, this message translates to:
-  /// **'Voulez-vous vraiment supprimer cet objectif ?'**
+  /// **'Êtes-vous sûr de vouloir supprimer cet objectif ?'**
   String get deleteGoalConfirmation;
 
   /// No description provided for @strategyLabel.
@@ -1871,7 +1871,7 @@ abstract class AppLocalizations {
   /// No description provided for @strategy_50_30_20_desc.
   ///
   /// In fr, this message translates to:
-  /// **'Allouer 20% des revenus à l\'épargne (50% besoins, 30% envies).'**
+  /// **'Allouez 20% des revenus à l\'épargne (50% besoins, 30% envies).'**
   String get strategy_50_30_20_desc;
 
   /// No description provided for @strategy_progressive.
@@ -1883,61 +1883,61 @@ abstract class AppLocalizations {
   /// No description provided for @strategy_progressive_desc.
   ///
   /// In fr, this message translates to:
-  /// **'Commencer doucement et augmenter avec le temps.'**
+  /// **'Commencez petit et augmentez les contributions avec le temps.'**
   String get strategy_progressive_desc;
 
   /// No description provided for @strategy_roundup.
   ///
   /// In fr, this message translates to:
-  /// **'Arrondi (Roundup)'**
+  /// **'Arrondi'**
   String get strategy_roundup;
 
   /// No description provided for @strategy_roundup_desc.
   ///
   /// In fr, this message translates to:
-  /// **'Épargne indolore : arrondit vos dépenses et épargne la différence.'**
+  /// **'Épargnez automatiquement la différence en arrondissant vos dépenses.'**
   String get strategy_roundup_desc;
 
   /// No description provided for @strategy_pay_yourself_first.
   ///
   /// In fr, this message translates to:
-  /// **'Se payer en premier'**
+  /// **'Se Payer en Premier'**
   String get strategy_pay_yourself_first;
 
   /// No description provided for @strategy_pay_yourself_first_desc.
   ///
   /// In fr, this message translates to:
-  /// **'Virement automatique dès la réception du salaire.'**
+  /// **'Virement automatique vers l\'épargne dès réception du revenu.'**
   String get strategy_pay_yourself_first_desc;
 
   /// No description provided for @strategy_envelope.
   ///
   /// In fr, this message translates to:
-  /// **'Enveloppes'**
+  /// **'Enveloppe'**
   String get strategy_envelope;
 
   /// No description provided for @strategy_envelope_desc.
   ///
   /// In fr, this message translates to:
-  /// **'Montant fixe alloué, fin de dépense une fois l\'enveloppe vide.'**
+  /// **'Allouez un montant fixe et arrêtez de dépenser une fois l\'enveloppe vide.'**
   String get strategy_envelope_desc;
 
   /// No description provided for @strategy_custom.
   ///
   /// In fr, this message translates to:
-  /// **'Personnalisé'**
+  /// **'Personnalisée'**
   String get strategy_custom;
 
   /// No description provided for @strategy_custom_desc.
   ///
   /// In fr, this message translates to:
-  /// **'Versements libres sans règles prédéfinies.'**
+  /// **'Contributions flexibles sans règles prédéfinies.'**
   String get strategy_custom_desc;
 
   /// No description provided for @addSavingsAction.
   ///
   /// In fr, this message translates to:
-  /// **'Ajouter une épargne'**
+  /// **'Ajouter Épargne'**
   String get addSavingsAction;
 
   /// No description provided for @currentAmountLabel.
@@ -1967,7 +1967,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateRequiredMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Une nouvelle version de Kauri est disponible. Veuillez mettre à jour pour continuer.'**
+  /// **'Une nouvelle version de Kauri est disponible. Veuillez mettre à jour pour continuer à utiliser l\'application.'**
   String get updateRequiredMessage;
 
   /// No description provided for @updateNow.
@@ -1985,7 +1985,7 @@ abstract class AppLocalizations {
   /// No description provided for @maintenanceMessage.
   ///
   /// In fr, this message translates to:
-  /// **'L\'application est en maintenance. Veuillez réessayer plus tard.'**
+  /// **'L\'application est actuellement en maintenance. Veuillez réessayer plus tard.'**
   String get maintenanceMessage;
 
   /// No description provided for @markAllAsRead.
@@ -2009,7 +2009,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteAccountDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est permanente et toutes vos données seront perdues.'**
+  /// **'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est définitive et toutes vos données seront perdues.'**
   String get deleteAccountDescription;
 
   /// No description provided for @deleteAccountWarning.
@@ -2039,13 +2039,13 @@ abstract class AppLocalizations {
   /// No description provided for @enableBiometrics.
   ///
   /// In fr, this message translates to:
-  /// **'Activer la biométrie'**
+  /// **'Activer la Biométrie'**
   String get enableBiometrics;
 
   /// No description provided for @biometricsDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Utilisez FaceID ou votre empreinte digitale pour déverrouiller l\'application'**
+  /// **'Utiliser FaceID ou l\'empreinte digitale pour déverrouiller l\'application'**
   String get biometricsDescription;
 
   /// No description provided for @dangerZone.
@@ -2069,19 +2069,19 @@ abstract class AppLocalizations {
   /// No description provided for @location.
   ///
   /// In fr, this message translates to:
-  /// **'Localisation'**
+  /// **'Lieu'**
   String get location;
 
   /// No description provided for @changePassword.
   ///
   /// In fr, this message translates to:
-  /// **'Changer le mot de passe'**
+  /// **'Changer Mot de Passe'**
   String get changePassword;
 
   /// No description provided for @changePasswordDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Entrez votre mot de passe actuel et un nouveau pour le mettre à jour.'**
+  /// **'Entrez votre mot de passe actuel et le nouveau pour le mettre à jour.'**
   String get changePasswordDescription;
 
   /// No description provided for @currentPassword.
@@ -2093,19 +2093,19 @@ abstract class AppLocalizations {
   /// No description provided for @confirmNewPassword.
   ///
   /// In fr, this message translates to:
-  /// **'Confirmer le nouveau mot de passe'**
+  /// **'Confirmer nouveau mot de passe'**
   String get confirmNewPassword;
 
   /// No description provided for @updatePassword.
   ///
   /// In fr, this message translates to:
-  /// **'Mettre à jour le mot de passe'**
+  /// **'Mettre à jour'**
   String get updatePassword;
 
   /// No description provided for @passwordTooShort.
   ///
   /// In fr, this message translates to:
-  /// **'Le mot de passe doit contenir au moins 6 caractères'**
+  /// **'Le mot de passe doit faire au moins 6 caractères'**
   String get passwordTooShort;
 
   /// No description provided for @noSessionsFound.
@@ -2123,7 +2123,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteAccount.
   ///
   /// In fr, this message translates to:
-  /// **'Supprimer le compte'**
+  /// **'Supprimer le Compte'**
   String get deleteAccount;
 
   /// No description provided for @uploadingImage.
@@ -2135,7 +2135,7 @@ abstract class AppLocalizations {
   /// No description provided for @investmentsPremiumRestriction.
   ///
   /// In fr, this message translates to:
-  /// **'L\'accès au portefeuille d\'investissements est réservé aux membres Premium.'**
+  /// **'L\'accès au portefeuille d\'investissement est réservé aux membres Premium.'**
   String get investmentsPremiumRestriction;
 
   /// No description provided for @ocrPremiumRestriction.
@@ -2147,7 +2147,7 @@ abstract class AppLocalizations {
   /// No description provided for @seeOffers.
   ///
   /// In fr, this message translates to:
-  /// **'Voir Offres'**
+  /// **'Voir les offres'**
   String get seeOffers;
 
   /// No description provided for @smsImportPremiumRestriction.
@@ -2159,7 +2159,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiAnalysisPremiumRestriction.
   ///
   /// In fr, this message translates to:
-  /// **'Obtenez des analyses détaillées avec le plan Premium.'**
+  /// **'Obtenez une analyse détaillée avec le plan Premium.'**
   String get aiAnalysisPremiumRestriction;
 
   /// No description provided for @confirmDowngradeTitle.
@@ -2183,7 +2183,7 @@ abstract class AppLocalizations {
   /// No description provided for @featureBudgetsGoals.
   ///
   /// In fr, this message translates to:
-  /// **'Budgétisation & Objectifs'**
+  /// **'Budgets & Objectifs'**
   String get featureBudgetsGoals;
 
   /// No description provided for @featureCoachStandard.
@@ -2201,7 +2201,7 @@ abstract class AppLocalizations {
   /// No description provided for @featureInvestments.
   ///
   /// In fr, this message translates to:
-  /// **'Investissements (Actions, Crypto, Immo)'**
+  /// **'Investissements (Bourse, Crypto, Immo)'**
   String get featureInvestments;
 
   /// No description provided for @featureOCR.
@@ -2219,7 +2219,7 @@ abstract class AppLocalizations {
   /// No description provided for @featureBulkImport.
   ///
   /// In fr, this message translates to:
-  /// **'Import de Masse (CSV/SMS)'**
+  /// **'Import en Masse (CSV/SMS)'**
   String get featureBulkImport;
 
   /// No description provided for @revertToFree.
@@ -2231,13 +2231,13 @@ abstract class AppLocalizations {
   /// No description provided for @downgradeRequestSuccess.
   ///
   /// In fr, this message translates to:
-  /// **'Votre demande de résiliation a été prise en compte.'**
+  /// **'Votre demande de déclassement a été prise en compte.'**
   String get downgradeRequestSuccess;
 
   /// No description provided for @paymentHistory.
   ///
   /// In fr, this message translates to:
-  /// **'Historique des paiements'**
+  /// **'Historique des Paiements'**
   String get paymentHistory;
 
   /// No description provided for @noPaymentFound.
@@ -2357,19 +2357,19 @@ abstract class AppLocalizations {
   /// No description provided for @allSessionsRevoked.
   ///
   /// In fr, this message translates to:
-  /// **'Toutes les autres sessions ont été révoquées avec succès'**
+  /// **'Toutes les autres sessions révoquées avec succès'**
   String get allSessionsRevoked;
 
   /// No description provided for @termsOfService.
   ///
   /// In fr, this message translates to:
-  /// **'Conditions d\'utilisation'**
+  /// **'Conditions d\'Utilisation'**
   String get termsOfService;
 
   /// No description provided for @privacyPolicy.
   ///
   /// In fr, this message translates to:
-  /// **'Politique de confidentialité'**
+  /// **'Politique de Confidentialité'**
   String get privacyPolicy;
 
   /// No description provided for @legalSection.
@@ -2381,13 +2381,13 @@ abstract class AppLocalizations {
   /// No description provided for @supportTicketList.
   ///
   /// In fr, this message translates to:
-  /// **'Tickets de support'**
+  /// **'Tickets de Support'**
   String get supportTicketList;
 
   /// No description provided for @createTicket.
   ///
   /// In fr, this message translates to:
-  /// **'Nouveau ticket de support'**
+  /// **'Nouveau Ticket Support'**
   String get createTicket;
 
   /// No description provided for @ticketSubject.
@@ -2411,7 +2411,7 @@ abstract class AppLocalizations {
   /// No description provided for @sendTicket.
   ///
   /// In fr, this message translates to:
-  /// **'Envoyer le ticket'**
+  /// **'Envoyer Ticket'**
   String get sendTicket;
 
   /// No description provided for @reply.
@@ -2489,7 +2489,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialGamificationDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Ici vous pouvez suivre votre progression, vos points et vos badges.'**
+  /// **'C\'est ici que vous suivez votre progression, vos points et badges.'**
   String get tutorialGamificationDesc;
 
   /// No description provided for @tutorialBalanceCardTitle.
@@ -2501,7 +2501,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialBalanceCardDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Visualisez rapidement l\'ensemble de vos avoirs et vos revenus mensuels.'**
+  /// **'Visualisez rapidement l\'ensemble de vos avoirs et votre revenu mensuel.'**
   String get tutorialBalanceCardDesc;
 
   /// No description provided for @tutorialQuickActionsTitle.
@@ -2519,13 +2519,13 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialInsightsTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Analyses Détaillées'**
+  /// **'Analyse Détaillée'**
   String get tutorialInsightsTitle;
 
   /// No description provided for @tutorialInsightsDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Filtrez par période pour voir l\'évolution de vos finances.'**
+  /// **'Filtrez par période pour voir votre évolution financière.'**
   String get tutorialInsightsDesc;
 
   /// No description provided for @resetTutorials.
@@ -2537,7 +2537,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetTutorialsDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Recommencez toutes les visites guidées pour revoir comment utiliser l\'application.'**
+  /// **'Relancez toutes les visites guidées pour revoir comment utiliser l\'application.'**
   String get resetTutorialsDesc;
 
   /// No description provided for @resetTutorialsConfirm.
@@ -2585,7 +2585,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialGoalsDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Définissez des projets et suivez votre progression pour les réaliser.'**
+  /// **'Fixez des projets et suivez votre avancement pour les réaliser.'**
   String get tutorialGoalsDesc;
 
   /// No description provided for @tutorialTransactionsTitle.
@@ -2645,7 +2645,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialAddGoalDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Donnez un nom à votre projet et fixez-vous un montant cible.'**
+  /// **'Donnez un nom à votre projet et fixez un montant cible.'**
   String get tutorialAddGoalDesc;
 
   /// No description provided for @tutorialAddBudgetTitle.
@@ -2657,13 +2657,13 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialAddBudgetDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Allouez une somme précise à une catégorie pour ce mois.'**
+  /// **'Allouez un montant précis à une catégorie pour ce mois.'**
   String get tutorialAddBudgetDesc;
 
   /// No description provided for @tutorialAddInvestmentTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Nouveau Placement'**
+  /// **'Nouvel Investissement'**
   String get tutorialAddInvestmentTitle;
 
   /// No description provided for @tutorialAddInvestmentDesc.
@@ -2695,6 +2695,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Découvrez tous les avantages exclusifs pour booster vos finances.'**
   String get tutorialSubscriptionDesc;
+
+  /// No description provided for @confirmCountryChange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le changement de pays'**
+  String get confirmCountryChange;
+
+  /// No description provided for @countryChangeWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer de pays convertira le solde de votre portefeuille et nécessitera l\'approbation d\'un administrateur. Êtes-vous sûr de vouloir continuer ?'**
+  String get countryChangeWarning;
+
+  /// No description provided for @completeProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter le profil'**
+  String get completeProfile;
+
+  /// No description provided for @completeProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière étape'**
+  String get completeProfileTitle;
+
+  /// No description provided for @completeProfileSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez indiquer votre nom pour personnaliser votre expérience.'**
+  String get completeProfileSubtitle;
+
+  /// No description provided for @tutorialIncomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu Mensuel'**
+  String get tutorialIncomeTitle;
+
+  /// No description provided for @tutorialIncomeDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez votre revenu pour obtenir des conseils budgétaires personnalisés.'**
+  String get tutorialIncomeDesc;
+
+  /// No description provided for @updateIncomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre à jour le revenu'**
+  String get updateIncomeTitle;
+
+  /// No description provided for @incomeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant mensuel'**
+  String get incomeLabel;
+
+  /// No description provided for @countryChangeRequestSubmitted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de changement de pays soumise avec succès.'**
+  String get countryChangeRequestSubmitted;
 }
 
 class _AppLocalizationsDelegate

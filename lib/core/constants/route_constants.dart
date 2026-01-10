@@ -29,4 +29,5 @@ class RouteConstants {
   static const String supportTickets = '/support/tickets';
   static const String createTicket = '/support/tickets/create';
   static const String ticketDetails = '/support/tickets/:id';
+  static const String completeProfile = '/complete-profile';
 }

@@ -8,3 +8,5 @@ abstract class SystemEvent extends Equatable {
 }
 
 class GetPublicSettingsRequested extends SystemEvent {}
+
+class GetCountriesRequested extends SystemEvent {}

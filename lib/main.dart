@@ -21,6 +21,8 @@ import 'features/goals/presentation/bloc/goals_event.dart';
 import 'features/transactions/presentation/bloc/transactions_bloc.dart';
 import 'features/budgets/presentation/bloc/budgets_bloc.dart';
 import 'features/budgets/presentation/bloc/budgets_event.dart';
+import 'features/challenges/presentation/bloc/challenges_bloc.dart';
+import 'features/challenges/presentation/bloc/challenges_event.dart';
 import 'features/support/presentation/bloc/support_bloc.dart';
 import 'features/system/presentation/bloc/system_bloc.dart';
 import 'features/system/presentation/bloc/system_event.dart';
@@ -65,34 +67,64 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               getIt<BudgetsBloc>()..add(const GetBudgetsRequested()),
         ),
-        BlocProvider(create: (context) => getIt<SupportBloc>()),
         BlocProvider(
           create: (context) =>
-              getIt<SystemBloc>()..add(GetPublicSettingsRequested()),
+              getIt<ChallengesBloc>()..add(const GetChallengesRequested()),
+        ),
+        BlocProvider(create: (context) => getIt<SupportBloc>()),
+        BlocProvider(
+          create: (context) => getIt<SystemBloc>()
+            ..add(GetPublicSettingsRequested())
+            ..add(GetCountriesRequested()),
         ),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
-          return ChangeNotifierProvider.value(
-            value: getIt<TutorialService>(),
-            child: ShowCaseWidget(
-              builder: (context) => MaterialApp.router(
-                title: 'Kauri',
-                debugShowCheckedModeBanner: false,
-                theme: AppTheme.lightTheme,
-                darkTheme: AppTheme.darkTheme,
-                themeMode: state.themeMode,
-                locale: state.locale,
-                routerConfig: appRouter,
-                builder: (context, child) =>
-                    ShowCaseWidget(builder: (context) => child!),
-                localizationsDelegates: [
-                  AppLocalizations.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                supportedLocales: AppLocalizations.supportedLocales,
+          return BlocListener<AuthBloc, AuthState>(
+            listenWhen: (previous, current) {
+              final prevCountry = previous.authResponse?.user.country;
+              final currCountry = current.authResponse?.user.country;
+              return prevCountry != currCountry && currCountry != null;
+            },
+            listener: (context, authState) {
+              debugPrint(
+                '🌍 [MyApp] Country changed/updated. Triggering global data refresh...',
+              );
+              context.read<TransactionsBloc>().add(
+                const GetTransactionsRequested(forceRefresh: true),
+              );
+              context.read<GoalsBloc>().add(
+                const GetGoalsRequested(forceRefresh: true),
+              );
+              context.read<BudgetsBloc>().add(
+                const GetBudgetsRequested(forceRefresh: true),
+              );
+              context.read<ChallengesBloc>().add(
+                const GetChallengesRequested(forceRefresh: true),
+              );
+              context.read<ChallengesBloc>().add(GetUserChallengesRequested());
+            },
+            child: ChangeNotifierProvider.value(
+              value: getIt<TutorialService>(),
+              child: ShowCaseWidget(
+                builder: (context) => MaterialApp.router(
+                  title: 'Kauri',
+                  debugShowCheckedModeBanner: false,
+                  theme: AppTheme.lightTheme,
+                  darkTheme: AppTheme.darkTheme,
+                  themeMode: state.themeMode,
+                  locale: state.locale,
+                  routerConfig: appRouter,
+                  builder: (context, child) =>
+                      ShowCaseWidget(builder: (context) => child!),
+                  localizationsDelegates: [
+                    AppLocalizations.delegate,
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  supportedLocales: AppLocalizations.supportedLocales,
+                ),
               ),
             ),
           );

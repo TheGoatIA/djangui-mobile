@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_text_field.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
+import '../../../../features/system/presentation/bloc/system_bloc.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -22,6 +23,9 @@ class _RegisterPageState extends State<RegisterPage> {
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   String? _selectedCountry;
 
   @override
@@ -30,6 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
     _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -124,30 +129,97 @@ class _RegisterPageState extends State<RegisterPage> {
                     },
                   ),
                   const SizedBox(height: 24),
-                  DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.country,
-                      hintText: AppLocalizations.of(context)!.selectCountry,
-                      prefixIcon: const Icon(Icons.public),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  AppTextField(
+                    label: AppLocalizations.of(context)!.password,
+                    hint: '••••••••',
+                    controller: _passwordController,
+                    isPassword: !_isPasswordVisible,
+                    prefixIcon: Icons.lock_outline,
+                    suffix: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
                       ),
+                      onPressed: () => setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      }),
                     ),
-                    items: const [
-                      DropdownMenuItem(value: 'CM', child: Text('Cameroon')),
-                      DropdownMenuItem(value: 'FR', child: Text('France')),
-                      DropdownMenuItem(value: 'US', child: Text('USA')),
-                      DropdownMenuItem(value: 'BE', child: Text('Belgium')),
-                      DropdownMenuItem(value: 'CA', child: Text('Canada')),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedCountry = value;
-                      });
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return AppLocalizations.of(context)!.enterPasswordError;
+                      }
+                      if (value.length < 6) {
+                        return AppLocalizations.of(
+                          context,
+                        )!.passwordLengthError;
+                      }
+                      return null;
                     },
-                    validator: (value) => value == null
-                        ? AppLocalizations.of(context)!.selectCountryError
-                        : null,
+                  ),
+                  const SizedBox(height: 24),
+                  AppTextField(
+                    label: AppLocalizations.of(context)!.confirmPassword,
+                    hint: '••••••••',
+                    controller: _confirmPasswordController,
+                    isPassword: !_isConfirmPasswordVisible,
+                    prefixIcon: Icons.lock_outline,
+                    suffix: IconButton(
+                      icon: Icon(
+                        _isConfirmPasswordVisible
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                      ),
+                      onPressed: () => setState(() {
+                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                      }),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return AppLocalizations.of(context)!.requiredField;
+                      }
+                      if (value != _passwordController.text) {
+                        return AppLocalizations.of(
+                          context,
+                        )!.passwordsDoNotMatch;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  BlocBuilder<SystemBloc, SystemState>(
+                    builder: (context, systemState) {
+                      var items = <DropdownMenuItem<String>>[];
+
+                      if (systemState.countries.isNotEmpty) {
+                        items = systemState.countries.map((country) {
+                          return DropdownMenuItem(
+                            value: country.code,
+                            child: Text(country.name),
+                          );
+                        }).toList();
+                      }
+
+                      return DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.country,
+                          hintText: AppLocalizations.of(context)!.selectCountry,
+                          prefixIcon: const Icon(Icons.public),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        items: items,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCountry = value;
+                          });
+                        },
+                        validator: (value) => value == null
+                            ? AppLocalizations.of(context)!.selectCountryError
+                            : null,
+                      );
+                    },
                   ),
                   const SizedBox(height: 32),
                   BlocBuilder<AuthBloc, AuthState>(
@@ -156,8 +228,14 @@ class _RegisterPageState extends State<RegisterPage> {
                         text: AppLocalizations.of(context)!.register,
                         isLoading: state.status == AuthStatus.loading,
                         onPressed: () {
+                          debugPrint(
+                            '📝 [RegisterPage] Selected country: $_selectedCountry',
+                          );
                           if (_formKey.currentState!.validate() &&
                               _selectedCountry != null) {
+                            debugPrint(
+                              '📝 [RegisterPage] Submitting registration for: ${_emailController.text}, country: $_selectedCountry',
+                            );
                             context.read<AuthBloc>().add(
                               AuthRegisterRequested(
                                 email: _emailController.text,
@@ -166,6 +244,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                 lastName: _lastNameController.text,
                                 country: _selectedCountry!,
                               ),
+                            );
+                          } else {
+                            debugPrint(
+                              '📝 [RegisterPage] Validation failed or country not selected. Country: $_selectedCountry',
                             );
                           }
                         },

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:kauri/features/system/data/models/version_check_response.dart';
 import 'package:kauri/features/system/data/models/public_settings_model.dart';
+import 'package:kauri/features/system/data/models/country_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/network/api_response_extensions.dart';
@@ -35,6 +36,16 @@ class SystemRepositoryImpl implements SystemRepository {
     final response = await _apiService.getPublicSettings();
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
+    } else {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<List<CountryModel>> getCountries() async {
+    final response = await _apiService.getCountries();
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!.countries;
     } else {
       throw Exception(response.errorMessage);
     }

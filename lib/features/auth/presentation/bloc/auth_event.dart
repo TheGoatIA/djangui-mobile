@@ -87,7 +87,12 @@ class AuthResetPasswordRequested extends AuthEvent {
   List<Object?> get props => [token, newPassword];
 }
 
-class AuthGoogleSignInRequested extends AuthEvent {}
+class AuthGoogleSignInRequested extends AuthEvent {
+  final String? countryCode;
+  const AuthGoogleSignInRequested({this.countryCode});
+  @override
+  List<Object?> get props => [countryCode];
+}
 
 class _AuthInternalCodeSent extends AuthEvent {
   const _AuthInternalCodeSent();
@@ -159,3 +164,10 @@ class AuthRevokeSessionRequested extends AuthEvent {
 }
 
 class AuthRevokeAllSessionsRequested extends AuthEvent {}
+
+class AuthRequestCountryChange extends AuthEvent {
+  final String countryCode;
+  const AuthRequestCountryChange(this.countryCode);
+  @override
+  List<Object?> get props => [countryCode];
+}

@@ -47,7 +47,7 @@ class BudgetCategoryModel extends Equatable {
 
 @JsonSerializable()
 class BudgetModel extends Equatable {
-  @JsonKey(name: '_id')
+  @JsonKey(name: '_id', fromJson: _idFromJson)
   final String id;
   final BudgetPeriodModel period;
   final List<BudgetCategoryModel> categories;
@@ -56,6 +56,11 @@ class BudgetModel extends Equatable {
   final String status; // 'active', 'completed', 'exceeded'
   final DateTime? createdAt;
   final DateTime? updatedAt;
+
+  static String _idFromJson(dynamic id) {
+    if (id is Map) return id['\$oid'] ?? id['_id'] ?? id['id'] ?? '';
+    return id?.toString() ?? '';
+  }
 
   const BudgetModel({
     required this.id,
@@ -68,8 +73,10 @@ class BudgetModel extends Equatable {
     this.updatedAt,
   });
 
-  factory BudgetModel.fromJson(Map<String, dynamic> json) =>
-      _$BudgetModelFromJson(json);
+  factory BudgetModel.fromJson(Map<String, dynamic> json) {
+    final data = json['request'] ?? json;
+    return _$BudgetModelFromJson(data as Map<String, dynamic>);
+  }
   Map<String, dynamic> toJson() => _$BudgetModelToJson(this);
 
   @override

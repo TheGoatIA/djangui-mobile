@@ -17,6 +17,7 @@ class ApiConstants {
   static const String deleteMe = '/auth/delete-me';
   static const String sessions = '/auth/sessions';
   static const String connection = '/auth/connection';
+  static const String requestCountryChange = '/auth/request-country-change';
 
   // Transactions
   static const String transactions = '/transactions';

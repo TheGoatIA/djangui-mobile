@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/route_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -75,7 +76,19 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
-          context.go('/dashboard');
+          final user = state.authResponse?.user;
+          // Check if profile is complete (not default "User" and not empty)
+          final isProfileComplete =
+              user != null &&
+              user.firstName.isNotEmpty &&
+              user.firstName != 'User' &&
+              user.lastName.isNotEmpty;
+
+          if (isProfileComplete) {
+            context.go(RouteConstants.dashboard);
+          } else {
+            context.go(RouteConstants.completeProfile);
+          }
         } else if (state.status == AuthStatus.phoneLinked) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

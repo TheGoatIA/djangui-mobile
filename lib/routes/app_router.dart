@@ -11,6 +11,7 @@ import '../features/auth/presentation/pages/forgot_password_page.dart';
 import '../features/auth/presentation/pages/reset_password_page.dart';
 import '../features/auth/presentation/pages/phone_login_page.dart';
 import '../features/auth/presentation/pages/otp_verification_page.dart';
+import '../features/auth/presentation/pages/complete_profile_page.dart';
 import '../features/goals/presentation/pages/goal_import_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/transactions/presentation/pages/transaction_list_page.dart';
@@ -113,6 +114,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.onBoarding,
       builder: (context, state) => const OnboardingPage(),
+    ),
+    GoRoute(
+      path: RouteConstants.completeProfile,
+      builder: (context, state) => const CompleteProfilePage(),
     ),
 
     // StatefulShellRoute for Main Tab Navigation

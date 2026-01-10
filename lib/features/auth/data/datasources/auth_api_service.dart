@@ -5,6 +5,7 @@ import '../models/register_request.dart';
 import '../models/auth_response.dart';
 import '../models/device_info_request.dart';
 import '../models/connection_request.dart';
+import '../models/country_change_request.dart';
 import '../../../../core/network/models/base_response.dart';
 
 part 'auth_api_service.chopper.dart';
@@ -15,14 +16,12 @@ abstract class AuthApiService extends ChopperService {
   Future<Response<BaseResponse<AuthResponse>>> login(@Body() LoginRequest body);
 
   @Post(path: ApiConstants.firebaseAuth)
-  Future<Response<BaseResponse<AuthResponse>>> firebaseLogin(
+  Future<Response<AuthResponse>> firebaseLogin(
     @Body() Map<String, dynamic> body,
   );
 
   @Post(path: '/auth/google')
-  Future<Response<BaseResponse<AuthResponse>>> googleLogin(
-    @Body() Map<String, dynamic> body,
-  );
+  Future<Response<AuthResponse>> googleLogin(@Body() Map<String, dynamic> body);
 
   @Post(path: ApiConstants.refresh)
   Future<Response<BaseResponse<Map<String, dynamic>>>> refreshToken(
@@ -98,6 +97,9 @@ abstract class AuthApiService extends ChopperService {
   Future<Response<BaseResponse<dynamic>>> logConnection(
     @Body() ConnectionRequest body,
   );
+  @Post(path: ApiConstants.requestCountryChange)
+  Future<Response<BaseResponse<CountryChangeRequestModel>>>
+  requestCountryChange(@Body() Map<String, dynamic> body);
 
   static AuthApiService create(ChopperClient client) =>
       _$AuthApiService(client);

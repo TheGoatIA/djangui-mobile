@@ -4,11 +4,13 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
+import 'package:intl_phone_field/countries.dart' as intl_countries;
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../bloc/auth_bloc.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../features/system/presentation/bloc/system_bloc.dart';
 
 class PhoneLoginPage extends StatefulWidget {
   const PhoneLoginPage({super.key});
@@ -95,124 +97,153 @@ class _PhoneLoginPageState extends State<PhoneLoginPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      IntlPhoneField(
-                        controller: _phoneController,
-                        initialCountryCode: 'CM',
-                        languageCode: Localizations.localeOf(
-                          context,
-                        ).languageCode,
-                        dropdownIconPosition: IconPosition.trailing,
-                        dropdownDecoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        pickerDialogStyle: PickerDialogStyle(
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.surface,
-                          countryCodeStyle: AppTextStyles.bodyMedium.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          listTileDivider: const Divider(
-                            height: 1,
-                            thickness: 0.5,
-                            color: Colors.transparent,
-                          ),
-                          countryNameStyle: AppTextStyles.bodyMedium,
-                          searchFieldInputDecoration: InputDecoration(
-                            hintText: l10n.selectCountry,
-                            hintStyle: AppTextStyles.bodyMedium.copyWith(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            filled: true,
-                            fillColor: Theme.of(
+                      // Removed duplicate static IntlPhoneField
+                      BlocBuilder<SystemBloc, SystemState>(
+                        builder: (context, systemState) {
+                          // Filter the default list of countries using the codes from the API
+                          // If API list is empty (e.g. loading or error), we show all or none.
+                          // Here we show all if empty as a fallback, or better: show empty?
+                          // Let's assume if loaded, we filter.
+
+                          var filteredCountries = intl_countries.countries;
+
+                          if (systemState.countries.isNotEmpty) {
+                            final apiCountryCodes = systemState.countries
+                                .map((c) => c.code)
+                                .toSet();
+                            filteredCountries = intl_countries.countries.where((
+                              c,
+                            ) {
+                              return apiCountryCodes.contains(c.code);
+                            }).toList();
+                          }
+
+                          return IntlPhoneField(
+                            countries: filteredCountries,
+                            controller: _phoneController,
+                            initialCountryCode: 'CM',
+                            languageCode: Localizations.localeOf(
                               context,
-                            ).colorScheme.surfaceContainerHighest,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
+                            ).languageCode,
+                            dropdownIconPosition: IconPosition.trailing,
+                            dropdownDecoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide.none,
+                            pickerDialogStyle: PickerDialogStyle(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.surface,
+                              countryCodeStyle: AppTextStyles.bodyMedium
+                                  .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  ),
+                              listTileDivider: const Divider(
+                                height: 1,
+                                thickness: 0.5,
+                                color: Colors.transparent,
+                              ),
+                              countryNameStyle: AppTextStyles.bodyMedium,
+                              searchFieldInputDecoration: InputDecoration(
+                                hintText: l10n.selectCountry,
+                                hintStyle: AppTextStyles.bodyMedium.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                filled: true,
+                                fillColor: Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHighest,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: BorderSide.none,
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: BorderSide.none,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    width: 1.5,
+                                  ),
+                                ),
+                              ),
+                              searchFieldCursorColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
                             ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.primary,
-                                width: 1.5,
+                            decoration: InputDecoration(
+                              hintText: l10n.phoneHint,
+                              counterText: '',
+                              filled: true,
+                              fillColor: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  width: 1.5,
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.error,
+                                  width: 1,
+                                ),
                               ),
                             ),
-                          ),
-                          searchFieldCursorColor: Theme.of(
-                            context,
-                          ).colorScheme.primary,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: l10n.phoneHint,
-                          counterText: '',
-                          filled: true,
-                          fillColor: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 1.5,
-                            ),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.error,
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        style: AppTextStyles.bodyLarge,
-                        onChanged: (phone) {
-                          _completePhoneNumber = phone.completeNumber;
+                            style: AppTextStyles.bodyLarge,
+                            onChanged: (phone) {
+                              _completePhoneNumber = phone.completeNumber;
+                            },
+                            onCountryChanged: (country) {
+                              setState(() {
+                                _selectedCountryCode = country.code;
+                              });
+                            },
+                          );
                         },
-                        onCountryChanged: (country) {
-                          setState(() {
-                            _selectedCountryCode = country.code;
-                          });
+                      ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
+                      AppSpacing.gap24,
+                      BlocBuilder<AuthBloc, AuthState>(
+                        builder: (context, state) {
+                          return AppButton(
+                            text: l10n.verify,
+                            onPressed: _onVerify,
+                            isLoading: state.status == AuthStatus.loading,
+                          );
                         },
-                      ),
+                      ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
                     ],
-                  ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
-                  AppSpacing.gap24,
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      return AppButton(
-                        text: l10n.verify,
-                        onPressed: _onVerify,
-                        isLoading: state.status == AuthStatus.loading,
-                      );
-                    },
-                  ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+                  ),
                 ],
               ),
             ),
