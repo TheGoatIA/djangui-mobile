@@ -7,18 +7,18 @@ part of 'investment_model.dart';
 // **************************************************************************
 
 InvestmentHistoryModel _$InvestmentHistoryModelFromJson(
-        Map<String, dynamic> json) =>
-    InvestmentHistoryModel(
-      value: (json['value'] as num).toDouble(),
-      date: DateTime.parse(json['date'] as String),
-    );
+  Map<String, dynamic> json,
+) => InvestmentHistoryModel(
+  value: (json['value'] as num).toDouble(),
+  date: DateTime.parse(json['date'] as String),
+);
 
 Map<String, dynamic> _$InvestmentHistoryModelToJson(
-        InvestmentHistoryModel instance) =>
-    <String, dynamic>{
-      'value': instance.value,
-      'date': instance.date.toIso8601String(),
-    };
+  InvestmentHistoryModel instance,
+) => <String, dynamic>{
+  'value': instance.value,
+  'date': instance.date.toIso8601String(),
+};
 
 InvestmentModel _$InvestmentModelFromJson(Map<String, dynamic> json) =>
     InvestmentModel(
@@ -31,7 +31,8 @@ InvestmentModel _$InvestmentModelFromJson(Map<String, dynamic> json) =>
       status: json['status'] as String? ?? 'active',
       history: (json['history'] as List<dynamic>?)
           ?.map(
-              (e) => InvestmentHistoryModel.fromJson(e as Map<String, dynamic>))
+            (e) => InvestmentHistoryModel.fromJson(e as Map<String, dynamic>),
+          )
           .toList(),
       createdAt: json['createdAt'] == null
           ? null
