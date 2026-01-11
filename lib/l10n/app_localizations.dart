@@ -2755,6 +2755,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Demande de changement de pays soumise avec succès.'**
   String get countryChangeRequestSubmitted;
+
+  /// No description provided for @confirmTransaction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer la transaction'**
+  String get confirmTransaction;
+
+  /// No description provided for @recordingInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement en cours...'**
+  String get recordingInProgress;
+
+  /// No description provided for @releaseToFinish.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relâchez pour terminer'**
+  String get releaseToFinish;
+
+  /// No description provided for @voiceExtractionAccuracy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Extraction précise à {percent}%'**
+  String voiceExtractionAccuracy(Object percent);
+
+  /// No description provided for @targetGoalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif cible : {goal}'**
+  String targetGoalLabel(Object goal);
+
+  /// No description provided for @previewRecording.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préécouter l\'enregistrement'**
+  String get previewRecording;
+
+  /// No description provided for @discardRecording.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get discardRecording;
+
+  /// No description provided for @sendAudio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer l\'audio'**
+  String get sendAudio;
 }
 
 class _AppLocalizationsDelegate

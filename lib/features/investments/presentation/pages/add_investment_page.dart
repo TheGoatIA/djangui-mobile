@@ -56,7 +56,9 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
       // Since InvestmentsPage creates the bloc, we might need a Global/Feature scope bloc.
       // For now, let's use getIt<InvestmentsBloc>() directly.
       getIt<InvestmentsBloc>().add(AddInvestment(investment));
-      context.pop();
+      if (context.canPop()) {
+        context.pop();
+      }
     }
   }
 
@@ -167,10 +169,7 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
   InputDecoration _inputDecoration(BuildContext context, String label) {
     return InputDecoration(
       labelText: label,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       filled: true,
       fillColor: Theme.of(context).colorScheme.surface,
       contentPadding: const EdgeInsets.all(16),

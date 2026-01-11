@@ -14,9 +14,9 @@ PublicSettingsModel _$PublicSettingsModelFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$PublicSettingsModelToJson(
-  PublicSettingsModel instance,
-) => <String, dynamic>{
-  'maintenance_mode': instance.maintenanceMode,
-  'privacy_policy_url': instance.privacyPolicyUrl,
-  'terms_of_service_url': instance.termsOfServiceUrl,
-};
+        PublicSettingsModel instance) =>
+    <String, dynamic>{
+      'maintenance_mode': instance.maintenanceMode,
+      'privacy_policy_url': instance.privacyPolicyUrl,
+      'terms_of_service_url': instance.termsOfServiceUrl,
+    };

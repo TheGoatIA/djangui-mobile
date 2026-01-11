@@ -8,7 +8,7 @@ part of 'challenge_model.dart';
 
 ChallengeModel _$ChallengeModelFromJson(Map<String, dynamic> json) =>
     ChallengeModel(
-      id: json['_id'] as String,
+      id: ChallengeModel._idFromJson(json['_id']),
       title: json['title'] as String,
       description: json['description'] as String,
       type: json['type'] as String,
@@ -34,7 +34,7 @@ Map<String, dynamic> _$ChallengeModelToJson(ChallengeModel instance) =>
 
 UserChallengeModel _$UserChallengeModelFromJson(Map<String, dynamic> json) =>
     UserChallengeModel(
-      id: json['_id'] as String,
+      id: UserChallengeModel._idFromJson(json['_id']),
       status: json['status'] as String,
       progress: (json['progress'] as num).toDouble(),
       currentValue: (json['currentValue'] as num).toDouble(),
@@ -66,7 +66,7 @@ Map<String, dynamic> _$UserChallengeModelToJson(UserChallengeModel instance) =>
 
 ChallengeWeekModel _$ChallengeWeekModelFromJson(Map<String, dynamic> json) =>
     ChallengeWeekModel(
-      id: json['_id'] as String,
+      id: ChallengeWeekModel._idFromJson(json['_id']),
       weekNumber: (json['weekNumber'] as num).toInt(),
       targetAmount: (json['targetAmount'] as num).toDouble(),
       savedAmount: (json['savedAmount'] as num).toDouble(),

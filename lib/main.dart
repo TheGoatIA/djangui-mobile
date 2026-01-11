@@ -25,7 +25,6 @@ import 'features/challenges/presentation/bloc/challenges_bloc.dart';
 import 'features/challenges/presentation/bloc/challenges_event.dart';
 import 'features/support/presentation/bloc/support_bloc.dart';
 import 'features/system/presentation/bloc/system_bloc.dart';
-import 'features/system/presentation/bloc/system_event.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 void main() async {

@@ -8,8 +8,8 @@ part of 'transaction_model.dart';
 
 TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
     TransactionModel(
-      id: json['_id'] as String,
-      userId: json['userId'] as String?,
+      id: TransactionModel._idFromJson(json['_id']),
+      userId: TransactionModel._userIdFromJson(json['userId']),
       amount: (json['amount'] as num).toDouble(),
       currency: json['currency'] as String? ?? 'XAF',
       type: json['type'] as String,
@@ -23,12 +23,12 @@ TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
       source: json['source'] as String?,
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-          const [],
+              const [],
       isRecurring: json['isRecurring'] as bool? ?? false,
       recurringFrequency: json['recurringFrequency'] as String?,
       isAutoCategorized: json['isAutoCategorized'] as bool? ?? false,
-      categorizationConfidence: (json['categorizationConfidence'] as num?)
-          ?.toDouble(),
+      categorizationConfidence:
+          (json['categorizationConfidence'] as num?)?.toDouble(),
       receipt: json['receipt'] as String?,
       linkedGoalId: json['linkedGoalId'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
@@ -41,7 +41,9 @@ TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$TransactionModelToJson(TransactionModel instance) {
-  final val = <String, dynamic>{'_id': instance.id};
+  final val = <String, dynamic>{
+    '_id': instance.id,
+  };
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {

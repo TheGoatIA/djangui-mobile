@@ -149,7 +149,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
   Widget build(BuildContext context) {
     return BlocListener<GoalsBloc, GoalsState>(
       listener: (context, state) {
-        if (state.status == GoalsStatus.success) {
+        if (state.status == GoalsStatus.goalCreated) {
           context.pop(true);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(AppLocalizations.of(context)!.successGoal)),

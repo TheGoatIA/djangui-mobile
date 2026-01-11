@@ -501,5 +501,13 @@
     "tutorialIncomeDesc": "Add your income to get personalized budget advice.",
     "updateIncomeTitle": "Update Income",
     "incomeLabel": "Monthly Amount",
-    "countryChangeRequestSubmitted": "Country change request submitted successfully."
+    "countryChangeRequestSubmitted": "Country change request submitted successfully.",
+    "confirmTransaction": "Confirm Transaction",
+    "recordingInProgress": "Recording in progress...",
+    "releaseToFinish": "Release to finish",
+    "voiceExtractionAccuracy": "Accurate extraction at {percent}%",
+    "targetGoalLabel": "Target goal: {goal}",
+    "previewRecording": "Preview recording",
+    "discardRecording": "Discard",
+    "sendAudio": "Send audio"
 }

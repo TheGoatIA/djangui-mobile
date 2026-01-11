@@ -501,5 +501,13 @@
     "tutorialIncomeDesc": "Ajoutez votre revenu pour obtenir des conseils budgétaires personnalisés.",
     "updateIncomeTitle": "Mettre à jour le revenu",
     "incomeLabel": "Montant mensuel",
-    "countryChangeRequestSubmitted": "Demande de changement de pays soumise avec succès."
+    "countryChangeRequestSubmitted": "Demande de changement de pays soumise avec succès.",
+    "confirmTransaction": "Confirmer la transaction",
+    "recordingInProgress": "Enregistrement en cours...",
+    "releaseToFinish": "Relâchez pour terminer",
+    "voiceExtractionAccuracy": "Extraction précise à {percent}%",
+    "targetGoalLabel": "Objectif cible : {goal}",
+    "previewRecording": "Préécouter l'enregistrement",
+    "discardRecording": "Supprimer",
+    "sendAudio": "Envoyer l'audio"
 }

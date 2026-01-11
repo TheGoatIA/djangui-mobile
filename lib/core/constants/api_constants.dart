@@ -33,6 +33,8 @@ class ApiConstants {
   // AI & Automation
   static const String ocrScan = '/ocr/scan';
   static const String smsParse = '/sms/parse';
+  static const String smsBulkParse = '/sms/bulk-parse';
+  static const String voiceProcess = '/voice/process';
 
   // Reports
   static const String reportDashboard = '/reports/dashboard';

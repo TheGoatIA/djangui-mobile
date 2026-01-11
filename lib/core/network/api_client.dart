@@ -20,6 +20,7 @@ import 'package:kauri/features/support/data/models/support_ticket_model.dart';
 import 'package:kauri/features/notifications/data/models/notification_model.dart';
 import 'package:kauri/features/system/data/models/country_model.dart';
 import 'package:kauri/features/auth/data/models/country_change_request.dart';
+import 'package:kauri/features/voice/data/models/voice_response_model.dart';
 import 'json_type_converter.dart';
 import 'interceptors.dart';
 import 'authenticator.dart';
@@ -68,6 +69,7 @@ class KauriApiClient {
         CountryListResponse: (json) => CountryListResponse.fromJson(json),
         CountryChangeRequestModel: (json) =>
             CountryChangeRequestModel.fromJson(json),
+        VoiceResponseModel: (json) => VoiceResponseModel.fromJson(json),
       }),
       errorConverter: JsonToTypeConverter({
         AuthResponse: (json) => AuthResponse.fromJson(json),

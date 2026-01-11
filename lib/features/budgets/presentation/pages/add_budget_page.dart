@@ -193,7 +193,9 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
     return BlocListener<BudgetsBloc, BudgetsState>(
       listener: (context, state) {
         if (state.status == BudgetsStatus.success) {
-          context.pop(true);
+          if (context.canPop()) {
+            context.pop(true);
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context)!.successBudget),

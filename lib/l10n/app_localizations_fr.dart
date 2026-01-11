@@ -1425,4 +1425,32 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get countryChangeRequestSubmitted =>
       'Demande de changement de pays soumise avec succès.';
+
+  @override
+  String get confirmTransaction => 'Confirmer la transaction';
+
+  @override
+  String get recordingInProgress => 'Enregistrement en cours...';
+
+  @override
+  String get releaseToFinish => 'Relâchez pour terminer';
+
+  @override
+  String voiceExtractionAccuracy(Object percent) {
+    return 'Extraction précise à $percent%';
+  }
+
+  @override
+  String targetGoalLabel(Object goal) {
+    return 'Objectif cible : $goal';
+  }
+
+  @override
+  String get previewRecording => 'Préécouter l\'enregistrement';
+
+  @override
+  String get discardRecording => 'Supprimer';
+
+  @override
+  String get sendAudio => 'Envoyer l\'audio';
 }

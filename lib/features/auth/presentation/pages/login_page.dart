@@ -12,7 +12,6 @@ import 'package:local_auth/local_auth.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import '../../../../features/system/presentation/bloc/system_bloc.dart';
-import '../../../../features/system/presentation/bloc/system_state.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

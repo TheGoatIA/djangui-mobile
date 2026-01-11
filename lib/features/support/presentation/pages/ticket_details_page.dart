@@ -226,7 +226,6 @@ class _ReplyInput extends StatelessWidget {
                 hintText: AppLocalizations.of(context)!.reply,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
                 ),
                 filled: true,
                 contentPadding: const EdgeInsets.symmetric(

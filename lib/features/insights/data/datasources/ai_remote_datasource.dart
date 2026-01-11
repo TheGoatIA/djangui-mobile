@@ -16,4 +16,12 @@ class AIRemoteDataSource {
     }
     throw Exception(response.errorMessage);
   }
+
+  Future<Map<String, dynamic>> bulkParseSms(List<String> messages) async {
+    final response = await _apiService.bulkParseSms({'messages': messages});
+    if (response.isSuccessful && response.body != null) {
+      return response.body!;
+    }
+    throw Exception(response.errorMessage);
+  }
 }

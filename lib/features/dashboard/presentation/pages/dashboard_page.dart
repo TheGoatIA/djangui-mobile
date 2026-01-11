@@ -23,15 +23,22 @@ import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../core/utils/currency_helper.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../voice/presentation/bloc/voice_bloc.dart';
+import '../../../insights/data/datasources/ai_remote_datasource.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
+        ),
+        BlocProvider(create: (context) => getIt<VoiceBloc>()),
+      ],
       child: const DashboardView(),
     );
   }
@@ -49,6 +56,7 @@ class _DashboardViewState extends State<DashboardView> {
   final GlobalKey _balanceKey = GlobalKey();
   final GlobalKey _quickActionsKey = GlobalKey();
   final GlobalKey _incomeKey = GlobalKey();
+  bool _isLoadingSms = false;
 
   @override
   void initState() {
@@ -172,6 +180,7 @@ class _DashboardViewState extends State<DashboardView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (_isLoadingSms) const LinearProgressIndicator(minHeight: 2),
                 Showcase(
                   key: _gamificationKey,
                   title: AppLocalizations.of(
@@ -233,6 +242,7 @@ class _DashboardViewState extends State<DashboardView> {
             ),
           ),
         ),
+        // floatingActionButton: const VoiceFAB(),
       ),
     );
   }
@@ -332,17 +342,18 @@ class _DashboardViewState extends State<DashboardView> {
                   .currency;
 
               final systemState = context.watch<SystemBloc>().state;
-              final currencySymbol = systemState.countries
-                  .firstWhere(
-                    (c) => c.currency == userCurrency,
-                    orElse: () => systemState.countries.firstWhere(
-                      (c) => c.code == 'CM', // Default fallback
-                      orElse: () => systemState.countries.isNotEmpty
-                          ? systemState.countries.first
-                          : throw Exception('No countries loaded'),
-                    ),
-                  )
-                  .currencySymbol;
+              String? currencySymbol;
+              if (systemState.countries.isNotEmpty) {
+                currencySymbol = systemState.countries
+                    .firstWhere(
+                      (c) => c.currency == userCurrency,
+                      orElse: () => systemState.countries.firstWhere(
+                        (c) => c.code == 'CM', // Default fallback
+                        orElse: () => systemState.countries.first,
+                      ),
+                    )
+                    .currencySymbol;
+              }
 
               return Text(
                 CurrencyHelper.formatAmount(
@@ -607,48 +618,121 @@ class _DashboardViewState extends State<DashboardView> {
                 final smsService = getIt<SMSService>();
                 final granted = await smsService.requestPermission();
                 if (granted) {
-                  // Show loading
-                  if (!context.mounted) return;
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          AppLocalizations.of(context)!.scanningSms,
-                        ),
+                  setState(() => _isLoadingSms = true);
+                  if (!context.mounted) {
+                    setState(() => _isLoadingSms = false);
+                    return;
+                  }
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "${AppLocalizations.of(context)!.scanningSms} (Dernières 24h)",
                       ),
-                    );
+                    ),
+                  );
+
+                  final rawMessages = await smsService
+                      .getRawMessagesLast24Hours();
+                  if (rawMessages.isEmpty) {
+                    setState(() => _isLoadingSms = false);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Aucun SMS financier trouvé sur les dernières 24h.",
+                          ),
+                        ),
+                      );
+                    }
+                    return;
                   }
 
-                  final transactions = await smsService.getRecentTransactions();
-                  if (transactions.isNotEmpty) {
-                    // Automatically add the first one for demo or show a picker
-                    // For now, let's add them via TransactionsBloc
-                    if (!context.mounted) return;
-                    for (final t in transactions) {
-                      context.read<TransactionsBloc>().add(
-                        AddTransactionRequested(
-                          TransactionModel(
-                            id: const Uuid().v4(),
-                            amount: t.amount,
-                            type: 'expense',
-                            category: AppLocalizations.of(context)!.automatic,
-                            description: t.description,
-                            date: t.date,
+                  try {
+                    final aiResult = await getIt<AIRemoteDataSource>()
+                        .bulkParseSms(rawMessages);
+                    final List? data = aiResult['data'] as List?;
+
+                    if (data != null && data.isNotEmpty) {
+                      if (!context.mounted) return;
+                      final existingTransactions = context
+                          .read<TransactionsBloc>()
+                          .state
+                          .transactions;
+                      int importedCount = 0;
+
+                      for (final item in data) {
+                        if (item['success'] == true &&
+                            item['transaction'] != null) {
+                          final tx = item['transaction'];
+                          final amount = (tx['amount'] as num).toDouble();
+                          final date = DateTime.parse(tx['date']);
+                          final type = tx['type'] as String;
+                          final description = tx['description'] as String;
+                          final category =
+                              tx['category'] as String? ??
+                              AppLocalizations.of(context)!.automatic;
+                          final sender =
+                              tx['merchant'] as String? ?? "AI Parsed";
+
+                          // Duplicate detection
+                          final isDuplicate = existingTransactions.any((
+                            existing,
+                          ) {
+                            final dateDiff = existing.date
+                                .difference(date)
+                                .abs()
+                                .inMinutes;
+                            return (existing.amount - amount).abs() < 0.1 &&
+                                dateDiff <
+                                    5 && // Increased window for AI parsing variations
+                                (existing.description.contains(description) ||
+                                    description.contains(existing.description));
+                          });
+
+                          if (!isDuplicate) {
+                            context.read<TransactionsBloc>().add(
+                              AddTransactionRequested(
+                                TransactionModel(
+                                  id: const Uuid().v4(),
+                                  amount: amount,
+                                  type: type,
+                                  category: category,
+                                  description: description,
+                                  date: date,
+                                  source: 'SMS AI ($sender)',
+                                ),
+                              ),
+                            );
+                            importedCount++;
+                          }
+                        }
+                      }
+
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              importedCount > 0
+                                  ? AppLocalizations.of(
+                                      context,
+                                    )!.transactionsImported(importedCount)
+                                  : 'Aucune nouvelle transaction détectée par l\'IA.',
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     }
+                  } catch (e) {
                     if (context.mounted) {
+                      ScaffoldMessenger.of(context).clearSnackBars();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.transactionsImported(transactions.length),
-                          ),
-                        ),
+                        SnackBar(content: Text("Erreur d'analyse IA: $e")),
                       );
                     }
+                  } finally {
+                    setState(() => _isLoadingSms = false);
                   }
                 } else {
                   if (context.mounted) {

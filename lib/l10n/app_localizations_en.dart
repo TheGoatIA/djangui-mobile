@@ -1417,4 +1417,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get countryChangeRequestSubmitted =>
       'Country change request submitted successfully.';
+
+  @override
+  String get confirmTransaction => 'Confirm Transaction';
+
+  @override
+  String get recordingInProgress => 'Recording in progress...';
+
+  @override
+  String get releaseToFinish => 'Release to finish';
+
+  @override
+  String voiceExtractionAccuracy(Object percent) {
+    return 'Accurate extraction at $percent%';
+  }
+
+  @override
+  String targetGoalLabel(Object goal) {
+    return 'Target goal: $goal';
+  }
+
+  @override
+  String get previewRecording => 'Preview recording';
+
+  @override
+  String get discardRecording => 'Discard';
+
+  @override
+  String get sendAudio => 'Send audio';
 }
