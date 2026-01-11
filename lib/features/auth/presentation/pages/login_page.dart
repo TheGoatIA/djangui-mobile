@@ -251,7 +251,11 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 24),
                   OutlinedButton(
                     onPressed: () {
-                      _showCountrySelectionDialog(context);
+                      _showSocialCountryDialog(
+                        context,
+                        (countryCode) =>
+                            AuthGoogleSignInRequested(countryCode: countryCode),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
@@ -284,8 +288,11 @@ class _LoginPageState extends State<LoginPage> {
                   if (Platform.isIOS) ...[
                     OutlinedButton(
                       onPressed: () {
-                        context.read<AuthBloc>().add(
-                          const AuthAppleSignInRequested(),
+                        _showSocialCountryDialog(
+                          context,
+                          (countryCode) => AuthAppleSignInRequested(
+                            countryCode: countryCode,
+                          ),
                         );
                       },
                       style: OutlinedButton.styleFrom(
@@ -373,7 +380,10 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _showCountrySelectionDialog(BuildContext context) {
+  void _showSocialCountryDialog(
+    BuildContext context,
+    AuthEvent Function(String countryCode) createEvent,
+  ) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -396,10 +406,7 @@ class _LoginPageState extends State<LoginPage> {
                     title: Text(country.name),
                     onTap: () {
                       Navigator.pop(dialogContext);
-                      // Trigger Google Sign-In with selected country
-                      context.read<AuthBloc>().add(
-                        AuthGoogleSignInRequested(countryCode: country.code),
-                      );
+                      context.read<AuthBloc>().add(createEvent(country.code));
                     },
                   );
                 }).toList(),

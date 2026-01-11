@@ -66,8 +66,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, AuthResponse>> signInWithPhoneNumber(
     String verificationId,
-    String smsCode,
-  ) async {
+    String smsCode, {
+    String? country,
+  }) async {
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
 
     try {
@@ -82,7 +83,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (idToken == null) return Left(AuthFailure('No ID Token found'));
 
-      final response = await _remoteDataSource.firebaseLogin(idToken);
+      final response = await _remoteDataSource.firebaseLogin(
+        idToken,
+        country: country,
+      );
       await _localDataSource.saveTokens(
         accessToken: response.tokens.accessToken,
         refreshToken: response.tokens.refreshToken,
@@ -180,7 +184,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AuthResponse>> signInWithApple() async {
+  Future<Either<Failure, AuthResponse>> signInWithApple({
+    String? countryCode,
+  }) async {
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
 
     try {
@@ -196,7 +202,10 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(AuthFailure('No Identity Token found'));
       }
 
-      final response = await _remoteDataSource.appleLogin(identityToken);
+      final response = await _remoteDataSource.appleLogin(
+        identityToken,
+        countryCode: countryCode,
+      );
 
       await _localDataSource.saveTokens(
         accessToken: response.tokens.accessToken,

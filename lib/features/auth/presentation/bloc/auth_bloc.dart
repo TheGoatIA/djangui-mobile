@@ -92,6 +92,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _authRepository.signInWithPhoneNumber(
       event.verificationId,
       event.smsCode,
+      country: _tempCountryCode,
     );
     result.fold(
       (failure) => emit(
@@ -100,11 +101,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (response) {
         _authRepository.updateDeviceInfo();
         _authRepository.logConnection();
-        // Initialize country if we have a temporary country code
-        if (_tempCountryCode != null) {
-          _authRepository.updateProfile(country: _tempCountryCode);
-          _tempCountryCode = null;
-        }
+        _tempCountryCode = null;
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
@@ -162,7 +159,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _authRepository.signInWithApple();
+    final result = await _authRepository.signInWithApple(
+      countryCode: event.countryCode,
+    );
     result.fold(
       (failure) => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),

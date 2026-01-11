@@ -95,7 +95,10 @@ class AuthGoogleSignInRequested extends AuthEvent {
 }
 
 class AuthAppleSignInRequested extends AuthEvent {
-  const AuthAppleSignInRequested();
+  final String? countryCode;
+  const AuthAppleSignInRequested({this.countryCode});
+  @override
+  List<Object?> get props => [countryCode];
 }
 
 class _AuthInternalCodeSent extends AuthEvent {
