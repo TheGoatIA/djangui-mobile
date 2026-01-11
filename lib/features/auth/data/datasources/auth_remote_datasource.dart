@@ -16,6 +16,7 @@ import '../../../../core/network/api_response_extensions.dart';
 abstract class AuthRemoteDataSource {
   Future<AuthResponse> login(LoginRequest request);
   Future<AuthResponse> firebaseLogin(String idToken, {String? country});
+  Future<AuthResponse> appleLogin(String idToken);
   Future<void> linkPhone(String idToken);
   Future<AuthResponse> register(RegisterRequest request);
   Future<UserModel> updateProfile({
@@ -54,6 +55,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'idToken': idToken,
       if (country != null) 'country': country,
     });
+    if (response.isSuccessful && response.body != null) {
+      return response.body!;
+    } else {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<AuthResponse> appleLogin(String idToken) async {
+    final response = await _apiService.appleLogin({'idToken': idToken});
     if (response.isSuccessful && response.body != null) {
       return response.body!;
     } else {

@@ -491,6 +491,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get googleSignIn => 'Continuer avec Google';
 
   @override
+  String get appleSignIn => 'Continuer avec Apple';
+
+  @override
   String get phoneLogin => 'Connexion par téléphone';
 
   @override

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -280,6 +281,42 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if (Platform.isIOS) ...[
+                    OutlinedButton(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(
+                          const AuthAppleSignInRequested(),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.apple,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            AppLocalizations.of(context)!.appleSignIn,
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   OutlinedButton(
                     onPressed: () {
                       context.push(RouteConstants.phoneLogin);

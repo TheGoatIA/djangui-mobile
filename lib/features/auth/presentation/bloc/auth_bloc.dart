@@ -24,6 +24,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthForgotPasswordRequested>(_onAuthForgotPasswordRequested);
     on<AuthResetPasswordRequested>(_onAuthResetPasswordRequested);
     on<AuthGoogleSignInRequested>(_onAuthGoogleSignInRequested);
+    on<AuthAppleSignInRequested>(_onAuthAppleSignInRequested);
     on<AuthPhoneVerificationRequested>(_onAuthPhoneVerificationRequested);
     on<AuthPhoneSignInRequested>(_onAuthPhoneSignInRequested);
     on<AuthLinkPhoneRequested>(_onAuthLinkPhoneRequested);
@@ -139,6 +140,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _authRepository.signInWithGoogle(
       countryCode: event.countryCode,
     );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (response) {
+        _authRepository.updateDeviceInfo();
+        _authRepository.logConnection();
+        emit(
+          state.copyWith(
+            status: AuthStatus.authenticated,
+            authResponse: response,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onAuthAppleSignInRequested(
+    AuthAppleSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.signInWithApple();
     result.fold(
       (failure) => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),

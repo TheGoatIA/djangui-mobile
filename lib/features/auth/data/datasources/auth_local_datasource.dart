@@ -130,6 +130,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> saveCredentials(String email, String password) async {
+    _logger.d('💾 [AuthLocal] Saving credentials for biometric login: $email');
     await _storage.write(key: _emailKey, value: email);
     await _storage.write(key: _passwordKey, value: password);
   }
@@ -138,6 +139,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<Map<String, String>?> getCredentials() async {
     final email = await _storage.read(key: _emailKey);
     final password = await _storage.read(key: _passwordKey);
+    _logger.d(
+      '💾 [AuthLocal] Fetching credentials: ${email != null ? "Found" : "Not Found"}',
+    );
     if (email != null && password != null) {
       return {'email': email, 'password': password};
     }

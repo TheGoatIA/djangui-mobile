@@ -44,8 +44,8 @@ final class _$AuthApiService extends AuthApiService {
   }
 
   @override
-  Future<Response<AuthResponse>> googleLogin(Map<String, dynamic> body) {
-    final Uri $url = Uri.parse('/auth/google');
+  Future<Response<AuthResponse>> appleLogin(Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/auth/apple');
     final $body = body;
     final Request $request = Request(
       'POST',

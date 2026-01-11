@@ -488,6 +488,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get googleSignIn => 'Continue with Google';
 
   @override
+  String get appleSignIn => 'Continue with Apple';
+
+  @override
   String get phoneLogin => 'Phone Login';
 
   @override

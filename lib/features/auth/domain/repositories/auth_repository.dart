@@ -10,6 +10,7 @@ import '../../data/models/country_change_request.dart';
 abstract class AuthRepository {
   Future<Either<Failure, AuthResponse>> login(LoginRequest request);
   Future<Either<Failure, AuthResponse>> signInWithGoogle({String? countryCode});
+  Future<Either<Failure, AuthResponse>> signInWithApple();
   Future<Either<Failure, void>> verifyPhoneNumber(
     String phoneNumber, {
     required Function(String verificationId) onCodeSent,

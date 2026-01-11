@@ -183,6 +183,7 @@
     "noDataAvailable": "No data available",
     "orContinueWith": "Or continue with",
     "googleSignIn": "Continue with Google",
+    "appleSignIn": "Continue with Apple",
     "phoneLogin": "Phone Login",
     "phoneNumber": "Phone Number",
     "enterPhone": "Enter your phone number",

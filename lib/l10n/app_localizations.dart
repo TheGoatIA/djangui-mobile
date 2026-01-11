@@ -1028,6 +1028,12 @@ abstract class AppLocalizations {
   /// **'Continuer avec Google'**
   String get googleSignIn;
 
+  /// No description provided for @appleSignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Apple'**
+  String get appleSignIn;
+
   /// No description provided for @phoneLogin.
   ///
   /// In fr, this message translates to:

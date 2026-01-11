@@ -22,6 +22,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -179,6 +180,36 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, AuthResponse>> signInWithApple() async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final identityToken = credential.identityToken;
+      if (identityToken == null) {
+        return Left(AuthFailure('No Identity Token found'));
+      }
+
+      final response = await _remoteDataSource.appleLogin(identityToken);
+
+      await _localDataSource.saveTokens(
+        accessToken: response.tokens.accessToken,
+        refreshToken: response.tokens.refreshToken,
+      );
+      await _localDataSource.saveUser(response.user);
+      return Right(response);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, UserModel>> updateProfile({
     String? firstName,
     String? lastName,
@@ -236,6 +267,8 @@ class AuthRepositoryImpl implements AuthRepository {
           refreshToken: response.tokens.refreshToken,
         );
         await _localDataSource.saveUser(response.user);
+        // Save credentials for biometrics
+        await _localDataSource.saveCredentials(request.email, request.password);
         return Right(response);
       } catch (e) {
         return Left(AuthFailure(e.toString()));
@@ -442,6 +475,11 @@ class AuthRepositoryImpl implements AuthRepository {
     if (await _networkInfo.isConnected) {
       try {
         await _remoteDataSource.changePassword(currentPassword, newPassword);
+        // Update credentials for biometrics if they exist
+        final user = await _localDataSource.getUser();
+        if (user != null) {
+          await _localDataSource.saveCredentials(user.email, newPassword);
+        }
         return const Right(null);
       } catch (e) {
         return Left(AuthFailure(e.toString()));
