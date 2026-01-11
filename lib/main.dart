@@ -86,9 +86,6 @@ class MyApp extends StatelessWidget {
               return prevCountry != currCountry && currCountry != null;
             },
             listener: (context, authState) {
-              debugPrint(
-                '🌍 [MyApp] Country changed/updated. Triggering global data refresh...',
-              );
               context.read<TransactionsBloc>().add(
                 const GetTransactionsRequested(forceRefresh: true),
               );

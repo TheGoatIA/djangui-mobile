@@ -183,7 +183,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthCheckRequested event,
     Emitter<AuthState> emit,
   ) async {
-    debugPrint('🔑 [AuthBloc] Checking authentication status...');
     emit(state.copyWith(status: AuthStatus.loading));
     final isAuthenticated = await _authRepository.isAuthenticated();
 
@@ -222,7 +221,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         },
       );
     } else {
-      debugPrint('🔑 [AuthBloc] No session found (unauthenticated)');
       emit(state.copyWith(status: AuthStatus.unauthenticated));
     }
   }
