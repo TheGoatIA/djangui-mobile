@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
@@ -10,12 +9,9 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../di/injection.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../transactions/presentation/bloc/transactions_bloc.dart';
-import '../../../transactions/data/models/transaction_model.dart';
 import '../../../gamification/presentation/widgets/gamification_header.dart';
 import '../../../gamification/presentation/widgets/level_up_dialog.dart';
 import '../bloc/dashboard_bloc.dart';
-import '../../../../core/services/sms_service.dart';
-import 'package:uuid/uuid.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/services/notification_service.dart';
@@ -24,7 +20,6 @@ import '../../../../core/services/tutorial_service.dart';
 import '../../../../core/utils/currency_helper.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../voice/presentation/bloc/voice_bloc.dart';
-import '../../../insights/data/datasources/ai_remote_datasource.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -56,7 +51,6 @@ class _DashboardViewState extends State<DashboardView> {
   final GlobalKey _balanceKey = GlobalKey();
   final GlobalKey _quickActionsKey = GlobalKey();
   final GlobalKey _incomeKey = GlobalKey();
-  bool _isLoadingSms = false;
 
   @override
   void initState() {
@@ -180,7 +174,7 @@ class _DashboardViewState extends State<DashboardView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (_isLoadingSms) const LinearProgressIndicator(minHeight: 2),
+                // const LinearProgressIndicator(minHeight: 2), // Remove if only for SMS
                 Showcase(
                   key: _gamificationKey,
                   title: AppLocalizations.of(
@@ -579,173 +573,10 @@ class _DashboardViewState extends State<DashboardView> {
               onTap: () => context.push(RouteConstants.insights),
             ),
             _buildActionItem(
-              Icons.sms_outlined,
-              AppLocalizations.of(context)!.importSms,
+              Icons.groups_outlined,
+              'Tontine',
               Theme.of(context).colorScheme.tertiary,
-              onTap: () async {
-                final authState = context.read<AuthBloc>().state;
-                final isPremium =
-                    authState.authResponse?.user.isPremium ?? false;
-
-                if (!isPremium) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.smsImportPremiumRestriction,
-                      ),
-                      action: SnackBarAction(
-                        label: AppLocalizations.of(context)!.seeOffers,
-                        onPressed: () =>
-                            context.push(RouteConstants.subscription),
-                      ),
-                    ),
-                  );
-                  return;
-                }
-
-                if (!Platform.isAndroid) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        AppLocalizations.of(context)!.featureNotAvailableOnIos,
-                      ),
-                    ),
-                  );
-                  return;
-                }
-                final smsService = getIt<SMSService>();
-                final granted = await smsService.requestPermission();
-                if (granted) {
-                  setState(() => _isLoadingSms = true);
-                  if (!context.mounted) {
-                    setState(() => _isLoadingSms = false);
-                    return;
-                  }
-                  ScaffoldMessenger.of(context).clearSnackBars();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        "${AppLocalizations.of(context)!.scanningSms} (Dernières 24h)",
-                      ),
-                    ),
-                  );
-
-                  final rawMessages = await smsService
-                      .getRawMessagesLast24Hours();
-                  if (rawMessages.isEmpty) {
-                    setState(() => _isLoadingSms = false);
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).clearSnackBars();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            "Aucun SMS financier trouvé sur les dernières 24h.",
-                          ),
-                        ),
-                      );
-                    }
-                    return;
-                  }
-
-                  try {
-                    final aiResult = await getIt<AIRemoteDataSource>()
-                        .bulkParseSms(rawMessages);
-                    final List? data = aiResult['data'] as List?;
-
-                    if (data != null && data.isNotEmpty) {
-                      if (!context.mounted) return;
-                      final existingTransactions = context
-                          .read<TransactionsBloc>()
-                          .state
-                          .transactions;
-                      int importedCount = 0;
-
-                      for (final item in data) {
-                        if (item['success'] == true &&
-                            item['transaction'] != null) {
-                          final tx = item['transaction'];
-                          final amount = (tx['amount'] as num).toDouble();
-                          final date = DateTime.parse(tx['date']);
-                          final type = tx['type'] as String;
-                          final description = tx['description'] as String;
-                          final category =
-                              tx['category'] as String? ??
-                              AppLocalizations.of(context)!.automatic;
-                          final sender =
-                              tx['merchant'] as String? ?? "AI Parsed";
-
-                          // Duplicate detection
-                          final isDuplicate = existingTransactions.any((
-                            existing,
-                          ) {
-                            final dateDiff = existing.date
-                                .difference(date)
-                                .abs()
-                                .inMinutes;
-                            return (existing.amount - amount).abs() < 0.1 &&
-                                dateDiff <
-                                    5 && // Increased window for AI parsing variations
-                                (existing.description.contains(description) ||
-                                    description.contains(existing.description));
-                          });
-
-                          if (!isDuplicate) {
-                            context.read<TransactionsBloc>().add(
-                              AddTransactionRequested(
-                                TransactionModel(
-                                  id: const Uuid().v4(),
-                                  amount: amount,
-                                  type: type,
-                                  category: category,
-                                  description: description,
-                                  date: date,
-                                  source: 'SMS AI ($sender)',
-                                ),
-                              ),
-                            );
-                            importedCount++;
-                          }
-                        }
-                      }
-
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              importedCount > 0
-                                  ? AppLocalizations.of(
-                                      context,
-                                    )!.transactionsImported(importedCount)
-                                  : 'Aucune nouvelle transaction détectée par l\'IA.',
-                            ),
-                          ),
-                        );
-                      }
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).clearSnackBars();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Erreur d'analyse IA: $e")),
-                      );
-                    }
-                  } finally {
-                    setState(() => _isLoadingSms = false);
-                  }
-                } else {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          AppLocalizations.of(context)!.smsPermissionRequired,
-                        ),
-                      ),
-                    );
-                  }
-                }
-              },
+              onTap: () => context.push(RouteConstants.tontines),
             ),
             _buildActionItem(
               Icons.smart_toy_outlined,

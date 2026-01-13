@@ -39,6 +39,10 @@ import '../features/subscription/presentation/pages/payment_success_page.dart';
 import '../features/support/presentation/pages/support_tickets_page.dart';
 import '../features/support/presentation/pages/create_ticket_page.dart';
 import '../features/support/presentation/pages/ticket_details_page.dart';
+import '../features/tontine/presentation/pages/tontine_list_page.dart';
+import '../features/tontine/presentation/pages/create_tontine_page.dart';
+import '../features/tontine/presentation/pages/tontine_details_page.dart';
+import '../features/tontine/presentation/pages/join_tontine_page.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
@@ -56,10 +60,10 @@ final appRouter = GoRouter(
       if (state.uri.host == 'payment' && state.uri.path == '/success') {
         return '${RouteConstants.paymentSuccess}?${state.uri.query}';
       }
-      // If the link is kauri://somehost/payment/success
-      // path: /payment/success
-      if (state.uri.path == '/payment/success') {
-        return '${RouteConstants.paymentSuccess}?${state.uri.query}';
+      // If the link is kauri://tontines/join?code=XYZ
+      if ((state.uri.host == 'tontines' && state.uri.path == '/join') ||
+          state.uri.path == '/tontines/join') {
+        return '${RouteConstants.joinTontine}?${state.uri.query}';
       }
     }
     return null;
@@ -353,6 +357,45 @@ final appRouter = GoRouter(
               context: context,
               state: state,
               child: TicketDetailsPage(ticketId: id),
+            );
+          },
+        ),
+      ],
+    ),
+
+    // Tontine Routes
+    GoRoute(
+      path: RouteConstants.tontines,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const TontineListPage(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'create',
+          pageBuilder: (context, state) => buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: const CreateTontinePage(),
+          ),
+        ),
+        GoRoute(
+          path: 'join',
+          pageBuilder: (context, state) => buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: const JoinTontinePage(),
+          ),
+        ),
+        GoRoute(
+          path: ':id',
+          pageBuilder: (context, state) {
+            final id = state.pathParameters['id']!;
+            return buildPageWithDefaultTransition(
+              context: context,
+              state: state,
+              child: TontineDetailsPage(tontineId: id),
             );
           },
         ),

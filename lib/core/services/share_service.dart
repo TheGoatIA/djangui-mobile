@@ -40,4 +40,13 @@ class ShareService {
       return null;
     }
   }
+
+  Future<void> shareTontineInvite(String code) async {
+    await SharePlus.instance.share(
+      ShareParams(
+        text: 'Rejoins ma tontine sur Kauri avec le code: $code',
+        subject: 'Invitation Tontine Kauri',
+      ),
+    );
+  }
 }

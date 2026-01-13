@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Kauri';
 
   @override
+  String get dashboard => 'Dashboard';
+
+  @override
   String get welcome => 'Welcome';
 
   @override
@@ -50,9 +53,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alreadyHaveAccount => 'Already have an account? Login';
-
-  @override
-  String get dashboard => 'Dashboard';
 
   @override
   String get transactions => 'Transactions';
@@ -1374,6 +1374,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Diversify your portfolio by adding a new investment.';
 
   @override
+  String get tutorialAddTontineTitle => 'Digital Tontine';
+
+  @override
+  String get tutorialAddTontineDesc =>
+      'Save together, manage turns, and track contributions with AI.';
+
+  @override
   String get tutorialOCRTitle => 'Receipt Scan';
 
   @override
@@ -1448,4 +1455,212 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendAudio => 'Send audio';
+
+  @override
+  String get tontine => 'Tontine';
+
+  @override
+  String get createTontine => 'Create a Tontine';
+
+  @override
+  String get noTontineJoined => 'No tontine joined';
+
+  @override
+  String get startTontineDescription =>
+      'Start saving with your friends or family today.';
+
+  @override
+  String get createMyFirstTontine => 'Create my first tontine';
+
+  @override
+  String get premiumRequired => 'Premium Required';
+
+  @override
+  String get tontinePremiumRestrictionDesc =>
+      'Creating multiple tontines is reserved for Premium members.';
+
+  @override
+  String get basicInfo => 'Basic Information';
+
+  @override
+  String get tontineName => 'Tontine Name';
+
+  @override
+  String get contributionAmount => 'Contribution Amount';
+
+  @override
+  String get frequency => 'Frequency';
+
+  @override
+  String get daily => 'Daily';
+
+  @override
+  String get rules => 'Rules & Governance';
+
+  @override
+  String get totalParts => 'Total Parts';
+
+  @override
+  String get rotationMode => 'Rotation Mode';
+
+  @override
+  String get manualRotation => 'Manual';
+
+  @override
+  String get randomRotation => 'Random';
+
+  @override
+  String get trustScoreRotation => 'Based on Trust Score';
+
+  @override
+  String get validationMode => 'Validation Mode';
+
+  @override
+  String get aiOnlyValidation => 'AI Only';
+
+  @override
+  String get creatorOnlyValidation => 'Creator Only';
+
+  @override
+  String get democraticValidation => 'Democratic (Vote)';
+
+  @override
+  String get summary => 'Summary';
+
+  @override
+  String get confirmAndCreate => 'Confirm and Create';
+
+  @override
+  String get successJoinTontine => 'Tontine joined successfully';
+
+  @override
+  String get joinTontine => 'Join a Tontine';
+
+  @override
+  String get enterInviteCode => 'Enter Invite Code';
+
+  @override
+  String get enterInviteCodeDescription =>
+      'Enter the code provided by the tontine organizer.';
+
+  @override
+  String get inviteCode => 'Invite Code';
+
+  @override
+  String get joinNow => 'Join Now';
+
+  @override
+  String get members => 'Members';
+
+  @override
+  String get chat => 'Chat';
+
+  @override
+  String get recentActivity => 'Recent Activity';
+
+  @override
+  String get noRecentActivity => 'No recent activity';
+
+  @override
+  String get collectedAmount => 'Collected';
+
+  @override
+  String get expectedAmount => 'Expected';
+
+  @override
+  String get contributors => 'Contributors';
+
+  @override
+  String get noMembersFound => 'No members found';
+
+  @override
+  String get contribute => 'Contribute';
+
+  @override
+  String get noMessagesYet => 'No messages yet';
+
+  @override
+  String get typeAMessage => 'Type a message...';
+
+  @override
+  String get successContribution => 'Contribution sent successfully';
+
+  @override
+  String get pendingContributions => 'Pending Contributions';
+
+  @override
+  String get approve => 'Approve';
+
+  @override
+  String get reject => 'Reject';
+
+  @override
+  String get validation => 'Validation';
+
+  @override
+  String get noPendingContributions => 'No pending contributions';
+
+  @override
+  String get turn => 'Turn';
+
+  @override
+  String get displayName => 'Display Name';
+
+  @override
+  String get numberOfParts => 'Number of Parts';
+
+  @override
+  String get startTontine => 'Start Tontine';
+
+  @override
+  String get confirmStartTontine =>
+      'Are you sure you want to start this Tontine?';
+
+  @override
+  String get tontineStarted => 'Tontine started successfully';
+
+  @override
+  String get invalidAmountError => 'Invalid Amount';
+
+  @override
+  String get startDate => 'Start Date';
+
+  @override
+  String get socialFund => 'Social Fund';
+
+  @override
+  String get enableSocialFund => 'Enable Social Fund';
+
+  @override
+  String get sanctions => 'Sanctions';
+
+  @override
+  String get lateFee => 'Late Fee';
+
+  @override
+  String get absenceFee => 'Absence Fee';
+
+  @override
+  String get gracePeriod => 'Grace Period (hours)';
+
+  @override
+  String get paymentAccounts => 'Payment Accounts';
+
+  @override
+  String get addAccount => 'Add Account';
+
+  @override
+  String get accountType => 'Account Type';
+
+  @override
+  String get provider => 'Provider';
+
+  @override
+  String get accountNumber => 'Account Number';
+
+  @override
+  String get accountName => 'Account Name';
+
+  @override
+  String get noAccountsAdded => 'No accounts added';
 }

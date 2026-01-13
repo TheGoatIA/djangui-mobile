@@ -12,6 +12,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appTitle => 'Kauri';
 
   @override
+  String get dashboard => 'Tableau de bord';
+
+  @override
   String get welcome => 'Bienvenue';
 
   @override
@@ -50,9 +53,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get alreadyHaveAccount => 'Déjà un compte ? Se connecter';
-
-  @override
-  String get dashboard => 'Tableau de bord';
 
   @override
   String get transactions => 'Transactions';
@@ -949,7 +949,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get strategy_roundup_desc =>
-      'Épargnez automatiquement la différence en arrondissant vos dépenses.';
+      'Épargnez automatiquement la différence en arrondissant vos dÃ©penses.';
 
   @override
   String get strategy_pay_yourself_first => 'Se Payer en Premier';
@@ -1382,6 +1382,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Diversifiez votre portefeuille en ajoutant un nouvel investissement.';
 
   @override
+  String get tutorialAddTontineTitle => 'Tontine Digitale';
+
+  @override
+  String get tutorialAddTontineDesc =>
+      'Épargnez ensemble, gérez les tours de rôle et suivez les cotisations avec l\'IA.';
+
+  @override
   String get tutorialOCRTitle => 'Scan de Reçu';
 
   @override
@@ -1456,4 +1463,212 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get sendAudio => 'Envoyer l\'audio';
+
+  @override
+  String get tontine => 'Tontine';
+
+  @override
+  String get createTontine => 'Créer une Tontine';
+
+  @override
+  String get noTontineJoined => 'Aucune tontine rejointe';
+
+  @override
+  String get startTontineDescription =>
+      'Commencez à épargner avec vos amis ou votre famille dès aujourd\'hui.';
+
+  @override
+  String get createMyFirstTontine => 'Créer ma première tontine';
+
+  @override
+  String get premiumRequired => 'Premium Requis';
+
+  @override
+  String get tontinePremiumRestrictionDesc =>
+      'La création de plusieurs tontines est réservée aux membres Premium.';
+
+  @override
+  String get basicInfo => 'Informations de base';
+
+  @override
+  String get tontineName => 'Nom de la tontine';
+
+  @override
+  String get contributionAmount => 'Montant de la cotisation';
+
+  @override
+  String get frequency => 'Fréquence';
+
+  @override
+  String get daily => 'Quotidien';
+
+  @override
+  String get rules => 'Règles & Gouvernance';
+
+  @override
+  String get totalParts => 'Nombre total de parts';
+
+  @override
+  String get rotationMode => 'Mode de rotation';
+
+  @override
+  String get manualRotation => 'Manuel';
+
+  @override
+  String get randomRotation => 'Aléatoire';
+
+  @override
+  String get trustScoreRotation => 'Basé sur le score de confiance';
+
+  @override
+  String get validationMode => 'Mode de validation';
+
+  @override
+  String get aiOnlyValidation => 'IA uniquement';
+
+  @override
+  String get creatorOnlyValidation => 'Créateur uniquement';
+
+  @override
+  String get democraticValidation => 'Démocratique (Vote)';
+
+  @override
+  String get summary => 'Résumé';
+
+  @override
+  String get confirmAndCreate => 'Confirmer et Créer';
+
+  @override
+  String get successJoinTontine => 'Tontine rejointe avec succès';
+
+  @override
+  String get joinTontine => 'Rejoindre une Tontine';
+
+  @override
+  String get enterInviteCode => 'Entrez le code d\'invitation';
+
+  @override
+  String get enterInviteCodeDescription =>
+      'Saisissez le code fourni par l\'organisateur de la tontine.';
+
+  @override
+  String get inviteCode => 'Code d\'invitation';
+
+  @override
+  String get joinNow => 'Rejoindre maintenant';
+
+  @override
+  String get members => 'Membres';
+
+  @override
+  String get chat => 'Chat';
+
+  @override
+  String get recentActivity => 'Activité récente';
+
+  @override
+  String get noRecentActivity => 'Aucune activité récente';
+
+  @override
+  String get collectedAmount => 'Collecté';
+
+  @override
+  String get expectedAmount => 'Attendu';
+
+  @override
+  String get contributors => 'Contributeurs';
+
+  @override
+  String get noMembersFound => 'Aucun membre trouvé';
+
+  @override
+  String get contribute => 'Cotiser';
+
+  @override
+  String get noMessagesYet => 'Pas encore de messages';
+
+  @override
+  String get typeAMessage => 'Tapez un message...';
+
+  @override
+  String get successContribution => 'Cotisation envoyée avec succès';
+
+  @override
+  String get pendingContributions => 'Cotisations en attente';
+
+  @override
+  String get approve => 'Approuver';
+
+  @override
+  String get reject => 'Rejeter';
+
+  @override
+  String get validation => 'Validation';
+
+  @override
+  String get noPendingContributions => 'Aucune cotisation en attente';
+
+  @override
+  String get turn => 'Tour';
+
+  @override
+  String get displayName => 'Pseudonyme';
+
+  @override
+  String get numberOfParts => 'Nombre de parts';
+
+  @override
+  String get startTontine => 'Démarrer la tontine';
+
+  @override
+  String get confirmStartTontine =>
+      'Êtes-vous sûr de vouloir démarrer cette Tontine ?';
+
+  @override
+  String get tontineStarted => 'Tontine démarrée avec succès';
+
+  @override
+  String get invalidAmountError => 'Montant invalide';
+
+  @override
+  String get startDate => 'Date de début';
+
+  @override
+  String get socialFund => 'Fonds Social';
+
+  @override
+  String get enableSocialFund => 'Activer le fonds social';
+
+  @override
+  String get sanctions => 'Sanctions';
+
+  @override
+  String get lateFee => 'Frais de retard';
+
+  @override
+  String get absenceFee => 'Frais d\'absence';
+
+  @override
+  String get gracePeriod => 'Période de grâce (heures)';
+
+  @override
+  String get paymentAccounts => 'Comptes de paiement';
+
+  @override
+  String get addAccount => 'Ajouter un compte';
+
+  @override
+  String get accountType => 'Type de compte';
+
+  @override
+  String get provider => 'Opérateur/Banque';
+
+  @override
+  String get accountNumber => 'Numéro de compte';
+
+  @override
+  String get accountName => 'Nom du compte';
+
+  @override
+  String get noAccountsAdded => 'Aucun compte ajouté';
 }

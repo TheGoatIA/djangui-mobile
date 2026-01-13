@@ -1,0 +1,233 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'tontine_api_service.dart';
+
+// **************************************************************************
+// ChopperGenerator
+// **************************************************************************
+
+// coverage:ignore-file
+// ignore_for_file: type=lint
+final class _$TontineApiService extends TontineApiService {
+  _$TontineApiService([ChopperClient? client]) {
+    if (client == null) return;
+    this.client = client;
+  }
+
+  @override
+  final Type definitionType = TontineApiService;
+
+  @override
+  Future<Response<BaseResponse<TontineModel>>> createTontine(
+      Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/tontines');
+    final $body = body;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<TontineModel>, TontineModel>($request);
+  }
+
+  @override
+  Future<Response<BaseListResponse<TontineModel>>> getTontines() {
+    final Uri $url = Uri.parse('/tontines');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseListResponse<TontineModel>, TontineModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineModel>>> getTontineDetails(String id) {
+    final Uri $url = Uri.parse('/tontines/${id}');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseResponse<TontineModel>, TontineModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineModel>>> updateTontine(
+    String id,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/tontines/${id}');
+    final $body = body;
+    final Request $request = Request(
+      'PATCH',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<TontineModel>, TontineModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> deleteTontine(String id) {
+    final Uri $url = Uri.parse('/tontines/${id}');
+    final Request $request = Request(
+      'DELETE',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineMemberModel>>> joinTontine(
+      Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/tontines/join');
+    final $body = body;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client
+        .send<BaseResponse<TontineMemberModel>, TontineMemberModel>($request);
+  }
+
+  @override
+  Future<Response<BaseListResponse<TontineMemberModel>>> getTontineMembers(
+      String id) {
+    final Uri $url = Uri.parse('/tontines/${id}/members');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseListResponse<TontineMemberModel>,
+        TontineMemberModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineContributionModel>>> contribute({
+    required String tontineId,
+    required MultipartFile proofImage,
+  }) {
+    final Uri $url = Uri.parse('/tontines/contribute');
+    final List<PartValue> $parts = <PartValue>[
+      PartValue<String>(
+        'tontineId',
+        tontineId,
+      ),
+      PartValueFile<MultipartFile>(
+        'receipt',
+        proofImage,
+      ),
+    ];
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      parts: $parts,
+      multipart: true,
+    );
+    return client.send<BaseResponse<TontineContributionModel>,
+        TontineContributionModel>($request);
+  }
+
+  @override
+  Future<Response<BaseListResponse<TontineMessageModel>>> getTontineMessages(
+      String id) {
+    final Uri $url = Uri.parse('/tontines/${id}/messages');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseListResponse<TontineMessageModel>,
+        TontineMessageModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineMessageModel>>> sendMessage(
+    String id,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/tontines/${id}/messages');
+    final $body = body;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client
+        .send<BaseResponse<TontineMessageModel>, TontineMessageModel>($request);
+  }
+
+  @override
+  Future<Response<BaseListResponse<TontineContributionModel>>> getContributions(
+      String id) {
+    final Uri $url = Uri.parse('/tontines/${id}/contributions');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseListResponse<TontineContributionModel>,
+        TontineContributionModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineContributionModel>>> validateContribution(
+    String id,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/tontines/contributions/${id}/validate');
+    final $body = body;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<TontineContributionModel>,
+        TontineContributionModel>($request);
+  }
+
+  @override
+  Future<Response<List<int>>> exportTontine(String id) {
+    final Uri $url = Uri.parse('/tontines/${id}/export');
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<List<int>, int>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineModel>>> startTontine(String id) {
+    final Uri $url = Uri.parse('/tontines/${id}/start');
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseResponse<TontineModel>, TontineModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> removeMember(
+    String id,
+    String memberId,
+  ) {
+    final Uri $url = Uri.parse('/tontines/${id}/members/${memberId}');
+    final Request $request = Request(
+      'DELETE',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+}

@@ -69,6 +69,14 @@ class ApiConstants {
   // Support
   static const String supportTickets = '/support/tickets';
 
+  // Tontines
+  static const String tontines = '/tontines';
+  static const String tontinesJoin = '/tontines/join';
+  static const String tontinesContribute = '/tontines/contribute';
+  static const String tontineContributions = '/tontines/{id}/contributions';
+  static const String validateContribution =
+      '/tontines/contributions/{id}/validate';
+
   // System
   static const String publicSettings = '/system/public-settings';
 }

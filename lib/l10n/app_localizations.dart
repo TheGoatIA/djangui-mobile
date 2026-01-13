@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'Kauri'**
   String get appTitle;
 
+  /// No description provided for @dashboard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tableau de bord'**
+  String get dashboard;
+
   /// No description provided for @welcome.
   ///
   /// In fr, this message translates to:
@@ -181,12 +187,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Déjà un compte ? Se connecter'**
   String get alreadyHaveAccount;
-
-  /// No description provided for @dashboard.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tableau de bord'**
-  String get dashboard;
 
   /// No description provided for @transactions.
   ///
@@ -1901,7 +1901,7 @@ abstract class AppLocalizations {
   /// No description provided for @strategy_roundup_desc.
   ///
   /// In fr, this message translates to:
-  /// **'Épargnez automatiquement la différence en arrondissant vos dépenses.'**
+  /// **'Épargnez automatiquement la différence en arrondissant vos dÃ©penses.'**
   String get strategy_roundup_desc;
 
   /// No description provided for @strategy_pay_yourself_first.
@@ -2678,6 +2678,18 @@ abstract class AppLocalizations {
   /// **'Diversifiez votre portefeuille en ajoutant un nouvel investissement.'**
   String get tutorialAddInvestmentDesc;
 
+  /// No description provided for @tutorialAddTontineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tontine Digitale'**
+  String get tutorialAddTontineTitle;
+
+  /// No description provided for @tutorialAddTontineDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargnez ensemble, gérez les tours de rôle et suivez les cotisations avec l\'IA.'**
+  String get tutorialAddTontineDesc;
+
   /// No description provided for @tutorialOCRTitle.
   ///
   /// In fr, this message translates to:
@@ -2809,6 +2821,414 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Envoyer l\'audio'**
   String get sendAudio;
+
+  /// No description provided for @tontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tontine'**
+  String get tontine;
+
+  /// No description provided for @createTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer une Tontine'**
+  String get createTontine;
+
+  /// No description provided for @noTontineJoined.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune tontine rejointe'**
+  String get noTontineJoined;
+
+  /// No description provided for @startTontineDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencez à épargner avec vos amis ou votre famille dès aujourd\'hui.'**
+  String get startTontineDescription;
+
+  /// No description provided for @createMyFirstTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer ma première tontine'**
+  String get createMyFirstTontine;
+
+  /// No description provided for @premiumRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premium Requis'**
+  String get premiumRequired;
+
+  /// No description provided for @tontinePremiumRestrictionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La création de plusieurs tontines est réservée aux membres Premium.'**
+  String get tontinePremiumRestrictionDesc;
+
+  /// No description provided for @basicInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations de base'**
+  String get basicInfo;
+
+  /// No description provided for @tontineName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de la tontine'**
+  String get tontineName;
+
+  /// No description provided for @contributionAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant de la cotisation'**
+  String get contributionAmount;
+
+  /// No description provided for @frequency.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fréquence'**
+  String get frequency;
+
+  /// No description provided for @daily.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quotidien'**
+  String get daily;
+
+  /// No description provided for @rules.
+  ///
+  /// In fr, this message translates to:
+  /// **'Règles & Gouvernance'**
+  String get rules;
+
+  /// No description provided for @totalParts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre total de parts'**
+  String get totalParts;
+
+  /// No description provided for @rotationMode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode de rotation'**
+  String get rotationMode;
+
+  /// No description provided for @manualRotation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Manuel'**
+  String get manualRotation;
+
+  /// No description provided for @randomRotation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aléatoire'**
+  String get randomRotation;
+
+  /// No description provided for @trustScoreRotation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Basé sur le score de confiance'**
+  String get trustScoreRotation;
+
+  /// No description provided for @validationMode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode de validation'**
+  String get validationMode;
+
+  /// No description provided for @aiOnlyValidation.
+  ///
+  /// In fr, this message translates to:
+  /// **'IA uniquement'**
+  String get aiOnlyValidation;
+
+  /// No description provided for @creatorOnlyValidation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créateur uniquement'**
+  String get creatorOnlyValidation;
+
+  /// No description provided for @democraticValidation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démocratique (Vote)'**
+  String get democraticValidation;
+
+  /// No description provided for @summary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé'**
+  String get summary;
+
+  /// No description provided for @confirmAndCreate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer et Créer'**
+  String get confirmAndCreate;
+
+  /// No description provided for @successJoinTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tontine rejointe avec succès'**
+  String get successJoinTontine;
+
+  /// No description provided for @joinTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre une Tontine'**
+  String get joinTontine;
+
+  /// No description provided for @enterInviteCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez le code d\'invitation'**
+  String get enterInviteCode;
+
+  /// No description provided for @enterInviteCodeDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez le code fourni par l\'organisateur de la tontine.'**
+  String get enterInviteCodeDescription;
+
+  /// No description provided for @inviteCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d\'invitation'**
+  String get inviteCode;
+
+  /// No description provided for @joinNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre maintenant'**
+  String get joinNow;
+
+  /// No description provided for @members.
+  ///
+  /// In fr, this message translates to:
+  /// **'Membres'**
+  String get members;
+
+  /// No description provided for @chat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chat'**
+  String get chat;
+
+  /// No description provided for @recentActivity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activité récente'**
+  String get recentActivity;
+
+  /// No description provided for @noRecentActivity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune activité récente'**
+  String get noRecentActivity;
+
+  /// No description provided for @collectedAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Collecté'**
+  String get collectedAmount;
+
+  /// No description provided for @expectedAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attendu'**
+  String get expectedAmount;
+
+  /// No description provided for @contributors.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contributeurs'**
+  String get contributors;
+
+  /// No description provided for @noMembersFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun membre trouvé'**
+  String get noMembersFound;
+
+  /// No description provided for @contribute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotiser'**
+  String get contribute;
+
+  /// No description provided for @noMessagesYet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de messages'**
+  String get noMessagesYet;
+
+  /// No description provided for @typeAMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tapez un message...'**
+  String get typeAMessage;
+
+  /// No description provided for @successContribution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisation envoyée avec succès'**
+  String get successContribution;
+
+  /// No description provided for @pendingContributions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisations en attente'**
+  String get pendingContributions;
+
+  /// No description provided for @approve.
+  ///
+  /// In fr, this message translates to:
+  /// **'Approuver'**
+  String get approve;
+
+  /// No description provided for @reject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejeter'**
+  String get reject;
+
+  /// No description provided for @validation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validation'**
+  String get validation;
+
+  /// No description provided for @noPendingContributions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune cotisation en attente'**
+  String get noPendingContributions;
+
+  /// No description provided for @turn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tour'**
+  String get turn;
+
+  /// No description provided for @displayName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pseudonyme'**
+  String get displayName;
+
+  /// No description provided for @numberOfParts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre de parts'**
+  String get numberOfParts;
+
+  /// No description provided for @startTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrer la tontine'**
+  String get startTontine;
+
+  /// No description provided for @confirmStartTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir démarrer cette Tontine ?'**
+  String get confirmStartTontine;
+
+  /// No description provided for @tontineStarted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tontine démarrée avec succès'**
+  String get tontineStarted;
+
+  /// No description provided for @invalidAmountError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant invalide'**
+  String get invalidAmountError;
+
+  /// No description provided for @startDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de début'**
+  String get startDate;
+
+  /// No description provided for @socialFund.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds Social'**
+  String get socialFund;
+
+  /// No description provided for @enableSocialFund.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer le fonds social'**
+  String get enableSocialFund;
+
+  /// No description provided for @sanctions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sanctions'**
+  String get sanctions;
+
+  /// No description provided for @lateFee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais de retard'**
+  String get lateFee;
+
+  /// No description provided for @absenceFee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais d\'absence'**
+  String get absenceFee;
+
+  /// No description provided for @gracePeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période de grâce (heures)'**
+  String get gracePeriod;
+
+  /// No description provided for @paymentAccounts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comptes de paiement'**
+  String get paymentAccounts;
+
+  /// No description provided for @addAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un compte'**
+  String get addAccount;
+
+  /// No description provided for @accountType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de compte'**
+  String get accountType;
+
+  /// No description provided for @provider.
+  ///
+  /// In fr, this message translates to:
+  /// **'Opérateur/Banque'**
+  String get provider;
+
+  /// No description provided for @accountNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de compte'**
+  String get accountNumber;
+
+  /// No description provided for @accountName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du compte'**
+  String get accountName;
+
+  /// No description provided for @noAccountsAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte ajouté'**
+  String get noAccountsAdded;
 }
 
 class _AppLocalizationsDelegate

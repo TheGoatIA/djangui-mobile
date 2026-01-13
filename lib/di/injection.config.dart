@@ -141,6 +141,14 @@ import 'package:kauri/features/system/domain/repositories/system_repository.dart
     as _i608;
 import 'package:kauri/features/system/presentation/bloc/system_bloc.dart'
     as _i376;
+import 'package:kauri/features/tontine/data/datasources/tontine_api_service.dart'
+    as _i534;
+import 'package:kauri/features/tontine/data/repositories/tontine_repository_impl.dart'
+    as _i699;
+import 'package:kauri/features/tontine/domain/repositories/tontine_repository.dart'
+    as _i996;
+import 'package:kauri/features/tontine/presentation/bloc/tontine_bloc.dart'
+    as _i96;
 import 'package:kauri/features/transactions/data/datasources/transaction_api_service.dart'
     as _i982;
 import 'package:kauri/features/transactions/data/datasources/transaction_local_datasource.dart'
@@ -225,6 +233,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => registerModule.supportApiService);
     gh.lazySingleton<_i195.VoiceApiService>(
         () => registerModule.voiceApiService);
+    gh.lazySingleton<_i534.TontineApiService>(
+        () => registerModule.tontineApiService);
     gh.lazySingleton<_i777.AppDatabase>(() => registerModule.database);
     gh.lazySingleton<_i974.Logger>(() => registerModule.logger);
     gh.lazySingleton<_i935.NetworkInfo>(() => _i935.NetworkInfoImpl());
@@ -278,6 +288,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i111.SupportBloc(gh<_i810.SupportRepository>()));
     gh.lazySingleton<_i1033.VoiceRepository>(() => _i271.VoiceRepositoryImpl(
           gh<_i195.VoiceApiService>(),
+          gh<_i935.NetworkInfo>(),
+        ));
+    gh.lazySingleton<_i996.TontineRepository>(() => _i699.TontineRepositoryImpl(
+          gh<_i534.TontineApiService>(),
           gh<_i935.NetworkInfo>(),
         ));
     gh.lazySingleton<_i991.UploadRemoteDataSource>(
@@ -347,6 +361,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i580.CoachLocalDataSource>(),
           gh<_i935.NetworkInfo>(),
         ));
+    gh.factory<_i96.TontineBloc>(
+        () => _i96.TontineBloc(gh<_i996.TontineRepository>()));
     gh.lazySingleton<_i224.NotificationRepository>(
         () => _i747.NotificationRepositoryImpl(
               gh<_i356.NotificationRemoteDataSource>(),

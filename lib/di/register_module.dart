@@ -22,6 +22,7 @@ import '../features/notifications/data/datasources/notification_api_service.dart
 import '../features/upload/data/datasources/upload_api_service.dart';
 import '../features/support/data/datasources/support_api_service.dart';
 import '../features/voice/data/datasources/voice_api_service.dart';
+import '../features/tontine/data/datasources/tontine_api_service.dart';
 import 'injection.dart';
 
 @module
@@ -97,6 +98,10 @@ abstract class RegisterModule {
   @lazySingleton
   VoiceApiService get voiceApiService =>
       VoiceApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  TontineApiService get tontineApiService =>
+      TontineApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
   AppDatabase get database => AppDatabase();
