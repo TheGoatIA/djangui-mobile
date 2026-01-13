@@ -7,30 +7,29 @@ part of 'reports_model.dart';
 // **************************************************************************
 
 DashboardReportModel _$DashboardReportModelFromJson(
-  Map<String, dynamic> json,
-) => DashboardReportModel(
-  walletBalance: (json['walletBalance'] as num).toDouble(),
-  monthlyIncome: (json['monthlyIncome'] as num).toDouble(),
-  totalSpent: (json['totalSpent'] as num).toDouble(),
-  savingsRate: (json['savingsRate'] as num).toDouble(),
-  currency: json['currency'] as String? ?? 'XAF',
-  budgetHealth: json['budgetHealth'] == null
-      ? null
-      : BudgetHealthModel.fromJson(
-          json['budgetHealth'] as Map<String, dynamic>,
-        ),
-);
+        Map<String, dynamic> json) =>
+    DashboardReportModel(
+      walletBalance: (json['walletBalance'] as num).toDouble(),
+      monthlyIncome: (json['monthlyIncome'] as num).toDouble(),
+      totalSpent: (json['totalSpent'] as num).toDouble(),
+      savingsRate: (json['savingsRate'] as num).toDouble(),
+      currency: json['currency'] as String? ?? 'XAF',
+      budgetHealth: json['budgetHealth'] == null
+          ? null
+          : BudgetHealthModel.fromJson(
+              json['budgetHealth'] as Map<String, dynamic>),
+    );
 
 Map<String, dynamic> _$DashboardReportModelToJson(
-  DashboardReportModel instance,
-) => <String, dynamic>{
-  'walletBalance': instance.walletBalance,
-  'monthlyIncome': instance.monthlyIncome,
-  'totalSpent': instance.totalSpent,
-  'savingsRate': instance.savingsRate,
-  'currency': instance.currency,
-  'budgetHealth': instance.budgetHealth,
-};
+        DashboardReportModel instance) =>
+    <String, dynamic>{
+      'walletBalance': instance.walletBalance,
+      'monthlyIncome': instance.monthlyIncome,
+      'totalSpent': instance.totalSpent,
+      'savingsRate': instance.savingsRate,
+      'currency': instance.currency,
+      'budgetHealth': instance.budgetHealth,
+    };
 
 BudgetHealthModel _$BudgetHealthModelFromJson(Map<String, dynamic> json) =>
     BudgetHealthModel(
@@ -45,20 +44,20 @@ Map<String, dynamic> _$BudgetHealthModelToJson(BudgetHealthModel instance) =>
     };
 
 SpendingAnalysisModel _$SpendingAnalysisModelFromJson(
-  Map<String, dynamic> json,
-) => SpendingAnalysisModel(
-  category: json['category'] as String,
-  amount: (json['amount'] as num).toDouble(),
-  count: (json['count'] as num).toInt(),
-);
+        Map<String, dynamic> json) =>
+    SpendingAnalysisModel(
+      category: json['category'] as String,
+      amount: (json['amount'] as num).toDouble(),
+      count: (json['count'] as num).toInt(),
+    );
 
 Map<String, dynamic> _$SpendingAnalysisModelToJson(
-  SpendingAnalysisModel instance,
-) => <String, dynamic>{
-  'category': instance.category,
-  'amount': instance.amount,
-  'count': instance.count,
-};
+        SpendingAnalysisModel instance) =>
+    <String, dynamic>{
+      'category': instance.category,
+      'amount': instance.amount,
+      'count': instance.count,
+    };
 
 SavingsTrendModel _$SavingsTrendModelFromJson(Map<String, dynamic> json) =>
     SavingsTrendModel(
@@ -77,17 +76,29 @@ Map<String, dynamic> _$SavingsTrendModelToJson(SavingsTrendModel instance) =>
     };
 
 NarrativeReportModel _$NarrativeReportModelFromJson(
-  Map<String, dynamic> json,
-) => NarrativeReportModel(
-  title: json['title'] as String,
-  summary: json['summary'] as String,
-  healthScore: (json['health_score'] as num).toInt(),
-);
+        Map<String, dynamic> json) =>
+    NarrativeReportModel(
+      title: json['title'] as String,
+      summary: json['summary'] as String,
+      topInsights: (json['topInsights'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      recommendations: (json['recommendations'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      tone: json['tone'] as String?,
+      healthScore: (json['health_score'] as num?)?.toInt(),
+    );
 
 Map<String, dynamic> _$NarrativeReportModelToJson(
-  NarrativeReportModel instance,
-) => <String, dynamic>{
-  'title': instance.title,
-  'summary': instance.summary,
-  'health_score': instance.healthScore,
-};
+        NarrativeReportModel instance) =>
+    <String, dynamic>{
+      'title': instance.title,
+      'summary': instance.summary,
+      'topInsights': instance.topInsights,
+      'recommendations': instance.recommendations,
+      'tone': instance.tone,
+      'health_score': instance.healthScore,
+    };

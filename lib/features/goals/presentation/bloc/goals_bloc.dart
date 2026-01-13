@@ -51,7 +51,9 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
       ),
       (goal) {
         final List<GoalModel> updatedList = List.from(state.goals)..add(goal);
-        emit(state.copyWith(status: GoalsStatus.success, goals: updatedList));
+        emit(
+          state.copyWith(status: GoalsStatus.goalCreated, goals: updatedList),
+        );
       },
     );
   }

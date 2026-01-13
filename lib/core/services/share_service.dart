@@ -20,7 +20,7 @@ class ShareService {
 
     final jsonString = jsonEncode(sharedGoal.toJson());
     final base64Data = base64Encode(utf8.encode(jsonString));
-    final deepLink = 'Kauri://share/goal?data=$base64Data';
+    final deepLink = 'kauri://share/goal?data=$base64Data';
 
     await SharePlus.instance.share(
       ShareParams(
@@ -39,5 +39,14 @@ class ShareService {
     } catch (e) {
       return null;
     }
+  }
+
+  Future<void> shareTontineInvite(String code) async {
+    await SharePlus.instance.share(
+      ShareParams(
+        text: 'Rejoins ma tontine sur Kauri avec le code: $code',
+        subject: 'Invitation Tontine Kauri',
+      ),
+    );
   }
 }

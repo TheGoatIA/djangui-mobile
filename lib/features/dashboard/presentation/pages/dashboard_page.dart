@@ -1,37 +1,44 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:showcaseview/showcaseview.dart';
+
 import '../../../../core/constants/route_constants.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_shadows.dart';
+import '../../../../core/utils/currency_helper.dart';
+import '../../../../core/services/notification_service.dart';
+import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
+
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../transactions/presentation/bloc/transactions_bloc.dart';
-import '../../../transactions/data/models/transaction_model.dart';
 import '../../../gamification/presentation/widgets/gamification_header.dart';
 import '../../../gamification/presentation/widgets/level_up_dialog.dart';
-import '../bloc/dashboard_bloc.dart';
-import '../../../../core/services/sms_service.dart';
-import 'package:uuid/uuid.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import '../../../../core/theme/app_shadows.dart';
-import '../../../../core/services/notification_service.dart';
-import 'package:showcaseview/showcaseview.dart';
-import '../../../../core/services/tutorial_service.dart';
-import '../../../../core/utils/currency_helper.dart';
+import '../../../user_subscriptions/presentation/bloc/subscription_bloc.dart';
+import '../../../user_subscriptions/presentation/widgets/next_invoices_widget.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../voice/presentation/bloc/voice_bloc.dart';
+import '../bloc/dashboard_bloc.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
+        ),
+        BlocProvider(create: (context) => getIt<VoiceBloc>()),
+      ],
       child: const DashboardView(),
     );
   }
@@ -56,6 +63,10 @@ class _DashboardViewState extends State<DashboardView> {
     // Sync FCM token when dashboard loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getIt<NotificationService>().syncFcmToken();
+      getIt<AnalyticsManager>().trackEvent(
+        feature: 'Dashboard',
+        action: 'view',
+      );
       // Fetch latest transactions
       context.read<TransactionsBloc>().add(const GetTransactionsRequested());
       _startTutorial();
@@ -142,6 +153,15 @@ class _DashboardViewState extends State<DashboardView> {
             context.read<DashboardBloc>().add(GetDashboardDataRequested());
           },
         ),
+        BlocListener<SubscriptionBloc, SubscriptionState>(
+          listenWhen: (previous, current) =>
+              current.status == SubscriptionStatus.success &&
+              previous.status != SubscriptionStatus.success,
+          listener: (context, state) {
+            // Refresh dashboard when a subscription is added, updated or deleted
+            context.read<DashboardBloc>().add(GetDashboardDataRequested());
+          },
+        ),
         BlocListener<AuthBloc, AuthState>(
           listenWhen: (previous, current) {
             // Listen for significant profile changes that affect dashboard (e.g. monthlyIncome)
@@ -172,6 +192,7 @@ class _DashboardViewState extends State<DashboardView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // const LinearProgressIndicator(minHeight: 2), // Remove if only for SMS
                 Showcase(
                   key: _gamificationKey,
                   title: AppLocalizations.of(
@@ -205,6 +226,11 @@ class _DashboardViewState extends State<DashboardView> {
                           ),
                 ),
                 const SizedBox(height: 24),
+                const NextInvoicesWidget()
+                    .animate(delay: 100.ms)
+                    .fade(duration: 500.ms)
+                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+                const SizedBox(height: 24),
                 Showcase(
                       key: _quickActionsKey,
                       title: AppLocalizations.of(
@@ -233,6 +259,7 @@ class _DashboardViewState extends State<DashboardView> {
             ),
           ),
         ),
+        // floatingActionButton: const VoiceFAB(),
       ),
     );
   }
@@ -332,17 +359,18 @@ class _DashboardViewState extends State<DashboardView> {
                   .currency;
 
               final systemState = context.watch<SystemBloc>().state;
-              final currencySymbol = systemState.countries
-                  .firstWhere(
-                    (c) => c.currency == userCurrency,
-                    orElse: () => systemState.countries.firstWhere(
-                      (c) => c.code == 'CM', // Default fallback
-                      orElse: () => systemState.countries.isNotEmpty
-                          ? systemState.countries.first
-                          : throw Exception('No countries loaded'),
-                    ),
-                  )
-                  .currencySymbol;
+              String? currencySymbol;
+              if (systemState.countries.isNotEmpty) {
+                currencySymbol = systemState.countries
+                    .firstWhere(
+                      (c) => c.currency == userCurrency,
+                      orElse: () => systemState.countries.firstWhere(
+                        (c) => c.code == 'CM', // Default fallback
+                        orElse: () => systemState.countries.first,
+                      ),
+                    )
+                    .currencySymbol;
+              }
 
               return Text(
                 CurrencyHelper.formatAmount(
@@ -568,100 +596,16 @@ class _DashboardViewState extends State<DashboardView> {
               onTap: () => context.push(RouteConstants.insights),
             ),
             _buildActionItem(
-              Icons.sms_outlined,
-              AppLocalizations.of(context)!.importSms,
+              Icons.groups_outlined,
+              'Tontine',
               Theme.of(context).colorScheme.tertiary,
-              onTap: () async {
-                final authState = context.read<AuthBloc>().state;
-                final isPremium =
-                    authState.authResponse?.user.isPremium ?? false;
-
-                if (!isPremium) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.smsImportPremiumRestriction,
-                      ),
-                      action: SnackBarAction(
-                        label: AppLocalizations.of(context)!.seeOffers,
-                        onPressed: () =>
-                            context.push(RouteConstants.subscription),
-                      ),
-                    ),
-                  );
-                  return;
-                }
-
-                if (!Platform.isAndroid) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        AppLocalizations.of(context)!.featureNotAvailableOnIos,
-                      ),
-                    ),
-                  );
-                  return;
-                }
-                final smsService = getIt<SMSService>();
-                final granted = await smsService.requestPermission();
-                if (granted) {
-                  // Show loading
-                  if (!context.mounted) return;
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          AppLocalizations.of(context)!.scanningSms,
-                        ),
-                      ),
-                    );
-                  }
-
-                  final transactions = await smsService.getRecentTransactions();
-                  if (transactions.isNotEmpty) {
-                    // Automatically add the first one for demo or show a picker
-                    // For now, let's add them via TransactionsBloc
-                    if (!context.mounted) return;
-                    for (final t in transactions) {
-                      context.read<TransactionsBloc>().add(
-                        AddTransactionRequested(
-                          TransactionModel(
-                            id: const Uuid().v4(),
-                            amount: t.amount,
-                            type: 'expense',
-                            category: AppLocalizations.of(context)!.automatic,
-                            description: t.description,
-                            date: t.date,
-                          ),
-                        ),
-                      );
-                    }
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.transactionsImported(transactions.length),
-                          ),
-                        ),
-                      );
-                    }
-                  }
-                } else {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          AppLocalizations.of(context)!.smsPermissionRequired,
-                        ),
-                      ),
-                    );
-                  }
-                }
-              },
+              onTap: () => context.push(RouteConstants.tontines),
+            ),
+            _buildActionItem(
+              Icons.receipt_long_outlined,
+              'Factures',
+              Colors.orange,
+              onTap: () => context.push(RouteConstants.userSubscriptions),
             ),
             _buildActionItem(
               Icons.smart_toy_outlined,

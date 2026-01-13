@@ -7,13 +7,13 @@ part of 'country_model.dart';
 // **************************************************************************
 
 CountryModel _$CountryModelFromJson(Map<String, dynamic> json) => CountryModel(
-  id: json['_id'] as String?,
-  code: json['code'] as String,
-  name: json['name'] as String,
-  currency: json['currency'] as String,
-  currencySymbol: json['currencySymbol'] as String,
-  isActive: json['isActive'] as bool? ?? true,
-);
+      id: json['_id'] as String?,
+      code: json['code'] as String,
+      name: json['name'] as String,
+      currency: json['currency'] as String,
+      currencySymbol: json['currencySymbol'] as String,
+      isActive: json['isActive'] as bool? ?? true,
+    );
 
 Map<String, dynamic> _$CountryModelToJson(CountryModel instance) =>
     <String, dynamic>{
@@ -33,5 +33,7 @@ CountryListResponse _$CountryListResponseFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$CountryListResponseToJson(
-  CountryListResponse instance,
-) => <String, dynamic>{'countries': instance.countries};
+        CountryListResponse instance) =>
+    <String, dynamic>{
+      'countries': instance.countries,
+    };

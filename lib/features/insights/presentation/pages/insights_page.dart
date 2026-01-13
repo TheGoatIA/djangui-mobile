@@ -9,13 +9,14 @@ import '../bloc/insights_state.dart';
 import '../../data/models/insight_model.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../data/datasources/ai_remote_datasource.dart';
+import '../../../reports/data/models/reports_model.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/theme/app_shadows.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class InsightsPage extends StatelessWidget {
   const InsightsPage({super.key});
@@ -47,6 +48,7 @@ class _InsightsViewState extends State<InsightsView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
+      getIt<AnalyticsManager>().trackEvent(feature: 'Insights', action: 'view');
     });
   }
 
@@ -194,6 +196,11 @@ class _InsightsViewState extends State<InsightsView> {
       selected: isSelected,
       onSelected: (selected) {
         if (selected) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Insights',
+            action: 'change_period',
+            details: {'period': value},
+          );
           context.read<InsightsBloc>().add(GetInsightsRequested(period: value));
         }
       },
@@ -231,10 +238,11 @@ class _InsightsViewState extends State<InsightsView> {
                   return PieChartSectionData(
                     color: _parseColor(context, item.color),
                     value: item.percentage,
-                    title: '${item.percentage.toStringAsFixed(0)}%',
-                    radius: 60,
+                    title:
+                        '${item.category}\n${item.percentage.toStringAsFixed(0)}%',
+                    radius: 70,
                     titleStyle: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 10,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -246,11 +254,10 @@ class _InsightsViewState extends State<InsightsView> {
   }
 
   Widget _buildLineChartCard(
-    List<SpendingTrendModel> trends,
+    List<SavingsTrendModel> trends,
     BuildContext context,
   ) {
     return Container(
-      height: 250,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -263,32 +270,84 @@ class _InsightsViewState extends State<InsightsView> {
           ),
         ],
       ),
-      child: trends.isEmpty
-          ? Center(child: Text(AppLocalizations.of(context)!.noDataAvailable))
-          : LineChart(
-              LineChartData(
-                gridData: const FlGridData(show: false),
-                titlesData: const FlTitlesData(show: false),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: trends.asMap().entries.map((e) {
-                      return FlSpot(e.key.toDouble(), e.value.amount);
-                    }).toList(),
-                    isCurved: true,
-                    color: Theme.of(context).colorScheme.primary,
-                    barWidth: 4,
-                    dotData: const FlDotData(show: false),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.1),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 200,
+            child: trends.isEmpty
+                ? Center(
+                    child: Text(AppLocalizations.of(context)!.noDataAvailable),
+                  )
+                : LineChart(
+                    LineChartData(
+                      gridData: const FlGridData(show: false),
+                      titlesData: const FlTitlesData(show: false),
+                      borderData: FlBorderData(show: false),
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: trends.asMap().entries.map((e) {
+                            return FlSpot(e.key.toDouble(), e.value.income);
+                          }).toList(),
+                          isCurved: true,
+                          color: Colors.green,
+                          barWidth: 3,
+                          dotData: const FlDotData(show: false),
+                        ),
+                        LineChartBarData(
+                          spots: trends.asMap().entries.map((e) {
+                            return FlSpot(e.key.toDouble(), e.value.expense);
+                          }).toList(),
+                          isCurved: true,
+                          color: Theme.of(context).colorScheme.error,
+                          barWidth: 4,
+                          dotData: const FlDotData(show: false),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.error.withValues(alpha: 0.1),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItem(
+                context,
+                AppLocalizations.of(context)!.income,
+                Colors.green,
               ),
-            ),
+              const SizedBox(width: 20),
+              _buildLegendItem(
+                context,
+                AppLocalizations.of(context)!.expense,
+                Theme.of(context).colorScheme.error,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(BuildContext context, String label, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w500),
+        ),
+      ],
     );
   }
 
@@ -325,11 +384,22 @@ class _InsightsViewState extends State<InsightsView> {
           const SizedBox(width: 12),
           Text(item.category, style: AppTextStyles.bodyMedium),
           const Spacer(),
-          Text(
-            '${item.amount.toStringAsFixed(0)} FCFA',
-            style: AppTextStyles.bodyMedium.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${item.amount.toStringAsFixed(0)} FCFA',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '${item.percentage.toStringAsFixed(1)}%',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -378,62 +448,159 @@ class _InsightsViewState extends State<InsightsView> {
       );
     }
 
-    return FutureBuilder<String>(
-      future: getIt<AIRemoteDataSource>().getNarrativeReport(),
-      builder: (context, snapshot) {
-        final isLoading = snapshot.connectionState == ConnectionState.waiting;
+    final state = context.watch<InsightsBloc>().state;
+    final narrative = state.narrative;
+    final isLoading = state.status == InsightsStatus.loading;
 
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                Theme.of(context).colorScheme.surface,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.2),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+            Theme.of(context).colorScheme.surface,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+        ),
+        boxShadow: AppShadows.card,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.auto_awesome,
+              Icon(
+                Icons.auto_awesome,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  narrative?.title ??
+                      AppLocalizations.of(context)!.aiAnalysisTitle,
+                  style: AppTextStyles.bodyMedium.copyWith(
                     color: Theme.of(context).colorScheme.primary,
-                    size: 20,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    AppLocalizations.of(context)!.aiAnalysisTitle,
-                    style: AppTextStyles.bodyMedium.copyWith(
+                ),
+              ),
+              if (narrative?.tone != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    narrative!.tone!,
+                    style: TextStyle(
+                      fontSize: 10,
                       color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              if (isLoading)
-                const LinearProgressIndicator(minHeight: 2)
-              else
-                Text(
-                  snapshot.data ??
-                      AppLocalizations.of(context)!.aiAnalysisUnavailable,
-                  style: AppTextStyles.bodyMedium.copyWith(height: 1.5),
                 ),
             ],
           ),
-        );
-      },
+          const SizedBox(height: 12),
+          if (isLoading && narrative == null)
+            const LinearProgressIndicator(minHeight: 2)
+          else if (narrative == null)
+            Text(AppLocalizations.of(context)!.aiAnalysisUnavailable)
+          else ...[
+            _buildMarkdownText(
+              narrative.summary,
+              AppTextStyles.bodyMedium.copyWith(height: 1.5),
+            ),
+            if (narrative.topInsights.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Text(
+                "Points clés",
+                style: AppTextStyles.bodySmall.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...narrative.topInsights.map(
+                (insight) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "• ",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Expanded(
+                        child: _buildMarkdownText(
+                          insight,
+                          AppTextStyles.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            if (narrative.recommendations.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Text(
+                "Recommandations de Kauri",
+                style: AppTextStyles.bodySmall.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...narrative.recommendations.map(
+                (rec) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.lightbulb_outline,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildMarkdownText(
+                            rec,
+                            AppTextStyles.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ],
+      ),
     );
   }
 
@@ -443,5 +610,47 @@ class _InsightsViewState extends State<InsightsView> {
     } catch (e) {
       return Theme.of(context).colorScheme.primary;
     }
+  }
+
+  Widget _buildMarkdownText(String text, TextStyle baseStyle) {
+    final spans = <TextSpan>[];
+    final regExp = RegExp(r'\*\*(.*?)\*\*');
+    int lastMatchEnd = 0;
+
+    final matches = regExp.allMatches(text);
+
+    for (final match in matches) {
+      // Add text before the match
+      if (match.start > lastMatchEnd) {
+        spans.add(
+          TextSpan(
+            text: text.substring(lastMatchEnd, match.start),
+            style: baseStyle,
+          ),
+        );
+      }
+      // Add bold text
+      spans.add(
+        TextSpan(
+          text: match.group(1),
+          style: baseStyle.copyWith(fontWeight: FontWeight.bold),
+        ),
+      );
+      lastMatchEnd = match.end;
+    }
+
+    // Add remaining text
+    if (lastMatchEnd < text.length) {
+      spans.add(TextSpan(text: text.substring(lastMatchEnd), style: baseStyle));
+    }
+
+    return RichText(
+      text: TextSpan(
+        children: spans,
+        style: baseStyle.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+      ),
+    );
   }
 }

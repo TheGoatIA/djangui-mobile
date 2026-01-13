@@ -20,6 +20,10 @@ import 'package:kauri/features/support/data/models/support_ticket_model.dart';
 import 'package:kauri/features/notifications/data/models/notification_model.dart';
 import 'package:kauri/features/system/data/models/country_model.dart';
 import 'package:kauri/features/auth/data/models/country_change_request.dart';
+import 'package:kauri/features/voice/data/models/voice_response_model.dart';
+import 'package:kauri/features/tontine/data/models/tontine_model.dart';
+import 'package:kauri/features/user_subscriptions/data/models/subscription_model.dart';
+import 'package:kauri/features/analytics/data/models/analytics_models.dart';
 import 'json_type_converter.dart';
 import 'interceptors.dart';
 import 'authenticator.dart';
@@ -68,6 +72,15 @@ class KauriApiClient {
         CountryListResponse: (json) => CountryListResponse.fromJson(json),
         CountryChangeRequestModel: (json) =>
             CountryChangeRequestModel.fromJson(json),
+        VoiceResponseModel: (json) => VoiceResponseModel.fromJson(json),
+        TontineModel: (json) => TontineModel.fromJson(json),
+        TontineMemberModel: (json) => TontineMemberModel.fromJson(json),
+        TontineContributionModel: (json) =>
+            TontineContributionModel.fromJson(json),
+        TontineMessageModel: (json) => TontineMessageModel.fromJson(json),
+        SubscriptionModel: (json) => SubscriptionModel.fromJson(json),
+        SubscriptionSuggestion: (json) => SubscriptionSuggestion.fromJson(json),
+        SessionStartResponse: (json) => SessionStartResponse.fromJson(json),
       }),
       errorConverter: JsonToTypeConverter({
         AuthResponse: (json) => AuthResponse.fromJson(json),

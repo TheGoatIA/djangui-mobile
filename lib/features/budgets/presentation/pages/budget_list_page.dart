@@ -12,6 +12,7 @@ import '../../data/models/budget_model.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../widgets/budget_detail_sheet.dart';
 import '../../../../core/theme/app_shadows.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
@@ -42,6 +43,10 @@ class _BudgetListViewState extends State<BudgetListView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
+      getIt<AnalyticsManager>().trackEvent(
+        feature: 'Budgets',
+        action: 'view_list',
+      );
     });
   }
 
@@ -297,6 +302,11 @@ class _BudgetItem extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
+              getIt<AnalyticsManager>().trackEvent(
+                feature: 'Budgets',
+                action: 'delete_success',
+                details: {'id': budget.id},
+              );
               context.read<BudgetsBloc>().add(DeleteBudgetRequested(budget.id));
               Navigator.pop(dialogContext);
             },

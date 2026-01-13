@@ -29,30 +29,31 @@ BudgetCategoryModel _$BudgetCategoryModelFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$BudgetCategoryModelToJson(
-  BudgetCategoryModel instance,
-) => <String, dynamic>{
-  'name': instance.name,
-  'allocated': instance.allocated,
-  'spent': instance.spent,
-  'percentage': instance.percentage,
-};
+        BudgetCategoryModel instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'allocated': instance.allocated,
+      'spent': instance.spent,
+      'percentage': instance.percentage,
+    };
 
 BudgetModel _$BudgetModelFromJson(Map<String, dynamic> json) => BudgetModel(
-  id: json['_id'] as String,
-  period: BudgetPeriodModel.fromJson(json['period'] as Map<String, dynamic>),
-  categories: (json['categories'] as List<dynamic>)
-      .map((e) => BudgetCategoryModel.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  totalAllocated: (json['totalAllocated'] as num).toDouble(),
-  totalSpent: (json['totalSpent'] as num).toDouble(),
-  status: json['status'] as String,
-  createdAt: json['createdAt'] == null
-      ? null
-      : DateTime.parse(json['createdAt'] as String),
-  updatedAt: json['updatedAt'] == null
-      ? null
-      : DateTime.parse(json['updatedAt'] as String),
-);
+      id: BudgetModel._idFromJson(json['_id']),
+      period:
+          BudgetPeriodModel.fromJson(json['period'] as Map<String, dynamic>),
+      categories: (json['categories'] as List<dynamic>)
+          .map((e) => BudgetCategoryModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      totalAllocated: (json['totalAllocated'] as num).toDouble(),
+      totalSpent: (json['totalSpent'] as num).toDouble(),
+      status: json['status'] as String,
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
+    );
 
 Map<String, dynamic> _$BudgetModelToJson(BudgetModel instance) =>
     <String, dynamic>{

@@ -97,13 +97,19 @@ class SavingsTrendModel extends Equatable {
 class NarrativeReportModel extends Equatable {
   final String title;
   final String summary;
+  final List<String> topInsights;
+  final List<String> recommendations;
+  final String? tone;
   @JsonKey(name: 'health_score')
-  final int healthScore;
+  final int? healthScore;
 
   const NarrativeReportModel({
     required this.title,
     required this.summary,
-    required this.healthScore,
+    this.topInsights = const [],
+    this.recommendations = const [],
+    this.tone,
+    this.healthScore,
   });
 
   factory NarrativeReportModel.fromJson(Map<String, dynamic> json) =>
@@ -111,5 +117,12 @@ class NarrativeReportModel extends Equatable {
   Map<String, dynamic> toJson() => _$NarrativeReportModelToJson(this);
 
   @override
-  List<Object?> get props => [title, summary, healthScore];
+  List<Object?> get props => [
+    title,
+    summary,
+    topInsights,
+    recommendations,
+    tone,
+    healthScore,
+  ];
 }

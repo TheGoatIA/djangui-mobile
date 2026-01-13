@@ -20,8 +20,8 @@ abstract class AuthApiService extends ChopperService {
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: '/auth/google')
-  Future<Response<AuthResponse>> googleLogin(@Body() Map<String, dynamic> body);
+  @Post(path: ApiConstants.appleAuth)
+  Future<Response<AuthResponse>> appleLogin(@Body() Map<String, dynamic> body);
 
   @Post(path: ApiConstants.refresh)
   Future<Response<BaseResponse<Map<String, dynamic>>>> refreshToken(

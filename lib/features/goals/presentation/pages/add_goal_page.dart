@@ -14,6 +14,7 @@ import '../../data/models/goal_model.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class AddGoalPage extends StatefulWidget {
   const AddGoalPage({super.key});
@@ -149,7 +150,16 @@ class _AddGoalPageState extends State<AddGoalPage> {
   Widget build(BuildContext context) {
     return BlocListener<GoalsBloc, GoalsState>(
       listener: (context, state) {
-        if (state.status == GoalsStatus.success) {
+        if (state.status == GoalsStatus.goalCreated) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Goals',
+            action: 'create_success',
+            details: {
+              'name': state.goals.last.name,
+              'amount': state.goals.last.targetAmount,
+              'type': state.goals.last.type,
+            },
+          );
           context.pop(true);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(AppLocalizations.of(context)!.successGoal)),

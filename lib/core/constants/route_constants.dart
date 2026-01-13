@@ -30,4 +30,14 @@ class RouteConstants {
   static const String createTicket = '/support/tickets/create';
   static const String ticketDetails = '/support/tickets/:id';
   static const String completeProfile = '/complete-profile';
+
+  // Tontine
+  static const String tontines = '/tontines';
+  static const String createTontine = '/tontines/create';
+  static const String tontineDetails = '/tontines/:id';
+  static const String joinTontine = '/tontines/join';
+
+  // User Subscriptions (Recurring Expenses)
+  static const String userSubscriptions = '/user-subscriptions';
+  static const String addUserSubscription = '/user-subscriptions/add';
 }

@@ -21,6 +21,10 @@ import '../features/system/data/datasources/system_api_service.dart';
 import '../features/notifications/data/datasources/notification_api_service.dart';
 import '../features/upload/data/datasources/upload_api_service.dart';
 import '../features/support/data/datasources/support_api_service.dart';
+import '../features/voice/data/datasources/voice_api_service.dart';
+import '../features/tontine/data/datasources/tontine_api_service.dart';
+import '../features/user_subscriptions/data/datasources/subscription_api_service.dart';
+import 'package:kauri/features/analytics/data/datasources/analytics_api_service.dart';
 import 'injection.dart';
 
 @module
@@ -92,6 +96,22 @@ abstract class RegisterModule {
   @lazySingleton
   SupportApiService get supportApiService =>
       SupportApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  VoiceApiService get voiceApiService =>
+      VoiceApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  TontineApiService get tontineApiService =>
+      TontineApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  SubscriptionApiService get subscriptionApiService =>
+      SubscriptionApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  AnalyticsApiService get analyticsApiService =>
+      AnalyticsApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
   AppDatabase get database => AppDatabase();

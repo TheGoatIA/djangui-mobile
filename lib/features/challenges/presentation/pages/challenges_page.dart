@@ -14,6 +14,7 @@ import 'package:kauri/core/theme/app_shadows.dart';
 
 import 'package:showcaseview/showcaseview.dart';
 import 'package:kauri/core/services/tutorial_service.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class ChallengesPage extends StatelessWidget {
   const ChallengesPage({super.key});
@@ -42,6 +43,7 @@ class _ChallengesViewState extends State<ChallengesView> {
   @override
   void initState() {
     super.initState();
+    getIt<AnalyticsManager>().trackEvent(feature: 'Challenges', action: 'view');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });

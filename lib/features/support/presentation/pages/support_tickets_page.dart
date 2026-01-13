@@ -11,6 +11,8 @@ import '../bloc/support_state.dart';
 import '../../data/models/support_ticket_model.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_shadows.dart';
+import '../../../../di/injection.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class SupportTicketsPage extends StatefulWidget {
   const SupportTicketsPage({super.key});
@@ -24,6 +26,10 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
   void initState() {
     super.initState();
     context.read<SupportBloc>().add(GetTicketsRequested());
+    getIt<AnalyticsManager>().trackEvent(
+      feature: 'Support',
+      action: 'view_tickets',
+    );
   }
 
   @override

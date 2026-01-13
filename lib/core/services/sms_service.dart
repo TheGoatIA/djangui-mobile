@@ -7,12 +7,14 @@ class SMSTransaction {
   final String description;
   final DateTime date;
   final String sender;
+  final String type; // 'income' or 'expense'
 
   SMSTransaction({
     required this.amount,
     required this.description,
     required this.date,
     required this.sender,
+    required this.type,
   });
 }
 
@@ -51,27 +53,89 @@ class SMSService {
     return transactions;
   }
 
-  SMSTransaction? _parseMessage(String sender, String body, DateTime date) {
-    // Basic Parsing Logic for common providers in Cameroon/Africa
-    // Adjust based on real SMS formats.
+  Future<List<String>> getRawMessagesLast24Hours() async {
+    if (!await requestPermission()) return [];
 
-    // Example: "MobileMoney: Vous avez recu 25000 FCFA de Boris..."
-    // Example: "Orange Money: Paiement de 5000 FCFA..."
+    final now = DateTime.now();
+    final last24h = now.subtract(const Duration(hours: 24));
+
+    // We fetch a larger batch and filter by date
+    final messages = await _query.querySms(
+      kinds: [SmsQueryKind.inbox],
+      count: 200, // Increased to ensure we cover busy days
+    );
+
+    return messages
+        .where(
+          (msg) =>
+              msg.date != null &&
+              msg.date!.isAfter(last24h) &&
+              msg.body != null &&
+              _isFinancialMessage(msg.address ?? '', msg.body!),
+        )
+        .map((msg) => msg.body!)
+        .toList();
+  }
+
+  bool _isFinancialMessage(String sender, String body) {
+    final lowerBody = body.toLowerCase();
+    final address = sender.toLowerCase();
+
+    // Known financial senders or keywords
+    return address.contains('mobilemoney') ||
+        address.contains('momo') ||
+        address.contains('orangemoney') ||
+        address.contains('om') ||
+        lowerBody.contains('fcfa') ||
+        lowerBody.contains('xaf') ||
+        lowerBody.contains('transfert') ||
+        lowerBody.contains('paiement') ||
+        lowerBody.contains('dépôt') || // With accent
+        lowerBody.contains('depot') ||
+        lowerBody.contains('reçu') || // With accent
+        lowerBody.contains('recu') ||
+        lowerBody.contains('crédité') || // With accent
+        lowerBody.contains('credite');
+  }
+
+  SMSTransaction? _parseMessage(String sender, String body, DateTime date) {
+    final lowerBody = body.toLowerCase();
 
     if (sender.contains('MobileMoney') ||
         sender.contains('OrangeMoney') ||
-        body.contains('FCFA')) {
+        lowerBody.contains('fcfa') ||
+        lowerBody.contains('xaf')) {
       final amount = _extractAmount(body);
       if (amount != null) {
+        String type = 'expense';
+        // Keywords for income
+        if (lowerBody.contains('recu') ||
+            lowerBody.contains('received') ||
+            lowerBody.contains('depot') ||
+            lowerBody.contains('credité') ||
+            lowerBody.contains('credit')) {
+          type = 'income';
+        }
+
         return SMSTransaction(
           amount: amount,
-          description: body, // Or extract cleaner description
+          description: _cleanBody(body),
           date: date,
           sender: sender,
+          type: type,
         );
       }
     }
     return null;
+  }
+
+  String _cleanBody(String body) {
+    // Try to extract a clean description or just return the body if too complex
+    // For now, let's keep it simple: take first 50 chars or similar
+    if (body.length > 60) {
+      return '${body.substring(0, 57)}...';
+    }
+    return body;
   }
 
   double? _extractAmount(String text) {

@@ -1,12 +1,14 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/insight_model.dart';
+import '../../../reports/data/models/reports_model.dart';
 
 enum InsightsStatus { initial, loading, success, error }
 
 class InsightsState extends Equatable {
   final InsightsStatus status;
   final List<CategoryDistributionModel> distribution;
-  final List<SpendingTrendModel> trends;
+  final List<SavingsTrendModel> trends;
+  final NarrativeReportModel? narrative;
   final String? errorMessage;
   final String period;
 
@@ -14,6 +16,7 @@ class InsightsState extends Equatable {
     this.status = InsightsStatus.initial,
     this.distribution = const [],
     this.trends = const [],
+    this.narrative,
     this.errorMessage,
     this.period = 'monthly',
   });
@@ -23,14 +26,16 @@ class InsightsState extends Equatable {
   InsightsState copyWith({
     InsightsStatus? status,
     List<CategoryDistributionModel>? distribution,
-    List<SpendingTrendModel>? trends,
+    List<SavingsTrendModel>? trends,
     String? errorMessage,
     String? period,
+    NarrativeReportModel? narrative,
   }) {
     return InsightsState(
       status: status ?? this.status,
       distribution: distribution ?? this.distribution,
       trends: trends ?? this.trends,
+      narrative: narrative ?? this.narrative,
       errorMessage: errorMessage ?? this.errorMessage,
       period: period ?? this.period,
     );
@@ -41,6 +46,7 @@ class InsightsState extends Equatable {
     status,
     distribution,
     trends,
+    narrative,
     errorMessage,
     period,
   ];

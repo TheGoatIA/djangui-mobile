@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,8 +12,9 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/auth_bloc.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../../di/injection.dart';
 import '../../../../features/system/presentation/bloc/system_bloc.dart';
-import '../../../../features/system/presentation/bloc/system_state.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -38,6 +40,11 @@ class _LoginPageState extends State<LoginPage> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Auth',
+            action: 'login_success',
+            details: {'provider': 'email'},
+          );
           context.go(RouteConstants.dashboard);
         } else if (state.status == AuthStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -153,6 +160,11 @@ class _LoginPageState extends State<LoginPage> {
                                                 'Please authenticate to login',
                                           );
                                       if (didAuthenticate) {
+                                        getIt<AnalyticsManager>().trackEvent(
+                                          feature: 'Auth',
+                                          action: 'login_success',
+                                          details: {'provider': 'biometric'},
+                                        );
                                         authBloc.add(
                                           AuthBiometricLoginRequested(),
                                         );
@@ -251,7 +263,11 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 24),
                   OutlinedButton(
                     onPressed: () {
-                      _showCountrySelectionDialog(context);
+                      _showSocialCountryDialog(
+                        context,
+                        (countryCode) =>
+                            AuthGoogleSignInRequested(countryCode: countryCode),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
@@ -281,6 +297,45 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if (Platform.isIOS) ...[
+                    OutlinedButton(
+                      onPressed: () {
+                        _showSocialCountryDialog(
+                          context,
+                          (countryCode) => AuthAppleSignInRequested(
+                            countryCode: countryCode,
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.apple,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            AppLocalizations.of(context)!.appleSignIn,
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   OutlinedButton(
                     onPressed: () {
                       context.push(RouteConstants.phoneLogin);
@@ -337,7 +392,10 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _showCountrySelectionDialog(BuildContext context) {
+  void _showSocialCountryDialog(
+    BuildContext context,
+    AuthEvent Function(String countryCode) createEvent,
+  ) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -359,11 +417,17 @@ class _LoginPageState extends State<LoginPage> {
                   return ListTile(
                     title: Text(country.name),
                     onTap: () {
-                      Navigator.pop(dialogContext);
-                      // Trigger Google Sign-In with selected country
-                      context.read<AuthBloc>().add(
-                        AuthGoogleSignInRequested(countryCode: country.code),
+                      getIt<AnalyticsManager>().trackEvent(
+                        feature: 'Auth',
+                        action: 'social_login_attempt',
+                        details: {
+                          'provider': createEvent is AuthGoogleSignInRequested
+                              ? 'google'
+                              : 'apple',
+                        },
                       );
+                      Navigator.pop(dialogContext);
+                      context.read<AuthBloc>().add(createEvent(country.code));
                     },
                   );
                 }).toList(),

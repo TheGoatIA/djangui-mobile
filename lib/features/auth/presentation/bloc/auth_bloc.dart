@@ -24,6 +24,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthForgotPasswordRequested>(_onAuthForgotPasswordRequested);
     on<AuthResetPasswordRequested>(_onAuthResetPasswordRequested);
     on<AuthGoogleSignInRequested>(_onAuthGoogleSignInRequested);
+    on<AuthAppleSignInRequested>(_onAuthAppleSignInRequested);
     on<AuthPhoneVerificationRequested>(_onAuthPhoneVerificationRequested);
     on<AuthPhoneSignInRequested>(_onAuthPhoneSignInRequested);
     on<AuthLinkPhoneRequested>(_onAuthLinkPhoneRequested);
@@ -91,6 +92,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _authRepository.signInWithPhoneNumber(
       event.verificationId,
       event.smsCode,
+      country: _tempCountryCode,
     );
     result.fold(
       (failure) => emit(
@@ -99,11 +101,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (response) {
         _authRepository.updateDeviceInfo();
         _authRepository.logConnection();
-        // Initialize country if we have a temporary country code
-        if (_tempCountryCode != null) {
-          _authRepository.updateProfile(country: _tempCountryCode);
-          _tempCountryCode = null;
-        }
+        _tempCountryCode = null;
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
@@ -156,11 +154,35 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  Future<void> _onAuthAppleSignInRequested(
+    AuthAppleSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    final result = await _authRepository.signInWithApple(
+      countryCode: event.countryCode,
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (response) {
+        _authRepository.updateDeviceInfo();
+        _authRepository.logConnection();
+        emit(
+          state.copyWith(
+            status: AuthStatus.authenticated,
+            authResponse: response,
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _onAuthCheckRequested(
     AuthCheckRequested event,
     Emitter<AuthState> emit,
   ) async {
-    debugPrint('🔑 [AuthBloc] Checking authentication status...');
     emit(state.copyWith(status: AuthStatus.loading));
     final isAuthenticated = await _authRepository.isAuthenticated();
 
@@ -199,7 +221,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         },
       );
     } else {
-      debugPrint('🔑 [AuthBloc] No session found (unauthenticated)');
       emit(state.copyWith(status: AuthStatus.unauthenticated));
     }
   }

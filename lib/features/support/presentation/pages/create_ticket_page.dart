@@ -7,6 +7,8 @@ import '../../../../l10n/app_localizations.dart';
 import '../bloc/support_bloc.dart';
 import '../bloc/support_event.dart';
 import '../bloc/support_state.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../../di/injection.dart';
 
 class CreateTicketPage extends StatefulWidget {
   const CreateTicketPage({super.key});
@@ -53,6 +55,11 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
       body: BlocConsumer<SupportBloc, SupportState>(
         listener: (context, state) {
           if (state.status == SupportStatus.success) {
+            getIt<AnalyticsManager>().trackEvent(
+              feature: 'Support',
+              action: 'create_success',
+              details: {'category': _selectedCategory},
+            );
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(

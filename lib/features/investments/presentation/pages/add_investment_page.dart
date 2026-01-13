@@ -7,6 +7,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../di/injection.dart';
 import '../../data/models/investment_model.dart';
 import '../bloc/investments_bloc.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class AddInvestmentPage extends StatefulWidget {
   const AddInvestmentPage({super.key});
@@ -55,8 +56,15 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
       // Wait... AddInvestmentPage is pushed onto stack. We need to pass the bloc or re-retrieve it.
       // Since InvestmentsPage creates the bloc, we might need a Global/Feature scope bloc.
       // For now, let's use getIt<InvestmentsBloc>() directly.
+      getIt<AnalyticsManager>().trackEvent(
+        feature: 'Investments',
+        action: 'add_success',
+        details: {'type': _selectedType, 'amount': amount},
+      );
       getIt<InvestmentsBloc>().add(AddInvestment(investment));
-      context.pop();
+      if (context.canPop()) {
+        context.pop();
+      }
     }
   }
 
@@ -167,10 +175,7 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
   InputDecoration _inputDecoration(BuildContext context, String label) {
     return InputDecoration(
       labelText: label,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       filled: true,
       fillColor: Theme.of(context).colorScheme.surface,
       contentPadding: const EdgeInsets.all(16),

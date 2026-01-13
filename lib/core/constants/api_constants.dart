@@ -7,6 +7,7 @@ class ApiConstants {
   static const String refresh = '/auth/refresh';
   static const String logout = '/auth/logout';
   static const String firebaseAuth = '/auth/firebase';
+  static const String appleAuth = '/auth/apple';
   static const String linkPhone = '/auth/link-phone';
   static const String fcmToken = '/auth/fcm-token';
   static const String forgotPassword = '/auth/forgot-password';
@@ -33,6 +34,8 @@ class ApiConstants {
   // AI & Automation
   static const String ocrScan = '/ocr/scan';
   static const String smsParse = '/sms/parse';
+  static const String smsBulkParse = '/sms/bulk-parse';
+  static const String voiceProcess = '/voice/process';
 
   // Reports
   static const String reportDashboard = '/reports/dashboard';
@@ -66,6 +69,24 @@ class ApiConstants {
   // Support
   static const String supportTickets = '/support/tickets';
 
+  // Tontines
+  static const String tontines = '/tontines';
+  static const String tontinesJoin = '/tontines/join';
+  static const String tontinesContribute = '/tontines/contribute';
+  static const String tontineContributions = '/tontines/{id}/contributions';
+  static const String validateContribution =
+      '/tontines/contributions/{id}/validate';
+
   // System
   static const String publicSettings = '/system/public-settings';
+
+  // Subscriptions (Recurring Expenses)
+  static const String subscriptions = '/subscriptions';
+  static const String subscriptionsDetect = '/subscriptions/detect';
+
+  // Analytics
+  static const String analytics = '/analytics';
+  static const String analyticsEvents = '/analytics/events';
+  static const String analyticsSessionStart = '/analytics/sessions/start';
+  static const String analyticsSessionEnd = '/analytics/sessions/end';
 }
