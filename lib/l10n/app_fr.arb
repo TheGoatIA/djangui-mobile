@@ -580,5 +580,62 @@
     "provider": "Opérateur/Banque",
     "accountNumber": "Numéro de compte",
     "accountName": "Nom du compte",
-    "noAccountsAdded": "Aucun compte ajouté"
+    "noAccountsAdded": "Aucun compte ajouté",
+    "mySubscriptions": "Mes Abonnements",
+    "detectSubscriptions": "Détecter les abonnements",
+    "noSubscriptionsFound": "Aucun abonnement trouvé",
+    "addSubscription": "Ajouter un abonnement",
+    "editSubscription": "Modifier l'abonnement",
+    "paymentLabel": "Paiement :",
+    "providerLabel": "Fournisseur",
+    "nextBillingDateLabel": "Prochaine facturation",
+    "trialEndDateLabel": "Fin de l'essai gratuit (Optionnel)",
+    "remindMeLabel": "M'alerter avant l'échéance",
+    "remindMeSubtitle": "Recevoir une notification 48h avant",
+    "subscriptionNameLabel": "Nom de l'abonnement",
+    "subscriptionNameHint": "ex: Netflix, Spotify...",
+    "nextInvoices": "Prochaines Factures",
+    "today": "Aujourd'hui",
+    "inDays": "Dans {count} jours",
+    "@inDays": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "statusActive": "Actif",
+    "statusPaused": "En pause",
+    "statusCancelled": "Annulé",
+    "statusExpired": "Expiré",
+    "frequencyWeekly": "Hebdomadaire",
+    "frequencyMonthly": "Mensuel",
+    "frequencyYearly": "Annuel",
+    "operationSuccess": "Opération réalisée avec succès",
+    "alreadyContributed": "Vous avez déjà cotisé pour ce tour",
+    "removeMember": "Retirer un membre",
+    "removeMemberConfirmation": "Voulez-vous vraiment retirer {name} de cette tontine ?",
+    "@removeMemberConfirmation": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "pending": "En attente",
+    "history": "Historique",
+    "noContributions": "Aucune contribution",
+    "remove": "Retirer",
+    "tutorialSubscriptionListTitle": "Vos Abonnements",
+    "tutorialSubscriptionListDesc": "Consultez et gérez tous vos paiements récurrents ici.",
+    "tutorialDetectSubscriptionTitle": "Détection Auto",
+    "tutorialDetectSubscriptionDesc": "Laissez l'IA trouver vos abonnements à partir de vos SMS.",
+    "tutorialAddSubscriptionTitle": "Ajout Manuel",
+    "tutorialAddSubscriptionDesc": "Ajoutez un abonnement manuellement s'il n'a pas été détecté.",
+    "tutorialTontineListTitle": "Vos Tontines",
+    "tutorialTontineListDesc": "Suivez tous vos groupes de tontine et vos cotisations.",
+    "tutorialJoinTontineTitle": "Rejoindre une Tontine",
+    "tutorialJoinTontineDesc": "Utilisez un code pour rejoindre un groupe existant.",
+    "tutorialCreateTontineButtonTitle": "Créer une Tontine",
+    "tutorialCreateTontineButtonDesc": "Lancez une nouvelle tontine et invitez vos amis."
 }

@@ -291,7 +291,9 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UserModel>> getCurrentUser() async {
     if (await _networkInfo.isConnected) {
       try {
-        final user = await _remoteDataSource.getCurrentUser();
+        final user = await _remoteDataSource.getCurrentUser().timeout(
+          const Duration(seconds: 5),
+        );
         await _localDataSource.saveUser(user);
         return Right(user);
       } catch (e) {

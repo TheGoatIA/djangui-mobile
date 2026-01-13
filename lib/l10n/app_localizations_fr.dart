@@ -1671,4 +1671,143 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noAccountsAdded => 'Aucun compte ajouté';
+
+  @override
+  String get mySubscriptions => 'Mes Abonnements';
+
+  @override
+  String get detectSubscriptions => 'Détecter les abonnements';
+
+  @override
+  String get noSubscriptionsFound => 'Aucun abonnement trouvé';
+
+  @override
+  String get addSubscription => 'Ajouter un abonnement';
+
+  @override
+  String get editSubscription => 'Modifier l\'abonnement';
+
+  @override
+  String get paymentLabel => 'Paiement :';
+
+  @override
+  String get providerLabel => 'Fournisseur';
+
+  @override
+  String get nextBillingDateLabel => 'Prochaine facturation';
+
+  @override
+  String get trialEndDateLabel => 'Fin de l\'essai gratuit (Optionnel)';
+
+  @override
+  String get remindMeLabel => 'M\'alerter avant l\'échéance';
+
+  @override
+  String get remindMeSubtitle => 'Recevoir une notification 48h avant';
+
+  @override
+  String get subscriptionNameLabel => 'Nom de l\'abonnement';
+
+  @override
+  String get subscriptionNameHint => 'ex: Netflix, Spotify...';
+
+  @override
+  String get nextInvoices => 'Prochaines Factures';
+
+  @override
+  String get today => 'Aujourd\'hui';
+
+  @override
+  String inDays(int count) {
+    return 'Dans $count jours';
+  }
+
+  @override
+  String get statusActive => 'Actif';
+
+  @override
+  String get statusPaused => 'En pause';
+
+  @override
+  String get statusCancelled => 'Annulé';
+
+  @override
+  String get statusExpired => 'Expiré';
+
+  @override
+  String get frequencyWeekly => 'Hebdomadaire';
+
+  @override
+  String get frequencyMonthly => 'Mensuel';
+
+  @override
+  String get frequencyYearly => 'Annuel';
+
+  @override
+  String get operationSuccess => 'Opération réalisée avec succès';
+
+  @override
+  String get alreadyContributed => 'Vous avez déjà cotisé pour ce tour';
+
+  @override
+  String get removeMember => 'Retirer un membre';
+
+  @override
+  String removeMemberConfirmation(String name) {
+    return 'Voulez-vous vraiment retirer $name de cette tontine ?';
+  }
+
+  @override
+  String get pending => 'En attente';
+
+  @override
+  String get history => 'Historique';
+
+  @override
+  String get noContributions => 'Aucune contribution';
+
+  @override
+  String get remove => 'Retirer';
+
+  @override
+  String get tutorialSubscriptionListTitle => 'Vos Abonnements';
+
+  @override
+  String get tutorialSubscriptionListDesc =>
+      'Consultez et gérez tous vos paiements récurrents ici.';
+
+  @override
+  String get tutorialDetectSubscriptionTitle => 'Détection Auto';
+
+  @override
+  String get tutorialDetectSubscriptionDesc =>
+      'Laissez l\'IA trouver vos abonnements à partir de vos SMS.';
+
+  @override
+  String get tutorialAddSubscriptionTitle => 'Ajout Manuel';
+
+  @override
+  String get tutorialAddSubscriptionDesc =>
+      'Ajoutez un abonnement manuellement s\'il n\'a pas été détecté.';
+
+  @override
+  String get tutorialTontineListTitle => 'Vos Tontines';
+
+  @override
+  String get tutorialTontineListDesc =>
+      'Suivez tous vos groupes de tontine et vos cotisations.';
+
+  @override
+  String get tutorialJoinTontineTitle => 'Rejoindre une Tontine';
+
+  @override
+  String get tutorialJoinTontineDesc =>
+      'Utilisez un code pour rejoindre un groupe existant.';
+
+  @override
+  String get tutorialCreateTontineButtonTitle => 'Créer une Tontine';
+
+  @override
+  String get tutorialCreateTontineButtonDesc =>
+      'Lancez une nouvelle tontine et invitez vos amis.';
 }

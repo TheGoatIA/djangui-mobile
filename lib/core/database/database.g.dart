@@ -4795,6 +4795,648 @@ class SyncRequestsCompanion extends UpdateCompanion<SyncRequest> {
   }
 }
 
+class $UserSubscriptionsTable extends UserSubscriptions
+    with TableInfo<$UserSubscriptionsTable, UserSubscription> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserSubscriptionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _providerMeta =
+      const VerificationMeta('provider');
+  @override
+  late final GeneratedColumn<String> provider = GeneratedColumn<String>(
+      'provider', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _currencyMeta =
+      const VerificationMeta('currency');
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+      'currency', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('XAF'));
+  static const VerificationMeta _frequencyMeta =
+      const VerificationMeta('frequency');
+  @override
+  late final GeneratedColumn<String> frequency = GeneratedColumn<String>(
+      'frequency', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _categoryMeta =
+      const VerificationMeta('category');
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+      'category', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('active'));
+  static const VerificationMeta _nextBillingDateMeta =
+      const VerificationMeta('nextBillingDate');
+  @override
+  late final GeneratedColumn<DateTime> nextBillingDate =
+      GeneratedColumn<DateTime>('next_billing_date', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _trialEndDateMeta =
+      const VerificationMeta('trialEndDate');
+  @override
+  late final GeneratedColumn<DateTime> trialEndDate = GeneratedColumn<DateTime>(
+      'trial_end_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _remindMeMeta =
+      const VerificationMeta('remindMe');
+  @override
+  late final GeneratedColumn<bool> remindMe = GeneratedColumn<bool>(
+      'remind_me', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("remind_me" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        provider,
+        amount,
+        currency,
+        frequency,
+        category,
+        status,
+        nextBillingDate,
+        trialEndDate,
+        remindMe,
+        createdAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_subscriptions';
+  @override
+  VerificationContext validateIntegrity(Insertable<UserSubscription> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('provider')) {
+      context.handle(_providerMeta,
+          provider.isAcceptableOrUnknown(data['provider']!, _providerMeta));
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(_currencyMeta,
+          currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta));
+    }
+    if (data.containsKey('frequency')) {
+      context.handle(_frequencyMeta,
+          frequency.isAcceptableOrUnknown(data['frequency']!, _frequencyMeta));
+    } else if (isInserting) {
+      context.missing(_frequencyMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(_categoryMeta,
+          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('next_billing_date')) {
+      context.handle(
+          _nextBillingDateMeta,
+          nextBillingDate.isAcceptableOrUnknown(
+              data['next_billing_date']!, _nextBillingDateMeta));
+    } else if (isInserting) {
+      context.missing(_nextBillingDateMeta);
+    }
+    if (data.containsKey('trial_end_date')) {
+      context.handle(
+          _trialEndDateMeta,
+          trialEndDate.isAcceptableOrUnknown(
+              data['trial_end_date']!, _trialEndDateMeta));
+    }
+    if (data.containsKey('remind_me')) {
+      context.handle(_remindMeMeta,
+          remindMe.isAcceptableOrUnknown(data['remind_me']!, _remindMeMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserSubscription map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserSubscription(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      provider: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}provider']),
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      currency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}currency'])!,
+      frequency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}frequency'])!,
+      category: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      nextBillingDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}next_billing_date'])!,
+      trialEndDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}trial_end_date']),
+      remindMe: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}remind_me'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+    );
+  }
+
+  @override
+  $UserSubscriptionsTable createAlias(String alias) {
+    return $UserSubscriptionsTable(attachedDatabase, alias);
+  }
+}
+
+class UserSubscription extends DataClass
+    implements Insertable<UserSubscription> {
+  final String id;
+  final String name;
+  final String? provider;
+  final double amount;
+  final String currency;
+  final String frequency;
+  final String? category;
+  final String status;
+  final DateTime nextBillingDate;
+  final DateTime? trialEndDate;
+  final bool remindMe;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  const UserSubscription(
+      {required this.id,
+      required this.name,
+      this.provider,
+      required this.amount,
+      required this.currency,
+      required this.frequency,
+      this.category,
+      required this.status,
+      required this.nextBillingDate,
+      this.trialEndDate,
+      required this.remindMe,
+      this.createdAt,
+      this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || provider != null) {
+      map['provider'] = Variable<String>(provider);
+    }
+    map['amount'] = Variable<double>(amount);
+    map['currency'] = Variable<String>(currency);
+    map['frequency'] = Variable<String>(frequency);
+    if (!nullToAbsent || category != null) {
+      map['category'] = Variable<String>(category);
+    }
+    map['status'] = Variable<String>(status);
+    map['next_billing_date'] = Variable<DateTime>(nextBillingDate);
+    if (!nullToAbsent || trialEndDate != null) {
+      map['trial_end_date'] = Variable<DateTime>(trialEndDate);
+    }
+    map['remind_me'] = Variable<bool>(remindMe);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    return map;
+  }
+
+  UserSubscriptionsCompanion toCompanion(bool nullToAbsent) {
+    return UserSubscriptionsCompanion(
+      id: Value(id),
+      name: Value(name),
+      provider: provider == null && nullToAbsent
+          ? const Value.absent()
+          : Value(provider),
+      amount: Value(amount),
+      currency: Value(currency),
+      frequency: Value(frequency),
+      category: category == null && nullToAbsent
+          ? const Value.absent()
+          : Value(category),
+      status: Value(status),
+      nextBillingDate: Value(nextBillingDate),
+      trialEndDate: trialEndDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trialEndDate),
+      remindMe: Value(remindMe),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory UserSubscription.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserSubscription(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      provider: serializer.fromJson<String?>(json['provider']),
+      amount: serializer.fromJson<double>(json['amount']),
+      currency: serializer.fromJson<String>(json['currency']),
+      frequency: serializer.fromJson<String>(json['frequency']),
+      category: serializer.fromJson<String?>(json['category']),
+      status: serializer.fromJson<String>(json['status']),
+      nextBillingDate: serializer.fromJson<DateTime>(json['nextBillingDate']),
+      trialEndDate: serializer.fromJson<DateTime?>(json['trialEndDate']),
+      remindMe: serializer.fromJson<bool>(json['remindMe']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'provider': serializer.toJson<String?>(provider),
+      'amount': serializer.toJson<double>(amount),
+      'currency': serializer.toJson<String>(currency),
+      'frequency': serializer.toJson<String>(frequency),
+      'category': serializer.toJson<String?>(category),
+      'status': serializer.toJson<String>(status),
+      'nextBillingDate': serializer.toJson<DateTime>(nextBillingDate),
+      'trialEndDate': serializer.toJson<DateTime?>(trialEndDate),
+      'remindMe': serializer.toJson<bool>(remindMe),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+    };
+  }
+
+  UserSubscription copyWith(
+          {String? id,
+          String? name,
+          Value<String?> provider = const Value.absent(),
+          double? amount,
+          String? currency,
+          String? frequency,
+          Value<String?> category = const Value.absent(),
+          String? status,
+          DateTime? nextBillingDate,
+          Value<DateTime?> trialEndDate = const Value.absent(),
+          bool? remindMe,
+          Value<DateTime?> createdAt = const Value.absent(),
+          Value<DateTime?> updatedAt = const Value.absent()}) =>
+      UserSubscription(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        provider: provider.present ? provider.value : this.provider,
+        amount: amount ?? this.amount,
+        currency: currency ?? this.currency,
+        frequency: frequency ?? this.frequency,
+        category: category.present ? category.value : this.category,
+        status: status ?? this.status,
+        nextBillingDate: nextBillingDate ?? this.nextBillingDate,
+        trialEndDate:
+            trialEndDate.present ? trialEndDate.value : this.trialEndDate,
+        remindMe: remindMe ?? this.remindMe,
+        createdAt: createdAt.present ? createdAt.value : this.createdAt,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+      );
+  UserSubscription copyWithCompanion(UserSubscriptionsCompanion data) {
+    return UserSubscription(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      provider: data.provider.present ? data.provider.value : this.provider,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      frequency: data.frequency.present ? data.frequency.value : this.frequency,
+      category: data.category.present ? data.category.value : this.category,
+      status: data.status.present ? data.status.value : this.status,
+      nextBillingDate: data.nextBillingDate.present
+          ? data.nextBillingDate.value
+          : this.nextBillingDate,
+      trialEndDate: data.trialEndDate.present
+          ? data.trialEndDate.value
+          : this.trialEndDate,
+      remindMe: data.remindMe.present ? data.remindMe.value : this.remindMe,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserSubscription(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('provider: $provider, ')
+          ..write('amount: $amount, ')
+          ..write('currency: $currency, ')
+          ..write('frequency: $frequency, ')
+          ..write('category: $category, ')
+          ..write('status: $status, ')
+          ..write('nextBillingDate: $nextBillingDate, ')
+          ..write('trialEndDate: $trialEndDate, ')
+          ..write('remindMe: $remindMe, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      name,
+      provider,
+      amount,
+      currency,
+      frequency,
+      category,
+      status,
+      nextBillingDate,
+      trialEndDate,
+      remindMe,
+      createdAt,
+      updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserSubscription &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.provider == this.provider &&
+          other.amount == this.amount &&
+          other.currency == this.currency &&
+          other.frequency == this.frequency &&
+          other.category == this.category &&
+          other.status == this.status &&
+          other.nextBillingDate == this.nextBillingDate &&
+          other.trialEndDate == this.trialEndDate &&
+          other.remindMe == this.remindMe &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String?> provider;
+  final Value<double> amount;
+  final Value<String> currency;
+  final Value<String> frequency;
+  final Value<String?> category;
+  final Value<String> status;
+  final Value<DateTime> nextBillingDate;
+  final Value<DateTime?> trialEndDate;
+  final Value<bool> remindMe;
+  final Value<DateTime?> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<int> rowid;
+  const UserSubscriptionsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.provider = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.frequency = const Value.absent(),
+    this.category = const Value.absent(),
+    this.status = const Value.absent(),
+    this.nextBillingDate = const Value.absent(),
+    this.trialEndDate = const Value.absent(),
+    this.remindMe = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserSubscriptionsCompanion.insert({
+    required String id,
+    required String name,
+    this.provider = const Value.absent(),
+    required double amount,
+    this.currency = const Value.absent(),
+    required String frequency,
+    this.category = const Value.absent(),
+    this.status = const Value.absent(),
+    required DateTime nextBillingDate,
+    this.trialEndDate = const Value.absent(),
+    this.remindMe = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name),
+        amount = Value(amount),
+        frequency = Value(frequency),
+        nextBillingDate = Value(nextBillingDate);
+  static Insertable<UserSubscription> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? provider,
+    Expression<double>? amount,
+    Expression<String>? currency,
+    Expression<String>? frequency,
+    Expression<String>? category,
+    Expression<String>? status,
+    Expression<DateTime>? nextBillingDate,
+    Expression<DateTime>? trialEndDate,
+    Expression<bool>? remindMe,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (provider != null) 'provider': provider,
+      if (amount != null) 'amount': amount,
+      if (currency != null) 'currency': currency,
+      if (frequency != null) 'frequency': frequency,
+      if (category != null) 'category': category,
+      if (status != null) 'status': status,
+      if (nextBillingDate != null) 'next_billing_date': nextBillingDate,
+      if (trialEndDate != null) 'trial_end_date': trialEndDate,
+      if (remindMe != null) 'remind_me': remindMe,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserSubscriptionsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String?>? provider,
+      Value<double>? amount,
+      Value<String>? currency,
+      Value<String>? frequency,
+      Value<String?>? category,
+      Value<String>? status,
+      Value<DateTime>? nextBillingDate,
+      Value<DateTime?>? trialEndDate,
+      Value<bool>? remindMe,
+      Value<DateTime?>? createdAt,
+      Value<DateTime?>? updatedAt,
+      Value<int>? rowid}) {
+    return UserSubscriptionsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      provider: provider ?? this.provider,
+      amount: amount ?? this.amount,
+      currency: currency ?? this.currency,
+      frequency: frequency ?? this.frequency,
+      category: category ?? this.category,
+      status: status ?? this.status,
+      nextBillingDate: nextBillingDate ?? this.nextBillingDate,
+      trialEndDate: trialEndDate ?? this.trialEndDate,
+      remindMe: remindMe ?? this.remindMe,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (provider.present) {
+      map['provider'] = Variable<String>(provider.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (frequency.present) {
+      map['frequency'] = Variable<String>(frequency.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (nextBillingDate.present) {
+      map['next_billing_date'] = Variable<DateTime>(nextBillingDate.value);
+    }
+    if (trialEndDate.present) {
+      map['trial_end_date'] = Variable<DateTime>(trialEndDate.value);
+    }
+    if (remindMe.present) {
+      map['remind_me'] = Variable<bool>(remindMe.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserSubscriptionsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('provider: $provider, ')
+          ..write('amount: $amount, ')
+          ..write('currency: $currency, ')
+          ..write('frequency: $frequency, ')
+          ..write('category: $category, ')
+          ..write('status: $status, ')
+          ..write('nextBillingDate: $nextBillingDate, ')
+          ..write('trialEndDate: $trialEndDate, ')
+          ..write('remindMe: $remindMe, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4806,6 +5448,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ChatMessagesTable chatMessages = $ChatMessagesTable(this);
   late final $InvestmentsTable investments = $InvestmentsTable(this);
   late final $SyncRequestsTable syncRequests = $SyncRequestsTable(this);
+  late final $UserSubscriptionsTable userSubscriptions =
+      $UserSubscriptionsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4818,7 +5462,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         challenges,
         chatMessages,
         investments,
-        syncRequests
+        syncRequests,
+        userSubscriptions
       ];
 }
 
@@ -7033,6 +7678,304 @@ typedef $$SyncRequestsTableProcessedTableManager = ProcessedTableManager<
     ),
     SyncRequest,
     PrefetchHooks Function()>;
+typedef $$UserSubscriptionsTableCreateCompanionBuilder
+    = UserSubscriptionsCompanion Function({
+  required String id,
+  required String name,
+  Value<String?> provider,
+  required double amount,
+  Value<String> currency,
+  required String frequency,
+  Value<String?> category,
+  Value<String> status,
+  required DateTime nextBillingDate,
+  Value<DateTime?> trialEndDate,
+  Value<bool> remindMe,
+  Value<DateTime?> createdAt,
+  Value<DateTime?> updatedAt,
+  Value<int> rowid,
+});
+typedef $$UserSubscriptionsTableUpdateCompanionBuilder
+    = UserSubscriptionsCompanion Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String?> provider,
+  Value<double> amount,
+  Value<String> currency,
+  Value<String> frequency,
+  Value<String?> category,
+  Value<String> status,
+  Value<DateTime> nextBillingDate,
+  Value<DateTime?> trialEndDate,
+  Value<bool> remindMe,
+  Value<DateTime?> createdAt,
+  Value<DateTime?> updatedAt,
+  Value<int> rowid,
+});
+
+class $$UserSubscriptionsTableFilterComposer
+    extends Composer<_$AppDatabase, $UserSubscriptionsTable> {
+  $$UserSubscriptionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get provider => $composableBuilder(
+      column: $table.provider, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currency => $composableBuilder(
+      column: $table.currency, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get frequency => $composableBuilder(
+      column: $table.frequency, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get nextBillingDate => $composableBuilder(
+      column: $table.nextBillingDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get trialEndDate => $composableBuilder(
+      column: $table.trialEndDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get remindMe => $composableBuilder(
+      column: $table.remindMe, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$UserSubscriptionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserSubscriptionsTable> {
+  $$UserSubscriptionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get provider => $composableBuilder(
+      column: $table.provider, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currency => $composableBuilder(
+      column: $table.currency, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get frequency => $composableBuilder(
+      column: $table.frequency, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get nextBillingDate => $composableBuilder(
+      column: $table.nextBillingDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get trialEndDate => $composableBuilder(
+      column: $table.trialEndDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get remindMe => $composableBuilder(
+      column: $table.remindMe, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$UserSubscriptionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserSubscriptionsTable> {
+  $$UserSubscriptionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get provider =>
+      $composableBuilder(column: $table.provider, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
+
+  GeneratedColumn<String> get frequency =>
+      $composableBuilder(column: $table.frequency, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get nextBillingDate => $composableBuilder(
+      column: $table.nextBillingDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get trialEndDate => $composableBuilder(
+      column: $table.trialEndDate, builder: (column) => column);
+
+  GeneratedColumn<bool> get remindMe =>
+      $composableBuilder(column: $table.remindMe, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$UserSubscriptionsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $UserSubscriptionsTable,
+    UserSubscription,
+    $$UserSubscriptionsTableFilterComposer,
+    $$UserSubscriptionsTableOrderingComposer,
+    $$UserSubscriptionsTableAnnotationComposer,
+    $$UserSubscriptionsTableCreateCompanionBuilder,
+    $$UserSubscriptionsTableUpdateCompanionBuilder,
+    (
+      UserSubscription,
+      BaseReferences<_$AppDatabase, $UserSubscriptionsTable, UserSubscription>
+    ),
+    UserSubscription,
+    PrefetchHooks Function()> {
+  $$UserSubscriptionsTableTableManager(
+      _$AppDatabase db, $UserSubscriptionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserSubscriptionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserSubscriptionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserSubscriptionsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> provider = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<String> currency = const Value.absent(),
+            Value<String> frequency = const Value.absent(),
+            Value<String?> category = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<DateTime> nextBillingDate = const Value.absent(),
+            Value<DateTime?> trialEndDate = const Value.absent(),
+            Value<bool> remindMe = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserSubscriptionsCompanion(
+            id: id,
+            name: name,
+            provider: provider,
+            amount: amount,
+            currency: currency,
+            frequency: frequency,
+            category: category,
+            status: status,
+            nextBillingDate: nextBillingDate,
+            trialEndDate: trialEndDate,
+            remindMe: remindMe,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            Value<String?> provider = const Value.absent(),
+            required double amount,
+            Value<String> currency = const Value.absent(),
+            required String frequency,
+            Value<String?> category = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            required DateTime nextBillingDate,
+            Value<DateTime?> trialEndDate = const Value.absent(),
+            Value<bool> remindMe = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserSubscriptionsCompanion.insert(
+            id: id,
+            name: name,
+            provider: provider,
+            amount: amount,
+            currency: currency,
+            frequency: frequency,
+            category: category,
+            status: status,
+            nextBillingDate: nextBillingDate,
+            trialEndDate: trialEndDate,
+            remindMe: remindMe,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UserSubscriptionsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $UserSubscriptionsTable,
+    UserSubscription,
+    $$UserSubscriptionsTableFilterComposer,
+    $$UserSubscriptionsTableOrderingComposer,
+    $$UserSubscriptionsTableAnnotationComposer,
+    $$UserSubscriptionsTableCreateCompanionBuilder,
+    $$UserSubscriptionsTableUpdateCompanionBuilder,
+    (
+      UserSubscription,
+      BaseReferences<_$AppDatabase, $UserSubscriptionsTable, UserSubscription>
+    ),
+    UserSubscription,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7053,4 +7996,6 @@ class $AppDatabaseManager {
       $$InvestmentsTableTableManager(_db, _db.investments);
   $$SyncRequestsTableTableManager get syncRequests =>
       $$SyncRequestsTableTableManager(_db, _db.syncRequests);
+  $$UserSubscriptionsTableTableManager get userSubscriptions =>
+      $$UserSubscriptionsTableTableManager(_db, _db.userSubscriptions);
 }

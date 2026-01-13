@@ -79,4 +79,8 @@ class ApiConstants {
 
   // System
   static const String publicSettings = '/system/public-settings';
+
+  // Subscriptions (Recurring Expenses)
+  static const String subscriptions = '/subscriptions';
+  static const String subscriptionsDetect = '/subscriptions/detect';
 }

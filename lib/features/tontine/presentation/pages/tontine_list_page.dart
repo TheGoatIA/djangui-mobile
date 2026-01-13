@@ -11,6 +11,10 @@ import '../bloc/tontine_event.dart';
 import '../bloc/tontine_state.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 
+import 'package:showcaseview/showcaseview.dart';
+import '../../../../di/injection.dart';
+import '../../../../core/services/tutorial_service.dart';
+
 class TontineListPage extends StatefulWidget {
   const TontineListPage({super.key});
 
@@ -19,10 +23,30 @@ class TontineListPage extends StatefulWidget {
 }
 
 class _TontineListPageState extends State<TontineListPage> {
+  final GlobalKey _listKey = GlobalKey();
+  final GlobalKey _joinKey = GlobalKey();
+  final GlobalKey _createKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     context.read<TontineBloc>().add(TontinesLoadRequested());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('tontines_v2')) {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        ShowCaseWidget.of(
+          context,
+        ).startShowCase([_joinKey, _listKey, _createKey]);
+        tutorialService.markTutorialAsSeen('tontines_v2');
+      });
+    }
   }
 
   @override
@@ -35,10 +59,15 @@ class _TontineListPageState extends State<TontineListPage> {
         title: Text(l10n.tontine),
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.group_add_outlined),
-            tooltip: l10n.joinTontine,
-            onPressed: () => context.push(RouteConstants.joinTontine),
+          Showcase(
+            key: _joinKey,
+            title: l10n.tutorialJoinTontineTitle,
+            description: l10n.tutorialJoinTontineDesc,
+            child: IconButton(
+              icon: const Icon(Icons.group_add_outlined),
+              tooltip: l10n.joinTontine,
+              onPressed: () => context.push(RouteConstants.joinTontine),
+            ),
           ),
         ],
       ),
@@ -49,31 +78,46 @@ class _TontineListPageState extends State<TontineListPage> {
           }
 
           if (state.tontines.isEmpty) {
-            return _buildEmptyState(context, l10n);
+            return Showcase(
+              key: _listKey,
+              title: l10n.tutorialTontineListTitle,
+              description: l10n.tutorialTontineListDesc,
+              child: _buildEmptyState(context, l10n),
+            );
           }
 
           return RefreshIndicator(
             onRefresh: () async {
               context.read<TontineBloc>().add(TontinesLoadRequested());
             },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: state.tontines.length,
-              itemBuilder: (context, index) {
-                final tontine = state.tontines[index];
-                return _buildTontineCard(context, tontine)
-                    .animate()
-                    .fadeIn(duration: 400.ms, delay: (index * 100).ms)
-                    .slideX(begin: 0.2, end: 0);
-              },
+            child: Showcase(
+              key: _listKey,
+              title: l10n.tutorialTontineListTitle,
+              description: l10n.tutorialTontineListDesc,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: state.tontines.length,
+                itemBuilder: (context, index) {
+                  final tontine = state.tontines[index];
+                  return _buildTontineCard(context, tontine, l10n)
+                      .animate()
+                      .fadeIn(duration: 400.ms, delay: (index * 100).ms)
+                      .slideX(begin: 0.2, end: 0);
+                },
+              ),
             ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _handleCreateTontine(context),
-        label: Text(l10n.createTontine),
-        icon: const Icon(Icons.add),
+      floatingActionButton: Showcase(
+        key: _createKey,
+        title: l10n.tutorialCreateTontineButtonTitle,
+        description: l10n.tutorialCreateTontineButtonDesc,
+        child: FloatingActionButton.extended(
+          onPressed: () => _handleCreateTontine(context),
+          label: Text(l10n.createTontine),
+          icon: const Icon(Icons.add),
+        ),
       ),
     );
   }
@@ -89,13 +133,10 @@ class _TontineListPageState extends State<TontineListPage> {
             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 24),
-          Text(
-            l10n.noTontineJoined, // Add to l10n if missing
-            style: AppTextStyles.h3,
-          ),
+          Text(l10n.noTontineJoined, style: AppTextStyles.h3),
           const SizedBox(height: 12),
           Text(
-            l10n.startTontineDescription, // Add to l10n if missing
+            l10n.startTontineDescription,
             textAlign: TextAlign.center,
             style: AppTextStyles.bodyMedium.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -111,7 +152,11 @@ class _TontineListPageState extends State<TontineListPage> {
     );
   }
 
-  Widget _buildTontineCard(BuildContext context, dynamic tontine) {
+  Widget _buildTontineCard(
+    BuildContext context,
+    dynamic tontine,
+    AppLocalizations l10n,
+  ) {
     return Card(
       elevation: 4,
       shadowColor: Colors.black45,
@@ -128,7 +173,7 @@ class _TontineListPageState extends State<TontineListPage> {
               children: [
                 Icon(Icons.event_repeat, size: 16, color: AppColors.primary),
                 const SizedBox(width: 4),
-                Text(tontine.frequency),
+                Text(_getLocalizedFrequency(tontine.frequency, l10n)),
                 const SizedBox(width: 16),
                 Icon(
                   Icons.payments_outlined,
@@ -157,6 +202,21 @@ class _TontineListPageState extends State<TontineListPage> {
         onTap: () => context.push('${RouteConstants.tontines}/${tontine.id}'),
       ),
     );
+  }
+
+  String _getLocalizedFrequency(String frequency, AppLocalizations l10n) {
+    switch (frequency.toLowerCase()) {
+      case 'weekly':
+        return l10n.frequencyWeekly;
+      case 'monthly':
+        return l10n.frequencyMonthly;
+      case 'yearly':
+        return l10n.frequencyYearly;
+      case 'daily':
+        return l10n.daily;
+      default:
+        return frequency;
+    }
   }
 
   void _handleCreateTontine(BuildContext context) {

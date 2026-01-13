@@ -89,7 +89,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
               if (state.status == TontineStatus.success) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text("Opération réalisée avec succès !"),
+                    content: Text(l10n.operationSuccess),
                     backgroundColor: Colors.green,
                   ),
                 );
@@ -108,7 +108,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
               String message = state.errorMessage ?? l10n.genericError;
               if (message.contains('E11000') ||
                   message.contains('duplicate key')) {
-                message = "Vous avez déjà cotisé pour ce tour.";
+                message = l10n.alreadyContributed;
               }
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(message), backgroundColor: Colors.red),
@@ -651,10 +651,8 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Retirer un membre"),
-        content: Text(
-          "Voulez-vous vraiment retirer $memberName de cette tontine ?",
-        ),
+        title: Text(l10n.removeMember),
+        content: Text(l10n.removeMemberConfirmation(memberName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -671,7 +669,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text("Retirer"),
+            child: Text(l10n.remove),
           ),
         ],
       ),
@@ -720,7 +718,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
           child: Row(
             children: [
               FilterChip(
-                label: const Text('En attente'),
+                label: Text(l10n.pending),
                 selected: _validationFilter == 'pending',
                 onSelected: (bool selected) {
                   setState(() {
@@ -730,7 +728,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
               ),
               const SizedBox(width: 12),
               FilterChip(
-                label: const Text('Historique'),
+                label: Text(l10n.history),
                 selected: _validationFilter == 'all',
                 onSelected: (bool selected) {
                   setState(() {
@@ -756,7 +754,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                   Text(
                     _validationFilter == 'pending'
                         ? l10n.noPendingContributions
-                        : "Aucune contribution",
+                        : l10n.noContributions,
                     style: AppTextStyles.bodyLarge,
                   ),
                 ],

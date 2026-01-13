@@ -580,5 +580,62 @@
     "provider": "Provider",
     "accountNumber": "Account Number",
     "accountName": "Account Name",
-    "noAccountsAdded": "No accounts added"
+    "noAccountsAdded": "No accounts added",
+    "mySubscriptions": "My Subscriptions",
+    "detectSubscriptions": "Detect Subscriptions",
+    "noSubscriptionsFound": "No subscriptions found",
+    "addSubscription": "Add Subscription",
+    "editSubscription": "Edit Subscription",
+    "paymentLabel": "Payment:",
+    "providerLabel": "Provider",
+    "nextBillingDateLabel": "Next Billing",
+    "trialEndDateLabel": "Free Trial End (Optional)",
+    "remindMeLabel": "Remind me before due date",
+    "remindMeSubtitle": "Receive a notification 48h before",
+    "subscriptionNameLabel": "Subscription Name",
+    "subscriptionNameHint": "e.g. Netflix, Spotify...",
+    "nextInvoices": "Next Invoices",
+    "today": "Today",
+    "inDays": "In {count} days",
+    "@inDays": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "statusActive": "Active",
+    "statusPaused": "Paused",
+    "statusCancelled": "Cancelled",
+    "statusExpired": "Expired",
+    "frequencyWeekly": "Weekly",
+    "frequencyMonthly": "Monthly",
+    "frequencyYearly": "Yearly",
+    "operationSuccess": "Operation successful",
+    "alreadyContributed": "You have already contributed for this turn",
+    "removeMember": "Remove Member",
+    "removeMemberConfirmation": "Are you sure you want to remove {name} from this tontine?",
+    "@removeMemberConfirmation": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "pending": "Pending",
+    "history": "History",
+    "noContributions": "No contributions",
+    "remove": "Remove",
+    "tutorialSubscriptionListTitle": "Your Subscriptions",
+    "tutorialSubscriptionListDesc": "View and manage all your recurring payments here.",
+    "tutorialDetectSubscriptionTitle": "Auto-Detection",
+    "tutorialDetectSubscriptionDesc": "Let AI find your subscriptions from your SMS.",
+    "tutorialAddSubscriptionTitle": "Manual Add",
+    "tutorialAddSubscriptionDesc": "Add a subscription manually if it wasn't detected.",
+    "tutorialTontineListTitle": "Your Tontines",
+    "tutorialTontineListDesc": "Track all your tontine groups and contributions.",
+    "tutorialJoinTontineTitle": "Join a Tontine",
+    "tutorialJoinTontineDesc": "Use a code to join an existing group.",
+    "tutorialCreateTontineButtonTitle": "Create a Tontine",
+    "tutorialCreateTontineButtonDesc": "Start a new tontine and invite your friends."
 }

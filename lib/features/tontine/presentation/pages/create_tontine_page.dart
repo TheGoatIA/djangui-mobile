@@ -382,12 +382,15 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                 children: [
                   DropdownButtonFormField<String>(
                     initialValue: type,
-                    items: const [
+                    items: [
                       DropdownMenuItem(
                         value: 'mobile_money',
-                        child: Text('Mobile Money'),
+                        child: Text(l10n.mobileMoney),
                       ),
-                      DropdownMenuItem(value: 'bank', child: Text('Bank')),
+                      DropdownMenuItem(
+                        value: 'bank',
+                        child: Text(l10n.bankCard),
+                      ),
                     ],
                     onChanged: (v) => setState(() => type = v!),
                     decoration: InputDecoration(labelText: l10n.accountType),

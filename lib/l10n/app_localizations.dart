@@ -3229,6 +3229,264 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucun compte ajouté'**
   String get noAccountsAdded;
+
+  /// No description provided for @mySubscriptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes Abonnements'**
+  String get mySubscriptions;
+
+  /// No description provided for @detectSubscriptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détecter les abonnements'**
+  String get detectSubscriptions;
+
+  /// No description provided for @noSubscriptionsFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun abonnement trouvé'**
+  String get noSubscriptionsFound;
+
+  /// No description provided for @addSubscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un abonnement'**
+  String get addSubscription;
+
+  /// No description provided for @editSubscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier l\'abonnement'**
+  String get editSubscription;
+
+  /// No description provided for @paymentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement :'**
+  String get paymentLabel;
+
+  /// No description provided for @providerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fournisseur'**
+  String get providerLabel;
+
+  /// No description provided for @nextBillingDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine facturation'**
+  String get nextBillingDateLabel;
+
+  /// No description provided for @trialEndDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin de l\'essai gratuit (Optionnel)'**
+  String get trialEndDateLabel;
+
+  /// No description provided for @remindMeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'M\'alerter avant l\'échéance'**
+  String get remindMeLabel;
+
+  /// No description provided for @remindMeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevoir une notification 48h avant'**
+  String get remindMeSubtitle;
+
+  /// No description provided for @subscriptionNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'abonnement'**
+  String get subscriptionNameLabel;
+
+  /// No description provided for @subscriptionNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'ex: Netflix, Spotify...'**
+  String get subscriptionNameHint;
+
+  /// No description provided for @nextInvoices.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaines Factures'**
+  String get nextInvoices;
+
+  /// No description provided for @today.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get today;
+
+  /// No description provided for @inDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans {count} jours'**
+  String inDays(int count);
+
+  /// No description provided for @statusActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif'**
+  String get statusActive;
+
+  /// No description provided for @statusPaused.
+  ///
+  /// In fr, this message translates to:
+  /// **'En pause'**
+  String get statusPaused;
+
+  /// No description provided for @statusCancelled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annulé'**
+  String get statusCancelled;
+
+  /// No description provided for @statusExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expiré'**
+  String get statusExpired;
+
+  /// No description provided for @frequencyWeekly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hebdomadaire'**
+  String get frequencyWeekly;
+
+  /// No description provided for @frequencyMonthly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mensuel'**
+  String get frequencyMonthly;
+
+  /// No description provided for @frequencyYearly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuel'**
+  String get frequencyYearly;
+
+  /// No description provided for @operationSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Opération réalisée avec succès'**
+  String get operationSuccess;
+
+  /// No description provided for @alreadyContributed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez déjà cotisé pour ce tour'**
+  String get alreadyContributed;
+
+  /// No description provided for @removeMember.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer un membre'**
+  String get removeMember;
+
+  /// No description provided for @removeMemberConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment retirer {name} de cette tontine ?'**
+  String removeMemberConfirmation(String name);
+
+  /// No description provided for @pending.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get pending;
+
+  /// No description provided for @history.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get history;
+
+  /// No description provided for @noContributions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune contribution'**
+  String get noContributions;
+
+  /// No description provided for @remove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer'**
+  String get remove;
+
+  /// No description provided for @tutorialSubscriptionListTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos Abonnements'**
+  String get tutorialSubscriptionListTitle;
+
+  /// No description provided for @tutorialSubscriptionListDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultez et gérez tous vos paiements récurrents ici.'**
+  String get tutorialSubscriptionListDesc;
+
+  /// No description provided for @tutorialDetectSubscriptionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détection Auto'**
+  String get tutorialDetectSubscriptionTitle;
+
+  /// No description provided for @tutorialDetectSubscriptionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Laissez l\'IA trouver vos abonnements à partir de vos SMS.'**
+  String get tutorialDetectSubscriptionDesc;
+
+  /// No description provided for @tutorialAddSubscriptionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajout Manuel'**
+  String get tutorialAddSubscriptionTitle;
+
+  /// No description provided for @tutorialAddSubscriptionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez un abonnement manuellement s\'il n\'a pas été détecté.'**
+  String get tutorialAddSubscriptionDesc;
+
+  /// No description provided for @tutorialTontineListTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos Tontines'**
+  String get tutorialTontineListTitle;
+
+  /// No description provided for @tutorialTontineListDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivez tous vos groupes de tontine et vos cotisations.'**
+  String get tutorialTontineListDesc;
+
+  /// No description provided for @tutorialJoinTontineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre une Tontine'**
+  String get tutorialJoinTontineTitle;
+
+  /// No description provided for @tutorialJoinTontineDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisez un code pour rejoindre un groupe existant.'**
+  String get tutorialJoinTontineDesc;
+
+  /// No description provided for @tutorialCreateTontineButtonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer une Tontine'**
+  String get tutorialCreateTontineButtonTitle;
+
+  /// No description provided for @tutorialCreateTontineButtonDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancez une nouvelle tontine et invitez vos amis.'**
+  String get tutorialCreateTontineButtonDesc;
 }
 
 class _AppLocalizationsDelegate

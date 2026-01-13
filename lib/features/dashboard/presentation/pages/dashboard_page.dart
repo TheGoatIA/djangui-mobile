@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:showcaseview/showcaseview.dart';
+
 import '../../../../core/constants/route_constants.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_shadows.dart';
+import '../../../../core/utils/currency_helper.dart';
+import '../../../../core/services/notification_service.dart';
+import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
+
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../transactions/presentation/bloc/transactions_bloc.dart';
 import '../../../gamification/presentation/widgets/gamification_header.dart';
 import '../../../gamification/presentation/widgets/level_up_dialog.dart';
-import '../bloc/dashboard_bloc.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import '../../../../core/theme/app_shadows.dart';
-import '../../../../core/services/notification_service.dart';
-import 'package:showcaseview/showcaseview.dart';
-import '../../../../core/services/tutorial_service.dart';
-import '../../../../core/utils/currency_helper.dart';
+import '../../../user_subscriptions/presentation/bloc/subscription_bloc.dart';
+import '../../../user_subscriptions/presentation/widgets/next_invoices_widget.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../voice/presentation/bloc/voice_bloc.dart';
+import '../bloc/dashboard_bloc.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -144,6 +148,15 @@ class _DashboardViewState extends State<DashboardView> {
             context.read<DashboardBloc>().add(GetDashboardDataRequested());
           },
         ),
+        BlocListener<SubscriptionBloc, SubscriptionState>(
+          listenWhen: (previous, current) =>
+              current.status == SubscriptionStatus.success &&
+              previous.status != SubscriptionStatus.success,
+          listener: (context, state) {
+            // Refresh dashboard when a subscription is added, updated or deleted
+            context.read<DashboardBloc>().add(GetDashboardDataRequested());
+          },
+        ),
         BlocListener<AuthBloc, AuthState>(
           listenWhen: (previous, current) {
             // Listen for significant profile changes that affect dashboard (e.g. monthlyIncome)
@@ -207,6 +220,11 @@ class _DashboardViewState extends State<DashboardView> {
                             curve: Curves.easeOutQuad,
                           ),
                 ),
+                const SizedBox(height: 24),
+                const NextInvoicesWidget()
+                    .animate(delay: 100.ms)
+                    .fade(duration: 500.ms)
+                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
                 const SizedBox(height: 24),
                 Showcase(
                       key: _quickActionsKey,
@@ -577,6 +595,12 @@ class _DashboardViewState extends State<DashboardView> {
               'Tontine',
               Theme.of(context).colorScheme.tertiary,
               onTap: () => context.push(RouteConstants.tontines),
+            ),
+            _buildActionItem(
+              Icons.receipt_long_outlined,
+              'Factures',
+              Colors.orange,
+              onTap: () => context.push(RouteConstants.userSubscriptions),
             ),
             _buildActionItem(
               Icons.smart_toy_outlined,

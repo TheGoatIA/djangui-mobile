@@ -22,6 +22,7 @@ import 'package:kauri/features/system/data/models/country_model.dart';
 import 'package:kauri/features/auth/data/models/country_change_request.dart';
 import 'package:kauri/features/voice/data/models/voice_response_model.dart';
 import 'package:kauri/features/tontine/data/models/tontine_model.dart';
+import 'package:kauri/features/user_subscriptions/data/models/subscription_model.dart';
 import 'json_type_converter.dart';
 import 'interceptors.dart';
 import 'authenticator.dart';
@@ -76,6 +77,8 @@ class KauriApiClient {
         TontineContributionModel: (json) =>
             TontineContributionModel.fromJson(json),
         TontineMessageModel: (json) => TontineMessageModel.fromJson(json),
+        SubscriptionModel: (json) => SubscriptionModel.fromJson(json),
+        SubscriptionSuggestion: (json) => SubscriptionSuggestion.fromJson(json),
       }),
       errorConverter: JsonToTypeConverter({
         AuthResponse: (json) => AuthResponse.fromJson(json),

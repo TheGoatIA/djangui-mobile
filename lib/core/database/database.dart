@@ -152,6 +152,25 @@ class Investments extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class UserSubscriptions extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get provider => text().nullable()();
+  RealColumn get amount => real()();
+  TextColumn get currency => text().withDefault(const Constant('XAF'))();
+  TextColumn get frequency => text()();
+  TextColumn get category => text().nullable()();
+  TextColumn get status => text().withDefault(const Constant('active'))();
+  DateTimeColumn get nextBillingDate => dateTime()();
+  DateTimeColumn get trialEndDate => dateTime().nullable()();
+  BoolColumn get remindMe => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get createdAt => dateTime().nullable()();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(
   tables: [
     Users,
@@ -162,13 +181,14 @@ class Investments extends Table {
     ChatMessages,
     Investments,
     SyncRequests,
+    UserSubscriptions,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration {
@@ -190,6 +210,9 @@ class AppDatabase extends _$AppDatabase {
             transactions.categorizationConfidence,
           );
           await m.addColumn(transactions, transactions.receipt);
+        }
+        if (from < 18) {
+          await m.createTable(userSubscriptions);
         }
       },
       beforeOpen: (details) async {

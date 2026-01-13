@@ -27,6 +27,7 @@ import 'features/support/presentation/bloc/support_bloc.dart';
 import 'features/system/presentation/bloc/system_bloc.dart';
 import 'features/tontine/presentation/bloc/tontine_bloc.dart';
 import 'features/tontine/presentation/bloc/tontine_event.dart';
+import 'features/user_subscriptions/presentation/bloc/subscription_bloc.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 void main() async {
@@ -81,6 +82,10 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) =>
               getIt<TontineBloc>()..add(TontinesLoadRequested()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<SubscriptionBloc>()..add(GetSubscriptionsRequested()),
         ),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(

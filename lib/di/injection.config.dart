@@ -169,6 +169,16 @@ import 'package:kauri/features/upload/data/repositories/upload_repository_impl.d
     as _i1003;
 import 'package:kauri/features/upload/domain/repositories/upload_repository.dart'
     as _i105;
+import 'package:kauri/features/user_subscriptions/data/datasources/subscription_api_service.dart'
+    as _i181;
+import 'package:kauri/features/user_subscriptions/data/datasources/subscription_local_datasource.dart'
+    as _i578;
+import 'package:kauri/features/user_subscriptions/data/repositories/subscription_repository_impl.dart'
+    as _i696;
+import 'package:kauri/features/user_subscriptions/domain/repositories/subscription_repository.dart'
+    as _i105;
+import 'package:kauri/features/user_subscriptions/presentation/bloc/subscription_bloc.dart'
+    as _i673;
 import 'package:kauri/features/voice/data/datasources/voice_api_service.dart'
     as _i195;
 import 'package:kauri/features/voice/data/repositories/voice_repository_impl.dart'
@@ -235,6 +245,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => registerModule.voiceApiService);
     gh.lazySingleton<_i534.TontineApiService>(
         () => registerModule.tontineApiService);
+    gh.lazySingleton<_i181.SubscriptionApiService>(
+        () => registerModule.subscriptionApiService);
     gh.lazySingleton<_i777.AppDatabase>(() => registerModule.database);
     gh.lazySingleton<_i974.Logger>(() => registerModule.logger);
     gh.lazySingleton<_i935.NetworkInfo>(() => _i935.NetworkInfoImpl());
@@ -263,11 +275,6 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i376.SystemBloc(gh<_i608.SystemRepository>()));
     gh.lazySingleton<_i836.ChallengeRemoteDataSource>(() =>
         _i836.ChallengeRemoteDataSourceImpl(gh<_i84.ChallengeApiService>()));
-    gh.lazySingleton<_i75.SyncService>(() => _i75.SyncService(
-          gh<_i777.AppDatabase>(),
-          gh<_i534.TransactionRemoteDataSource>(),
-          gh<_i974.Logger>(),
-        ));
     gh.lazySingleton<_i240.AuthLocalDataSource>(
         () => _i240.AuthLocalDataSourceImpl(
               gh<_i558.FlutterSecureStorage>(),
@@ -313,6 +320,8 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i302.BudgetLocalDataSource>(
         () => _i302.BudgetLocalDataSourceImpl(gh<_i777.AppDatabase>()));
+    gh.lazySingleton<_i578.SubscriptionLocalDataSource>(
+        () => _i578.SubscriptionLocalDataSourceImpl(gh<_i777.AppDatabase>()));
     gh.lazySingleton<_i71.InvestmentRepository>(
         () => _i571.InvestmentRepositoryImpl(
               gh<_i777.AppDatabase>(),
@@ -333,6 +342,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i356.NotificationRemoteDataSource>(() =>
         _i756.NotificationRemoteDataSourceImpl(
             gh<_i921.NotificationApiService>()));
+    gh.lazySingleton<_i75.SyncService>(() => _i75.SyncService(
+          gh<_i777.AppDatabase>(),
+          gh<_i534.TransactionRemoteDataSource>(),
+          gh<_i181.SubscriptionApiService>(),
+          gh<_i974.Logger>(),
+        ));
     gh.factory<_i415.VoiceBloc>(
         () => _i415.VoiceBloc(gh<_i1033.VoiceRepository>()));
     gh.lazySingleton<_i245.TransactionRepository>(
@@ -363,6 +378,13 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i96.TontineBloc>(
         () => _i96.TontineBloc(gh<_i996.TontineRepository>()));
+    gh.lazySingleton<_i105.SubscriptionRepository>(
+        () => _i696.SubscriptionRepositoryImpl(
+              gh<_i181.SubscriptionApiService>(),
+              gh<_i578.SubscriptionLocalDataSource>(),
+              gh<_i935.NetworkInfo>(),
+              gh<_i777.AppDatabase>(),
+            ));
     gh.lazySingleton<_i224.NotificationRepository>(
         () => _i747.NotificationRepositoryImpl(
               gh<_i356.NotificationRemoteDataSource>(),
@@ -374,6 +396,8 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i506.ChallengesBloc>(
         () => _i506.ChallengesBloc(gh<_i375.ChallengeRepository>()));
+    gh.factory<_i673.SubscriptionBloc>(
+        () => _i673.SubscriptionBloc(gh<_i105.SubscriptionRepository>()));
     gh.lazySingleton<_i344.AuthRepository>(() => _i541.AuthRepositoryImpl(
           gh<_i777.AuthRemoteDataSource>(),
           gh<_i240.AuthLocalDataSource>(),

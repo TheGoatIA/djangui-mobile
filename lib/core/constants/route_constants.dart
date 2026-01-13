@@ -36,4 +36,8 @@ class RouteConstants {
   static const String createTontine = '/tontines/create';
   static const String tontineDetails = '/tontines/:id';
   static const String joinTontine = '/tontines/join';
+
+  // User Subscriptions (Recurring Expenses)
+  static const String userSubscriptions = '/user-subscriptions';
+  static const String addUserSubscription = '/user-subscriptions/add';
 }
