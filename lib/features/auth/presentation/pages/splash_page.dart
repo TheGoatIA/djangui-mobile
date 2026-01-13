@@ -110,7 +110,7 @@ class _SplashPageState extends State<SplashPage> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: Colors.white,
                   shape: BoxShape.circle,
                 ),
                 child: Image.asset(AppAssets.logo, width: 80, height: 80),
