@@ -24,6 +24,7 @@ import '../../../user_subscriptions/presentation/widgets/next_invoices_widget.da
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../voice/presentation/bloc/voice_bloc.dart';
 import '../bloc/dashboard_bloc.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -62,6 +63,10 @@ class _DashboardViewState extends State<DashboardView> {
     // Sync FCM token when dashboard loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getIt<NotificationService>().syncFcmToken();
+      getIt<AnalyticsManager>().trackEvent(
+        feature: 'Dashboard',
+        action: 'view',
+      );
       // Fetch latest transactions
       context.read<TransactionsBloc>().add(const GetTransactionsRequested());
       _startTutorial();

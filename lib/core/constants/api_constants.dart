@@ -83,4 +83,10 @@ class ApiConstants {
   // Subscriptions (Recurring Expenses)
   static const String subscriptions = '/subscriptions';
   static const String subscriptionsDetect = '/subscriptions/detect';
+
+  // Analytics
+  static const String analytics = '/analytics';
+  static const String analyticsEvents = '/analytics/events';
+  static const String analyticsSessionStart = '/analytics/sessions/start';
+  static const String analyticsSessionEnd = '/analytics/sessions/end';
 }

@@ -19,6 +19,7 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class AddTransactionPage extends StatefulWidget {
   final String? initialGoalId;
@@ -139,7 +140,22 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     setState(() => _isScanning = true);
 
     try {
+      getIt<AnalyticsManager>().trackEvent(
+        feature: 'OCR',
+        action: 'scan_attempt',
+        details: {'source': source.toString()},
+      );
       final result = await ocrService.scanReceipt(image);
+
+      getIt<AnalyticsManager>().trackEvent(
+        feature: 'OCR',
+        action: 'scan_success',
+        details: {
+          'has_amount': result.amount != null,
+          'has_description': result.description != null,
+          'category': result.category,
+        },
+      );
 
       setState(() {
         if (result.amount != null) {
@@ -241,6 +257,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           current.status == TransactionsStatus.success,
       listener: (context, state) {
         if (state.status == TransactionsStatus.success) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Transactions',
+            action: 'add_success',
+            details: {
+              'amount': state.transactions.first.amount,
+              'category': state.transactions.first.category,
+              'type': state.transactions.first.type,
+            },
+          );
           context.pop(true);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

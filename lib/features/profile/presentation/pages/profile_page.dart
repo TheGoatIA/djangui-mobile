@@ -26,6 +26,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -1139,6 +1140,10 @@ class _ProfilePageState extends State<ProfilePage> {
     final granted = await smsService.requestPermission();
     if (!context.mounted) return;
     if (granted) {
+      getIt<AnalyticsManager>().trackEvent(
+        feature: 'SMS',
+        action: 'sync_attempt',
+      );
       setState(() => _isLoadingSms = true);
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1172,6 +1177,15 @@ class _ProfilePageState extends State<ProfilePage> {
         final List? data = aiResult['data'] as List?;
 
         if (data != null && data.isNotEmpty) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'SMS',
+            action: 'sync_success',
+            details: {
+              'found_count': data.length,
+              'imported_count':
+                  -1, // Will update logic below or just track found count
+            },
+          );
           if (!context.mounted) return;
           final existingTransactions = context
               .read<TransactionsBloc>()
@@ -1234,6 +1248,11 @@ class _ProfilePageState extends State<ProfilePage> {
           }
         }
       } catch (e) {
+        getIt<AnalyticsManager>().trackEvent(
+          feature: 'SMS',
+          action: 'sync_error',
+          details: {'error': e.toString()},
+        );
         if (context.mounted) {
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(
@@ -1244,6 +1263,10 @@ class _ProfilePageState extends State<ProfilePage> {
         if (mounted) setState(() => _isLoadingSms = false);
       }
     } else {
+      getIt<AnalyticsManager>().trackEvent(
+        feature: 'SMS',
+        action: 'permission_denied',
+      );
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

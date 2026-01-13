@@ -12,6 +12,7 @@ import '../../../../l10n/app_localizations.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class CoachChatPage extends StatelessWidget {
   const CoachChatPage({super.key});
@@ -40,6 +41,7 @@ class _CoachChatViewState extends State<CoachChatView> {
   @override
   void initState() {
     super.initState();
+    getIt<AnalyticsManager>().trackEvent(feature: 'AI Coach', action: 'view');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -255,6 +257,10 @@ class _CoachChatViewState extends State<CoachChatView> {
                     ),
                     onPressed: () {
                       if (_messageController.text.trim().isNotEmpty) {
+                        getIt<AnalyticsManager>().trackEvent(
+                          feature: 'AI Coach',
+                          action: 'send_message',
+                        );
                         context.read<CoachBloc>().add(
                           SendMessageRequested(_messageController.text),
                         );

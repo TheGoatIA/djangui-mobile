@@ -15,6 +15,7 @@ import '../../domain/entities/tontine_entities.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/share_service.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class TontineDetailsPage extends StatefulWidget {
   final String tontineId;
@@ -43,6 +44,11 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     );
     context.read<TontineBloc>().add(
       TontineContributionsLoadRequested(widget.tontineId),
+    );
+    getIt<AnalyticsManager>().trackEvent(
+      feature: 'Tontine',
+      action: 'view_details',
+      details: {'tontine_id': widget.tontineId},
     );
   }
 
@@ -660,6 +666,11 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
           ),
           TextButton(
             onPressed: () {
+              getIt<AnalyticsManager>().trackEvent(
+                feature: 'Tontine',
+                action: 'remove_member',
+                details: {'tontine_id': tontineId, 'member_id': memberId},
+              );
               context.read<TontineBloc>().add(
                 TontineRemoveMemberRequested(
                   tontineId: tontineId,
@@ -919,6 +930,14 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
   }
 
   void _validateContribution(BuildContext context, String id, bool approve) {
+    getIt<AnalyticsManager>().trackEvent(
+      feature: 'Tontine',
+      action: 'validate_contribution',
+      details: {
+        'contribution_id': id,
+        'status': approve ? 'creator_validated' : 'rejected',
+      },
+    );
     context.read<TontineBloc>().add(
       ValidateTontineContributionRequested(
         contributionId: id,
@@ -928,6 +947,11 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
   }
 
   void _shareInvite(String code) {
+    getIt<AnalyticsManager>().trackEvent(
+      feature: 'Tontine',
+      action: 'share_invite',
+      details: {'code': code},
+    );
     getIt<ShareService>().shareTontineInvite(code);
   }
 
@@ -936,6 +960,11 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
       context: context,
       builder: (context) => ContributionDialog(
         onUpload: (File image) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Tontine',
+            action: 'contribute_attempt',
+            details: {'tontine_id': tontineId},
+          );
           context.read<TontineBloc>().add(
             ContributeToTontineRequested(
               tontineId: tontineId,
@@ -961,6 +990,11 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
           ),
           ElevatedButton(
             onPressed: () {
+              getIt<AnalyticsManager>().trackEvent(
+                feature: 'Tontine',
+                action: 'start_attempt',
+                details: {'tontine_id': tontineId},
+              );
               Navigator.pop(context);
               context.read<TontineBloc>().add(StartTontineRequested(tontineId));
             },

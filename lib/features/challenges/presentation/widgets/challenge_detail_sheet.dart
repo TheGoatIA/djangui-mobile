@@ -6,6 +6,8 @@ import 'package:kauri/l10n/app_localizations.dart';
 import 'package:kauri/features/challenges/presentation/bloc/challenges_bloc.dart';
 import 'package:kauri/features/challenges/presentation/bloc/challenges_event.dart';
 import 'package:kauri/features/challenges/data/models/challenge_model.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import 'package:kauri/di/injection.dart';
 
 class ChallengeDetailSheet extends StatelessWidget {
   final ChallengeModel challenge;
@@ -207,6 +209,11 @@ class ChallengeDetailSheet extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 if (!isJoined) {
+                  getIt<AnalyticsManager>().trackEvent(
+                    feature: 'Challenges',
+                    action: 'join',
+                    details: {'challenge_title': challenge.title},
+                  );
                   context.read<ChallengesBloc>().add(
                     JoinChallengeRequested(challenge.id),
                   );
@@ -288,6 +295,10 @@ class ChallengeDetailSheet extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
+              getIt<AnalyticsManager>().trackEvent(
+                feature: 'Challenges',
+                action: 'unjoin',
+              );
               challengesBloc.add(UnjoinChallengeRequested(challengeId));
               Navigator.pop(dialogContext); // Close dialog
               Navigator.pop(context); // Close sheet
@@ -446,6 +457,14 @@ class ChallengeDetailSheet extends StatelessWidget {
                         weekNumber: pendingWeek.weekNumber,
                         amount: amount,
                       ),
+                    );
+                    getIt<AnalyticsManager>().trackEvent(
+                      feature: 'Challenges',
+                      action: 'validate_week',
+                      details: {
+                        'week': pendingWeek.weekNumber,
+                        'amount': amount,
+                      },
                     );
                     Navigator.pop(dialogContext); // Close entry dialog
                     Navigator.pop(context); // Close sheet

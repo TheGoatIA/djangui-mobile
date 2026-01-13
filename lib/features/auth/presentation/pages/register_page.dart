@@ -8,6 +8,8 @@ import '../../../../core/widgets/app_text_field.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../../di/injection.dart';
 import '../../../../features/system/presentation/bloc/system_bloc.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -43,6 +45,11 @@ class _RegisterPageState extends State<RegisterPage> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Auth',
+            action: 'register_success',
+            details: {'country': state.authResponse?.user.country},
+          );
           context.go(RouteConstants.dashboard);
         } else if (state.status == AuthStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(

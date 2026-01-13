@@ -7,6 +7,8 @@ import '../bloc/voice_state.dart';
 import './voice_recording_overlay.dart';
 import './voice_confirmation_sheet.dart';
 import './voice_preview_sheet.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import 'package:kauri/di/injection.dart';
 
 class VoiceFAB extends StatefulWidget {
   const VoiceFAB({super.key});
@@ -20,6 +22,7 @@ class _VoiceFABState extends State<VoiceFAB> {
 
   void _onLongPressStart(LongPressStartDetails details) {
     setState(() => _isPressed = true);
+    getIt<AnalyticsManager>().trackEvent(feature: 'Voice', action: 'activated');
     context.read<VoiceBloc>().add(StartRecordingRequested());
     _showRecordingOverlay();
   }

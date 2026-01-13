@@ -13,6 +13,7 @@ import '../bloc/subscription_bloc.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/tutorial_service.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class SubscriptionListPage extends StatefulWidget {
   const SubscriptionListPage({super.key});
@@ -32,6 +33,10 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SubscriptionBloc>().add(GetSubscriptionsRequested());
       _startTutorial();
+      getIt<AnalyticsManager>().trackEvent(
+        feature: 'Subscription',
+        action: 'view_list',
+      );
     });
   }
 
@@ -63,9 +68,15 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
                 title: l10n.tutorialDetectSubscriptionTitle,
                 description: l10n.tutorialDetectSubscriptionDesc,
                 child: IconButton(
-                  onPressed: () => context.read<SubscriptionBloc>().add(
-                    DetectSubscriptionsRequested(),
-                  ),
+                  onPressed: () {
+                    getIt<AnalyticsManager>().trackEvent(
+                      feature: 'Subscription',
+                      action: 'detect_attempt',
+                    );
+                    context.read<SubscriptionBloc>().add(
+                      DetectSubscriptionsRequested(),
+                    );
+                  },
                   icon: const Icon(Icons.auto_awesome),
                   tooltip: l10n.detectSubscriptions,
                 ),

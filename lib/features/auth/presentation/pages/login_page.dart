@@ -12,6 +12,8 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/auth_bloc.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../../di/injection.dart';
 import '../../../../features/system/presentation/bloc/system_bloc.dart';
 
 class LoginPage extends StatefulWidget {
@@ -38,6 +40,11 @@ class _LoginPageState extends State<LoginPage> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Auth',
+            action: 'login_success',
+            details: {'provider': 'email'},
+          );
           context.go(RouteConstants.dashboard);
         } else if (state.status == AuthStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -153,6 +160,11 @@ class _LoginPageState extends State<LoginPage> {
                                                 'Please authenticate to login',
                                           );
                                       if (didAuthenticate) {
+                                        getIt<AnalyticsManager>().trackEvent(
+                                          feature: 'Auth',
+                                          action: 'login_success',
+                                          details: {'provider': 'biometric'},
+                                        );
                                         authBloc.add(
                                           AuthBiometricLoginRequested(),
                                         );
@@ -405,6 +417,15 @@ class _LoginPageState extends State<LoginPage> {
                   return ListTile(
                     title: Text(country.name),
                     onTap: () {
+                      getIt<AnalyticsManager>().trackEvent(
+                        feature: 'Auth',
+                        action: 'social_login_attempt',
+                        details: {
+                          'provider': createEvent is AuthGoogleSignInRequested
+                              ? 'google'
+                              : 'apple',
+                        },
+                      );
                       Navigator.pop(dialogContext);
                       context.read<AuthBloc>().add(createEvent(country.code));
                     },

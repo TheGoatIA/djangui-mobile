@@ -4,6 +4,8 @@ import '../../../../l10n/app_localizations.dart';
 import '../bloc/tontine_bloc.dart';
 import '../bloc/tontine_event.dart';
 import '../bloc/tontine_state.dart';
+import '../../../../di/injection.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:go_router/go_router.dart';
 
 class CreateTontinePage extends StatefulWidget {
@@ -42,6 +44,15 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
     return BlocListener<TontineBloc, TontineState>(
       listener: (context, state) {
         if (state.status == TontineStatus.success && _currentStep == 3) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Tontine',
+            action: 'create',
+            details: {
+              'name': _nameController.text,
+              'amount': double.tryParse(_amountController.text),
+              'frequency': _frequency,
+            },
+          );
           context.pop();
         } else if (state.status == TontineStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(

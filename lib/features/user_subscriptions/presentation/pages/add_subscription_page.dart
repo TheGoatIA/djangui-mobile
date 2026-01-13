@@ -7,6 +7,8 @@ import '../../data/models/subscription_model.dart';
 import '../bloc/subscription_bloc.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../di/injection.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class AddSubscriptionPage extends StatefulWidget {
   final SubscriptionModel? subscription;
@@ -279,10 +281,28 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
                       );
 
                       if (widget.subscription == null) {
+                        getIt<AnalyticsManager>().trackEvent(
+                          feature: 'Subscription',
+                          action: 'add',
+                          details: {
+                            'name': sub.name,
+                            'amount': sub.amount,
+                            'frequency': sub.frequency,
+                          },
+                        );
                         context.read<SubscriptionBloc>().add(
                           AddSubscriptionRequested(sub),
                         );
                       } else {
+                        getIt<AnalyticsManager>().trackEvent(
+                          feature: 'Subscription',
+                          action: 'update',
+                          details: {
+                            'name': sub.name,
+                            'amount': sub.amount,
+                            'frequency': sub.frequency,
+                          },
+                        );
                         context.read<SubscriptionBloc>().add(
                           UpdateSubscriptionRequested(sub.id!, sub),
                         );
@@ -306,6 +326,11 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
                       side: const BorderSide(color: AppColors.error),
                     ),
                     onPressed: () {
+                      getIt<AnalyticsManager>().trackEvent(
+                        feature: 'Subscription',
+                        action: 'delete',
+                        details: {'id': widget.subscription!.id},
+                      );
                       context.read<SubscriptionBloc>().add(
                         DeleteSubscriptionRequested(widget.subscription!.id!),
                       );

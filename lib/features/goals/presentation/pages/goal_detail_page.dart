@@ -14,6 +14,7 @@ import '../../data/models/goal_model.dart';
 import '../../../budgets/presentation/bloc/budgets_bloc.dart';
 import '../../../budgets/presentation/bloc/budgets_event.dart';
 import '../../../transactions/presentation/bloc/transactions_bloc.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class GoalDetailPage extends StatelessWidget {
   final String goalId;
@@ -57,7 +58,14 @@ class GoalDetailPage extends StatelessWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.share),
-                onPressed: () => getIt<ShareService>().shareGoal(goal),
+                onPressed: () {
+                  getIt<AnalyticsManager>().trackEvent(
+                    feature: 'Goals',
+                    action: 'share',
+                    details: {'id': goal.id},
+                  );
+                  getIt<ShareService>().shareGoal(goal);
+                },
               ),
               PopupMenuButton(
                 onSelected: (value) {
@@ -103,6 +111,11 @@ class GoalDetailPage extends StatelessWidget {
                     final refresh = await context.push<bool>(
                       '${RouteConstants.transactions}/add',
                       extra: goal.id,
+                    );
+                    getIt<AnalyticsManager>().trackEvent(
+                      feature: 'Goals',
+                      action: 'add_savings_click',
+                      details: {'goal_id': goal.id},
                     );
                     if (refresh == true && context.mounted) {
                       // Refresh everything to ensure UI is in sync
@@ -504,6 +517,11 @@ class GoalDetailPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
+              getIt<AnalyticsManager>().trackEvent(
+                feature: 'Goals',
+                action: 'delete_success',
+                details: {'id': goal.id},
+              );
               context.read<GoalsBloc>().add(DeleteGoalRequested(goal.id));
               Navigator.pop(dialogContext); // Dialog
               context.pop(); // Page

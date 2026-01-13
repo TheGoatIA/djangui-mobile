@@ -7,6 +7,8 @@ import 'package:path/path.dart' as p;
 import '../../domain/repositories/voice_repository.dart';
 import 'voice_event.dart';
 import 'voice_state.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../../di/injection.dart';
 
 @injectable
 class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
@@ -100,17 +102,34 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
     try {
       emit(state.copyWith(status: VoiceStatus.processing));
 
+      getIt<AnalyticsManager>().trackEvent(
+        feature: 'Voice',
+        action: 'processing_start',
+      );
+
       final result = await _voiceRepository.processVoice(File(path));
 
       result.fold(
-        (failure) => emit(
-          state.copyWith(
-            status: VoiceStatus.error,
-            errorMessage: failure.message,
-          ),
-        ),
+        (failure) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Voice',
+            action: 'processing_error',
+            details: {'error': failure.message},
+          );
+          emit(
+            state.copyWith(
+              status: VoiceStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
         (response) {
           if (!response.isValid) {
+            getIt<AnalyticsManager>().trackEvent(
+              feature: 'Voice',
+              action: 'processing_invalid',
+              details: {'reason': response.description},
+            );
             emit(
               state.copyWith(
                 status: VoiceStatus.error,
@@ -118,6 +137,11 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
               ),
             );
           } else {
+            getIt<AnalyticsManager>().trackEvent(
+              feature: 'Voice',
+              action: 'processing_success',
+              details: {'intent': response.type},
+            );
             emit(
               state.copyWith(
                 status: VoiceStatus.success,

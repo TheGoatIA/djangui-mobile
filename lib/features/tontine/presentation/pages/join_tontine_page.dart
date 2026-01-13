@@ -6,6 +6,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/tontine_bloc.dart';
 import '../bloc/tontine_event.dart';
 import '../bloc/tontine_state.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../../di/injection.dart';
 
 class JoinTontinePage extends StatefulWidget {
   const JoinTontinePage({super.key});
@@ -46,6 +48,10 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
     return BlocListener<TontineBloc, TontineState>(
       listener: (context, state) {
         if (state.status == TontineStatus.success) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Tontine',
+            action: 'join_success',
+          );
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(l10n.successJoinTontine)));

@@ -22,6 +22,14 @@ import 'package:kauri/core/services/sms_service.dart' as _i1027;
 import 'package:kauri/core/services/sync_service.dart' as _i75;
 import 'package:kauri/core/services/tutorial_service.dart' as _i899;
 import 'package:kauri/di/register_module.dart' as _i617;
+import 'package:kauri/features/analytics/data/datasources/analytics_api_service.dart'
+    as _i769;
+import 'package:kauri/features/analytics/data/repositories/analytics_repository_impl.dart'
+    as _i859;
+import 'package:kauri/features/analytics/domain/repositories/analytics_repository.dart'
+    as _i924;
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart'
+    as _i1035;
 import 'package:kauri/features/auth/data/datasources/auth_api_service.dart'
     as _i974;
 import 'package:kauri/features/auth/data/datasources/auth_local_datasource.dart'
@@ -247,6 +255,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => registerModule.tontineApiService);
     gh.lazySingleton<_i181.SubscriptionApiService>(
         () => registerModule.subscriptionApiService);
+    gh.lazySingleton<_i769.AnalyticsApiService>(
+        () => registerModule.analyticsApiService);
     gh.lazySingleton<_i777.AppDatabase>(() => registerModule.database);
     gh.lazySingleton<_i974.Logger>(() => registerModule.logger);
     gh.lazySingleton<_i935.NetworkInfo>(() => _i935.NetworkInfoImpl());
@@ -342,6 +352,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i356.NotificationRemoteDataSource>(() =>
         _i756.NotificationRemoteDataSourceImpl(
             gh<_i921.NotificationApiService>()));
+    gh.lazySingleton<_i924.AnalyticsRepository>(
+        () => _i859.AnalyticsRepositoryImpl(
+              gh<_i769.AnalyticsApiService>(),
+              gh<_i935.NetworkInfo>(),
+            ));
     gh.lazySingleton<_i75.SyncService>(() => _i75.SyncService(
           gh<_i777.AppDatabase>(),
           gh<_i534.TransactionRemoteDataSource>(),
@@ -385,6 +400,10 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i935.NetworkInfo>(),
               gh<_i777.AppDatabase>(),
             ));
+    gh.lazySingleton<_i1035.AnalyticsManager>(() => _i1035.AnalyticsManager(
+          gh<_i924.AnalyticsRepository>(),
+          gh<_i460.SharedPreferences>(),
+        ));
     gh.lazySingleton<_i224.NotificationRepository>(
         () => _i747.NotificationRepositoryImpl(
               gh<_i356.NotificationRemoteDataSource>(),

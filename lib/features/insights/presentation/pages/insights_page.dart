@@ -16,6 +16,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/theme/app_shadows.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class InsightsPage extends StatelessWidget {
   const InsightsPage({super.key});
@@ -47,6 +48,7 @@ class _InsightsViewState extends State<InsightsView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
+      getIt<AnalyticsManager>().trackEvent(feature: 'Insights', action: 'view');
     });
   }
 
@@ -194,6 +196,11 @@ class _InsightsViewState extends State<InsightsView> {
       selected: isSelected,
       onSelected: (selected) {
         if (selected) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Insights',
+            action: 'change_period',
+            details: {'period': value},
+          );
           context.read<InsightsBloc>().add(GetInsightsRequested(period: value));
         }
       },

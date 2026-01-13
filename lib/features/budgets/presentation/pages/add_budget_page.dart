@@ -13,6 +13,7 @@ import '../../../../core/constants/app_categories.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class AddBudgetPage extends StatefulWidget {
   const AddBudgetPage({super.key});
@@ -193,6 +194,14 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
     return BlocListener<BudgetsBloc, BudgetsState>(
       listener: (context, state) {
         if (state.status == BudgetsStatus.success) {
+          getIt<AnalyticsManager>().trackEvent(
+            feature: 'Budgets',
+            action: 'create_success',
+            details: {
+              'total_allocated': state.budgets.last.totalAllocated,
+              'category_count': state.budgets.last.categories.length,
+            },
+          );
           if (context.canPop()) {
             context.pop(true);
           }

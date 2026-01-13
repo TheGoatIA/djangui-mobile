@@ -28,6 +28,7 @@ import 'features/system/presentation/bloc/system_bloc.dart';
 import 'features/tontine/presentation/bloc/tontine_bloc.dart';
 import 'features/tontine/presentation/bloc/tontine_event.dart';
 import 'features/user_subscriptions/presentation/bloc/subscription_bloc.dart';
+import 'features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 void main() async {
@@ -40,12 +41,40 @@ void main() async {
   await dotenv.load(fileName: ".env");
   await configureDependencies();
   await getIt<NotificationService>().initialize();
+  await getIt<AnalyticsManager>().initialize();
   getIt<SyncService>().initialize(); // Start sync listener
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      getIt<AnalyticsManager>().endCurrentSession();
+    } else if (state == AppLifecycleState.resumed) {
+      getIt<AnalyticsManager>().startNewSession();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
