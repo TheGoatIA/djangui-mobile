@@ -94,7 +94,7 @@ dependencies:
   json_annotation: ^4.9.0
   internet_connection_checker: ^3.0.1
   flutter_local_notifications: ^18.0.1
-  google_fonts: ^6.3.3
+  google_fonts: ^7.0.2
   flutter_animate: ^4.5.2
   logger: ^2.6.2
   collection: ^1.19.0
