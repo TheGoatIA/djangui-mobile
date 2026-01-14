@@ -61,6 +61,7 @@
 				<string>kauri</string>
 			</array>
 		</dict>
+	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>https</string>
