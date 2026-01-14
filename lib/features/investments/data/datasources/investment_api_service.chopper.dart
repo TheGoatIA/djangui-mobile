@@ -20,49 +20,35 @@ final class _$InvestmentApiService extends InvestmentApiService {
   @override
   Future<Response<BaseListResponse<InvestmentModel>>> getInvestments() {
     final Uri $url = Uri.parse('/investments');
-    final Request $request = Request(
-      'GET',
-      $url,
-      client.baseUrl,
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client.send<BaseListResponse<InvestmentModel>, InvestmentModel>(
+      $request,
     );
-    return client
-        .send<BaseListResponse<InvestmentModel>, InvestmentModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<InvestmentModel>>> createInvestment(
-      Map<String, dynamic> body) {
+    Map<String, dynamic> body,
+  ) {
     final Uri $url = Uri.parse('/investments');
     final $body = body;
-    final Request $request = Request(
-      'POST',
-      $url,
-      client.baseUrl,
-      body: $body,
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<InvestmentModel>, InvestmentModel>(
+      $request,
     );
-    return client
-        .send<BaseResponse<InvestmentModel>, InvestmentModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<dynamic>>> deleteInvestment(String id) {
     final Uri $url = Uri.parse('/investments/${id}');
-    final Request $request = Request(
-      'DELETE',
-      $url,
-      client.baseUrl,
-    );
+    final Request $request = Request('DELETE', $url, client.baseUrl);
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
   @override
   Future<Response<BaseResponse<dynamic>>> closeInvestment(String id) {
     final Uri $url = Uri.parse('/investments/${id}/close');
-    final Request $request = Request(
-      'POST',
-      $url,
-      client.baseUrl,
-    );
+    final Request $request = Request('POST', $url, client.baseUrl);
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
