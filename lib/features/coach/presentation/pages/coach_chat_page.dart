@@ -13,6 +13,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CoachChatPage extends StatelessWidget {
   const CoachChatPage({super.key});
@@ -319,6 +320,11 @@ class _MessageBubble extends StatelessWidget {
           children: [
             MarkdownBody(
               data: message.text,
+              onTapLink: (text, href, title) {
+                if (href != null) {
+                  _launchUrl(href);
+                }
+              },
               styleSheet: MarkdownStyleSheet(
                 p: AppTextStyles.bodyMedium.copyWith(
                   color: isUser
@@ -333,6 +339,32 @@ class _MessageBubble extends StatelessWidget {
                 ),
               ),
             ),
+            if (!isUser &&
+                message.actions != null &&
+                message.actions!.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: message.actions!.map((action) {
+                  final label = action['label'] ?? 'Action';
+                  return ElevatedButton(
+                    onPressed: () => _handleAction(context, action),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                    child: Text(label, style: const TextStyle(fontSize: 12)),
+                  );
+                }).toList(),
+              ),
+            ],
             const SizedBox(height: 4),
             Text(
               DateFormat('HH:mm').format(message.timestamp),
@@ -349,5 +381,29 @@ class _MessageBubble extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _handleAction(BuildContext context, Map<String, dynamic> action) {
+    final type = action['type'];
+    final payload = action['payload'];
+
+    if (type == 'navigate' && payload != null) {
+      final route = payload['route'];
+      if (route != null) {
+        Navigator.of(context).pushNamed(route, arguments: payload['params']);
+      }
+    } else if (type == 'url' && payload != null) {
+      final url = payload['url'] ?? payload['route'];
+      if (url != null) {
+        _launchUrl(url);
+      }
+    }
+  }
+
+  Future<void> _launchUrl(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      debugPrint('Could not launch $urlString');
+    }
   }
 }

@@ -61,6 +61,10 @@
 				<string>kauri</string>
 			</array>
 		</dict>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>https</string>
+		<string>http</string>
 	</array>
 </dict>
 </plist>

@@ -12,6 +12,7 @@ class ChatMessageModel extends Equatable {
   final DateTime timestamp;
   final String? type; // 'text', 'image', 'file'
   final Map<String, dynamic>? metadata;
+  final List<dynamic>? actions;
 
   const ChatMessageModel({
     required this.id,
@@ -20,6 +21,7 @@ class ChatMessageModel extends Equatable {
     required this.timestamp,
     this.type = 'text',
     this.metadata,
+    this.actions,
   });
 
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) =>
@@ -28,5 +30,13 @@ class ChatMessageModel extends Equatable {
   Map<String, dynamic> toJson() => _$ChatMessageModelToJson(this);
 
   @override
-  List<Object?> get props => [id, text, sender, timestamp, type, metadata];
+  List<Object?> get props => [
+    id,
+    text,
+    sender,
+    timestamp,
+    type,
+    metadata,
+    actions,
+  ];
 }
