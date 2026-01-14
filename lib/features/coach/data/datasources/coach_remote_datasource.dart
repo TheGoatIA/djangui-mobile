@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
@@ -36,11 +37,38 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
       }
 
       String responseText = '';
+      List<dynamic>? actions;
+
       if (data is Map) {
-        responseText =
-            data['response'] ?? data['text'] ?? data['content'] ?? '';
+        final resp = data['response'];
+        if (resp is String) {
+          try {
+            // Try to parse the string as JSON (it might be the raw AI JSON)
+            final Map<String, dynamic> parsed = Map<String, dynamic>.from(
+              json.decode(resp),
+            );
+            responseText = parsed['text'] ?? resp;
+            actions = parsed['actions'];
+          } catch (e) {
+            responseText = resp;
+          }
+        } else if (resp is Map) {
+          responseText = resp['text'] ?? '';
+          actions = resp['actions'];
+        } else {
+          responseText =
+              data['text'] ?? data['content'] ?? data['response'] ?? '';
+        }
       } else if (data is String) {
-        responseText = data;
+        try {
+          final Map<String, dynamic> parsed = Map<String, dynamic>.from(
+            json.decode(data),
+          );
+          responseText = parsed['text'] ?? data;
+          actions = parsed['actions'];
+        } catch (e) {
+          responseText = data;
+        }
       }
 
       // If the API doesn't return a full ChatMessageModel, we synthesize it
@@ -49,6 +77,7 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
         text: responseText,
         sender: 'ai',
         timestamp: DateTime.now(),
+        actions: actions,
       );
     } else {
       debugPrint('🌐 [CoachRemote] Error: ${response.errorMessage}');
@@ -79,6 +108,7 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
           timestamp: map['timestamp'] != null
               ? DateTime.parse(map['timestamp'])
               : DateTime.now(),
+          actions: map['actions'],
         );
       }).toList();
 
