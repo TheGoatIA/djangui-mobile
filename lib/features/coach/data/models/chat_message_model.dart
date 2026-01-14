@@ -30,5 +30,13 @@ class ChatMessageModel extends Equatable {
   Map<String, dynamic> toJson() => _$ChatMessageModelToJson(this);
 
   @override
-  List<Object?> get props => [id, text, sender, timestamp, type, metadata, actions];
+  List<Object?> get props => [
+    id,
+    text,
+    sender,
+    timestamp,
+    type,
+    metadata,
+    actions,
+  ];
 }

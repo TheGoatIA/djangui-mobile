@@ -14,6 +14,7 @@ ChatMessageModel _$ChatMessageModelFromJson(Map<String, dynamic> json) =>
       timestamp: DateTime.parse(json['timestamp'] as String),
       type: json['type'] as String? ?? 'text',
       metadata: json['metadata'] as Map<String, dynamic>?,
+      actions: json['actions'] as List<dynamic>?,
     );
 
 Map<String, dynamic> _$ChatMessageModelToJson(ChatMessageModel instance) =>
@@ -24,4 +25,5 @@ Map<String, dynamic> _$ChatMessageModelToJson(ChatMessageModel instance) =>
       'timestamp': instance.timestamp.toIso8601String(),
       'type': instance.type,
       'metadata': instance.metadata,
+      'actions': instance.actions,
     };

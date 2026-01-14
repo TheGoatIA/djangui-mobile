@@ -31,7 +31,7 @@ import 'authenticator.dart';
 class KauriApiClient {
   static ChopperClient create() {
     final baseUrl =
-        dotenv.env['API_BASE_URL'] ?? 'http://localhost:3000/api/v1';
+        dotenv.env['API_BASE_URL'] ?? 'https://api.kauri-app.com/api/v1';
 
     return ChopperClient(
       baseUrl: Uri.parse(baseUrl),
