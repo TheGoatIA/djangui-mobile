@@ -8,6 +8,7 @@ import '../../features/transactions/data/models/transaction_model.dart';
 import '../../features/user_subscriptions/data/datasources/subscription_api_service.dart';
 import '../../features/user_subscriptions/data/models/subscription_model.dart';
 
+import '../../features/auth/domain/repositories/auth_repository.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 @lazySingleton
@@ -15,6 +16,7 @@ class SyncService {
   final AppDatabase _database;
   final TransactionRemoteDataSource _transactionRemoteDataSource;
   final SubscriptionApiService _subscriptionApiService;
+  final AuthRepository _authRepository;
   final Logger _logger;
   final InternetConnectionChecker _connectionChecker =
       InternetConnectionChecker.createInstance();
@@ -23,6 +25,7 @@ class SyncService {
     this._database,
     this._transactionRemoteDataSource,
     this._subscriptionApiService,
+    this._authRepository,
     this._logger,
   );
 
@@ -42,6 +45,12 @@ class SyncService {
   }
 
   Future<void> syncPendingRequests() async {
+    // Only sync if authenticated
+    if (!await _authRepository.isAuthenticated()) {
+      _logger.d('Sync skipped: User not authenticated.');
+      return;
+    }
+
     _logger.i('Starting sync of pending requests...');
     final requests = await _database.select(_database.syncRequests).get();
 

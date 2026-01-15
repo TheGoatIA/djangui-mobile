@@ -14,6 +14,7 @@ import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 
 class CoachChatPage extends StatelessWidget {
   const CoachChatPage({super.key});
@@ -388,9 +389,13 @@ class _MessageBubble extends StatelessWidget {
     final payload = action['payload'];
 
     if (type == 'navigate' && payload != null) {
-      final route = payload['route'];
+      var route = payload['route'] as String?;
       if (route != null) {
-        Navigator.of(context).pushNamed(route, arguments: payload['params']);
+        // Ensure route starts with /
+        if (!route.startsWith('/')) {
+          route = '/$route';
+        }
+        context.go(route, extra: payload['params']);
       }
     } else if (type == 'url' && payload != null) {
       final url = payload['url'] ?? payload['route'];

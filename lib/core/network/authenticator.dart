@@ -26,11 +26,21 @@ class KauriAuthenticator extends Authenticator {
         return null;
       }
 
+      final authRepository = getIt<AuthRepository>();
+      final accessToken = await authRepository.getAccessToken();
+      final refreshToken = await authRepository.getRefreshToken();
+
+      if (accessToken == null || refreshToken == null) {
+        logger.w(
+          '🔐 [Authenticator] 401 detected but no tokens found. Probably a guest request or invalid initial state. No logout triggered.',
+        );
+        return null;
+      }
+
       logger.d(
         '🔐 [Authenticator] 401 Unauthorized detected on $requestUrl. Attempting to refresh token...',
       );
 
-      final authRepository = getIt<AuthRepository>();
       final result = await authRepository.refreshToken();
 
       return await result.fold(
