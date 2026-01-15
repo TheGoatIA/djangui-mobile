@@ -4,6 +4,8 @@ import 'package:injectable/injectable.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'dart:io';
+import 'dart:math';
+import 'package:crypto/crypto.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/network_info.dart';
 import '../datasources/auth_local_datasource.dart';
@@ -143,6 +145,8 @@ class AuthRepositoryImpl implements AuthRepository {
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
 
     try {
+      // Ensure clean state for Android error [16]
+      await _googleSignIn.signOut();
       await _googleSignIn.initialize();
       final googleUser = await _googleSignIn.authenticate();
 
@@ -192,21 +196,41 @@ class AuthRepositoryImpl implements AuthRepository {
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
 
     try {
-      final credential = await SignInWithApple.getAppleIDCredential(
+      final rawNonce = _generateNonce();
+      final hashedNonce = _sha256ofString(rawNonce);
+
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
+        nonce: hashedNonce,
       );
 
-      final identityToken = credential.identityToken;
+      final identityToken = appleCredential.identityToken;
       if (identityToken == null) {
         return Left(AuthFailure('No Identity Token found'));
       }
 
-      final response = await _remoteDataSource.appleLogin(
-        identityToken,
-        countryCode: countryCode,
+      // 1. Sign in to Firebase with Apple credentials
+      final AuthCredential credential = OAuthProvider(
+        'apple.com',
+      ).credential(idToken: identityToken, rawNonce: rawNonce);
+
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+
+      // 2. Get the Firebase ID Token
+      final String? firebaseIdToken = await userCredential.user?.getIdToken();
+
+      if (firebaseIdToken == null) {
+        return Left(AuthFailure('Failed to get Firebase ID Token'));
+      }
+
+      // 3. Send Firebase ID Token to backend
+      final response = await _remoteDataSource.firebaseLogin(
+        firebaseIdToken,
+        country: countryCode,
       );
 
       await _localDataSource.saveTokens(
@@ -653,5 +677,24 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> saveBiometricToken(String token) async {
     await _localDataSource.saveBiometricToken(token);
+  }
+
+  /// Generates a cryptographically secure random nonce, to be included in a
+  /// credential request.
+  String _generateNonce([int length = 32]) {
+    const charset =
+        '01234567843363pulq350psuapeh5ed1ckmhaqd6flnniABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    final random = Random.secure();
+    return List.generate(
+      length,
+      (_) => charset[random.nextInt(charset.length)],
+    ).join();
+  }
+
+  /// Returns the sha256 hash of [input] in hex form.
+  String _sha256ofString(String input) {
+    final bytes = utf8.encode(input);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
   }
 }
