@@ -92,6 +92,7 @@ class AuthRepositoryImpl implements AuthRepository {
         refreshToken: response.tokens.refreshToken,
       );
       await _localDataSource.saveUser(response.user);
+      await _localDataSource.saveLoginProvider('phone');
       return Right(response);
     } catch (e) {
       return Left(AuthFailure(e.toString()));
@@ -177,6 +178,7 @@ class AuthRepositoryImpl implements AuthRepository {
         refreshToken: response.tokens.refreshToken,
       );
       await _localDataSource.saveUser(response.user);
+      await _localDataSource.saveLoginProvider('google');
       return Right(response);
     } catch (e) {
       return Left(AuthFailure(e.toString()));
@@ -212,6 +214,7 @@ class AuthRepositoryImpl implements AuthRepository {
         refreshToken: response.tokens.refreshToken,
       );
       await _localDataSource.saveUser(response.user);
+      await _localDataSource.saveLoginProvider('apple');
       return Right(response);
     } catch (e) {
       return Left(AuthFailure(e.toString()));
@@ -253,6 +256,7 @@ class AuthRepositoryImpl implements AuthRepository {
           refreshToken: response.tokens.refreshToken,
         );
         await _localDataSource.saveUser(response.user);
+        await _localDataSource.saveLoginProvider('password');
         // Save credentials for biometrics
         await _localDataSource.saveCredentials(request.email, request.password);
         return Right(response);
@@ -276,6 +280,7 @@ class AuthRepositoryImpl implements AuthRepository {
           refreshToken: response.tokens.refreshToken,
         );
         await _localDataSource.saveUser(response.user);
+        await _localDataSource.saveLoginProvider('password');
         // Save credentials for biometrics
         await _localDataSource.saveCredentials(request.email, request.password);
         return Right(response);
@@ -396,16 +401,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> refreshToken() async {
-    final refreshToken = await _localDataSource.getRefreshToken();
-    if (refreshToken == null) {
+  Future<Either<Failure, void>> refreshToken([String? token]) async {
+    final tokenToUse = token ?? await _localDataSource.getRefreshToken();
+    if (tokenToUse == null) {
       return Left(AuthFailure('No refresh token found'));
     }
 
     if (await _networkInfo.isConnected) {
       try {
         debugPrint('🌐 [AuthRepository] Refreshing token...');
-        final tokens = await _remoteDataSource.refreshToken(refreshToken);
+        final tokens = await _remoteDataSource.refreshToken(tokenToUse);
         await _localDataSource.saveTokens(
           accessToken: tokens['accessToken']!,
           refreshToken: tokens['refreshToken']!,
@@ -628,5 +633,25 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e) {
       return Left(AuthFailure(e.toString()));
     }
+  }
+
+  @override
+  Future<String?> getLoginProvider() async {
+    return _localDataSource.getLoginProvider();
+  }
+
+  @override
+  Future<void> saveLoginProvider(String provider) async {
+    await _localDataSource.saveLoginProvider(provider);
+  }
+
+  @override
+  Future<String?> getBiometricToken() async {
+    return _localDataSource.getBiometricToken();
+  }
+
+  @override
+  Future<void> saveBiometricToken(String token) async {
+    await _localDataSource.saveBiometricToken(token);
   }
 }

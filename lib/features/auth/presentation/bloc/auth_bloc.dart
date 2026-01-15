@@ -38,6 +38,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<_AuthInternalCodeSent>(_onAuthInternalCodeSent);
     on<_AuthInternalError>(_onAuthInternalError);
     on<AuthRequestCountryChange>(_onAuthRequestCountryChange);
+    on<AuthSaveBiometricCredentialsRequested>(
+      _onAuthSaveBiometricCredentialsRequested,
+    );
+    on<AuthSetupBiometricsSocialRequested>(
+      _onAuthSetupBiometricsSocialRequested,
+    );
   }
 
   String? _verificationId;
@@ -405,23 +411,45 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthBiometricLoginRequested event,
     Emitter<AuthState> emit,
   ) async {
-    final credentials = await _authRepository.getBiometricCredentials();
-    if (credentials != null) {
-      add(
-        AuthLoginRequested(
-          email: credentials['email']!,
-          password: credentials['password']!,
-        ),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          status: AuthStatus.error,
-          errorMessage:
-              'No biometric credentials found. Please login normally.',
-        ),
-      );
+    emit(state.copyWith(status: AuthStatus.loading));
+    final provider = await _authRepository.getLoginProvider();
+
+    if (provider == 'password') {
+      final credentials = await _authRepository.getBiometricCredentials();
+      if (credentials != null) {
+        add(
+          AuthLoginRequested(
+            email: credentials['email']!,
+            password: credentials['password']!,
+          ),
+        );
+        return;
+      }
+    } else if (provider != null) {
+      // For social/phone, recover session using biometric token
+      final token = await _authRepository.getBiometricToken();
+      if (token != null) {
+        final result = await _authRepository.refreshToken(token);
+        result.fold(
+          (failure) => emit(
+            state.copyWith(
+              status: AuthStatus.error,
+              errorMessage:
+                  'Session expired. Please login with ${provider.toUpperCase()} again.',
+            ),
+          ),
+          (_) => add(AuthCheckRequested()),
+        );
+        return;
+      }
     }
+
+    emit(
+      state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: 'Biometric login not available. Please login normally.',
+      ),
+    );
   }
 
   Future<void> _onAuthRefreshUserRequested(
@@ -497,5 +525,45 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         add(AuthRefreshUserRequested());
       },
     );
+  }
+
+  Future<void> _onAuthSaveBiometricCredentialsRequested(
+    AuthSaveBiometricCredentialsRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+
+    // Verify the password before saving
+    final result = await _authRepository.login(
+      LoginRequest(email: event.email, password: event.password),
+    );
+
+    result.fold(
+      (failure) => emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
+      ),
+      (response) {
+        // Repository's login already saved the credentials
+        emit(state.copyWith(status: AuthStatus.biometricCredentialsSaved));
+      },
+    );
+  }
+
+  Future<void> _onAuthSetupBiometricsSocialRequested(
+    AuthSetupBiometricsSocialRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    final token = await _authRepository.getRefreshToken();
+    if (token != null) {
+      await _authRepository.saveBiometricToken(token);
+      emit(state.copyWith(status: AuthStatus.biometricCredentialsSaved));
+    } else {
+      emit(
+        state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: 'Could not find a valid session to enable biometrics.',
+        ),
+      );
+    }
   }
 }

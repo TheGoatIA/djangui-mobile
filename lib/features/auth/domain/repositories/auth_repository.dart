@@ -41,7 +41,7 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> forgotPassword(String email);
   Future<Either<Failure, void>> resetPassword(String token, String newPassword);
   Future<Either<Failure, void>> verifyEmail(String token);
-  Future<Either<Failure, void>> refreshToken();
+  Future<Either<Failure, void>> refreshToken([String? token]);
   Future<Either<Failure, void>> updateFcmToken(String token);
   Future<void> updateDeviceInfo();
   Future<Either<Failure, void>> changePassword(
@@ -58,4 +58,8 @@ abstract class AuthRepository {
   Future<Either<Failure, CountryChangeRequestModel>> requestCountryChange(
     String countryCode,
   );
+  Future<String?> getLoginProvider();
+  Future<void> saveLoginProvider(String provider);
+  Future<String?> getBiometricToken();
+  Future<void> saveBiometricToken(String token);
 }

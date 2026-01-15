@@ -15,6 +15,7 @@ enum AuthStatus {
   sessionsLoaded,
   sessionRevoked,
   countryChangeRequestSubmitted,
+  biometricCredentialsSaved,
 }
 
 class AuthState extends Equatable {
