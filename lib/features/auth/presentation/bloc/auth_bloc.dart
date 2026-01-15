@@ -291,6 +291,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthLogoutRequested event,
     Emitter<AuthState> emit,
   ) async {
+    debugPrint(
+      '🚪 [AuthBloc] Logout requested. Current status: ${state.status}',
+    );
     await _authRepository.logout();
     emit(
       state.copyWith(status: AuthStatus.unauthenticated, authResponse: null),

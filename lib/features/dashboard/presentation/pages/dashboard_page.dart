@@ -249,12 +249,45 @@ class _DashboardViewState extends State<DashboardView> {
                   context,
                   AppLocalizations.of(context)!.recentActivities,
                   () => context.push(RouteConstants.transactions),
+                  action: TextButton.icon(
+                    onPressed: () =>
+                        context.push(RouteConstants.addTransaction),
+                    icon: const Icon(Icons.add_circle_outline, size: 20),
+                    label: Text(
+                      AppLocalizations.of(context)!.add,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ).animate(delay: 300.ms).fade(),
                 const SizedBox(height: 16),
                 _buildRecentActivities(context)
                     .animate(delay: 400.ms)
                     .fade(duration: 500.ms)
                     .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+                const SizedBox(height: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          context.push(RouteConstants.transactions),
+                      icon: const Icon(Icons.list_alt),
+                      label: Text(
+                        AppLocalizations.of(context)!.manageTransactions,
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ).animate(delay: 500.ms).fade(),
               ],
             ),
           ),
@@ -653,20 +686,31 @@ class _DashboardViewState extends State<DashboardView> {
   Widget _buildSectionHeader(
     BuildContext context,
     String title,
-    VoidCallback onSeeAll,
-  ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-        ),
-        TextButton(
-          onPressed: onSeeAll,
-          child: Text(AppLocalizations.of(context)!.seeAll),
-        ),
-      ],
+    VoidCallback onSeeAll, {
+    Widget? action,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Text(
+                title,
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (action != null) ...[const SizedBox(width: 8), action],
+            ],
+          ),
+          TextButton(
+            onPressed: onSeeAll,
+            child: Text(AppLocalizations.of(context)!.seeAll),
+          ),
+        ],
+      ),
     );
   }
 

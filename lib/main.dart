@@ -151,8 +151,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   themeMode: state.themeMode,
                   locale: state.locale,
                   routerConfig: appRouter,
-                  builder: (context, child) =>
-                      ShowCaseWidget(builder: (context) => child!),
+                  builder: (context, child) => child!,
                   localizationsDelegates: [
                     AppLocalizations.delegate,
                     GlobalMaterialLocalizations.delegate,

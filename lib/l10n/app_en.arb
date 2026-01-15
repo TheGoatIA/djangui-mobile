@@ -26,6 +26,7 @@
     "confirmLogout": "Are you sure you want to logout?",
     "cancel": "Cancel",
     "none": "None",
+    "manageTransactions": "Manage Transactions",
     "totalBalance": "Total Balance",
     "recentActivities": "Recent Activities",
     "noRecentActivities": "No recent activities",

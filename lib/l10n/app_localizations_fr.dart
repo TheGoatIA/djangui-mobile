@@ -88,6 +88,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get none => 'Aucun';
 
   @override
+  String get manageTransactions => 'Gérer mes transactions';
+
+  @override
   String get totalBalance => 'Solde Total';
 
   @override

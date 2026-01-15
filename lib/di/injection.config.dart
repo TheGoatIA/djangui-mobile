@@ -413,14 +413,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.lazySingleton<_i75.SyncService>(
-      () => _i75.SyncService(
-        gh<_i777.AppDatabase>(),
-        gh<_i534.TransactionRemoteDataSource>(),
-        gh<_i181.SubscriptionApiService>(),
-        gh<_i974.Logger>(),
-      ),
-    );
     gh.factory<_i415.VoiceBloc>(
       () => _i415.VoiceBloc(gh<_i1033.VoiceRepository>()),
     );
@@ -502,6 +494,15 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i405.CoachBloc>(
       () => _i405.CoachBloc(gh<_i160.CoachRepository>()),
+    );
+    gh.lazySingleton<_i75.SyncService>(
+      () => _i75.SyncService(
+        gh<_i777.AppDatabase>(),
+        gh<_i534.TransactionRemoteDataSource>(),
+        gh<_i181.SubscriptionApiService>(),
+        gh<_i344.AuthRepository>(),
+        gh<_i974.Logger>(),
+      ),
     );
     gh.factory<_i786.NotificationsBloc>(
       () => _i786.NotificationsBloc(gh<_i224.NotificationRepository>()),

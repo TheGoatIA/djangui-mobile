@@ -254,6 +254,12 @@ abstract class AppLocalizations {
   /// **'Aucun'**
   String get none;
 
+  /// No description provided for @manageTransactions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer mes transactions'**
+  String get manageTransactions;
+
   /// No description provided for @totalBalance.
   ///
   /// In fr, this message translates to:

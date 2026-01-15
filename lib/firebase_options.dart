@@ -66,7 +66,7 @@ class DefaultFirebaseOptions {
     androidClientId:
         '323526784336-4mrskikb0b21vq4s106gmdt6a8n2vc23.apps.googleusercontent.com',
     iosClientId:
-        '323526784336-lurmolpn61t57k0m31d666nh3862fekb.apps.googleusercontent.com',
+        '323526784336-3pu1q350psuapeh5ed1ckmhaqd6f1nni.apps.googleusercontent.com',
     iosBundleId: 'cm.tbg.kauri',
   );
 }
