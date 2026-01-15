@@ -59,6 +59,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>kauri</string>
+				<string>com.googleusercontent.apps.323526784336-lurmolpn61t57k0m31d666nh3862fekb</string>
 			</array>
 		</dict>
 	</array>

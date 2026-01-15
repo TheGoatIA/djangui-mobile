@@ -178,3 +178,18 @@ class AuthRequestCountryChange extends AuthEvent {
   @override
   List<Object?> get props => [countryCode];
 }
+
+class AuthSaveBiometricCredentialsRequested extends AuthEvent {
+  final String email;
+  final String password;
+
+  const AuthSaveBiometricCredentialsRequested({
+    required this.email,
+    required this.password,
+  });
+
+  @override
+  List<Object?> get props => [email, password];
+}
+
+class AuthSetupBiometricsSocialRequested extends AuthEvent {}

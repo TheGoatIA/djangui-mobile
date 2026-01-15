@@ -22,6 +22,22 @@
           }
         },
         {
+          "client_id": "323526784336-6i6hebar33tfgvnepmbjuqs8c03h965u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "cm.tbg.kauri",
+            "certificate_hash": "297585a8fdb994b102bc45c396bd28cbf09f6f18"
+          }
+        },
+        {
+          "client_id": "323526784336-kasus571rhh03bbn9lo7i8135f5fbq18.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "cm.tbg.kauri",
+            "certificate_hash": "02cc1b75fb8f6db03eaa08b05260b9f611da18fc"
+          }
+        },
+        {
           "client_id": "323526784336-07im9pakveh0qbrp9asg01ni6ci7r7bb.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -39,10 +55,11 @@
               "client_type": 3
             },
             {
-              "client_id": "323526784336-54lh5a8iqb1j0oc9i7uu3n5q246b9qlo.apps.googleusercontent.com",
+              "client_id": "323526784336-3pu1q350psuapeh5ed1ckmhaqd6f1nni.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "cm.tbg.djangui"
+                "bundle_id": "cm.tbg.kauri",
+                "app_store_id": "6757806640"
               }
             }
           ]

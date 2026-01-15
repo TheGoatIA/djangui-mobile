@@ -20,6 +20,12 @@ abstract class AuthLocalDataSource {
   Future<void> saveCredentials(String email, String password);
   Future<Map<String, String>?> getCredentials();
   Future<void> clearCredentials();
+  Future<void> saveLoginProvider(String provider);
+  Future<String?> getLoginProvider();
+  Future<void> clearLoginProvider();
+  Future<void> saveBiometricToken(String token);
+  Future<String?> getBiometricToken();
+  Future<void> clearBiometricToken();
 }
 
 @LazySingleton(as: AuthLocalDataSource)
@@ -34,6 +40,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   static const _refreshTokenKey = 'refresh_token';
   static const _emailKey = 'login_email';
   static const _passwordKey = 'login_password';
+  static const _providerKey = 'login_provider';
+  static const _biometricTokenKey = 'biometric_token';
 
   @override
   Future<void> saveTokens({
@@ -152,5 +160,41 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> clearCredentials() async {
     await _storage.delete(key: _emailKey);
     await _storage.delete(key: _passwordKey);
+  }
+
+  @override
+  Future<void> saveLoginProvider(String provider) async {
+    _logger.d('💾 [AuthLocal] Saving login provider: $provider');
+    await _storage.write(key: _providerKey, value: provider);
+  }
+
+  @override
+  Future<String?> getLoginProvider() async {
+    final provider = await _storage.read(key: _providerKey);
+    _logger.d('💾 [AuthLocal] Fetching login provider: $provider');
+    return provider;
+  }
+
+  @override
+  Future<void> clearLoginProvider() async {
+    await _storage.delete(key: _providerKey);
+  }
+
+  @override
+  Future<void> saveBiometricToken(String token) async {
+    _logger.d('💾 [AuthLocal] Saving biometric token');
+    await _storage.write(key: _biometricTokenKey, value: token);
+  }
+
+  @override
+  Future<String?> getBiometricToken() async {
+    final token = await _storage.read(key: _biometricTokenKey);
+    _logger.d('💾 [AuthLocal] Fetching biometric token: ${token != null}');
+    return token;
+  }
+
+  @override
+  Future<void> clearBiometricToken() async {
+    await _storage.delete(key: _biometricTokenKey);
   }
 }
