@@ -15,6 +15,7 @@ abstract class ChallengeRepository {
     required String userChallengeId,
     required int weekNumber,
     required double amount,
+    required String proofPath,
   });
 
   Future<Either<Failure, void>> unjoinChallenge(String id);

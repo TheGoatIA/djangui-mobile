@@ -2,6 +2,7 @@ import 'package:chopper/chopper.dart';
 import 'package:kauri/core/constants/api_constants.dart';
 import 'package:kauri/features/challenges/data/models/challenge_model.dart';
 import 'package:kauri/core/network/models/base_response.dart';
+import 'package:http/http.dart' show MultipartFile;
 
 part 'challenge_api_service.chopper.dart';
 
@@ -22,8 +23,12 @@ abstract class ChallengeApiService extends ChopperService {
   );
 
   @Post(path: ApiConstants.validateWeek)
+  @Multipart()
   Future<Response<BaseResponse<UserChallengeModel>>> validateWeek(
-    @Body() Map<String, dynamic> body,
+    @Part('userChallengeId') String userChallengeId,
+    @Part('weekNumber') int weekNumber,
+    @Part('amount') double amount,
+    @PartFile('proof') MultipartFile proof,
   );
   @Delete(path: '${ApiConstants.challenges}/{id}')
   Future<Response<BaseResponse<dynamic>>> unjoinChallenge(

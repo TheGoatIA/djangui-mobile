@@ -103,11 +103,12 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     ValidateWeekRequested event,
     Emitter<ChallengesState> emit,
   ) async {
-    // Optimistic loading? or just background? For now, standard loading.
+    emit(state.copyWith(status: ChallengesStatus.loading));
     final result = await _challengeRepository.validateWeek(
       userChallengeId: event.userChallengeId,
       weekNumber: event.weekNumber,
       amount: event.amount,
+      proofPath: event.proofPath,
     );
     result.fold<void>(
       (failure) => emit(
@@ -118,6 +119,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
       ),
       (_) {
         // Success
+        emit(state.copyWith(status: ChallengesStatus.success));
         add(GetUserChallengesRequested());
       },
     );
