@@ -248,7 +248,6 @@ class _DashboardViewState extends State<DashboardView> {
                 _buildSectionHeader(
                   context,
                   AppLocalizations.of(context)!.recentActivities,
-                  () => context.push(RouteConstants.transactions),
                   action: TextButton.icon(
                     onPressed: () =>
                         context.push(RouteConstants.addTransaction),
@@ -685,8 +684,7 @@ class _DashboardViewState extends State<DashboardView> {
 
   Widget _buildSectionHeader(
     BuildContext context,
-    String title,
-    VoidCallback onSeeAll, {
+    String title, {
     Widget? action,
   }) {
     return Padding(
@@ -704,10 +702,6 @@ class _DashboardViewState extends State<DashboardView> {
               ),
               if (action != null) ...[const SizedBox(width: 8), action],
             ],
-          ),
-          TextButton(
-            onPressed: onSeeAll,
-            child: Text(AppLocalizations.of(context)!.seeAll),
           ),
         ],
       ),
