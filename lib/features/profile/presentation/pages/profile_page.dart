@@ -12,12 +12,12 @@ import '../../../gamification/presentation/widgets/badges_list.dart';
 import '../../../../core/constants/route_constants.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../di/injection.dart';
-import '../../../../core/services/sms_service.dart';
-import '../../../insights/data/datasources/ai_remote_datasource.dart';
-import '../../../transactions/data/models/transaction_model.dart';
-import '../../../transactions/presentation/bloc/transactions_bloc.dart';
-import 'package:uuid/uuid.dart';
-import 'dart:io';
+// import '../../../../core/services/sms_service.dart';
+// import '../../../insights/data/datasources/ai_remote_datasource.dart';
+// import '../../../transactions/data/models/transaction_model.dart';
+// import '../../../transactions/presentation/bloc/transactions_bloc.dart';
+// import 'package:uuid/uuid.dart';
+// import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../auth/data/models/user_model.dart';
 import 'package:kauri/features/upload/domain/repositories/upload_repository.dart';
@@ -26,7 +26,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+// import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -36,7 +36,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool _isLoadingSms = false;
+  // bool _isLoadingSms = false;
   final GlobalKey _resetTutorialsKey = GlobalKey();
   final ImagePicker _picker = ImagePicker();
   final GlobalKey _profileHeaderKey = GlobalKey();
@@ -433,12 +433,14 @@ class _ProfilePageState extends State<ProfilePage> {
             onTap: () => context.push(RouteConstants.notifications),
           ),
           const Divider(height: 1, color: Colors.transparent),
+          /*
           _buildSettingsTile(
             Icons.sms_outlined,
             AppLocalizations.of(context)!.importSms,
             onTap: _isLoadingSms ? null : () => _handleSmsImport(context),
           ),
           const Divider(height: 1, color: Colors.transparent),
+          */
           _buildSettingsTile(
             Icons.security_outlined,
             AppLocalizations.of(context)!.security,
@@ -1109,171 +1111,9 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  /*
   Future<void> _handleSmsImport(BuildContext context) async {
-    final authState = context.read<AuthBloc>().state;
-    final isPremium = authState.authResponse?.user.isPremium ?? false;
-
-    if (!isPremium) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.smsImportPremiumRestriction,
-          ),
-          action: SnackBarAction(
-            label: AppLocalizations.of(context)!.seeOffers,
-            onPressed: () => context.push(RouteConstants.subscription),
-          ),
-        ),
-      );
-      return;
-    }
-
-    if (!Platform.isAndroid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.featureNotAvailableOnIos),
-        ),
-      );
-      return;
-    }
-    final smsService = getIt<SMSService>();
-    final granted = await smsService.requestPermission();
-    if (!context.mounted) return;
-    if (granted) {
-      getIt<AnalyticsManager>().trackEvent(
-        feature: 'SMS',
-        action: 'sync_attempt',
-      );
-      setState(() => _isLoadingSms = true);
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "${AppLocalizations.of(context)!.scanningSms} (Dernières 24h)",
-          ),
-        ),
-      );
-
-      final rawMessages = await smsService.getRawMessagesLast24Hours();
-      if (rawMessages.isEmpty) {
-        setState(() => _isLoadingSms = false);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                "Aucun SMS financier trouvé sur les dernières 24h.",
-              ),
-            ),
-          );
-        }
-        return;
-      }
-
-      try {
-        final aiResult = await getIt<AIRemoteDataSource>().bulkParseSms(
-          rawMessages,
-        );
-        final List? data = aiResult['data'] as List?;
-
-        if (data != null && data.isNotEmpty) {
-          getIt<AnalyticsManager>().trackEvent(
-            feature: 'SMS',
-            action: 'sync_success',
-            details: {
-              'found_count': data.length,
-              'imported_count':
-                  -1, // Will update logic below or just track found count
-            },
-          );
-          if (!context.mounted) return;
-          final existingTransactions = context
-              .read<TransactionsBloc>()
-              .state
-              .transactions;
-          int importedCount = 0;
-
-          for (final item in data) {
-            if (item['success'] == true && item['transaction'] != null) {
-              final tx = item['transaction'];
-              final amount = (tx['amount'] as num).toDouble();
-              final date = DateTime.parse(tx['date']);
-              final type = tx['type'] as String;
-              final description = tx['description'] as String;
-              final category =
-                  tx['category'] as String? ??
-                  AppLocalizations.of(context)!.automatic;
-              final sender = tx['merchant'] as String? ?? "AI Parsed";
-
-              // Duplicate detection
-              final isDuplicate = existingTransactions.any((existing) {
-                final dateDiff = existing.date.difference(date).abs().inMinutes;
-                return (existing.amount - amount).abs() < 0.1 &&
-                    dateDiff < 5 &&
-                    (existing.description.contains(description) ||
-                        description.contains(existing.description));
-              });
-
-              if (!isDuplicate) {
-                context.read<TransactionsBloc>().add(
-                  AddTransactionRequested(
-                    TransactionModel(
-                      id: const Uuid().v4(),
-                      amount: amount,
-                      type: type,
-                      category: category,
-                      description: description,
-                      date: date,
-                      source: 'SMS AI ($sender)',
-                    ),
-                  ),
-                );
-                importedCount++;
-              }
-            }
-          }
-
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  importedCount > 0
-                      ? AppLocalizations.of(
-                          context,
-                        )!.transactionsImported(importedCount)
-                      : 'Aucune nouvelle transaction détectée par l\'IA.',
-                ),
-              ),
-            );
-          }
-        }
-      } catch (e) {
-        getIt<AnalyticsManager>().trackEvent(
-          feature: 'SMS',
-          action: 'sync_error',
-          details: {'error': e.toString()},
-        );
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text("Erreur d'analyse IA: $e")));
-        }
-      } finally {
-        if (mounted) setState(() => _isLoadingSms = false);
-      }
-    } else {
-      getIt<AnalyticsManager>().trackEvent(
-        feature: 'SMS',
-        action: 'permission_denied',
-      );
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.smsPermissionRequired),
-          ),
-        );
-      }
-    }
+    // ... (logic)
   }
+  */
 }
