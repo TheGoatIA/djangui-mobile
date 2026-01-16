@@ -34,28 +34,6 @@ final class _$AiApiService extends AiApiService {
   }
 
   @override
-  Future<Response<List<Map<String, dynamic>>>> parseSms(
-    Map<String, dynamic> body,
-  ) {
-    final Uri $url = Uri.parse('/sms/parse');
-    final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
-    return client.send<List<Map<String, dynamic>>, Map<String, dynamic>>(
-      $request,
-    );
-  }
-
-  @override
-  Future<Response<Map<String, dynamic>>> bulkParseSms(
-    Map<String, dynamic> body,
-  ) {
-    final Uri $url = Uri.parse('/sms/bulk-parse');
-    final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
-    return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
-  }
-
-  @override
   Future<Response<Map<String, dynamic>>> getNarrativeReport() {
     final Uri $url = Uri.parse('/reports/narrative');
     final Request $request = Request('GET', $url, client.baseUrl);

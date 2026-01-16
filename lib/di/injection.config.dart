@@ -18,7 +18,6 @@ import 'package:kauri/core/services/notification_service.dart' as _i273;
 import 'package:kauri/core/services/ocr_service.dart' as _i950;
 import 'package:kauri/core/services/payment_service.dart' as _i342;
 import 'package:kauri/core/services/share_service.dart' as _i639;
-import 'package:kauri/core/services/sms_service.dart' as _i1027;
 import 'package:kauri/core/services/sync_service.dart' as _i75;
 import 'package:kauri/core/services/tutorial_service.dart' as _i899;
 import 'package:kauri/di/register_module.dart' as _i617;
@@ -215,7 +214,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i950.OCRService>(() => _i950.OCRService());
     gh.lazySingleton<_i639.ShareService>(() => _i639.ShareService());
-    gh.lazySingleton<_i1027.SMSService>(() => _i1027.SMSService());
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );

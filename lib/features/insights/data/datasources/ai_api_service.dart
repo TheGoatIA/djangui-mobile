@@ -11,6 +11,7 @@ abstract class AiApiService extends ChopperService {
     @PartFile('image') String imagePath,
   );
 
+  /*
   @Post(path: ApiConstants.smsParse)
   Future<Response<List<Map<String, dynamic>>>> parseSms(
     @Body() Map<String, dynamic> body,
@@ -20,6 +21,7 @@ abstract class AiApiService extends ChopperService {
   Future<Response<Map<String, dynamic>>> bulkParseSms(
     @Body() Map<String, dynamic> body,
   );
+*/
 
   @Get(path: ApiConstants.reportNarrative)
   Future<Response<Map<String, dynamic>>> getNarrativeReport();
