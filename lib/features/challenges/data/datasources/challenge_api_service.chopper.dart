@@ -50,11 +50,25 @@ final class _$ChallengeApiService extends ChallengeApiService {
 
   @override
   Future<Response<BaseResponse<UserChallengeModel>>> validateWeek(
-    Map<String, dynamic> body,
+    String userChallengeId,
+    int weekNumber,
+    double amount,
+    MultipartFile proof,
   ) {
     final Uri $url = Uri.parse('/challenges/validate-week');
-    final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final List<PartValue> $parts = <PartValue>[
+      PartValue<String>('userChallengeId', userChallengeId),
+      PartValue<int>('weekNumber', weekNumber),
+      PartValue<double>('amount', amount),
+      PartValueFile<MultipartFile>('proof', proof),
+    ];
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      parts: $parts,
+      multipart: true,
+    );
     return client.send<BaseResponse<UserChallengeModel>, UserChallengeModel>(
       $request,
     );

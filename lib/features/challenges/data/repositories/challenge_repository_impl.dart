@@ -123,6 +123,7 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
     required String userChallengeId,
     required int weekNumber,
     required double amount,
+    required String proofPath,
   }) async {
     if (await _networkInfo.isConnected) {
       try {
@@ -130,6 +131,7 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
           userChallengeId,
           weekNumber,
           amount,
+          proofPath,
         );
         return const Right(null);
       } catch (e) {

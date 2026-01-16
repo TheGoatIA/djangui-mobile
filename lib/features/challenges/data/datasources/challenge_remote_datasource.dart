@@ -1,6 +1,9 @@
 import 'package:injectable/injectable.dart';
 import 'package:kauri/features/challenges/data/datasources/challenge_api_service.dart';
 import 'package:kauri/features/challenges/data/models/challenge_model.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:path/path.dart' as path;
 import '../../../../core/network/api_response_extensions.dart';
 
 abstract class ChallengeRemoteDataSource {
@@ -11,6 +14,7 @@ abstract class ChallengeRemoteDataSource {
     String userChallengeId,
     int weekNumber,
     double amount,
+    String proofPath,
   );
   Future<void> unjoinChallenge(String id);
 }
@@ -56,12 +60,30 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
     String userChallengeId,
     int weekNumber,
     double amount,
+    String proofPath,
   ) async {
-    final response = await _apiService.validateWeek({
-      'userChallengeId': userChallengeId,
-      'weekNumber': weekNumber,
-      'amount': amount,
-    });
+    final extension = path.extension(proofPath).toLowerCase();
+    String mimeType = 'image/jpeg';
+    if (extension == '.png') {
+      mimeType = 'image/png';
+    } else if (extension == '.webp') {
+      mimeType = 'image/webp';
+    } else if (extension == '.pdf') {
+      mimeType = 'application/pdf';
+    }
+
+    final multipartFile = await http.MultipartFile.fromPath(
+      'proof',
+      proofPath,
+      contentType: MediaType.parse(mimeType),
+    );
+
+    final response = await _apiService.validateWeek(
+      userChallengeId,
+      weekNumber,
+      amount,
+      multipartFile,
+    );
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
