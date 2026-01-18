@@ -85,6 +85,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cancel => 'Annuler';
 
   @override
+  String get close => 'Fermer';
+
+  @override
   String get edit => 'Modifier';
 
   @override
@@ -1847,6 +1850,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get removeMember => 'Retirer un membre';
+
+  @override
+  String get howKauriWorks => 'Comment Kauri fonctionne';
 
   @override
   String removeMemberConfirmation(String name) {

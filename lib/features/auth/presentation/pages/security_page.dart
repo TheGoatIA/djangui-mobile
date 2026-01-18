@@ -125,7 +125,7 @@ class _SecurityPageState extends State<SecurityPage> {
                 title: l10n.changePassword,
                 onTap: () => context.push(RouteConstants.changePassword),
               ),
-              const Divider(height: 1),
+              const Divider(height: 1, color: Colors.transparent),
               _buildSecurityTile(
                 icon: Icons.devices_outlined,
                 title: l10n.activeSessions,

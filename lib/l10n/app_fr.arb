@@ -25,6 +25,7 @@
     "logout": "Déconnexion",
     "confirmLogout": "Êtes-vous sûr de vouloir vous déconnecter ?",
     "cancel": "Annuler",
+    "close": "Fermer",
     "edit": "Modifier",
     "editTontine": "Modifier la tontine",
     "none": "Aucun",
@@ -642,6 +643,7 @@
     "operationSuccess": "Opération réalisée avec succès",
     "alreadyContributed": "Vous avez déjà cotisé pour ce tour",
     "removeMember": "Retirer un membre",
+    "howKauriWorks": "Comment Kauri fonctionne",
     "removeMemberConfirmation": "Voulez-vous vraiment retirer {name} de cette tontine ?",
     "@removeMemberConfirmation": {
         "placeholders": {

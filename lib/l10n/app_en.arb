@@ -25,6 +25,7 @@
     "logout": "Logout",
     "confirmLogout": "Are you sure you want to logout?",
     "cancel": "Cancel",
+    "close": "Close",
     "edit": "Edit",
     "editTontine": "Edit Tontine",
     "none": "None",
@@ -642,6 +643,7 @@
     "operationSuccess": "Operation successful",
     "alreadyContributed": "You have already contributed for this turn",
     "removeMember": "Remove Member",
+    "howKauriWorks": "How Kauri works",
     "removeMemberConfirmation": "Are you sure you want to remove {name} from this tontine?",
     "@removeMemberConfirmation": {
         "placeholders": {

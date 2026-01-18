@@ -248,6 +248,12 @@ abstract class AppLocalizations {
   /// **'Annuler'**
   String get cancel;
 
+  /// No description provided for @close.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get close;
+
   /// No description provided for @edit.
   ///
   /// In fr, this message translates to:
@@ -3553,6 +3559,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Retirer un membre'**
   String get removeMember;
+
+  /// No description provided for @howKauriWorks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment Kauri fonctionne'**
+  String get howKauriWorks;
 
   /// No description provided for @removeMemberConfirmation.
   ///
