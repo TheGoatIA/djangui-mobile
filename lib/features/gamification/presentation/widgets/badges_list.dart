@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../auth/data/models/badge_model.dart';
 import '../../data/models/badge_data.dart';
 
 class BadgesList extends StatelessWidget {
-  final List<String> badgeIds;
+  final List<BadgeModel> badges;
 
-  const BadgesList({super.key, required this.badgeIds});
+  const BadgesList({super.key, required this.badges});
 
   @override
   Widget build(BuildContext context) {
-    if (badgeIds.isEmpty) {
+    if (badges.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -20,7 +21,7 @@ class BadgesList extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Text(
-            'Badges (${badgeIds.length})',
+            'Badges (${badges.length})',
             style: AppTextStyles.h3.copyWith(fontSize: 18),
           ),
         ),
@@ -29,18 +30,24 @@ class BadgesList extends StatelessWidget {
           height: 100,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: badgeIds.length,
+            itemCount: badges.length,
             separatorBuilder: (context, index) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
-              final badgeId = badgeIds[index];
-              final badge = BadgesData.get(badgeId);
+              final badgeModel = badges[index];
+              // Try to find in catalog by icon/id or by name
+              final badgeData =
+                  BadgesData.get(badgeModel.icon) ??
+                  BadgesData.get(badgeModel.name);
 
-              if (badge == null) return const SizedBox.shrink();
-
-              final themedColor = _getThemedColor(context, badge.color);
+              final String name = badgeData?.name ?? badgeModel.name;
+              final String description =
+                  badgeData?.description ?? badgeModel.name;
+              final IconData icon = badgeData?.icon ?? Icons.stars;
+              final Color color = badgeData?.color ?? AppColors.primary;
+              final themedColor = _getThemedColor(context, color);
 
               return Tooltip(
-                message: badge.description,
+                message: description,
                 triggerMode: TooltipTriggerMode.tap,
                 child: Container(
                   width: 80,
@@ -67,11 +74,11 @@ class BadgesList extends StatelessWidget {
                           color: themedColor.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(badge.icon, color: themedColor, size: 24),
+                        child: Icon(icon, color: themedColor, size: 24),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        badge.name,
+                        name,
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodySmall.copyWith(
                           fontSize: 10,

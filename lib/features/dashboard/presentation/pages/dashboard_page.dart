@@ -24,6 +24,7 @@ import '../../../user_subscriptions/presentation/widgets/next_invoices_widget.da
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../voice/presentation/bloc/voice_bloc.dart';
 import '../bloc/dashboard_bloc.dart';
+import '../../../notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -325,12 +326,20 @@ class _DashboardViewState extends State<DashboardView> {
         ],
       ),
       actions: [
-        IconButton(
-          onPressed: () => context.push(RouteConstants.notifications),
-          icon: Icon(
-            Icons.notifications_none_outlined,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+        BlocBuilder<NotificationsBloc, NotificationsState>(
+          builder: (context, state) {
+            return Badge(
+              label: Text(state.unreadCount.toString()),
+              isLabelVisible: state.unreadCount > 0,
+              child: IconButton(
+                onPressed: () => context.push(RouteConstants.notifications),
+                icon: Icon(
+                  Icons.notifications_none_outlined,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            );
+          },
         ),
         Builder(
           builder: (context) => IconButton(

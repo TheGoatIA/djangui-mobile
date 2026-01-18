@@ -111,3 +111,20 @@ class TontineRemoveMemberRequested extends TontineEvent {
   @override
   List<Object?> get props => [tontineId, memberId];
 }
+
+class DeleteTontineRequested extends TontineEvent {
+  final String tontineId;
+  const DeleteTontineRequested(this.tontineId);
+
+  @override
+  List<Object?> get props => [tontineId];
+}
+
+class UpdateTontineRequested extends TontineEvent {
+  final String tontineId;
+  final Map<String, dynamic> params;
+  const UpdateTontineRequested(this.tontineId, this.params);
+
+  @override
+  List<Object?> get props => [tontineId, params];
+}

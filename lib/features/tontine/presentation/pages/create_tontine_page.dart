@@ -4,12 +4,14 @@ import '../../../../l10n/app_localizations.dart';
 import '../bloc/tontine_bloc.dart';
 import '../bloc/tontine_event.dart';
 import '../bloc/tontine_state.dart';
+import '../../domain/entities/tontine_entities.dart';
 import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:go_router/go_router.dart';
 
 class CreateTontinePage extends StatefulWidget {
-  const CreateTontinePage({super.key});
+  final Tontine? tontine;
+  const CreateTontinePage({super.key, this.tontine});
 
   @override
   State<CreateTontinePage> createState() => _CreateTontinePageState();
@@ -37,6 +39,41 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
   String _rotationMode = 'fixed';
   String _validationMode = 'ia_only';
 
+  bool get _isEditing => widget.tontine != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isEditing) {
+      final tontine = widget.tontine!;
+      _nameController.text = tontine.name;
+      _amountController.text = tontine.contributionAmount.toString();
+      _partsController.text = tontine.totalParts.toString();
+      _socialFundAmountController.text = (tontine.socialFund['amount'] ?? 0)
+          .toString();
+      _isSocialFundEnabled = tontine.socialFund['enabled'] ?? false;
+      _lateFeeController.text = (tontine.sanctions['lateFee'] ?? 0).toString();
+      _gracePeriodController.text =
+          (tontine.sanctions['gracePeriodHours'] ?? 24).toString();
+      _absenceFeeController.text = (tontine.sanctions['absenceFee'] ?? 0)
+          .toString();
+      _frequency = tontine.frequency;
+      _rotationMode = tontine.rotationMode;
+      _validationMode = tontine.validationMode;
+      _startDate = tontine.startDate ?? _startDate;
+      if (tontine.escrowDetails != null) {
+        for (var account in tontine.escrowDetails!) {
+          _escrowAccounts.add({
+            'type': account['type']?.toString() ?? '',
+            'provider': account['provider']?.toString() ?? '',
+            'accountNumber': account['accountNumber']?.toString() ?? '',
+            'accountName': account['accountName']?.toString() ?? '',
+          });
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -61,7 +98,9 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: Text(l10n.createTontine)),
+        appBar: AppBar(
+          title: Text(_isEditing ? l10n.edit : l10n.createTontine),
+        ),
         body: Form(
           key: _formKey,
           child: Stepper(
@@ -474,6 +513,12 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
       },
       'escrowDetails': _escrowAccounts,
     };
-    context.read<TontineBloc>().add(CreateTontineRequested(params));
+    if (_isEditing) {
+      context.read<TontineBloc>().add(
+        UpdateTontineRequested(widget.tontine!.id, params),
+      );
+    } else {
+      context.read<TontineBloc>().add(CreateTontineRequested(params));
+    }
   }
 }

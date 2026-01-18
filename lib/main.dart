@@ -28,6 +28,7 @@ import 'features/system/presentation/bloc/system_bloc.dart';
 import 'features/tontine/presentation/bloc/tontine_bloc.dart';
 import 'features/tontine/presentation/bloc/tontine_event.dart';
 import 'features/user_subscriptions/presentation/bloc/subscription_bloc.dart';
+import 'features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:showcaseview/showcaseview.dart';
 
@@ -115,6 +116,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         BlocProvider(
           create: (context) =>
               getIt<SubscriptionBloc>()..add(GetSubscriptionsRequested()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<NotificationsBloc>()..add(FetchUnreadCountRequested()),
         ),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(

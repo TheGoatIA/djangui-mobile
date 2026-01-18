@@ -248,6 +248,24 @@ abstract class AppLocalizations {
   /// **'Annuler'**
   String get cancel;
 
+  /// No description provided for @close.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get close;
+
+  /// No description provided for @edit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get edit;
+
+  /// No description provided for @editTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier la tontine'**
+  String get editTontine;
+
   /// No description provided for @none.
   ///
   /// In fr, this message translates to:
@@ -3140,6 +3158,156 @@ abstract class AppLocalizations {
   /// **'Êtes-vous sûr de vouloir démarrer cette Tontine ?'**
   String get confirmStartTontine;
 
+  /// No description provided for @confirmDeleteTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment supprimer cette tontine ?'**
+  String get confirmDeleteTontine;
+
+  /// No description provided for @confirmStopTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment stopper cette tontine ? Elle passera en statut terminé.'**
+  String get confirmStopTontine;
+
+  /// No description provided for @stopTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stopper la tontine'**
+  String get stopTontine;
+
+  /// No description provided for @stop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stopper'**
+  String get stop;
+
+  /// No description provided for @tontineGuideTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Guide Complet Djangui'**
+  String get tontineGuideTitle;
+
+  /// No description provided for @tontineGuideDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez comment optimiser votre épargne communautaire.'**
+  String get tontineGuideDesc;
+
+  /// No description provided for @whatIsTontineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Concept Djangui'**
+  String get whatIsTontineTitle;
+
+  /// No description provided for @whatIsTontineDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La tontine est un levier financier puissant. Sur Djangui, nous automatisons la collecte et la redistribution pour une sécurité totale.'**
+  String get whatIsTontineDesc;
+
+  /// No description provided for @tontineLifecycleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre les Statuts'**
+  String get tontineLifecycleTitle;
+
+  /// No description provided for @guidePendingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'1. Recrutement (Pending)'**
+  String get guidePendingTitle;
+
+  /// No description provided for @guidePendingDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La tontine est créée mais pas encore lancée. Invitez vos amis via le code. Le créateur peut encore modifier les règles (montant, fréquence, etc.).'**
+  String get guidePendingDesc;
+
+  /// No description provided for @guideActiveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'2. Action (Active)'**
+  String get guideActiveTitle;
+
+  /// No description provided for @guideActiveDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le cycle a démarré. À chaque tour, les membres cotisent. L\'argent collecté est versé au bénéficiaire désigné par le mode de rotation.'**
+  String get guideActiveDesc;
+
+  /// No description provided for @guideCompletedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'3. Archive (Completed)'**
+  String get guideCompletedTitle;
+
+  /// No description provided for @guideCompletedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous les tours sont finis. La tontine reste consultable pour l\'historique des paiements.'**
+  String get guideCompletedDesc;
+
+  /// No description provided for @guideRotationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modes de Rotation'**
+  String get guideRotationTitle;
+
+  /// No description provided for @guideRotationDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Fixe : L\'ordre est prédéfini.\n• Aléatoire : La chance décide du gagnant.\n• Enchères/Score : Les membres les plus rigoureux ou ayant besoin de fonds sont prioritaires.'**
+  String get guideRotationDesc;
+
+  /// No description provided for @guideValidationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transparence & Validation'**
+  String get guideValidationTitle;
+
+  /// No description provided for @guideValidationDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fini les disputes ! Notre IA analyse vos reçus de paiement en quelques secondes pour valider vos cotisations.'**
+  String get guideValidationDesc;
+
+  /// No description provided for @guideSocialFundTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solidarité : Fonds Social'**
+  String get guideSocialFundTitle;
+
+  /// No description provided for @guideSocialFundDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une caisse d\'entraide pour les coups durs (maladie, événements familiaux). Ces fonds ne sont pas redistribués automatiquement.'**
+  String get guideSocialFundDesc;
+
+  /// No description provided for @guideSanctionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Discipline & Sanctions'**
+  String get guideSanctionsTitle;
+
+  /// No description provided for @guideSanctionsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour garantir le succès, des frais de retard ou d\'absence peuvent être appliqués. Un délai de grâce (ex: 24h) est souvent accordé.'**
+  String get guideSanctionsDesc;
+
+  /// No description provided for @guideTrustScoreTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Score de Confiance'**
+  String get guideTrustScoreTitle;
+
+  /// No description provided for @guideTrustScoreDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est votre réputation financière. Payez à temps pour augmenter votre score et débloquer des avantages dans les futures tontines.'**
+  String get guideTrustScoreDesc;
+
   /// No description provided for @tontineStarted.
   ///
   /// In fr, this message translates to:
@@ -3391,6 +3559,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Retirer un membre'**
   String get removeMember;
+
+  /// No description provided for @howKauriWorks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment Kauri fonctionne'**
+  String get howKauriWorks;
 
   /// No description provided for @removeMemberConfirmation.
   ///

@@ -59,6 +59,12 @@ class _TontineListPageState extends State<TontineListPage> {
         title: Text(l10n.tontine),
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: l10n.tontineGuideTitle,
+            onPressed: () =>
+                context.pushNamed(RouteConstants.tontineGuideNamed),
+          ),
           Showcase(
             key: _joinKey,
             title: l10n.tutorialJoinTontineTitle,
@@ -66,7 +72,8 @@ class _TontineListPageState extends State<TontineListPage> {
             child: IconButton(
               icon: const Icon(Icons.group_add_outlined),
               tooltip: l10n.joinTontine,
-              onPressed: () => context.push(RouteConstants.joinTontine),
+              onPressed: () =>
+                  context.pushNamed(RouteConstants.tontineJoinNamed),
             ),
           ),
         ],
@@ -199,7 +206,10 @@ class _TontineListPageState extends State<TontineListPage> {
           ],
         ),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => context.push('${RouteConstants.tontines}/${tontine.id}'),
+        onTap: () => context.pushNamed(
+          RouteConstants.tontineDetailsNamed,
+          pathParameters: {'id': tontine.id},
+        ),
       ),
     );
   }
@@ -230,7 +240,7 @@ class _TontineListPageState extends State<TontineListPage> {
       return;
     }
 
-    context.push(RouteConstants.createTontine);
+    context.pushNamed(RouteConstants.tontineCreateNamed);
   }
 
   void _showPremiumModal(BuildContext context) {

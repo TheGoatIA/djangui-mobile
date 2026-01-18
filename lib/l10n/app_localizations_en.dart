@@ -85,6 +85,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancel => 'Cancel';
 
   @override
+  String get close => 'Close';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get editTontine => 'Edit Tontine';
+
+  @override
   String get none => 'None';
 
   @override
@@ -1620,6 +1629,93 @@ class AppLocalizationsEn extends AppLocalizations {
       'Are you sure you want to start this Tontine?';
 
   @override
+  String get confirmDeleteTontine =>
+      'Are you sure you want to delete this tontine?';
+
+  @override
+  String get confirmStopTontine =>
+      'Do you really want to stop this tontine? It will be marked as completed.';
+
+  @override
+  String get stopTontine => 'Stop Tontine';
+
+  @override
+  String get stop => 'Stop';
+
+  @override
+  String get tontineGuideTitle => 'Djangui Master Guide';
+
+  @override
+  String get tontineGuideDesc =>
+      'Learn how to optimize your community savings.';
+
+  @override
+  String get whatIsTontineTitle => 'The Djangui Concept';
+
+  @override
+  String get whatIsTontineDesc =>
+      'Tontine is a powerful financial lever. On Djangui, we automate collection and redistribution for total security.';
+
+  @override
+  String get tontineLifecycleTitle => 'Understanding Statuses';
+
+  @override
+  String get guidePendingTitle => '1. Recruitment (Pending)';
+
+  @override
+  String get guidePendingDesc =>
+      'The tontine is created but not yet launched. Invite your friends via the code. The creator can still modify the rules (amount, frequency, etc.).';
+
+  @override
+  String get guideActiveTitle => '2. Action (Active)';
+
+  @override
+  String get guideActiveDesc =>
+      'The cycle has started. At each turn, members contribute. The collected money is paid to the beneficiary designated by the rotation mode.';
+
+  @override
+  String get guideCompletedTitle => '3. Archive (Completed)';
+
+  @override
+  String get guideCompletedDesc =>
+      'All turns are finished. The tontine remains viewable for payment history.';
+
+  @override
+  String get guideRotationTitle => 'Rotation Modes';
+
+  @override
+  String get guideRotationDesc =>
+      '• Fixed: The order is predefined.\n• Random: Luck decides the winner.\n• Auction/Score: Members who are most consistent or in need of funds have priority.';
+
+  @override
+  String get guideValidationTitle => 'Transparency & Validation';
+
+  @override
+  String get guideValidationDesc =>
+      'No more disputes! Our AI analyzes your payment receipts in seconds to validate your contributions.';
+
+  @override
+  String get guideSocialFundTitle => 'Solidarity: Social Fund';
+
+  @override
+  String get guideSocialFundDesc =>
+      'A mutual aid fund for tough times (health, family events). These funds are not redistributed automatically.';
+
+  @override
+  String get guideSanctionsTitle => 'Discipline & Sanctions';
+
+  @override
+  String get guideSanctionsDesc =>
+      'To ensure success, late or absence fees can be applied. A grace period (e.g., 24h) is often granted.';
+
+  @override
+  String get guideTrustScoreTitle => 'Your Trust Score';
+
+  @override
+  String get guideTrustScoreDesc =>
+      'This is your financial reputation. Pay on time to increase your score and unlock benefits in future tontines.';
+
+  @override
   String get tontineStarted => 'Tontine started successfully';
 
   @override
@@ -1746,6 +1842,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removeMember => 'Remove Member';
+
+  @override
+  String get howKauriWorks => 'How Kauri works';
 
   @override
   String removeMemberConfirmation(String name) {

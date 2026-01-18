@@ -23,6 +23,8 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     );
     on<StartTontineRequested>(_onStartTontineRequested);
     on<TontineRemoveMemberRequested>(_onTontineRemoveMemberRequested);
+    on<DeleteTontineRequested>(_onDeleteTontineRequested);
+    on<UpdateTontineRequested>(_onUpdateTontineRequested);
   }
 
   Future<void> _onTontinesLoadRequested(
@@ -270,6 +272,64 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
       (_) {
         // Just reload members if successful
         add(TontineDetailsLoadRequested(event.tontineId));
+      },
+    );
+  }
+
+  Future<void> _onDeleteTontineRequested(
+    DeleteTontineRequested event,
+    Emitter<TontineState> emit,
+  ) async {
+    emit(state.copyWith(status: TontineStatus.loading));
+    final result = await _repository.deleteTontine(event.tontineId);
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: TontineStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) {
+        emit(
+          state.copyWith(
+            status: TontineStatus.success,
+            tontines: state.tontines
+                .where((t) => t.id != event.tontineId)
+                .toList(),
+            selectedTontine: null,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onUpdateTontineRequested(
+    UpdateTontineRequested event,
+    Emitter<TontineState> emit,
+  ) async {
+    emit(state.copyWith(status: TontineStatus.loading));
+    final result = await _repository.updateTontine(
+      event.tontineId,
+      event.params,
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: TontineStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (updatedTontine) {
+        final updatedTontines = state.tontines.map((t) {
+          return t.id == updatedTontine.id ? updatedTontine : t;
+        }).toList();
+        emit(
+          state.copyWith(
+            status: TontineStatus.success,
+            tontines: updatedTontines,
+            selectedTontine: updatedTontine,
+          ),
+        );
       },
     );
   }

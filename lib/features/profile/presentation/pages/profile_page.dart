@@ -24,6 +24,7 @@ import 'package:kauri/features/upload/domain/repositories/upload_repository.dart
 import 'package:kauri/features/system/presentation/bloc/system_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import '../../../notifications/presentation/bloc/notifications_bloc.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:showcaseview/showcaseview.dart';
 // import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
@@ -287,11 +288,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 24),
                       if (user != null && user.badges.isNotEmpty) ...[
-                        BadgesList(
-                          badgeIds: user.badges
-                              .map((e) => e.toString())
-                              .toList(),
-                        ),
+                        BadgesList(badges: user.badges),
                         const SizedBox(height: 24),
                       ],
                       if (user != null && !user.isPremium) ...[
@@ -427,10 +424,43 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       child: Column(
         children: [
-          _buildSettingsTile(
-            Icons.notifications_outlined,
-            AppLocalizations.of(context)!.notifications,
-            onTap: () => context.push(RouteConstants.notifications),
+          BlocBuilder<NotificationsBloc, NotificationsState>(
+            builder: (context, state) {
+              return _buildSettingsTile(
+                Icons.notifications_outlined,
+                AppLocalizations.of(context)!.notifications,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (state.unreadCount > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          state.unreadCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.chevron_right,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+                onTap: () => context.push(RouteConstants.notifications),
+              );
+            },
           ),
           const Divider(height: 1, color: Colors.transparent),
           /*
@@ -584,6 +614,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       if (url != null) {
                         await launchUrl(Uri.parse(url));
                       }
+                    },
+                  ),
+                  const Divider(height: 1, color: Colors.transparent),
+                  _buildSettingsTile(
+                    Icons.help_center_outlined,
+                    AppLocalizations.of(context)!.howKauriWorks,
+                    onTap: () async {
+                      await launchUrl(
+                        Uri.parse('https://kauri-app.com/about.html'),
+                      );
                     },
                   ),
                   const Divider(height: 1, color: Colors.transparent),

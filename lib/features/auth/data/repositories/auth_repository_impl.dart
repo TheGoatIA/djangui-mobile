@@ -608,13 +608,15 @@ class AuthRepositoryImpl implements AuthRepository {
 
         try {
           final response = await http
-              .get(Uri.parse('https://ip-api.com/json'))
+              .get(Uri.parse('https://ipwho.is/'))
               .timeout(const Duration(seconds: 5));
           if (response.statusCode == 200) {
             final data = json.decode(response.body);
-            ip = data['query'] as String?;
-            country = data['country'] as String?;
-            city = data['city'] as String?;
+            if (data['success'] == true) {
+              ip = data['ip'] as String?;
+              country = data['country'] as String?;
+              city = data['city'] as String?;
+            }
           }
         } catch (e) {
           debugPrint('⚠️ [AuthRepository] Failed to fetch IP/Location: $e');

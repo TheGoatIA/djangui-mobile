@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
-import '../../../../l10n/app_localizations.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/tontine_bloc.dart';
 import '../bloc/tontine_event.dart';
@@ -12,6 +12,7 @@ import '../bloc/tontine_state.dart';
 import '../widgets/contribution_dialog.dart';
 import '../widgets/tontine_chat_tab.dart';
 import '../../domain/entities/tontine_entities.dart';
+import './create_tontine_page.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/share_service.dart';
@@ -155,6 +156,22 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                     icon: const Icon(Icons.share_outlined),
                     onPressed: () => _shareInvite(tontine.inviteCode),
                   ),
+                  if (isCreator && tontine.status.toLowerCase() == 'pending')
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CreateTontinePage(tontine: tontine),
+                        ),
+                      ),
+                    ),
+                  if (isCreator && tontine.status.toLowerCase() != 'completed')
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () => _confirmDeleteTontine(context, tontine),
+                    ),
                 ],
                 bottom: PreferredSize(
                   preferredSize: const Size.fromHeight(60),
@@ -219,7 +236,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                     context,
                     state.selectedTontineMembers,
                     isCreator,
-                    tontine.status.toLowerCase() == 'pending',
+                    tontine.status.toLowerCase() != 'completed',
                     tontine.id,
                   ),
                   _buildChatTab(context, tontine.id),
@@ -233,7 +250,10 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                     ),
                 ],
               ),
-              floatingActionButton: _currentIndex == 2
+              floatingActionButton:
+                  _currentIndex == 2 ||
+                      tontine.status.toLowerCase() == 'completed' ||
+                      tontine.status.toLowerCase().contains('suspended')
                   ? null
                   : FloatingActionButton.extended(
                       onPressed: () =>
@@ -514,7 +534,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     BuildContext context,
     List<dynamic> members,
     bool isCreator,
-    bool isPending,
+    bool canRemove,
     String tontineId,
   ) {
     final l10n = AppLocalizations.of(context)!;
@@ -624,7 +644,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                   ),
                 ),
                 if (isCreator &&
-                    isPending &&
+                    canRemove &&
                     member.userId !=
                         context.read<AuthBloc>().state.authResponse?.user.id)
                   IconButton(
@@ -867,7 +887,14 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                             ),
                           ),
                         ),
-                      if (contribution.validationStatus == 'pending')
+                      if (contribution.validationStatus == 'pending' &&
+                          context
+                                  .read<TontineBloc>()
+                                  .state
+                                  .selectedTontine
+                                  ?.status
+                                  .toLowerCase() !=
+                              'completed')
                         Padding(
                           padding: const EdgeInsets.all(16),
                           child: Row(
@@ -999,6 +1026,43 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
               context.read<TontineBloc>().add(StartTontineRequested(tontineId));
             },
             child: Text(l10n.start),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteTontine(BuildContext context, Tontine tontine) {
+    final l10n = AppLocalizations.of(context)!;
+    final isPending = tontine.status.toLowerCase() == 'pending';
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(isPending ? l10n.delete : l10n.stopTontine),
+        content: Text(
+          isPending ? l10n.confirmDeleteTontine : l10n.confirmStopTontine,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              getIt<AnalyticsManager>().trackEvent(
+                feature: 'Tontine',
+                action: isPending ? 'delete_attempt' : 'stop_attempt',
+                details: {'tontine_id': tontine.id},
+              );
+              Navigator.pop(context); // Close dialog
+              context.read<TontineBloc>().add(
+                DeleteTontineRequested(tontine.id),
+              );
+              Navigator.pop(context); // Go back to list
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(isPending ? l10n.delete : l10n.stop),
           ),
         ],
       ),

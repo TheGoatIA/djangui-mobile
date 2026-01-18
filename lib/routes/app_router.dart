@@ -43,6 +43,7 @@ import '../features/tontine/presentation/pages/tontine_list_page.dart';
 import '../features/tontine/presentation/pages/create_tontine_page.dart';
 import '../features/tontine/presentation/pages/tontine_details_page.dart';
 import '../features/tontine/presentation/pages/join_tontine_page.dart';
+import '../features/tontine/presentation/pages/tontine_guide_page.dart';
 import '../features/user_subscriptions/presentation/pages/subscription_list_page.dart';
 import '../features/user_subscriptions/presentation/pages/add_subscription_page.dart';
 import '../features/user_subscriptions/data/models/subscription_model.dart';
@@ -369,6 +370,7 @@ final appRouter = GoRouter(
     // Tontine Routes
     GoRoute(
       path: RouteConstants.tontines,
+      name: RouteConstants.tontineListNamed,
       pageBuilder: (context, state) => buildPageWithDefaultTransition(
         context: context,
         state: state,
@@ -377,6 +379,7 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(
           path: 'create',
+          name: RouteConstants.tontineCreateNamed,
           pageBuilder: (context, state) => buildPageWithDefaultTransition(
             context: context,
             state: state,
@@ -385,6 +388,7 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: 'join',
+          name: RouteConstants.tontineJoinNamed,
           pageBuilder: (context, state) => buildPageWithDefaultTransition(
             context: context,
             state: state,
@@ -392,7 +396,17 @@ final appRouter = GoRouter(
           ),
         ),
         GoRoute(
-          path: ':id',
+          path: 'guide',
+          name: RouteConstants.tontineGuideNamed,
+          pageBuilder: (context, state) => buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: const TontineGuidePage(),
+          ),
+        ),
+        GoRoute(
+          path: ':id([a-fA-F0-9]{24})',
+          name: RouteConstants.tontineDetailsNamed,
           pageBuilder: (context, state) {
             final id = state.pathParameters['id']!;
             return buildPageWithDefaultTransition(
