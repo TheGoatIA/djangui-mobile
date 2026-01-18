@@ -85,6 +85,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cancel => 'Annuler';
 
   @override
+  String get edit => 'Modifier';
+
+  @override
+  String get editTontine => 'Modifier la tontine';
+
+  @override
   String get none => 'Aucun';
 
   @override
@@ -1626,6 +1632,93 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get confirmStartTontine =>
       'Êtes-vous sûr de vouloir démarrer cette Tontine ?';
+
+  @override
+  String get confirmDeleteTontine =>
+      'Voulez-vous vraiment supprimer cette tontine ?';
+
+  @override
+  String get confirmStopTontine =>
+      'Voulez-vous vraiment stopper cette tontine ? Elle passera en statut terminé.';
+
+  @override
+  String get stopTontine => 'Stopper la tontine';
+
+  @override
+  String get stop => 'Stopper';
+
+  @override
+  String get tontineGuideTitle => 'Guide Complet Djangui';
+
+  @override
+  String get tontineGuideDesc =>
+      'Découvrez comment optimiser votre épargne communautaire.';
+
+  @override
+  String get whatIsTontineTitle => 'Le Concept Djangui';
+
+  @override
+  String get whatIsTontineDesc =>
+      'La tontine est un levier financier puissant. Sur Djangui, nous automatisons la collecte et la redistribution pour une sécurité totale.';
+
+  @override
+  String get tontineLifecycleTitle => 'Comprendre les Statuts';
+
+  @override
+  String get guidePendingTitle => '1. Recrutement (Pending)';
+
+  @override
+  String get guidePendingDesc =>
+      'La tontine est créée mais pas encore lancée. Invitez vos amis via le code. Le créateur peut encore modifier les règles (montant, fréquence, etc.).';
+
+  @override
+  String get guideActiveTitle => '2. Action (Active)';
+
+  @override
+  String get guideActiveDesc =>
+      'Le cycle a démarré. À chaque tour, les membres cotisent. L\'argent collecté est versé au bénéficiaire désigné par le mode de rotation.';
+
+  @override
+  String get guideCompletedTitle => '3. Archive (Completed)';
+
+  @override
+  String get guideCompletedDesc =>
+      'Tous les tours sont finis. La tontine reste consultable pour l\'historique des paiements.';
+
+  @override
+  String get guideRotationTitle => 'Modes de Rotation';
+
+  @override
+  String get guideRotationDesc =>
+      '• Fixe : L\'ordre est prédéfini.\n• Aléatoire : La chance décide du gagnant.\n• Enchères/Score : Les membres les plus rigoureux ou ayant besoin de fonds sont prioritaires.';
+
+  @override
+  String get guideValidationTitle => 'Transparence & Validation';
+
+  @override
+  String get guideValidationDesc =>
+      'Fini les disputes ! Notre IA analyse vos reçus de paiement en quelques secondes pour valider vos cotisations.';
+
+  @override
+  String get guideSocialFundTitle => 'Solidarité : Fonds Social';
+
+  @override
+  String get guideSocialFundDesc =>
+      'Une caisse d\'entraide pour les coups durs (maladie, événements familiaux). Ces fonds ne sont pas redistribués automatiquement.';
+
+  @override
+  String get guideSanctionsTitle => 'Discipline & Sanctions';
+
+  @override
+  String get guideSanctionsDesc =>
+      'Pour garantir le succès, des frais de retard ou d\'absence peuvent être appliqués. Un délai de grâce (ex: 24h) est souvent accordé.';
+
+  @override
+  String get guideTrustScoreTitle => 'Votre Score de Confiance';
+
+  @override
+  String get guideTrustScoreDesc =>
+      'C\'est votre réputation financière. Payez à temps pour augmenter votre score et débloquer des avantages dans les futures tontines.';
 
   @override
   String get tontineStarted => 'Tontine démarrée avec succès';
