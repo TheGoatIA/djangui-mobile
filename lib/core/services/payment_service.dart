@@ -63,32 +63,8 @@ class PaymentService {
   }
 
   Future<String?> createStripeCheckout(double amount, String currency) async {
-    // Stripe expects amount in the smallest currency unit (e.g., cents).
-    // However, zero-decimal currencies (like XAF, XOF, JPY) should not be multiplied by 100.
-    final isZeroDecimal = [
-      'XAF',
-      'XOF',
-      'JPY',
-      'KRW',
-      'BIF',
-      'DJF',
-      'GNF',
-      'KMF',
-      'MGA',
-      'PYG',
-      'RWF',
-      'UGX',
-      'VND',
-      'VUV',
-      'XPF',
-    ].contains(currency.toUpperCase());
-
-    final int finalAmount = isZeroDecimal
-        ? amount.toInt()
-        : (amount * 100).toInt();
-
     final response = await _apiService.createStripeCheckout({
-      'amount': finalAmount,
+      'amount': amount,
       'currency': currency,
       'type': 'subscription',
     });
