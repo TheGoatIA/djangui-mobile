@@ -236,7 +236,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                     context,
                     state.selectedTontineMembers,
                     isCreator,
-                    tontine.status.toLowerCase() == 'pending',
+                    tontine.status.toLowerCase() != 'completed',
                     tontine.id,
                   ),
                   _buildChatTab(context, tontine.id),
@@ -534,7 +534,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     BuildContext context,
     List<dynamic> members,
     bool isCreator,
-    bool isPending,
+    bool canRemove,
     String tontineId,
   ) {
     final l10n = AppLocalizations.of(context)!;
@@ -644,7 +644,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                   ),
                 ),
                 if (isCreator &&
-                    isPending &&
+                    canRemove &&
                     member.userId !=
                         context.read<AuthBloc>().state.authResponse?.user.id)
                   IconButton(
