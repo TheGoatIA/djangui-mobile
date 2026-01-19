@@ -300,6 +300,14 @@ class _LoginPageState extends State<LoginPage> {
                   if (Platform.isIOS) ...[
                     OutlinedButton(
                       onPressed: () {
+                        if (Platform.isIOS) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('En cours de finalisation'),
+                            ),
+                          );
+                          return;
+                        }
                         _showSocialCountryDialog(
                           context,
                           (countryCode) => AuthAppleSignInRequested(
@@ -313,8 +321,11 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         side: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
+                          color: Theme.of(context).colorScheme.outline
+                              .withValues(alpha: Platform.isIOS ? 0.3 : 1.0),
                         ),
+                        foregroundColor: Theme.of(context).colorScheme.onSurface
+                            .withValues(alpha: Platform.isIOS ? 0.3 : 1.0),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -338,6 +349,14 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                   OutlinedButton(
                     onPressed: () {
+                      if (Platform.isIOS) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('En cours de finalisation'),
+                          ),
+                        );
+                        return;
+                      }
                       context.push(RouteConstants.phoneLogin);
                     },
                     style: OutlinedButton.styleFrom(
@@ -346,21 +365,27 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       side: BorderSide(
-                        color: Theme.of(context).colorScheme.outline,
+                        color: Theme.of(context).colorScheme.outline.withValues(
+                          alpha: Platform.isIOS ? 0.3 : 1.0,
+                        ),
                       ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.phone_android_outlined,
-                          color: AppColors.success,
+                          color: AppColors.success.withValues(
+                            alpha: Platform.isIOS ? 0.3 : 1.0,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Text(
                           AppLocalizations.of(context)!.phoneLogin,
                           style: AppTextStyles.bodyLarge.copyWith(
                             fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface
+                                .withValues(alpha: Platform.isIOS ? 0.3 : 1.0),
                           ),
                         ),
                       ],
