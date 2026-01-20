@@ -57,7 +57,7 @@ dependencies:
 
   # Firebase & Notifications
   firebase_core: ^4.3.0
-  firebase_messaging: ^16.1.0
+  firebase_messaging: ^16.1.1
 
   # Charts & UI Components
   fl_chart: ^1.1.1
