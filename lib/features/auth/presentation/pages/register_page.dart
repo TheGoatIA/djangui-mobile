@@ -222,9 +222,6 @@ class _RegisterPageState extends State<RegisterPage> {
                             _selectedCountry = value;
                           });
                         },
-                        validator: (value) => value == null
-                            ? AppLocalizations.of(context)!.selectCountryError
-                            : null,
                       );
                     },
                   ),
@@ -238,8 +235,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           debugPrint(
                             '📝 [RegisterPage] Selected country: $_selectedCountry',
                           );
-                          if (_formKey.currentState!.validate() &&
-                              _selectedCountry != null) {
+                          if (_formKey.currentState!.validate()) {
                             debugPrint(
                               '📝 [RegisterPage] Submitting registration for: ${_emailController.text}, country: $_selectedCountry',
                             );
@@ -249,7 +245,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 password: _passwordController.text,
                                 firstName: _firstNameController.text,
                                 lastName: _lastNameController.text,
-                                country: _selectedCountry!,
+                                country: _selectedCountry,
                               ),
                             );
                           } else {

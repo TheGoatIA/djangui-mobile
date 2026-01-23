@@ -300,14 +300,6 @@ class _LoginPageState extends State<LoginPage> {
                   if (Platform.isIOS) ...[
                     OutlinedButton(
                       onPressed: () {
-                        if (Platform.isIOS) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('En cours de finalisation'),
-                            ),
-                          );
-                          return;
-                        }
                         _showSocialCountryDialog(
                           context,
                           (countryCode) => AuthAppleSignInRequested(
@@ -321,11 +313,11 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         side: BorderSide(
-                          color: Theme.of(context).colorScheme.outline
-                              .withValues(alpha: Platform.isIOS ? 0.3 : 1.0),
+                          color: Theme.of(context).colorScheme.outline,
                         ),
-                        foregroundColor: Theme.of(context).colorScheme.onSurface
-                            .withValues(alpha: Platform.isIOS ? 0.3 : 1.0),
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSurface,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -349,14 +341,6 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                   OutlinedButton(
                     onPressed: () {
-                      if (Platform.isIOS) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('En cours de finalisation'),
-                          ),
-                        );
-                        return;
-                      }
                       context.push(RouteConstants.phoneLogin);
                     },
                     style: OutlinedButton.styleFrom(
@@ -365,9 +349,7 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       side: BorderSide(
-                        color: Theme.of(context).colorScheme.outline.withValues(
-                          alpha: Platform.isIOS ? 0.3 : 1.0,
-                        ),
+                        color: Theme.of(context).colorScheme.outline,
                       ),
                     ),
                     child: Row(
@@ -375,17 +357,14 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         Icon(
                           Icons.phone_android_outlined,
-                          color: AppColors.success.withValues(
-                            alpha: Platform.isIOS ? 0.3 : 1.0,
-                          ),
+                          color: AppColors.success.withValues(alpha: 1.0),
                         ),
                         const SizedBox(width: 12),
                         Text(
                           AppLocalizations.of(context)!.phoneLogin,
                           style: AppTextStyles.bodyLarge.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface
-                                .withValues(alpha: Platform.isIOS ? 0.3 : 1.0),
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
