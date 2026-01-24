@@ -4,14 +4,18 @@ import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:kauri/features/auth/domain/repositories/auth_repository.dart';
+
 part 'settings_event.dart';
 part 'settings_state.dart';
 
 @injectable
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final SharedPreferences _prefs;
+  final AuthRepository _authRepository;
 
-  SettingsBloc(this._prefs) : super(const SettingsState()) {
+  SettingsBloc(this._prefs, this._authRepository)
+    : super(const SettingsState()) {
     on<LoadSettings>(_onLoadSettings);
     on<ThemeChanged>(_onThemeChanged);
     on<LocaleChanged>(_onLocaleChanged);
@@ -50,6 +54,15 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   ) async {
     await _prefs.setString('language_code', event.locale.languageCode);
     emit(state.copyWith(locale: event.locale));
+
+    // Signaler le changement au backend si l'utilisateur est connecté.
+    try {
+      if (await _authRepository.isAuthenticated()) {
+        await _authRepository.updateLanguage(event.locale.languageCode);
+      }
+    } catch (e) {
+      debugPrint('⚠️ [SettingsBloc] Failed to sync language with backend: $e');
+    }
   }
 
   Future<void> _onToggleBiometrics(

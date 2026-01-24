@@ -101,6 +101,11 @@ abstract class AuthApiService extends ChopperService {
   Future<Response<BaseResponse<CountryChangeRequestModel>>>
   requestCountryChange(@Body() Map<String, dynamic> body);
 
+  @Patch(path: ApiConstants.updateLanguage)
+  Future<Response<BaseResponse<dynamic>>> updateLanguage(
+    @Body() Map<String, dynamic> body,
+  );
+
   static AuthApiService create(ChopperClient client) =>
       _$AuthApiService(client);
 }

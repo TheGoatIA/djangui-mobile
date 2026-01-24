@@ -67,6 +67,9 @@ abstract class AuthRepository {
     double? monthlyIncome,
   });
 
+  /// Met à jour la préférence linguistique de l'utilisateur sur le serveur.
+  Future<Either<Failure, void>> updateLanguage(String languageCode);
+
   /// Demande une réinitialisation de mot de passe par email.
   Future<Either<Failure, void>> forgotPassword(String email);
 

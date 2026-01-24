@@ -55,6 +55,9 @@ class ApiConstants {
   /// Requête administrative pour changer de pays de résidence.
   static const String requestCountryChange = '/auth/request-country-change';
 
+  /// Mise à jour de la préférence linguistique de l'utilisateur.
+  static const String updateLanguage = '/auth/language';
+
   // --- Transactions ---
   /// Gestion des transactions financières.
   static const String transactions = '/transactions';

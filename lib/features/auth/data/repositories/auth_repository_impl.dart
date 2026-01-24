@@ -672,6 +672,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, void>> updateLanguage(String languageCode) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+
+    try {
+      await _remoteDataSource.updateLanguage(languageCode);
+      return const Right(null);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<String?> getLoginProvider() async {
     return _localDataSource.getLoginProvider();
   }

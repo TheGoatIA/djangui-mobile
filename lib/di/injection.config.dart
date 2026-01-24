@@ -263,8 +263,6 @@ extension GetItInjectableX on _i174.GetIt {
         () => registerModule.connectionChecker);
     gh.lazySingleton<_i608.SystemRepository>(
         () => _i143.SystemRepositoryImpl(gh<_i33.SystemApiService>()));
-    gh.factory<_i53.SettingsBloc>(
-        () => _i53.SettingsBloc(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i899.TutorialService>(
         () => _i899.TutorialService(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i831.BudgetRemoteDataSource>(
@@ -433,6 +431,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i786.NotificationsBloc(gh<_i224.NotificationRepository>()));
     gh.lazySingleton<_i714.AuthBloc>(
         () => _i714.AuthBloc(gh<_i344.AuthRepository>()));
+    gh.factory<_i53.SettingsBloc>(() => _i53.SettingsBloc(
+          gh<_i460.SharedPreferences>(),
+          gh<_i344.AuthRepository>(),
+        ));
     return this;
   }
 }
