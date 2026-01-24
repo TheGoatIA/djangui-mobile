@@ -12,7 +12,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Kauri';
 
   @override
-  String get dashboard => 'Dashboard';
+  String get dashboard => 'Home';
 
   @override
   String get welcome => 'Welcome';
@@ -1844,7 +1844,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get removeMember => 'Remove Member';
 
   @override
-  String get howKauriWorks => 'How Kauri works';
+  String get howKauriWorks => 'How Kauri works ?';
 
   @override
   String removeMemberConfirmation(String name) {

@@ -107,7 +107,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashboard.
   ///
   /// In fr, this message translates to:
-  /// **'Tableau de bord'**
+  /// **'Accueil'**
   String get dashboard;
 
   /// No description provided for @welcome.
@@ -3563,7 +3563,7 @@ abstract class AppLocalizations {
   /// No description provided for @howKauriWorks.
   ///
   /// In fr, this message translates to:
-  /// **'Comment Kauri fonctionne'**
+  /// **'Comment fonctionne Kauri ?'**
   String get howKauriWorks;
 
   /// No description provided for @removeMemberConfirmation.

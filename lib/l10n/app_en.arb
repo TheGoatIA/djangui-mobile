@@ -1,7 +1,7 @@
 {
     "@@locale": "en",
     "appTitle": "Kauri",
-    "dashboard": "Dashboard",
+    "dashboard": "Home",
     "welcome": "Welcome",
     "login": "Login",
     "register": "Register",
@@ -643,7 +643,7 @@
     "operationSuccess": "Operation successful",
     "alreadyContributed": "You have already contributed for this turn",
     "removeMember": "Remove Member",
-    "howKauriWorks": "How Kauri works",
+    "howKauriWorks": "How Kauri works ?",
     "removeMemberConfirmation": "Are you sure you want to remove {name} from this tontine?",
     "@removeMemberConfirmation": {
         "placeholders": {
