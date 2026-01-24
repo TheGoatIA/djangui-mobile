@@ -13,6 +13,9 @@ class RouteConstants {
   /// Écran de demande de réinitialisation de mot de passe.
   static const String forgotPassword = '/forgot-password';
 
+  /// Écran d'attente de vérification d'email.
+  static const String emailVerificationPending = '/email-verification-pending';
+
   /// Écran de connexion par numéro de téléphone.
   static const String phoneLogin = '/phone-login';
 

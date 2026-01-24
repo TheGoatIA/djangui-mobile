@@ -573,10 +573,10 @@
     "confirmStopTontine": "Voulez-vous vraiment stopper cette tontine ? Elle passera en statut terminé.",
     "stopTontine": "Stopper la tontine",
     "stop": "Stopper",
-    "tontineGuideTitle": "Guide Complet Djangui",
+    "tontineGuideTitle": "Guide Complet Kauri",
     "tontineGuideDesc": "Découvrez comment optimiser votre épargne communautaire.",
-    "whatIsTontineTitle": "Le Concept Djangui",
-    "whatIsTontineDesc": "La tontine est un levier financier puissant. Sur Djangui, nous automatisons la collecte et la redistribution pour une sécurité totale.",
+    "whatIsTontineTitle": "Le Concept Kauri",
+    "whatIsTontineDesc": "La tontine est un levier financier puissant. Sur Kauri, nous automatisons la collecte et la redistribution pour une sécurité totale.",
     "tontineLifecycleTitle": "Comprendre les Statuts",
     "guidePendingTitle": "1. Recrutement (Pending)",
     "guidePendingDesc": "La tontine est créée mais pas encore lancée. Invitez vos amis via le code. Le créateur peut encore modifier les règles (montant, fréquence, etc.).",
@@ -667,5 +667,8 @@
     "tutorialJoinTontineTitle": "Rejoindre une Tontine",
     "tutorialJoinTontineDesc": "Utilisez un code pour rejoindre un groupe existant.",
     "tutorialCreateTontineButtonTitle": "Créer une Tontine",
-    "tutorialCreateTontineButtonDesc": "Lancez une nouvelle tontine et invitez vos amis."
+    "tutorialCreateTontineButtonDesc": "Lancez une nouvelle tontine et invitez vos amis.",
+    "verifyYourEmail": "Vérifiez votre E-mail",
+    "verifyEmailDescription": "Un lien de vérification a été envoyé à votre adresse e-mail. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour activer votre compte.",
+    "backToLogin": "Retour à la connexion"
 }

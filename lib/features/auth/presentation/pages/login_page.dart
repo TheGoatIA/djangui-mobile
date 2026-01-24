@@ -55,7 +55,17 @@ class _LoginPageState extends State<LoginPage> {
             action: 'login_success',
             details: {'provider': 'email'},
           );
-          context.go(RouteConstants.dashboard);
+          final user = state.authResponse?.user;
+          // Check for verification (Email OR Phone)
+          final isVerified =
+              (user?.isEmailVerified ?? false) ||
+              (user?.isPhoneVerified ?? false);
+
+          if (user != null && !isVerified) {
+            context.go(RouteConstants.emailVerificationPending);
+          } else {
+            context.go(RouteConstants.dashboard);
+          }
         }
         // Affichage d'une erreur via SnackBar
         else if (state.status == AuthStatus.error) {

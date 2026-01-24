@@ -83,7 +83,18 @@ class _SplashPageState extends State<SplashPage> {
       }
 
       if (state.status == AuthStatus.authenticated) {
-        context.go(RouteConstants.dashboard);
+        final user = state.authResponse?.user;
+        // Check for verification (Email OR Phone)
+        // If the user has verified at least one method, they can proceed.
+        final isVerified =
+            (user?.isEmailVerified ?? false) ||
+            (user?.isPhoneVerified ?? false);
+
+        if (user != null && !isVerified) {
+          context.go(RouteConstants.emailVerificationPending);
+        } else {
+          context.go(RouteConstants.dashboard);
+        }
       } else {
         context.go(RouteConstants.login);
       }

@@ -571,10 +571,10 @@
     "confirmStartTontine": "Are you sure you want to start this Tontine?",
     "confirmDeleteTontine": "Are you sure you want to delete this tontine?",
     "confirmStopTontine": "Do you really want to stop this tontine? It will be marked as completed.",
-    "tontineGuideTitle": "Djangui Master Guide",
+    "tontineGuideTitle": "Kauri Master Guide",
     "tontineGuideDesc": "Learn how to optimize your community savings.",
-    "whatIsTontineTitle": "The Djangui Concept",
-    "whatIsTontineDesc": "Tontine is a powerful financial lever. On Djangui, we automate collection and redistribution for total security.",
+    "whatIsTontineTitle": "The Kauri Concept",
+    "whatIsTontineDesc": "Tontine is a powerful financial lever. On Kauri, we automate collection and redistribution for total security.",
     "tontineLifecycleTitle": "Understanding Statuses",
     "guidePendingTitle": "1. Recruitment (Pending)",
     "guidePendingDesc": "The tontine is created but not yet launched. Invite your friends via the code. The creator can still modify the rules (amount, frequency, etc.).",
@@ -667,5 +667,8 @@
     "tutorialJoinTontineTitle": "Join a Tontine",
     "tutorialJoinTontineDesc": "Use a code to join an existing group.",
     "tutorialCreateTontineButtonTitle": "Create a Tontine",
-    "tutorialCreateTontineButtonDesc": "Start a new tontine and invite your friends."
+    "tutorialCreateTontineButtonDesc": "Start a new tontine and invite your friends.",
+    "verifyYourEmail": "Verify your Email",
+    "verifyEmailDescription": "A verification link has been sent to your email address. Please check your inbox and click on the link to activate your account.",
+    "backToLogin": "Back to Login"
 }

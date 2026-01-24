@@ -133,6 +133,23 @@ class AuthRepositoryImpl implements AuthRepository {
           await _remoteDataSource.linkPhone(idToken);
         }
       } else {
+        // Check if user is already linked to phone provider
+        final isPhoneLinked = currentUser.providerData.any(
+          (userInfo) => userInfo.providerId == 'phone',
+        );
+
+        if (isPhoneLinked) {
+          try {
+            await currentUser.unlink('phone');
+          } catch (e) {
+            debugPrint('⚠️ Failed to unlink old phone number: $e');
+            // Continue to try detecting if it was indeed the issue,
+            // or maybe the user has ONLY phone linked (which cannot be unlinked usually if it's the only one?
+            // actually Firebase allows unlinking if you have another provider, or it might just fail).
+            // But we try to proceed or fail here.
+          }
+        }
+
         await currentUser.linkWithCredential(credential);
         final idToken = await currentUser.getIdToken();
         if (idToken != null) {

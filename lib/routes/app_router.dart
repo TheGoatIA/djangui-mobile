@@ -11,6 +11,7 @@ import '../features/auth/presentation/pages/forgot_password_page.dart';
 import '../features/auth/presentation/pages/reset_password_page.dart';
 import '../features/auth/presentation/pages/phone_login_page.dart';
 import '../features/auth/presentation/pages/otp_verification_page.dart';
+import '../features/auth/presentation/pages/email_verification_pending_page.dart';
 import '../features/auth/presentation/pages/complete_profile_page.dart';
 import '../features/goals/presentation/pages/goal_import_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
@@ -97,6 +98,10 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: RouteConstants.emailVerificationPending,
+      builder: (context, state) => const EmailVerificationPendingPage(),
+    ),
+    GoRoute(
       path: RouteConstants.shareGoal,
       builder: (context, state) {
         final data = state.uri.queryParameters['data'] ?? '';
@@ -105,7 +110,10 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: RouteConstants.phoneLogin,
-      builder: (context, state) => const PhoneLoginPage(),
+      builder: (context, state) {
+        final isLinking = state.extra as bool? ?? false;
+        return PhoneLoginPage(isLinking: isLinking);
+      },
     ),
     GoRoute(
       path: RouteConstants.otpVerification,

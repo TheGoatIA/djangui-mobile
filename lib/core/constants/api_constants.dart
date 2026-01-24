@@ -1,4 +1,4 @@
-/// Documentation des constantes d'API pour l'application Djangui.
+/// Documentation des constantes d'API pour l'application Kauri.
 /// Ce fichier centralise tous les points de terminaison (endpoints) utilisés par les services distants.
 class ApiConstants {
   // Remarque : baseUrl doit être récupéré via dotenv.env['API_BASE_URL'] dans le NetworkModule.

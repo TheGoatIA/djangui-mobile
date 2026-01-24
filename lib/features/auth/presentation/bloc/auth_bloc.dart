@@ -131,7 +131,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
       ),
-      (_) => emit(state.copyWith(status: AuthStatus.phoneLinked)),
+      (_) {
+        emit(state.copyWith(status: AuthStatus.phoneLinked));
+        add(AuthRefreshUserRequested());
+      },
     );
   }
 

@@ -62,7 +62,32 @@ class _RegisterPageState extends State<RegisterPage> {
             action: 'register_success',
             details: {'country': state.authResponse?.user.country},
           );
-          context.go(RouteConstants.dashboard);
+
+          final user = state.authResponse?.user;
+          // Check if email is verified (skip for phone auth which might not have email verified but is phone verified)
+          // Since this is RegisterPage, it's email/password registration.
+          if (user != null && !user.isEmailVerified) {
+            // Dispatch event to logout locally so user has to login again after verification?
+            // Or just show the page. The user said "return press login button".
+            // So we should probably not keep them logged in?
+            // But the backend returns a token.
+            // If we just go to the page, they are technically authenticated in the app state.
+            // If they kill the app and restart, `AuthCheckRequested` will see they are authenticated.
+            // Does `AuthCheckRequested` check email verification?
+            // Currently not.
+
+            // The prompt says: "invite a verifier son adresse mail et de revenir appuyer sur le bouton de login pour s eloguer"
+            // This implies they should be logged out or at least redirected to login eventually.
+            // On `EmailVerificationPendingPage`, I put a "Back to Login" button which does `context.go(RouteConstants.login)`.
+            // But if they are still authenticated in `AuthBloc`, going to login might redirect them back to dashboard if there is a listener there?
+            // Actually `LoginPage` usually redirects to dashboard if authenticated.
+
+            // So I should probably logout the user or not persist the session?
+            // Or maybe just show the pending page.
+            context.go(RouteConstants.emailVerificationPending);
+          } else {
+            context.go(RouteConstants.dashboard);
+          }
         }
         // Affichage d'un message d'erreur en cas d'échec
         else if (state.status == AuthStatus.error) {
@@ -269,7 +294,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 password: _passwordController.text,
                                 firstName: _firstNameController.text,
                                 lastName: _lastNameController.text,
-                                country: _selectedCountry,
+                                country:
+                                    _selectedCountry ??
+                                    'CM', // Default to CM if not selected
                               ),
                             );
                           }

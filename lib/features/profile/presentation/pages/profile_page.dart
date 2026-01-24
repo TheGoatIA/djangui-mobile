@@ -519,10 +519,8 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             ),
             onTap: () {
-              final authState = context.read<AuthBloc>().state;
-              if (authState.authResponse?.user.phone == null) {
-                context.push(RouteConstants.phoneLogin);
-              }
+              // Always allow navigation to allow updating the number
+              context.push(RouteConstants.phoneLogin, extra: true);
             },
           ),
           const Divider(height: 1, color: Colors.transparent),

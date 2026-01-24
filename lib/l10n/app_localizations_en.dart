@@ -1643,18 +1643,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stop => 'Stop';
 
   @override
-  String get tontineGuideTitle => 'Djangui Master Guide';
+  String get tontineGuideTitle => 'Kauri Master Guide';
 
   @override
   String get tontineGuideDesc =>
       'Learn how to optimize your community savings.';
 
   @override
-  String get whatIsTontineTitle => 'The Djangui Concept';
+  String get whatIsTontineTitle => 'The Kauri Concept';
 
   @override
   String get whatIsTontineDesc =>
-      'Tontine is a powerful financial lever. On Djangui, we automate collection and redistribution for total security.';
+      'Tontine is a powerful financial lever. On Kauri, we automate collection and redistribution for total security.';
 
   @override
   String get tontineLifecycleTitle => 'Understanding Statuses';
@@ -1903,4 +1903,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tutorialCreateTontineButtonDesc =>
       'Start a new tontine and invite your friends.';
+
+  @override
+  String get verifyYourEmail => 'Verify your Email';
+
+  @override
+  String get verifyEmailDescription =>
+      'A verification link has been sent to your email address. Please check your inbox and click on the link to activate your account.';
+
+  @override
+  String get backToLogin => 'Back to Login';
 }

@@ -13,7 +13,8 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../features/system/presentation/bloc/system_bloc.dart';
 
 class PhoneLoginPage extends StatefulWidget {
-  const PhoneLoginPage({super.key});
+  final bool isLinking;
+  const PhoneLoginPage({super.key, this.isLinking = false});
 
   @override
   State<PhoneLoginPage> createState() => _PhoneLoginPageState();
@@ -55,6 +56,7 @@ class _PhoneLoginPageState extends State<PhoneLoginPage> {
               'phoneNumber': _completePhoneNumber,
               'countryCode': _selectedCountryCode,
               'verificationId': state.verificationId,
+              'isLinking': widget.isLinking,
             },
           );
         } else if (state.status == AuthStatus.error) {
