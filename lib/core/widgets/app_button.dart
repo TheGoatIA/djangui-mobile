@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
 import '../theme/app_text_styles.dart';
 
+/// Bouton principal personnalisé utilisé dans toute l'application.
+///
+/// Ce bouton intègre un état de chargement ([isLoading]), une option de largeur
+/// complète ([isFullWidth]) et une animation d'échelle au toucher.
 class AppButton extends StatelessWidget {
+  /// Texte à afficher dans le bouton.
   final String text;
+
+  /// Action à exécuter lors du clic.
   final VoidCallback onPressed;
+
+  /// Si vrai, affiche un indicateur de progression à la place du texte.
   final bool isLoading;
+
+  /// Si vrai (par défaut), le bouton prend toute la largeur disponible.
   final bool isFullWidth;
+
+  /// Couleur de fond optionnelle (utilise la couleur primaire du thème par défaut).
   final Color? color;
 
   const AppButton({
@@ -19,6 +32,7 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Calcul des couleurs en fonction du thème ou de la propriété [color]
     final primaryColor = color ?? Theme.of(context).colorScheme.primary;
     final onPrimaryColor = color != null
         ? Colors.white
@@ -63,6 +77,7 @@ class AppButton extends StatelessWidget {
   }
 }
 
+/// Widget enveloppant le bouton pour lui ajouter une animation de rétrécissement (scale) au toucher.
 class _ScaleButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final Widget child;
@@ -116,6 +131,7 @@ class _ScaleButtonState extends State<_ScaleButton>
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,
+      behavior: HitTestBehavior.opaque,
       child: ScaleTransition(scale: _scaleAnimation, child: widget.child),
     );
   }

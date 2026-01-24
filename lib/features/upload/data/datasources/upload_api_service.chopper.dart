@@ -19,11 +19,13 @@ final class _$UploadApiService extends UploadApiService {
 
   @override
   Future<Response<BaseResponse<UploadResponseModel>>> uploadReceipt(
-    String filePath,
-  ) {
+      String filePath) {
     final Uri $url = Uri.parse('/upload/receipt');
     final List<PartValue> $parts = <PartValue>[
-      PartValueFile<String>('receipt', filePath),
+      PartValueFile<String>(
+        'receipt',
+        filePath,
+      )
     ];
     final Request $request = Request(
       'POST',
@@ -32,18 +34,19 @@ final class _$UploadApiService extends UploadApiService {
       parts: $parts,
       multipart: true,
     );
-    return client.send<BaseResponse<UploadResponseModel>, UploadResponseModel>(
-      $request,
-    );
+    return client
+        .send<BaseResponse<UploadResponseModel>, UploadResponseModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<UploadResponseModel>>> uploadAvatar(
-    MultipartFile file,
-  ) {
+      MultipartFile file) {
     final Uri $url = Uri.parse('/upload/avatar');
     final List<PartValue> $parts = <PartValue>[
-      PartValueFile<MultipartFile>('avatar', file),
+      PartValueFile<MultipartFile>(
+        'avatar',
+        file,
+      )
     ];
     final Request $request = Request(
       'POST',
@@ -52,8 +55,7 @@ final class _$UploadApiService extends UploadApiService {
       parts: $parts,
       multipart: true,
     );
-    return client.send<BaseResponse<UploadResponseModel>, UploadResponseModel>(
-      $request,
-    );
+    return client
+        .send<BaseResponse<UploadResponseModel>, UploadResponseModel>($request);
   }
 }

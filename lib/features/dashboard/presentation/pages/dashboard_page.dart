@@ -27,6 +27,10 @@ import '../bloc/dashboard_bloc.dart';
 import '../../../notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
+/// Page d'accueil (Tableau de bord) de l'application.
+///
+/// Cette page centralise les informations financières de l'utilisateur :
+/// solde, revenus, dépenses, abonnements à venir et activités récentes.
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
@@ -34,6 +38,7 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        // Chargement immédiat des données du tableau de bord au démarrage
         BlocProvider(
           create: (context) =>
               getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
@@ -45,6 +50,7 @@ class DashboardPage extends StatelessWidget {
   }
 }
 
+/// Vue détaillée du tableau de bord avec gestion du tutoriel (Showcase).
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
 
@@ -53,6 +59,7 @@ class DashboardView extends StatefulWidget {
 }
 
 class _DashboardViewState extends State<DashboardView> {
+  // Clés utilisées pour le tutoriel interactif (Showcase)
   final GlobalKey _gamificationKey = GlobalKey();
   final GlobalKey _balanceKey = GlobalKey();
   final GlobalKey _quickActionsKey = GlobalKey();
@@ -61,14 +68,14 @@ class _DashboardViewState extends State<DashboardView> {
   @override
   void initState() {
     super.initState();
-    // Sync FCM token when dashboard loads
+    // Synchronisation du jeton de notification et suivi analytique
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getIt<NotificationService>().syncFcmToken();
       getIt<AnalyticsManager>().trackEvent(
         feature: 'Dashboard',
         action: 'view',
       );
-      // Fetch latest transactions
+      // Récupération des dernières transactions financières
       context.read<TransactionsBloc>().add(const GetTransactionsRequested());
       _startTutorial();
     });
@@ -77,7 +84,7 @@ class _DashboardViewState extends State<DashboardView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Watch for tutorial reset
+    // Relance le tutoriel si le service de tutoriel est réinitialisé
     context.watch<TutorialService>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
@@ -87,11 +94,13 @@ class _DashboardViewState extends State<DashboardView> {
   @override
   void dispose() {
     try {
+      // Ferme les infobulles du tutoriel si la page est quittée
       ShowCaseWidget.of(context).dismiss();
     } catch (_) {}
     super.dispose();
   }
 
+  /// Démarre le tutoriel interactif si l'utilisateur ne l'a pas encore vu sur cet écran.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
     if (!tutorialService.hasSeenTutorial('dashboard_v2')) {
@@ -118,6 +127,7 @@ class _DashboardViewState extends State<DashboardView> {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
+        // Écoute les changements d'état d'authentification
         BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state.status == AuthStatus.unauthenticated) {
@@ -126,6 +136,7 @@ class _DashboardViewState extends State<DashboardView> {
             }
           },
         ),
+        // Affiche un dialogue en cas de montée de niveau (gamification)
         BlocListener<AuthBloc, AuthState>(
           listenWhen: (previous, current) {
             return previous.status == AuthStatus.authenticated &&
@@ -145,12 +156,12 @@ class _DashboardViewState extends State<DashboardView> {
             );
           },
         ),
+        // Actualise le dashboard après des modifications de données
         BlocListener<TransactionsBloc, TransactionsState>(
           listenWhen: (previous, current) =>
               current.status == TransactionsStatus.success &&
               previous.status != TransactionsStatus.success,
           listener: (context, state) {
-            // Refresh dashboard when a transaction is added/updated successfully
             context.read<DashboardBloc>().add(GetDashboardDataRequested());
           },
         ),
@@ -159,13 +170,11 @@ class _DashboardViewState extends State<DashboardView> {
               current.status == SubscriptionStatus.success &&
               previous.status != SubscriptionStatus.success,
           listener: (context, state) {
-            // Refresh dashboard when a subscription is added, updated or deleted
             context.read<DashboardBloc>().add(GetDashboardDataRequested());
           },
         ),
         BlocListener<AuthBloc, AuthState>(
           listenWhen: (previous, current) {
-            // Listen for significant profile changes that affect dashboard (e.g. monthlyIncome)
             if (previous.authResponse?.user == null ||
                 current.authResponse?.user == null) {
               return false;
@@ -193,7 +202,7 @@ class _DashboardViewState extends State<DashboardView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // const LinearProgressIndicator(minHeight: 2), // Remove if only for SMS
+                // En-tête avec les points d'expérience et le niveau
                 Showcase(
                   key: _gamificationKey,
                   title: AppLocalizations.of(
@@ -205,6 +214,8 @@ class _DashboardViewState extends State<DashboardView> {
                   child: const GamificationHeader(),
                 ),
                 const SizedBox(height: 10),
+
+                // Carte du solde total
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child:
@@ -227,11 +238,15 @@ class _DashboardViewState extends State<DashboardView> {
                           ),
                 ),
                 const SizedBox(height: 24),
+
+                // Widget des prochaines factures/abonnements
                 const NextInvoicesWidget()
                     .animate(delay: 100.ms)
                     .fade(duration: 500.ms)
                     .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
                 const SizedBox(height: 24),
+
+                // Actions rapides (Investir, Tontine, Coach, etc.)
                 Showcase(
                       key: _quickActionsKey,
                       title: AppLocalizations.of(
@@ -246,6 +261,8 @@ class _DashboardViewState extends State<DashboardView> {
                     .fade(duration: 500.ms)
                     .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
                 const SizedBox(height: 32),
+
+                // Liste des activités récentes
                 _buildSectionHeader(
                   context,
                   AppLocalizations.of(context)!.recentActivities,
@@ -268,6 +285,8 @@ class _DashboardViewState extends State<DashboardView> {
                     .fade(duration: 500.ms)
                     .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
                 const SizedBox(height: 24),
+
+                // Bouton pour gérer toutes les transactions
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: SizedBox(
@@ -292,11 +311,11 @@ class _DashboardViewState extends State<DashboardView> {
             ),
           ),
         ),
-        // floatingActionButton: const VoiceFAB(),
       ),
     );
   }
 
+  /// Construit la barre d'application avec salutations, notifications et bouton déconnexion.
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
@@ -355,6 +374,7 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
+  /// Construit la carte principale affichant le solde, les revenus et les dépenses.
   Widget _buildBalanceCard(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -406,7 +426,7 @@ class _DashboardViewState extends State<DashboardView> {
                     .firstWhere(
                       (c) => c.currency == userCurrency,
                       orElse: () => systemState.countries.firstWhere(
-                        (c) => c.code == 'CM', // Default fallback
+                        (c) => c.code == 'CM', // Cameroun par défaut
                         orElse: () => systemState.countries.first,
                       ),
                     )
@@ -462,6 +482,7 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
+  /// Construit un élément d'information (Revenu ou Dépense) pour la carte de solde.
   Widget _buildBalanceInfo(
     BuildContext context,
     String label,
@@ -476,7 +497,6 @@ class _DashboardViewState extends State<DashboardView> {
         .currency;
 
     final systemState = context.watch<SystemBloc>().state;
-    // Safe lookup for symbol
     String? currencySymbol;
     if (systemState.countries.isNotEmpty) {
       currencySymbol = systemState.countries
@@ -538,6 +558,7 @@ class _DashboardViewState extends State<DashboardView> {
       ],
     );
 
+    // Intégration du Showcase si c'est la section Revenus
     if (isIncome) {
       return Showcase(
         key: _incomeKey,
@@ -551,6 +572,7 @@ class _DashboardViewState extends State<DashboardView> {
     return content;
   }
 
+  /// Affiche une boîte de dialogue pour mettre à jour le revenu mensuel estimé.
   void _showEditIncomeDialog(BuildContext context, double currentAmount) {
     final controller = TextEditingController(
       text: currentAmount > 0 ? currentAmount.toStringAsFixed(0) : '',
@@ -578,7 +600,7 @@ class _DashboardViewState extends State<DashboardView> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return null; // Allow empty to reset? No, let's require valid number
+                    return null;
                   }
                   if (double.tryParse(value) == null) {
                     return AppLocalizations.of(context)!.invalidAmount;
@@ -602,7 +624,6 @@ class _DashboardViewState extends State<DashboardView> {
                   AuthUpdateProfileRequested(monthlyIncome: amount),
                 );
                 Navigator.of(context).pop();
-                // Optionally show snackbar or feedback
               }
             },
             child: Text(AppLocalizations.of(context)!.save),
@@ -612,6 +633,7 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
+  /// Construit la ligne des boutons d'actions rapides.
   Widget _buildQuickActions(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -660,6 +682,7 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
+  /// Construit un bouton d'action individuel pour la section d'actions rapides.
   Widget _buildActionItem(
     IconData icon,
     String label,
@@ -691,6 +714,7 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
+  /// Construit un en-tête de section avec un titre et une action optionnelle.
   Widget _buildSectionHeader(
     BuildContext context,
     String title, {
@@ -717,6 +741,7 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
+  /// Construit la liste des dernières transactions enregistrées.
   Widget _buildRecentActivities(BuildContext context) {
     return BlocBuilder<TransactionsBloc, TransactionsState>(
       builder: (context, state) {
@@ -736,6 +761,7 @@ class _DashboardViewState extends State<DashboardView> {
           );
         }
 
+        // Affiche uniquement les 3 dernières transactions sur le tableau de bord
         final recentTransactions = state.transactions.take(3).toList();
 
         return ListView.separated(

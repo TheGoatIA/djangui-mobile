@@ -4,7 +4,12 @@ import 'package:logger/logger.dart';
 import '../../di/injection.dart';
 import 'models/base_response.dart';
 
+/// Convertisseur JSON personnalisé pour Chopper permettant le mapping automatique vers des types typés.
+///
+/// Ce convertisseur utilise un dictionnaire de décodeurs ([typeDecoders]) pour transformer
+/// les réponses JSON brutes en objets métiers ou en structures de type [BaseResponse].
 class JsonToTypeConverter extends JsonConverter {
+  /// Map associant un type de classe à sa fonction de décodage (ex: (json) => User.fromJson(json)).
   final Map<Type, Function> typeDecoders;
 
   const JsonToTypeConverter(this.typeDecoders);
@@ -21,8 +26,7 @@ class JsonToTypeConverter extends JsonConverter {
   FutureOr<Response<ResultType>> convertResponse<ResultType, Item>(
     Response response,
   ) async {
-    // Check if body is empty before letting Chopper try to decode it as JSON
-    // We check the raw response body. If it's empty, we return null immediately.
+    // Vérifie si le corps est vide avant de tenter un décodage JSON
     final dynamic rawBody = response.body;
     if (rawBody == null ||
         (rawBody is String && rawBody.trim().isEmpty) ||
@@ -30,19 +34,19 @@ class JsonToTypeConverter extends JsonConverter {
       return Response<ResultType>(response.base, null, error: response.error);
     }
 
-    // Use Chopper's JsonConverter to decode the string to Map/List
-    // We must pass dynamic because super.convertResponse attempts to cast it
+    // Utilise le convertisseur JSON de base de Chopper pour décoder la chaîne en Map/List
     final Response<dynamic> jsonRes = await super
         .convertResponse<dynamic, dynamic>(response);
     final dynamic body = jsonRes.body;
 
     try {
+      // Tente de mapper le corps décodé vers le type de résultat attendu (ResultType)
       return jsonRes.copyWith<ResultType>(
         body: _decode<ResultType, Item>(body),
       );
     } catch (e) {
       getIt<Logger>().e(
-        '❌ [JsonToTypeConverter] Error decoding $ResultType: $e\nBody: $body',
+        '❌ [JsonToTypeConverter] Erreur de décodage pour $ResultType: $e\nCorps: $body',
       );
       rethrow;
     }
@@ -65,15 +69,17 @@ class JsonToTypeConverter extends JsonConverter {
       return jsonRes.copyWith(body: _decode<dynamic, dynamic>(body));
     } catch (e) {
       getIt<Logger>().e(
-        '❌ [JsonToTypeConverter] Error decoding Error: $e\nBody: $body',
+        '❌ [JsonToTypeConverter] Erreur de décodage d\'erreur : $e\nCorps: $body',
       );
       return jsonRes;
     }
   }
 
+  /// Méthode récursive pour décoder une structure (List ou Map) vers un type typé.
   dynamic _decode<ResultType, Item>(dynamic body) {
     if (body == null) return null;
 
+    // Si le corps est une liste, on décode chaque élément vers le type 'Item'
     if (body is List) {
       return body
               .map<Item>(
@@ -90,6 +96,8 @@ class JsonToTypeConverter extends JsonConverter {
     return body;
   }
 
+  /// Décode une Map unique vers le type cible [T].
+  /// Gère les types génériques comme [BaseResponse] et [BaseListResponse].
   dynamic _decodeMap<T, Item>(Map<String, dynamic> json) {
     if (T == dynamic ||
         T == Object ||
@@ -98,45 +106,20 @@ class JsonToTypeConverter extends JsonConverter {
       return json;
     }
 
+    // Utilisation du décodeur enregistré dans typeDecoders
     if (typeDecoders.containsKey(T)) {
-      if (T.toString().contains('SupportTicketModel')) {
-        getIt<Logger>().d(
-          '[JsonToTypeConverter] Decoding SupportTicketModel. Keys: ${json.keys.toList()}',
-        );
-        // Check for null values in expected fields
-        for (final key in [
-          '_id',
-          'subject',
-          'message',
-          'status',
-          'category',
-          'createdAt',
-        ]) {
-          if (json[key] == null) {
-            getIt<Logger>().w(
-              '[JsonToTypeConverter] Missing or Null field: $key',
-            );
-          }
-        }
-      }
       return typeDecoders[T]!(json);
     }
 
-    // Try a more flexible check if T is a class (for different Type instances)
+    // Comparaison flexible par nom de type pour éviter les soucis de Type instances
     for (final key in typeDecoders.keys) {
       if (key.toString() == T.toString()) {
         return typeDecoders[key]!(json);
       }
     }
 
-    // Automatic handle for BaseResponse and BaseListResponse
-    // This makes it scalable: you only need to register the Item type.
+    // Gestion automatique des réponses standardisées de l'API (BaseResponse & BaseListResponse)
     final String typeString = T.toString();
-
-    // Log for debugging
-    getIt<Logger>().d(
-      '[JsonToTypeConverter] Decoding type: $T (Item: $Item, String: $typeString)',
-    );
 
     if (typeString.startsWith('BaseListResponse')) {
       if (Item.toString() != 'dynamic' &&
@@ -149,22 +132,18 @@ class JsonToTypeConverter extends JsonConverter {
     if (typeString.startsWith('BaseResponse')) {
       if (Item.toString() != 'dynamic' &&
           !Item.toString().startsWith('BaseResponse')) {
-        // Fallback: if we see a list but Item is not a list, it might be BaseResponse<List<Item>>
-        // This is where the old cast error happened.
         return _createBaseResponse<Item>(json);
       }
       return _createBaseResponse<dynamic>(json);
     }
 
     getIt<Logger>().w(
-      '⚠️ [JsonToTypeConverter] No decoder found for type: $T (Item: $Item)',
+      '⚠️ [JsonToTypeConverter] Aucun décodeur trouvé pour le type: $T (Item: $Item)',
     );
     return json;
   }
 
-  // To check types in the map that might be generic
-  // We rely on exact Type match for now.
-
+  /// Instancie une [BaseResponse] avec le type de données interne [I].
   BaseResponse<I> _createBaseResponse<I>(Map<String, dynamic> json) {
     return BaseResponse<I>.fromJson(json, (data) {
       if (data is Map<String, dynamic>) {
@@ -178,12 +157,9 @@ class JsonToTypeConverter extends JsonConverter {
           return e;
         }).toList();
 
-        // If I is exactly List<SupportTicketModel>, casting List<dynamic> will fail in Dart.
-        // We can try to cast it if it matches the expected type I.
         try {
           return decodedList as I;
         } catch (_) {
-          // If cast fails, we return the dynamic list and hope for the best or it will fail upstream
           return decodedList as dynamic;
         }
       }
@@ -191,10 +167,10 @@ class JsonToTypeConverter extends JsonConverter {
     });
   }
 
+  /// Instancie une [BaseListResponse] avec le type d'élément interne [I].
   BaseListResponse<I> _createBaseListResponse<I>(Map<String, dynamic> json) {
     return BaseListResponse<I>.fromJson(json, (data) {
       if (data is Map<String, dynamic>) {
-        // We use I which is the Item type passed by KauriListResponse
         return _decodeMap<I, dynamic>(data) as I;
       }
       return data as I;

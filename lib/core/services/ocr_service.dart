@@ -3,20 +3,33 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:image_picker/image_picker.dart';
 import 'package:injectable/injectable.dart';
 
+/// Représente les données extraites d'un reçu après analyse OCR.
 class OCRResult {
+  /// Montant total détecté sur le reçu.
   final double? amount;
+
+  /// Libellé ou nom du commerçant détecté.
   final String? description;
+
+  /// Catégorie de dépense suggérée (ex: Alimentation, Santé).
   final String? category;
+
+  /// Date de la transaction détectée.
   final DateTime? date;
 
   OCRResult({this.amount, this.description, this.category, this.date});
 }
 
+/// Service utilisant Google ML Kit pour extraire du texte à partir d'images de reçus.
+///
+/// Ce service permet de transformer une photo de ticket de caisse en une
+/// transaction structurée de manière automatisée.
 @lazySingleton
 class OCRService {
   final ImagePicker _picker = ImagePicker();
   final _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
 
+  /// Ouvre la caméra ou la galerie pour permettre à l'utilisateur de sélectionner une image.
   Future<File?> pickImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(source: source);
     if (image != null) {
@@ -25,6 +38,7 @@ class OCRService {
     return null;
   }
 
+  /// Analyse une image de reçu et tente d'en extraire le montant, la date et le commerçant.
   Future<OCRResult> scanReceipt(File image) async {
     final inputImage = InputImage.fromFile(image);
     final recognizedText = await _textRecognizer.processImage(inputImage);
@@ -32,6 +46,7 @@ class OCRService {
     return _parseReceipt(recognizedText);
   }
 
+  /// Logique de parsing heuristique pour identifier les informations clés dans le texte brut.
   OCRResult _parseReceipt(RecognizedText recognizedText) {
     String? description;
     double? amount;
@@ -47,12 +62,12 @@ class OCRService {
 
         lines.add(text);
 
-        // Try to find amount
+        // Recherche de montants potentiels dans la ligne
         final extractedAmount = _extractAmount(text);
         if (extractedAmount != null) {
           foundAmounts.add(extractedAmount);
 
-          // If the line contains "TOTAL" or "NET", prioritize this amount
+          // Priorise les montants associés à des mots-clés de totalisation
           if (text.toUpperCase().contains('TOTAL') ||
               text.toUpperCase().contains('NET') ||
               text.toUpperCase().contains('PAYER')) {
@@ -60,20 +75,19 @@ class OCRService {
           }
         }
 
-        // Try to find date
+        // Tentative d'extraction de la date si non encore trouvée
         date ??= _extractDate(text);
       }
     }
 
-    // If no total found by keyword, take the largest amount found
+    // Si aucun "Total" explicite n'est trouvé, on prend la plus grande valeur numérique détectée
     if (amount == null && foundAmounts.isNotEmpty) {
       foundAmounts.sort();
       amount = foundAmounts.last;
     }
 
-    // Better description: look for the first line that isn't just numbers/dates
+    // Détermination du commerçant (description) : cherche la première ligne textuelle significative
     for (String line in lines) {
-      // Basic check: if more than 50% letters, likely a name
       final letterCount = line.replaceAll(RegExp(r'[^a-zA-Z]'), '').length;
       if (letterCount > line.length * 0.5 && line.length > 3) {
         description = line;
@@ -81,7 +95,7 @@ class OCRService {
       }
     }
 
-    // Basic category guessing
+    // Suggestion de catégorie basée sur des mots-clés dans la description
     String? category;
     if (description != null) {
       final descUpper = description.toUpperCase();
@@ -109,10 +123,9 @@ class OCRService {
     );
   }
 
+  /// Extrait un nombre flottant d'une chaîne de caractères (gère les séparateurs . et ,).
   double? _extractAmount(String text) {
-    // Matches numbers with currency symbols or standard amount formats
-    // e.g. 12.50, 1,200.00, $12.99, 12€, 5000
-    // Try to find numbers with 2 decimals first
+    // Regex pour les nombres décimaux
     final RegExp decimalRegex = RegExp(r'(\d+[.,]\d{2})');
     final decimalMatch = decimalRegex.firstMatch(text);
     if (decimalMatch != null) {
@@ -120,7 +133,7 @@ class OCRService {
       return double.tryParse(cleanAmount);
     }
 
-    // Fallback to integers (at least 3 digits to avoid noise like dates or quantities)
+    // Regex pour les entiers longs (évite de capturer des petites quantités ou des jours)
     final RegExp integerRegex = RegExp(r'(\d{3,})');
     final integerMatch = integerRegex.firstMatch(text);
     if (integerMatch != null) {
@@ -129,14 +142,13 @@ class OCRService {
     return null;
   }
 
+  /// Identifie une date au format DD/MM/YYYY ou YYYY-MM-DD.
   DateTime? _extractDate(String text) {
-    // Matches DD/MM/YYYY or YYYY-MM-DD
     final RegExp dateRegex = RegExp(r'(\d{2}/\d{2}/\d{4})|(\d{4}-\d{2}-\d{2})');
     final match = dateRegex.firstMatch(text);
     if (match != null) {
       try {
         if (match.group(1) != null) {
-          // DD/MM/YYYY
           final parts = match.group(1)!.split('/');
           return DateTime(
             int.parse(parts[2]),
@@ -144,7 +156,6 @@ class OCRService {
             int.parse(parts[0]),
           );
         } else if (match.group(2) != null) {
-          // YYYY-MM-DD
           return DateTime.parse(match.group(2)!);
         }
       } catch (_) {}
@@ -152,6 +163,7 @@ class OCRService {
     return null;
   }
 
+  /// Libère les ressources du TextRecognizer lors de la destruction du service.
   void dispose() {
     _textRecognizer.close();
   }

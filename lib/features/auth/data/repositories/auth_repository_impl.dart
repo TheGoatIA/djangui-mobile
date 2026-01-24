@@ -26,6 +26,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+/// Implémentation concrète de [AuthRepository].
+///
+/// Cette classe gère l'orchestration entre les sources de données distantes (API, Firebase)
+/// et locales (Secure Storage, SharedPreferences), tout en gérant les états de connexion.
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
@@ -46,13 +50,14 @@ class AuthRepositoryImpl implements AuthRepository {
     required Function(String errorMessage) onVerificationFailed,
   }) async {
     try {
+      // Utilisation de Firebase Phone Auth pour l'envoi du SMS de vérification.
       await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          // Auto-verification handled in signInWithPhoneNumber if possible
+          // La validation automatique n'est pas gérée ici pour laisser le contrôle au bloc.
         },
         verificationFailed: (FirebaseAuthException e) {
-          onVerificationFailed(e.message ?? 'Verification failed');
+          onVerificationFailed(e.message ?? 'Échec de la vérification');
         },
         codeSent: (String verificationId, int? resendToken) {
           onCodeSent(verificationId);
@@ -79,12 +84,14 @@ class AuthRepositoryImpl implements AuthRepository {
         smsCode: smsCode,
       );
 
+      // Authentifie l'utilisateur sur Firebase d'abord.
       final UserCredential userCredential = await FirebaseAuth.instance
           .signInWithCredential(credential);
       final String? idToken = await userCredential.user?.getIdToken();
 
-      if (idToken == null) return Left(AuthFailure('No ID Token found'));
+      if (idToken == null) return Left(AuthFailure('Jeton ID introuvable'));
 
+      // Puis échange le jeton Firebase contre une session sur le backend Kauri.
       final response = await _remoteDataSource.firebaseLogin(
         idToken,
         country: country,
@@ -145,7 +152,7 @@ class AuthRepositoryImpl implements AuthRepository {
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
 
     try {
-      // Ensure clean state for Android error [16]
+      // Nettoyage de l'état précédent pour éviter les erreurs persistantes sur Android.
       await _googleSignIn.signOut();
       await _googleSignIn.initialize();
       final googleUser = await _googleSignIn.authenticate();
@@ -153,25 +160,27 @@ class AuthRepositoryImpl implements AuthRepository {
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
-      if (idToken == null) return Left(AuthFailure('No ID Token found'));
+      if (idToken == null) {
+        return Left(AuthFailure('Jeton Google ID introuvable'));
+      }
 
-      // 1. Exchange Google ID Token for Firebase credentials
+      // 1. Échange du jeton Google contre des identifiants Firebase.
       final AuthCredential credential = GoogleAuthProvider.credential(
         idToken: idToken,
       );
 
-      // 2. Sign in to Firebase
+      // 2. Connexion à Firebase.
       final UserCredential userCredential = await FirebaseAuth.instance
           .signInWithCredential(credential);
 
-      // 3. Get the Firebase ID Token (this has the correct audience for the backend)
+      // 3. Récupération du jeton Firebase ID (nécessaire pour authentifier l'API backend).
       final String? firebaseIdToken = await userCredential.user?.getIdToken();
 
       if (firebaseIdToken == null) {
-        return Left(AuthFailure('Failed to get Firebase ID Token'));
+        return Left(AuthFailure('Échec de la récupération du jeton Firebase'));
       }
 
-      // 4. Send Firebase ID Token to backend
+      // 4. Envoi du jeton Firebase au backend principal.
       final response = await _remoteDataSource.firebaseLogin(
         firebaseIdToken,
         country: countryCode,
@@ -275,13 +284,14 @@ class AuthRepositoryImpl implements AuthRepository {
     if (await _networkInfo.isConnected) {
       try {
         final response = await _remoteDataSource.login(request);
+        // Sauvegarde persistante des jetons et de l'utilisateur.
         await _localDataSource.saveTokens(
           accessToken: response.tokens.accessToken,
           refreshToken: response.tokens.refreshToken,
         );
         await _localDataSource.saveUser(response.user);
         await _localDataSource.saveLoginProvider('password');
-        // Save credentials for biometrics
+        // Sauvegarde des identifiants chiffrés pour permettre la connexion biométrique ultérieure.
         await _localDataSource.saveCredentials(request.email, request.password);
         return Right(response);
       } catch (e) {

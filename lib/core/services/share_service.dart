@@ -5,17 +5,16 @@ import '../../features/goals/data/models/goal_model.dart';
 import 'package:uuid/uuid.dart';
 
 @lazySingleton
+/// Service gérant le partage de contenu et la génération de liens profonds (Deep Links).
+@lazySingleton
 class ShareService {
+  /// Partage un objectif financier avec d'autres utilisateurs.
+  /// Génère un lien 'kauri://share/goal' encodé en Base64 contenant les détails de l'objectif.
   Future<void> shareGoal(GoalModel goal) async {
-    // We clear ID and amounts to let the receiver start fresh, or keep them?
-    // User said "share objectives... or tontine plan".
-    // Usually sharing a plan means sharing the Config (Target, Name, Deadline).
-    // Current amount should probably be 0 for the new user.
-
+    // Lors du partage, on génère un nouvel ID pour éviter les collisions chez le receveur
     final sharedGoal = goal.copyWith(
-      id: const Uuid().v4(), // Generate new ID to avoid collisions if imported
-      currentAmount: 0,
-      // We keep targetAmount, name, deadline
+      id: const Uuid().v4(),
+      currentAmount: 0, // Repartir à zéro pour l'épargne du receveur
     );
 
     final jsonString = jsonEncode(sharedGoal.toJson());
@@ -31,6 +30,7 @@ class ShareService {
     );
   }
 
+  /// Décode les données d'objectif reçues via un jeton Base64 issu d'un lien profond.
   GoalModel? parseGoalFromToken(String token) {
     try {
       final jsonString = utf8.decode(base64Decode(token));
@@ -41,6 +41,7 @@ class ShareService {
     }
   }
 
+  /// Partage une invitation pour rejoindre un groupe de tontine via son code unique.
   Future<void> shareTontineInvite(String code) async {
     await SharePlus.instance.share(
       ShareParams(

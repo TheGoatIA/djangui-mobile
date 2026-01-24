@@ -12,6 +12,10 @@ import 'package:kauri/features/analytics/presentation/manager/analytics_manager.
 import '../../../../di/injection.dart';
 import '../../../../features/system/presentation/bloc/system_bloc.dart';
 
+/// Page d'inscription de l'application.
+///
+/// Permet à un nouvel utilisateur de créer un compte en renseignant son nom,
+/// prénom, email, mot de passe et pays de résidence.
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -20,14 +24,21 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  /// Clé globale pour la validation du formulaire d'inscription.
   final _formKey = GlobalKey<FormState>();
+
+  /// Contrôleurs pour les différents champs du formulaire.
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  /// États locaux pour la visibilité des mots de passe.
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+
+  /// Code pays sélectionné par l'utilisateur.
   String? _selectedCountry;
 
   @override
@@ -44,6 +55,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
+        // Redirection vers le dashboard après inscription réussie
         if (state.status == AuthStatus.authenticated) {
           getIt<AnalyticsManager>().trackEvent(
             feature: 'Auth',
@@ -51,7 +63,9 @@ class _RegisterPageState extends State<RegisterPage> {
             details: {'country': state.authResponse?.user.country},
           );
           context.go(RouteConstants.dashboard);
-        } else if (state.status == AuthStatus.error) {
+        }
+        // Affichage d'un message d'erreur en cas d'échec
+        else if (state.status == AuthStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -72,6 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
+                  // Bouton de retour vers la page de connexion
                   IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () => context.pop(),
@@ -93,6 +108,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                   const SizedBox(height: 40),
+
+                  // Champs Nom et Prénom sur la même ligne
                   Row(
                     children: [
                       Expanded(
@@ -119,6 +136,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     ],
                   ),
                   const SizedBox(height: 24),
+
+                  // Champ Email
                   AppTextField(
                     label: AppLocalizations.of(context)!.email,
                     hint: AppLocalizations.of(context)!.emailHint,
@@ -136,6 +155,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     },
                   ),
                   const SizedBox(height: 24),
+
+                  // Champ Mot de passe avec bouton de visibilité
                   AppTextField(
                     label: AppLocalizations.of(context)!.password,
                     hint: '••••••••',
@@ -165,6 +186,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     },
                   ),
                   const SizedBox(height: 24),
+
+                  // Confirmation du mot de passe
                   AppTextField(
                     label: AppLocalizations.of(context)!.confirmPassword,
                     hint: '••••••••',
@@ -194,6 +217,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     },
                   ),
                   const SizedBox(height: 24),
+
+                  // Sélection du pays via un menu déroulant branché sur le SystemBloc
                   BlocBuilder<SystemBloc, SystemState>(
                     builder: (context, systemState) {
                       var items = <DropdownMenuItem<String>>[];
@@ -226,6 +251,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     },
                   ),
                   const SizedBox(height: 32),
+
+                  // Bouton d'inscription final
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       return AppButton(
@@ -233,12 +260,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         isLoading: state.status == AuthStatus.loading,
                         onPressed: () {
                           debugPrint(
-                            '📝 [RegisterPage] Selected country: $_selectedCountry',
+                            '📝 [RegisterPage] Pays sélectionné : $_selectedCountry',
                           );
                           if (_formKey.currentState!.validate()) {
-                            debugPrint(
-                              '📝 [RegisterPage] Submitting registration for: ${_emailController.text}, country: $_selectedCountry',
-                            );
                             context.read<AuthBloc>().add(
                               AuthRegisterRequested(
                                 email: _emailController.text,
@@ -248,16 +272,14 @@ class _RegisterPageState extends State<RegisterPage> {
                                 country: _selectedCountry,
                               ),
                             );
-                          } else {
-                            debugPrint(
-                              '📝 [RegisterPage] Validation failed or country not selected. Country: $_selectedCountry',
-                            );
                           }
                         },
                       );
                     },
                   ),
                   const SizedBox(height: 24),
+
+                  // Lien de retour vers la connexion
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

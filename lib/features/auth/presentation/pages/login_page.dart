@@ -16,6 +16,10 @@ import 'package:kauri/features/analytics/presentation/manager/analytics_manager.
 import '../../../../di/injection.dart';
 import '../../../../features/system/presentation/bloc/system_bloc.dart';
 
+/// Page de connexion de l'application.
+///
+/// Permet l'authentification par email/mot de passe, biométrie (empreinte/visage),
+/// Google, Apple et Téléphone.
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -24,8 +28,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  /// Clé globale pour la validation du formulaire.
   final _formKey = GlobalKey<FormState>();
+
+  /// Contrôleur pour le champ email.
   final _emailController = TextEditingController();
+
+  /// Contrôleur pour le champ mot de passe.
   final _passwordController = TextEditingController();
 
   @override
@@ -39,6 +48,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
+        // Redirection vers le tableau de bord en cas de succès
         if (state.status == AuthStatus.authenticated) {
           getIt<AnalyticsManager>().trackEvent(
             feature: 'Auth',
@@ -46,7 +56,9 @@ class _LoginPageState extends State<LoginPage> {
             details: {'provider': 'email'},
           );
           context.go(RouteConstants.dashboard);
-        } else if (state.status == AuthStatus.error) {
+        }
+        // Affichage d'une erreur via SnackBar
+        else if (state.status == AuthStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -81,6 +93,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 48),
+
+                  // Champ Email
                   AppTextField(
                     label: AppLocalizations.of(context)!.email,
                     hint: AppLocalizations.of(context)!.emailHint,
@@ -98,6 +112,8 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                   const SizedBox(height: 24),
+
+                  // Champ Mot de passe
                   AppTextField(
                     label: AppLocalizations.of(context)!.password,
                     hint: '********',
@@ -117,6 +133,8 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                   const SizedBox(height: 16),
+
+                  // Lien Mot de passe oublié
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
@@ -127,6 +145,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 32),
+
+                  // Boutons d'action : Connexion standard et Biométrique
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       return Column(
@@ -148,6 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                           const SizedBox(height: 16),
                           BlocBuilder<SettingsBloc, SettingsState>(
                             builder: (context, settingsState) {
+                              // Affiche l'option biométrique si activée dans les paramètres
                               if (settingsState.biometricsEnabled) {
                                 return OutlinedButton(
                                   onPressed: () async {
@@ -157,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
                                       final didAuthenticate = await localAuth
                                           .authenticate(
                                             localizedReason:
-                                                'Please authenticate to login',
+                                                'Veuillez vous authentifier pour vous connecter',
                                           );
                                       if (didAuthenticate) {
                                         getIt<AnalyticsManager>().trackEvent(
@@ -170,14 +191,15 @@ class _LoginPageState extends State<LoginPage> {
                                         );
                                       }
                                     } on PlatformException catch (e) {
-                                      String message = 'Authentication error';
+                                      String message =
+                                          'Erreur d\'authentification';
                                       if (e.code == 'noCredentialsSet' ||
                                           e.code == 'NotEnrolled') {
                                         message =
-                                            'No biometrics set up on this device. Please enroll a fingerprint/face in system settings.';
+                                            'Aucune biométrie configurée sur cet appareil.';
                                       } else if (e.code == 'NotAvailable') {
                                         message =
-                                            'Biometric authentication is not available on this device.';
+                                            'L\'authentification biométrique n\'est pas disponible.';
                                       }
                                       if (!context.mounted) return;
                                       ScaffoldMessenger.of(
@@ -192,7 +214,7 @@ class _LoginPageState extends State<LoginPage> {
                                       ).showSnackBar(
                                         const SnackBar(
                                           content: Text(
-                                            'An unexpected error occurred',
+                                            'Une erreur inattendue est survenue',
                                           ),
                                         ),
                                       );
@@ -223,7 +245,7 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                       const SizedBox(width: 12),
                                       Text(
-                                        'Login with Biometrics',
+                                        'Connexion par biométrie',
                                         style: AppTextStyles.bodyLarge.copyWith(
                                           color: Theme.of(
                                             context,
@@ -261,6 +283,8 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                   const SizedBox(height: 24),
+
+                  // Connexion Google
                   OutlinedButton(
                     onPressed: () {
                       _showSocialCountryDialog(
@@ -297,6 +321,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Connexion Apple (iOS uniquement)
                   if (Platform.isIOS) ...[
                     OutlinedButton(
                       onPressed: () {
@@ -339,6 +365,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 16),
                   ],
+
+                  // Connexion par Téléphone
                   OutlinedButton(
                     onPressed: () {
                       context.push(RouteConstants.phoneLogin);
@@ -371,6 +399,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
+
+                  // Lien vers l'inscription
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -396,6 +426,10 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  /// Affiche une boîte de dialogue pour sélectionner un pays avant une connexion sociale.
+  ///
+  /// Ceci est nécessaire pour configurer les paramètres régionaux de l'utilisateur
+  /// lors de sa première inscription via Google ou Apple.
   void _showSocialCountryDialog(
     BuildContext context,
     AuthEvent Function(String countryCode) createEvent,

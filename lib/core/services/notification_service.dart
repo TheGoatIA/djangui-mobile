@@ -6,39 +6,53 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../di/injection.dart';
 
+/// Service gérant les notifications push (Firebase Messaging) et locales.
+///
+/// Ce service centralise l'initialisation, la demande de permissions,
+/// l'écoute des messages en arrière-plan et l'affichage des alertes locales.
 @lazySingleton
 class NotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
+  /// Initialise les configurations pour Android et iOS.
+  /// Configure également l'écoute des messages Firebase en premier plan.
   Future<void> initialize() async {
-    // Local Notifications Setup
+    // Configuration pour Android
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('ic_notification');
+
+    // Configuration pour iOS
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings();
+
     const InitializationSettings initializationSettings =
         InitializationSettings(
           android: initializationSettingsAndroid,
           iOS: initializationSettingsIOS,
         );
+
     await _localNotifications.initialize(initializationSettings);
 
-    // Firebase Messaging Setup
+    // Configuration de Firebase Messaging
     final FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    // Demande des permissions utilisateur (obligatoire sur iOS et Android 13+)
     await messaging.requestPermission(alert: true, badge: true, sound: true);
 
+    // Écoute des messages reçus pendant que l'application est ouverte (Foreground)
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint(
-        '🔔 [NotificationService] Foreground message: ${message.data}',
+        '🔔 [NotificationService] Message reçu au premier plan : ${message.data}',
       );
 
-      // Handle data messages for background refresh
+      // Traitement des notifications de données (silencieuses) pour rafraîchir l'interface
       final type = message.data['type'];
       if (type == 'country_change_approved' || type == 'profile_update') {
         getIt<AuthBloc>().add(AuthRefreshUserRequested());
       }
 
+      // Si le message contient une notification visuelle, on l'affiche localement
       if (message.notification != null) {
         showLocalNotification(
           id: message.hashCode,
@@ -49,22 +63,28 @@ class NotificationService {
     });
   }
 
+  /// Récupère le jeton FCM de l'appareil et le synchronise avec le serveur backend.
+  /// Cette synchronisation n'est effectuée que si l'utilisateur est authentifié.
   Future<void> syncFcmToken() async {
     try {
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null) {
         final authRepo = getIt<AuthRepository>();
-        // Check if user is logged in before syncing
         if (await authRepo.isAuthenticated()) {
-          debugPrint('🔔 [NotificationService] Syncing FCM token: $token');
+          debugPrint(
+            '🔔 [NotificationService] Synchronisation du jeton FCM : $token',
+          );
           await authRepo.updateFcmToken(token);
         }
       }
     } catch (e) {
-      debugPrint('🔔 [NotificationService] Failed to sync FCM token: $e');
+      debugPrint(
+        '🔔 [NotificationService] Échec de synchronisation du jeton FCM : $e',
+      );
     }
   }
 
+  /// Affiche une notification système locale (utile pour le Foreground sur Android).
   Future<void> showLocalNotification({
     required int id,
     required String title,

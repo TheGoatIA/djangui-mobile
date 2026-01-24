@@ -1,16 +1,39 @@
 import 'package:flutter/material.dart';
 import '../theme/app_text_styles.dart';
 
+/// Champ de saisie standardisé pour l'application.
+///
+/// Inclut un libellé au-dessus du champ ([label]), des icônes optionnelles,
+/// et gère le masquage automatique pour les mots de passe.
 class AppTextField extends StatelessWidget {
+  /// Libellé affiché au-dessus du champ.
   final String label;
+
+  /// Texte d'aide à l'intérieur du champ.
   final String? hint;
+
+  /// Contrôleur gérant la valeur textuelle.
   final TextEditingController controller;
+
+  /// Si vrai, masque le texte (pour les mots de passe).
   final bool isPassword;
+
+  /// Type de clavier (numérique, email, etc.).
   final TextInputType keyboardType;
+
+  /// Icône affichée au début du champ.
   final IconData? prefixIcon;
+
+  /// Widget optionnel affiché à la fin du champ (ex: bouton de visibilité).
   final Widget? suffix;
+
+  /// Nombre maximum de lignes.
   final int maxLines;
+
+  /// Alignement du texte.
   final TextAlign textAlign;
+
+  /// Fonction de validation des données.
   final String? Function(String?)? validator;
 
   const AppTextField({

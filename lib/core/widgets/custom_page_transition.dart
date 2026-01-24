@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Définit une transition personnalisée entre les pages combinant un fondu (Fade)
+/// et un léger glissement (Slide) pour une navigation fluide.
 class CustomPageTransition extends CustomTransitionPage {
   CustomPageTransition({
     required super.child,
@@ -32,6 +34,7 @@ class CustomPageTransition extends CustomTransitionPage {
        );
 }
 
+/// Helper pour GoRouter permettant d'appliquer la transition par défaut de Kauri à une route.
 Page<dynamic> buildPageWithDefaultTransition<T>({
   required BuildContext context,
   required GoRouterState state,

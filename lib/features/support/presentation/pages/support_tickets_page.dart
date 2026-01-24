@@ -14,6 +14,10 @@ import '../../../../core/theme/app_shadows.dart';
 import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
+/// Page listant les tickets de support technique créés par l'utilisateur.
+///
+/// Permet de suivre l'état de ses demandes, d'en créer de nouvelles ou de consulter
+/// les réponses apportées par l'équipe Kauri.
 class SupportTicketsPage extends StatefulWidget {
   const SupportTicketsPage({super.key});
 
@@ -25,6 +29,7 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
   @override
   void initState() {
     super.initState();
+    // Chargement initial des tickets
     context.read<SupportBloc>().add(GetTicketsRequested());
     getIt<AnalyticsManager>().trackEvent(
       feature: 'Support',
@@ -39,6 +44,7 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.supportTicketList),
         actions: [
+          // Bouton de rafraîchissement manuel
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () =>
@@ -48,10 +54,12 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
       ),
       body: BlocBuilder<SupportBloc, SupportState>(
         builder: (context, state) {
+          // État de chargement initial
           if (state.status == SupportStatus.loading && state.tickets.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          // Affichage d'une erreur si le chargement échoue
           if (state.status == SupportStatus.failure && state.tickets.isEmpty) {
             return Center(
               child: Column(
@@ -72,6 +80,7 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
             );
           }
 
+          // État vide lorsqu'aucun ticket n'est trouvé
           if (state.tickets.isEmpty) {
             return Center(
               child: Column(
@@ -86,9 +95,7 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.noRecentActivities, // Reuse no activities or add new string
+                    AppLocalizations.of(context)!.noRecentActivities,
                     style: AppTextStyles.bodyLarge.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -98,6 +105,7 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
             );
           }
 
+          // Liste des tickets avec support du "pull-to-refresh"
           return RefreshIndicator(
             onRefresh: () async {
               context.read<SupportBloc>().add(GetTicketsRequested());
@@ -114,6 +122,7 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
           );
         },
       ),
+      // Bouton pour créer une nouvelle demande de support
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(RouteConstants.createTicket),
         label: Text(AppLocalizations.of(context)!.createTicket),
@@ -123,6 +132,7 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
   }
 }
 
+/// Carte représentant un ticket individuel dans la liste.
 class _TicketCard extends StatelessWidget {
   final SupportTicketModel ticket;
 
@@ -152,6 +162,7 @@ class _TicketCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Badge de statut (Ouvert, Répondu, Fermé)
                 _StatusBadge(status: ticket.status),
                 Text(
                   dateFormat.format(ticket.createdAt),
@@ -162,6 +173,7 @@ class _TicketCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
+            // Objet du ticket
             Text(
               ticket.subject,
               style: AppTextStyles.bodyLarge.copyWith(
@@ -172,6 +184,7 @@ class _TicketCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
+            // Message initial ou aperçu
             Text(
               ticket.message,
               style: AppTextStyles.bodyMedium.copyWith(
@@ -189,6 +202,7 @@ class _TicketCard extends StatelessWidget {
                   color: theme.colorScheme.primary,
                 ),
                 const SizedBox(width: 4),
+                // Catégorie de la demande
                 Text(
                   ticket.category,
                   style: AppTextStyles.bodySmall.copyWith(
@@ -197,6 +211,7 @@ class _TicketCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
+                // Indicateur du nombre de réponses reçues
                 if (ticket.replies != null && ticket.replies!.isNotEmpty) ...[
                   Icon(
                     Icons.reply,
@@ -221,6 +236,7 @@ class _TicketCard extends StatelessWidget {
   }
 }
 
+/// Badge visuel indiquant le statut coloré d'un ticket.
 class _StatusBadge extends StatelessWidget {
   final String status;
 

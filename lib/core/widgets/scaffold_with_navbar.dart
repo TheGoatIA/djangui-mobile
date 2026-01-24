@@ -8,15 +8,22 @@ import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../di/injection.dart';
 import '../../core/services/tutorial_service.dart';
 
+/// Widget principal de structure (Scaffold) incluant une navigation persistante.
+///
+/// Adapte automatiquement l'interface utilisateur entre :
+/// - Une barre de navigation inférieure ([NavigationBar]) pour mobile.
+/// - Un rail de navigation ([NavigationRail]) pour tablettes et desktop.
 class ScaffoldWithNavBar extends StatelessWidget {
   const ScaffoldWithNavBar({required this.navigationShell, super.key});
 
+  /// Le conteneur fourni par GoRouter pour gérer les branches de navigation.
   final StatefulNavigationShell navigationShell;
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
+        // Redirige vers la page de connexion si l'utilisateur perd son authentification.
         if (state.status == AuthStatus.unauthenticated) {
           context.go(RouteConstants.login);
         }
@@ -25,8 +32,9 @@ class ScaffoldWithNavBar extends StatelessWidget {
     );
   }
 
+  /// Construit la structure visuelle en fonction de la taille de l'écran.
   Widget _buildScaffold(BuildContext context) {
-    // Mobile Layout
+    // Mise en page pour Mobile
     if (ResponsiveUtils.isMobile(context)) {
       return Scaffold(
         body: navigationShell,
@@ -39,7 +47,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
       );
     }
 
-    // Tablet & Desktop Layout
+    // Mise en page pour Tablettes et Desktop avec Rail de navigation
     return Scaffold(
       body: Row(
         children: [
@@ -85,15 +93,17 @@ class ScaffoldWithNavBar extends StatelessWidget {
     );
   }
 
+  /// Gère le changement d'onglet et déclenche les vérifications de tutoriel.
   void _onTap(BuildContext context, int index) {
     navigationShell.goBranch(
       index,
       initialLocation: index == navigationShell.currentIndex,
     );
-    // Trigger tutorial check for the new tab
+    // Force la vérification des tutoriels contextuels au changement de vue.
     getIt<TutorialService>().triggerTutorialCheck();
   }
 
+  /// Génère les destinations pour la barre de navigation mobile.
   List<NavigationDestination> _buildDestinations(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return [
@@ -125,6 +135,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
     ];
   }
 
+  /// Génère les destinations pour le rail de navigation desktop.
   List<NavigationRailDestination> _buildRailDestinations(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return [

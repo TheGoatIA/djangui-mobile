@@ -3,12 +3,13 @@ import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:injectable/injectable.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+/// Modèle représentant une transaction extraite d'un message SMS.
 class SMSTransaction {
   final double amount;
   final String description;
   final DateTime date;
   final String sender;
-  final String type; // 'income' or 'expense'
+  final String type; // 'income' (revenu) ou 'expense' (dépense)
 
   SMSTransaction({
     required this.amount,
@@ -19,21 +20,26 @@ class SMSTransaction {
   });
 }
 
+/// Service chargé d'analyser les SMS reçus pour détecter des transactions financières.
+/// 
+/// Note : Ce service est actuellement en cours d'intégration (commenté).
 @lazySingleton
 class SMSService {
   final SmsQuery _query = SmsQuery();
 
+  /// Demande l'autorisation d'accéder aux SMS sur l'appareil.
   Future<bool> requestPermission() async {
     final status = await Permission.sms.request();
     return status.isGranted;
   }
 
+  /// Récupère et analyse les 20 derniers messages du dossier de réception.
   Future<List<SMSTransaction>> getRecentTransactions() async {
     if (!await requestPermission()) return [];
 
     final messages = await _query.querySms(
       kinds: [SmsQueryKind.inbox],
-      count: 20, // Limit to recent
+      count: 20,
     );
 
     final transactions = <SMSTransaction>[];
@@ -54,16 +60,16 @@ class SMSService {
     return transactions;
   }
 
+  /// Récupère les messages bruts des dernières 24 heures pour analyse groupée via IA.
   Future<List<String>> getRawMessagesLast24Hours() async {
     if (!await requestPermission()) return [];
 
     final now = DateTime.now();
     final last24h = now.subtract(const Duration(hours: 24));
 
-    // We fetch a larger batch and filter by date
     final messages = await _query.querySms(
       kinds: [SmsQueryKind.inbox],
-      count: 200, // Increased to ensure we cover busy days
+      count: 200, 
     );
 
     return messages
@@ -78,11 +84,11 @@ class SMSService {
         .toList();
   }
 
+  /// Vérifie si un message provient d'un expéditeur financier connu ou contient des mots-clés bancaires.
   bool _isFinancialMessage(String sender, String body) {
     final lowerBody = body.toLowerCase();
     final address = sender.toLowerCase();
 
-    // Known financial senders or keywords
     return address.contains('mobilemoney') ||
         address.contains('momo') ||
         address.contains('orangemoney') ||
@@ -91,14 +97,15 @@ class SMSService {
         lowerBody.contains('xaf') ||
         lowerBody.contains('transfert') ||
         lowerBody.contains('paiement') ||
-        lowerBody.contains('dépôt') || // With accent
+        lowerBody.contains('dépôt') ||
         lowerBody.contains('depot') ||
-        lowerBody.contains('reçu') || // With accent
+        lowerBody.contains('reçu') ||
         lowerBody.contains('recu') ||
-        lowerBody.contains('crédité') || // With accent
+        lowerBody.contains('crédité') ||
         lowerBody.contains('credite');
   }
 
+  /// Analyse le contenu textuel d'un message pour extraire les données de transaction.
   SMSTransaction? _parseMessage(String sender, String body, DateTime date) {
     final lowerBody = body.toLowerCase();
 
@@ -109,7 +116,7 @@ class SMSService {
       final amount = _extractAmount(body);
       if (amount != null) {
         String type = 'expense';
-        // Keywords for income
+        // Identification du sens de la transaction (Revenu vs Dépense)
         if (lowerBody.contains('recu') ||
             lowerBody.contains('received') ||
             lowerBody.contains('depot') ||
@@ -130,24 +137,20 @@ class SMSService {
     return null;
   }
 
+  /// Nettoie ou tronque le corps du message pour l'affichage.
   String _cleanBody(String body) {
-    // Try to extract a clean description or just return the body if too complex
-    // For now, let's keep it simple: take first 50 chars or similar
     if (body.length > 60) {
       return '${body.substring(0, 57)}...';
     }
     return body;
   }
 
+  /// Utilise une expression régulière pour extraire le montant numérique suivi d'une devise.
   double? _extractAmount(String text) {
-    // Regex to find amounts like 25000 FCFA, 5.000 F
     final RegExp amountRegex = RegExp(r'(\d+[.,]?\d*)\s*(FCFA|F|XAF)');
     final match = amountRegex.firstMatch(text);
     if (match != null) {
       String clean = match.group(1)!.replaceAll(',', '').replaceAll('.', '');
-      // Note: Be careful with decimals. usually FCFA has no decimal or it's a comma.
-      // E.g. 5,000 matches digits: 5,000. Clean -> 5000.
-      // E.g. 10.5 USD. Regex here catches "FCFA".
       return double.tryParse(clean);
     }
     return null;

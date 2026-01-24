@@ -21,7 +21,12 @@ import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
+/// Page de création d'une nouvelle transaction (Dépense ou Revenu).
+///
+/// Permet de saisir manuellement les détails d'une transaction ou d'utiliser
+/// la reconnaissance optique de caractères (OCR) pour scanner un reçu.
 class AddTransactionPage extends StatefulWidget {
+  /// Identifiant d'un objectif d'épargne optionnel auquel lier la transaction.
   final String? initialGoalId;
   const AddTransactionPage({super.key, this.initialGoalId});
 
@@ -30,17 +35,29 @@ class AddTransactionPage extends StatefulWidget {
 }
 
 class _AddTransactionPageState extends State<AddTransactionPage> {
+  /// Clé globale pour la validation du formulaire.
   final _formKey = GlobalKey<FormState>();
+
+  /// Contrôleurs pour les différents champs de saisie.
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
-  String? _selectedCategory;
   final _subcategoryController = TextEditingController();
   final _merchantController = TextEditingController();
   final _locationController = TextEditingController();
+
+  /// Catégorie sélectionnée.
+  String? _selectedCategory;
+
+  /// Type de transaction : 'expense' (dépense) ou 'income' (revenu).
   String _type = 'expense';
+
+  /// Identifiant de l'objectif lié.
   String? _selectedGoalId;
+
+  /// État du processus de scan par OCR.
   bool _isScanning = false;
 
+  // Clés utilisées pour le tutoriel interactif.
   final GlobalKey _scanKey = GlobalKey();
   final GlobalKey _amountKey = GlobalKey();
 
@@ -49,7 +66,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     super.initState();
     _selectedGoalId = widget.initialGoalId;
     if (_selectedGoalId != null) {
-      _type = 'income';
+      _type = 'income'; // Définit par défaut comme revenu si lié à un objectif.
     }
     context.read<TransactionsBloc>().add(ResetTransactionsStatus());
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -66,6 +83,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     });
   }
 
+  /// Démarre le tutoriel pour la création de transactions.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
     if (!tutorialService.hasSeenTutorial('add_transaction')) {
@@ -91,10 +109,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     super.dispose();
   }
 
+  /// Lance le processus de scan de reçu par OCR (Premium uniquement).
+  ///
+  /// Demande à l'utilisateur de prendre une photo ou d'en choisir une,
+  /// puis extrait le montant, la description et la catégorie.
   Future<void> _onScanReceipt() async {
     final authState = context.read<AuthBloc>().state;
     final isPremium = authState.authResponse?.user.isPremium ?? false;
 
+    // Vérification du statut Premium
     if (!isPremium) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -110,7 +133,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
     final ocrService = getIt<OCRService>();
 
-    // Show picker source selection
+    // Sélection de la source de l'image
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       builder: (context) => SafeArea(
@@ -165,10 +188,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           _descriptionController.text = result.description!;
         }
         if (result.category != null) {
-          // Try to match scanned category with predefined list
+          // Tentative de correspondance avec les catégories prédéfinies
           final matchedCategory = AppCategories.categories.firstWhere(
             (c) => c.toLowerCase() == result.category!.toLowerCase(),
-            orElse: () => AppCategories.categories.last, // 'Autres'
+            orElse: () => AppCategories.categories.last,
           );
           _selectedCategory = matchedCategory;
         }
@@ -178,7 +201,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
 
-        // Only show success if we actually found something useful
         if (result.amount != null || result.description != null) {
           String details = '';
           if (result.amount != null && result.description != null) {
@@ -197,7 +219,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             ),
           );
         } else {
-          // If no amount or description was found, it's probably not a receipt
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.receiptScannedError),
@@ -219,6 +240,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     }
   }
 
+  /// Sauvegarde la transaction en validant le formulaire et en appelant le Bloc.
   void _onSave(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       final authState = context.read<AuthBloc>().state;
@@ -324,6 +346,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   style: AppTextStyles.bodyMedium,
                 ),
                 const SizedBox(height: 12),
+
+                // Sélecteur de type : Dépense ou Revenu
                 Row(
                   children: [
                     _TypeButton(
@@ -342,6 +366,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   ],
                 ),
                 const SizedBox(height: 24),
+
+                // Champ Montant
                 Showcase(
                   key: _amountKey,
                   title: AppLocalizations.of(
@@ -367,6 +393,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
+
+                // Sélecteur de catégorie
                 DropdownButtonFormField<String>(
                   initialValue: _selectedCategory,
                   decoration: InputDecoration(
@@ -392,6 +420,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       : null,
                 ),
                 const SizedBox(height: 20),
+
+                // Champs optionnels supplémentaires
                 AppTextField(
                   controller: _subcategoryController,
                   label: AppLocalizations.of(context)!.subcategoryLabel,
@@ -410,6 +440,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   hint: AppLocalizations.of(context)!.locationHint,
                 ),
                 const SizedBox(height: 20),
+
+                // Liaison optionnelle avec un objectif d'épargne
                 BlocBuilder<GoalsBloc, GoalsState>(
                   builder: (context, state) {
                     if (state.goals.isEmpty) return const SizedBox.shrink();
@@ -468,6 +500,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     );
                   },
                 ),
+
+                // Champ Description
                 AppTextField(
                   controller: _descriptionController,
                   label: AppLocalizations.of(context)!.descriptionLabel,
@@ -477,6 +511,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       : null,
                 ),
                 const SizedBox(height: 40),
+
+                // Bouton de sauvegarde final
                 BlocBuilder<TransactionsBloc, TransactionsState>(
                   builder: (context, state) {
                     return AppButton(
@@ -495,6 +531,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   }
 }
 
+/// Bouton personnalisé pour sélectionner le type de transaction (Dépense/Revenu).
 class _TypeButton extends StatelessWidget {
   final String label;
   final bool isSelected;

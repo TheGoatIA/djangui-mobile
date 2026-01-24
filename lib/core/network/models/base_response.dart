@@ -2,6 +2,9 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'base_response.g.dart';
 
+/// Modèle de réponse générique pour les appels API renvoyant un objet unique.
+///
+/// [T] représente le type de données contenues dans le champ `data`.
 class BaseResponse<T> {
   final bool success;
   final String? message;
@@ -13,7 +16,7 @@ class BaseResponse<T> {
     Map<String, dynamic> json,
     T Function(Object? json) fromJsonT,
   ) {
-    // Robust success check: handle both boolean 'success' and string 'status'
+    // Vérification robuste du succès : gère à la fois le booléen 'success' et la chaîne 'status'
     final bool isSuccess =
         (json['success'] == true) ||
         (json['status'] == 'success') ||
@@ -36,6 +39,9 @@ class BaseResponse<T> {
   }
 }
 
+/// Modèle de réponse générique pour les appels API renvoyant une liste d'objets.
+///
+/// Inclut également des informations de pagination si disponibles.
 class BaseListResponse<T> {
   final bool success;
   final String? message;
@@ -53,7 +59,6 @@ class BaseListResponse<T> {
     Map<String, dynamic> json,
     T Function(Object? json) fromJsonT,
   ) {
-    // Robust success check: handle both boolean 'success' and string 'status'
     final bool isSuccess =
         (json['success'] == true) ||
         (json['status'] == 'success') ||
@@ -84,6 +89,7 @@ class BaseListResponse<T> {
   };
 }
 
+/// Informations de pagination pour les réponses de type liste.
 @JsonSerializable()
 class Pagination {
   final int page;

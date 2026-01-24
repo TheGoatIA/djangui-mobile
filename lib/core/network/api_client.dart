@@ -28,7 +28,12 @@ import 'json_type_converter.dart';
 import 'interceptors.dart';
 import 'authenticator.dart';
 
+/// Point d'entrée principal pour la configuration du client API utilisant Chopper.
+/// Cette classe centralise la configuration du réseau, des intercepteurs, de l'authentification
+/// et des convertisseurs de type JSON vers modèles Dart.
 class KauriApiClient {
+  /// Crée et configure une instance de [ChopperClient].
+  /// Inclut le décodage JSON automatique pour tous les modèles du projet.
   static ChopperClient create() {
     final baseUrl =
         dotenv.env['API_BASE_URL'] ?? 'https://api.kauri-app.com/api/v1';
@@ -37,6 +42,8 @@ class KauriApiClient {
       baseUrl: Uri.parse(baseUrl),
       interceptors: [AuthInterceptor(), HttpLoggingInterceptor()],
       authenticator: KauriAuthenticator(),
+      // Le convertisseur JsonToTypeConverter contient la table de correspondance
+      // entre les réponses JSON brutes et les classes de modèles Dart.
       converter: JsonToTypeConverter({
         AuthResponse: (json) => AuthResponse.fromJson(json),
         UserModel: (json) => UserModel.fromJson(json),
@@ -82,6 +89,7 @@ class KauriApiClient {
         SubscriptionSuggestion: (json) => SubscriptionSuggestion.fromJson(json),
         SessionStartResponse: (json) => SessionStartResponse.fromJson(json),
       }),
+      // Convertisseur d'erreur spécifique pour les retours 4xx/5xx ayant une structure JSON.
       errorConverter: JsonToTypeConverter({
         AuthResponse: (json) => AuthResponse.fromJson(json),
         UserModel: (json) => UserModel.fromJson(json),

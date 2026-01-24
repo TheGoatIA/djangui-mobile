@@ -21,30 +21,41 @@ final class _$AnalyticsApiService extends AnalyticsApiService {
   Future<Response<dynamic>> trackEvent(Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/analytics/events');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
   Future<Response<BaseResponse<SessionStartResponse>>> startSession(
-    Map<String, dynamic> body,
-  ) {
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/analytics/sessions/start');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
-    return client
-        .send<BaseResponse<SessionStartResponse>, SessionStartResponse>(
-          $request,
-        );
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<SessionStartResponse>,
+        SessionStartResponse>($request);
   }
 
   @override
   Future<Response<BaseResponse<dynamic>>> endSession(
-    Map<String, dynamic> body,
-  ) {
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/analytics/sessions/end');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 }
