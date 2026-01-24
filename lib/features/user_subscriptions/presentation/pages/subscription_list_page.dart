@@ -15,6 +15,10 @@ import '../../../../di/injection.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
+/// Page listant les abonnements (factures récurrentes) de l'utilisateur.
+///
+/// Cette page permet de gérer ses abonnements, d'en ajouter manuellement
+/// ou de lancer une détection automatique via les notifications/SMS.
 class SubscriptionListPage extends StatefulWidget {
   const SubscriptionListPage({super.key});
 
@@ -23,6 +27,7 @@ class SubscriptionListPage extends StatefulWidget {
 }
 
 class _SubscriptionListPageState extends State<SubscriptionListPage> {
+  // Clés utilisées pour le tutoriel interactif.
   final GlobalKey _listKey = GlobalKey();
   final GlobalKey _detectKey = GlobalKey();
   final GlobalKey _addKey = GlobalKey();
@@ -31,6 +36,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Chargement initial des abonnements et suivi analytique
       context.read<SubscriptionBloc>().add(GetSubscriptionsRequested());
       _startTutorial();
       getIt<AnalyticsManager>().trackEvent(
@@ -40,6 +46,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
     });
   }
 
+  /// Démarre le tutoriel interactif si l'utilisateur ne l'a pas encore vu.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
     if (!tutorialService.hasSeenTutorial('subscriptions')) {
@@ -63,6 +70,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
           appBar: AppBar(
             title: Text(l10n.mySubscriptions),
             actions: [
+              // Bouton de détection automatique "Magique"
               Showcase(
                 key: _detectKey,
                 title: l10n.tutorialDetectSubscriptionTitle,
@@ -93,11 +101,13 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
             },
             child: Builder(
               builder: (context) {
+                // État de chargement initial
                 if (state.status == SubscriptionStatus.loading &&
                     state.subscriptions.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
+                // Affichage si aucun abonnement n'est enregistré
                 if (state.subscriptions.isEmpty) {
                   return Showcase(
                     key: _listKey,
@@ -149,6 +159,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
                   );
                 }
 
+                // Liste des abonnements actifs
                 return Showcase(
                   key: _listKey,
                   title: l10n.tutorialSubscriptionListTitle,
@@ -159,7 +170,6 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
                     itemCount: state.subscriptions.length,
                     itemBuilder: (context, index) {
                       final sub = state.subscriptions[index];
-                      // Use local-aware format if possible, or keep simple
                       final nextDate = DateFormat.yMMMd(
                         Localizations.localeOf(context).toString(),
                       ).format(sub.nextBillingDate);
@@ -286,6 +296,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
               },
             ),
           ),
+          // Bouton flottant pour l'ajout rapide
           floatingActionButton: state.subscriptions.isNotEmpty
               ? Showcase(
                   key: _addKey,
@@ -303,6 +314,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
     );
   }
 
+  /// Retourne l'icône appropriée selon la catégorie de l'abonnement.
   IconData _getCategoryIcon(String? category) {
     switch (category?.toLowerCase()) {
       case 'streaming':
@@ -322,6 +334,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
     }
   }
 
+  /// Retourne la couleur associée au statut de l'abonnement.
   Color _getStatusColor(String? status) {
     switch (status?.toLowerCase()) {
       case 'active':
@@ -336,6 +349,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
     }
   }
 
+  /// Traduit la fréquence de facturation.
   String _getLocalizedFrequency(String frequency, AppLocalizations l10n) {
     switch (frequency.toLowerCase()) {
       case 'weekly':
@@ -349,6 +363,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
     }
   }
 
+  /// Traduit le statut de l'abonnement.
   String _getLocalizedStatus(String? status, AppLocalizations l10n) {
     switch (status?.toLowerCase()) {
       case 'active':

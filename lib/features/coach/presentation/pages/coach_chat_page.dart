@@ -16,6 +16,10 @@ import 'package:kauri/features/analytics/presentation/manager/analytics_manager.
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 
+/// Page de discussion avec le Coach Kauri (IA).
+///
+/// Permet à l'utilisateur de poser des questions financières, de recevoir des
+/// conseils personnalisés et d'interagir avec des suggestions d'actions.
 class CoachChatPage extends StatelessWidget {
   const CoachChatPage({super.key});
 
@@ -28,6 +32,7 @@ class CoachChatPage extends StatelessWidget {
   }
 }
 
+/// Vue principale du chat gérant l'affichage des messages et la saisie.
 class CoachChatView extends StatefulWidget {
   const CoachChatView({super.key});
 
@@ -38,17 +43,20 @@ class CoachChatView extends StatefulWidget {
 class _CoachChatViewState extends State<CoachChatView> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
+  // Clé pour le tutoriel guidant l'utilisateur sur la saisie
   final GlobalKey _inputKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
+    // Suivi analytique de l'ouverture de la page
     getIt<AnalyticsManager>().trackEvent(feature: 'AI Coach', action: 'view');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
   }
 
+  /// Démarre le tutoriel si l'utilisateur découvre le Coach.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
     if (!tutorialService.hasSeenTutorial('coach')) {
@@ -64,7 +72,6 @@ class _CoachChatViewState extends State<CoachChatView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Watch for tutorial reset
     context.watch<TutorialService>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
@@ -81,6 +88,7 @@ class _CoachChatViewState extends State<CoachChatView> {
     super.dispose();
   }
 
+  /// Fait défiler la liste vers le bas pour afficher le dernier message.
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -95,15 +103,16 @@ class _CoachChatViewState extends State<CoachChatView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(AppLocalizations.of(context)!.coachTitle),
+            Text(l10n.coachTitle),
             Text(
-              AppLocalizations.of(context)!.online,
+              l10n.online,
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.success,
                 fontSize: 10,
@@ -112,6 +121,7 @@ class _CoachChatViewState extends State<CoachChatView> {
           ],
         ),
         actions: [
+          // Bouton pour réinitialiser la conversation
           Builder(
             builder: (context) {
               return IconButton(
@@ -131,11 +141,13 @@ class _CoachChatViewState extends State<CoachChatView> {
                 _scrollToBottom();
               },
               builder: (context, state) {
+                // Chargement initial
                 if (state.status == CoachStatus.loading &&
                     state.messages.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
+                // État vide (bienvenue)
                 if (state.messages.isEmpty) {
                   return Center(
                     child: Column(
@@ -148,7 +160,7 @@ class _CoachChatViewState extends State<CoachChatView> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          AppLocalizations.of(context)!.coachWelcomeMessage,
+                          l10n.coachWelcomeMessage,
                           style: AppTextStyles.bodyLarge.copyWith(
                             color: Theme.of(
                               context,
@@ -165,6 +177,7 @@ class _CoachChatViewState extends State<CoachChatView> {
                   padding: const EdgeInsets.all(20),
                   itemCount: state.messages.length + (state.isSending ? 1 : 0),
                   itemBuilder: (context, index) {
+                    // Indicateur "Le coach réfléchit..."
                     if (index == state.messages.length) {
                       return _buildTypingIndicator();
                     }
@@ -175,10 +188,11 @@ class _CoachChatViewState extends State<CoachChatView> {
               },
             ),
           ),
+          // Zone de saisie mise en avant par le tutoriel le cas échéant
           Showcase(
             key: _inputKey,
-            title: AppLocalizations.of(context)!.coachTitle,
-            description: AppLocalizations.of(context)!.typeQuestionHint,
+            title: l10n.coachTitle,
+            description: l10n.typeQuestionHint,
             child: _buildInputArea(context),
           ),
         ],
@@ -186,6 +200,7 @@ class _CoachChatViewState extends State<CoachChatView> {
     );
   }
 
+  /// Construit l'indicateur visuel lorsque le Coach génère une réponse.
   Widget _buildTypingIndicator() {
     return Align(
       alignment: Alignment.centerLeft,
@@ -207,6 +222,7 @@ class _CoachChatViewState extends State<CoachChatView> {
     );
   }
 
+  /// Construit la barre de texte et le bouton d'envoi.
   Widget _buildInputArea(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -280,6 +296,7 @@ class _CoachChatViewState extends State<CoachChatView> {
   }
 }
 
+/// Widget représentant une bulle de message (Utilisateur ou Coach).
 class _MessageBubble extends StatelessWidget {
   final ChatMessageModel message;
 
@@ -319,6 +336,7 @@ class _MessageBubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Affichage du texte en Markdown (supporte gras, listes, liens)
             MarkdownBody(
               data: message.text,
               onTapLink: (text, href, title) {
@@ -340,6 +358,7 @@ class _MessageBubble extends StatelessWidget {
                 ),
               ),
             ),
+            // Affichage des tuiles d'actions suggérées par l'IA
             if (!isUser &&
                 message.actions != null &&
                 message.actions!.isNotEmpty) ...[
@@ -367,6 +386,7 @@ class _MessageBubble extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 4),
+            // Horodatage du message
             Text(
               DateFormat('HH:mm').format(message.timestamp),
               style: AppTextStyles.bodySmall.copyWith(
@@ -384,6 +404,7 @@ class _MessageBubble extends StatelessWidget {
     );
   }
 
+  /// Gère les interactions avec les boutons suggérés dans le message.
   void _handleAction(BuildContext context, Map<String, dynamic> action) {
     final type = action['type'];
     final payload = action['payload'];
@@ -391,7 +412,6 @@ class _MessageBubble extends StatelessWidget {
     if (type == 'navigate' && payload != null) {
       var route = payload['route'] as String?;
       if (route != null) {
-        // Ensure route starts with /
         if (!route.startsWith('/')) {
           route = '/$route';
         }
@@ -405,6 +425,7 @@ class _MessageBubble extends StatelessWidget {
     }
   }
 
+  /// Ouvre un lien externe vers le navigateur système.
   Future<void> _launchUrl(String urlString) async {
     final Uri url = Uri.parse(urlString);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {

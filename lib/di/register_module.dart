@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 import '../core/network/api_client.dart';
 import '../core/database/database.dart';
@@ -118,4 +119,8 @@ abstract class RegisterModule {
 
   @lazySingleton
   Logger get logger => Logger();
+
+  @lazySingleton
+  InternetConnectionChecker get connectionChecker =>
+      InternetConnectionChecker.createInstance();
 }

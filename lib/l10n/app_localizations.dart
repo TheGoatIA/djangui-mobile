@@ -107,7 +107,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashboard.
   ///
   /// In fr, this message translates to:
-  /// **'Tableau de bord'**
+  /// **'Accueil'**
   String get dashboard;
 
   /// No description provided for @welcome.
@@ -3185,7 +3185,7 @@ abstract class AppLocalizations {
   /// No description provided for @tontineGuideTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Guide Complet Djangui'**
+  /// **'Guide Complet Kauri'**
   String get tontineGuideTitle;
 
   /// No description provided for @tontineGuideDesc.
@@ -3197,13 +3197,13 @@ abstract class AppLocalizations {
   /// No description provided for @whatIsTontineTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Le Concept Djangui'**
+  /// **'Le Concept Kauri'**
   String get whatIsTontineTitle;
 
   /// No description provided for @whatIsTontineDesc.
   ///
   /// In fr, this message translates to:
-  /// **'La tontine est un levier financier puissant. Sur Djangui, nous automatisons la collecte et la redistribution pour une sécurité totale.'**
+  /// **'La tontine est un levier financier puissant. Sur Kauri, nous automatisons la collecte et la redistribution pour une sécurité totale.'**
   String get whatIsTontineDesc;
 
   /// No description provided for @tontineLifecycleTitle.
@@ -3563,7 +3563,7 @@ abstract class AppLocalizations {
   /// No description provided for @howKauriWorks.
   ///
   /// In fr, this message translates to:
-  /// **'Comment Kauri fonctionne'**
+  /// **'Comment fonctionne Kauri ?'**
   String get howKauriWorks;
 
   /// No description provided for @removeMemberConfirmation.
@@ -3667,6 +3667,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Lancez une nouvelle tontine et invitez vos amis.'**
   String get tutorialCreateTontineButtonDesc;
+
+  /// No description provided for @verifyYourEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez votre E-mail'**
+  String get verifyYourEmail;
+
+  /// No description provided for @verifyEmailDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un lien de vérification a été envoyé à votre adresse e-mail. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour activer votre compte.'**
+  String get verifyEmailDescription;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour à la connexion'**
+  String get backToLogin;
 }
 
 class _AppLocalizationsDelegate

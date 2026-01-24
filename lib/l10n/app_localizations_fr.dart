@@ -12,7 +12,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appTitle => 'Kauri';
 
   @override
-  String get dashboard => 'Tableau de bord';
+  String get dashboard => 'Accueil';
 
   @override
   String get welcome => 'Bienvenue';
@@ -1651,18 +1651,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get stop => 'Stopper';
 
   @override
-  String get tontineGuideTitle => 'Guide Complet Djangui';
+  String get tontineGuideTitle => 'Guide Complet Kauri';
 
   @override
   String get tontineGuideDesc =>
       'Découvrez comment optimiser votre épargne communautaire.';
 
   @override
-  String get whatIsTontineTitle => 'Le Concept Djangui';
+  String get whatIsTontineTitle => 'Le Concept Kauri';
 
   @override
   String get whatIsTontineDesc =>
-      'La tontine est un levier financier puissant. Sur Djangui, nous automatisons la collecte et la redistribution pour une sécurité totale.';
+      'La tontine est un levier financier puissant. Sur Kauri, nous automatisons la collecte et la redistribution pour une sécurité totale.';
 
   @override
   String get tontineLifecycleTitle => 'Comprendre les Statuts';
@@ -1852,7 +1852,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get removeMember => 'Retirer un membre';
 
   @override
-  String get howKauriWorks => 'Comment Kauri fonctionne';
+  String get howKauriWorks => 'Comment fonctionne Kauri ?';
 
   @override
   String removeMemberConfirmation(String name) {
@@ -1912,4 +1912,14 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get tutorialCreateTontineButtonDesc =>
       'Lancez une nouvelle tontine et invitez vos amis.';
+
+  @override
+  String get verifyYourEmail => 'Vérifiez votre E-mail';
+
+  @override
+  String get verifyEmailDescription =>
+      'Un lien de vérification a été envoyé à votre adresse e-mail. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour activer votre compte.';
+
+  @override
+  String get backToLogin => 'Retour à la connexion';
 }

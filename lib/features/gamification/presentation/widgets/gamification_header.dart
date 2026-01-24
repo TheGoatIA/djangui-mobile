@@ -4,6 +4,10 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 
+/// Widget affichant la progression de l'utilisateur (niveau et XP).
+///
+/// Ce composant calcule dynamiquement le niveau actuel et l'expérience nécessaire
+/// pour le prochain niveau selon une formule quadratique.
 class GamificationHeader extends StatelessWidget {
   const GamificationHeader({super.key});
 
@@ -11,6 +15,7 @@ class GamificationHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
+        // N'affiche rien si l'utilisateur n'est pas authentifié
         if (state.status != AuthStatus.authenticated ||
             state.authResponse?.user == null) {
           return const SizedBox.shrink();
@@ -19,12 +24,14 @@ class GamificationHeader extends StatelessWidget {
         final user = state.authResponse!.user;
         final currentXp = user.xp;
         final currentLevel = user.level;
-        // Formula: Level = floor(sqrt(XP / 100)) + 1
-        // Next Level XP = (Level)^2 * 100
+
+        // Formules utilisées :
+        // Niveau = floor(sqrt(XP / 100)) + 1
+        // XP pour le prochain niveau = (Niveau actu)^2 * 100
         final nextLevelXp = (currentLevel * currentLevel) * 100;
         final prevLevelXp = ((currentLevel - 1) * (currentLevel - 1)) * 100;
 
-        // Progress within current level
+        // Calcul de la progression relative au sein du niveau actuel (entre 0.0 et 1.0)
         final levelProgress =
             (currentXp - prevLevelXp) / (nextLevelXp - prevLevelXp);
 
@@ -44,7 +51,7 @@ class GamificationHeader extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Level Badge
+              // Badge circulaire affichant le numéro du niveau
               Container(
                 width: 50,
                 height: 50,
@@ -80,7 +87,7 @@ class GamificationHeader extends StatelessWidget {
               ),
               const SizedBox(width: 16),
 
-              // XP Progress
+              // Section affichant les détails de l'XP et la barre de progression
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,6 +116,7 @@ class GamificationHeader extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 8),
+                    // Barre de progression visuelle de l'XP
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
@@ -123,6 +131,7 @@ class GamificationHeader extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
+                    // Indication de l'XP restante avant le prochain palier
                     Text(
                       AppLocalizations.of(
                         context,

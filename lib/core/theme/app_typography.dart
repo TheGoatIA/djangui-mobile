@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
+/// Gestionnaire de la typographie de l'application.
+///
+/// Définit le [TextTheme] utilisé par Material Design 3, en précisant les
+/// polices, tailles, graisses et interlignages pour chaque style de texte.
 class AppTypography {
+  /// Nom de la police de caractères principale (Outfit).
   static const String fontFamily = 'Outfit';
 
+  /// Retourne le thème textuel pour le mode clair.
   static TextTheme get lightTextTheme =>
       TextTheme(
+        // --- Grands titres d'affichage ---
         displayLarge: _baseStyle.copyWith(
           fontSize: 57,
           fontWeight: FontWeight.w700,
@@ -25,6 +32,7 @@ class AppTypography {
           letterSpacing: 0,
         ),
 
+        // --- Titres de sections ---
         headlineLarge: _baseStyle.copyWith(
           fontSize: 32,
           fontWeight: FontWeight.w600,
@@ -44,6 +52,7 @@ class AppTypography {
           letterSpacing: 0,
         ),
 
+        // --- Titres de composants ---
         titleLarge: _baseStyle.copyWith(
           fontSize: 22,
           fontWeight: FontWeight.w500,
@@ -63,6 +72,7 @@ class AppTypography {
           letterSpacing: 0.1,
         ),
 
+        // --- Corps de texte (Lecture) ---
         bodyLarge: _baseStyle.copyWith(
           fontSize: 16,
           fontWeight: FontWeight.w400,
@@ -82,6 +92,7 @@ class AppTypography {
           letterSpacing: 0.4,
         ),
 
+        // --- Étiquettes et petits éléments (Boutons, légendes) ---
         labelLarge: _baseStyle.copyWith(
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -105,11 +116,13 @@ class AppTypography {
         bodyColor: AppColors.textPrimary,
       );
 
+  /// Retourne le thème textuel adapté au mode sombre.
   static TextTheme get darkTextTheme => lightTextTheme.apply(
     displayColor: AppColors.textPrimaryDark,
     bodyColor: AppColors.textPrimaryDark,
   );
 
+  /// Style de base partagé par tous les textes pour garantir la cohérence de la police.
   static const TextStyle _baseStyle = TextStyle(
     fontFamily: fontFamily,
     leadingDistribution: TextLeadingDistribution.even,

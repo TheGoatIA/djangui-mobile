@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+/// Gestionnaire centralisé des espacements et des marges de l'application.
+///
+/// Fournit des constantes numériques (pX) pour l'homogénéité, ainsi que des gadgets
+/// utilitaires comme [gapX] (SizedBox) et des insets pré-configurés.
 class AppSpacing {
-  // Constant Spacing
+  // --- Constantes unitaires (Pixel Spacing) ---
   static const double p4 = 4.0;
   static const double p8 = 8.0;
   static const double p12 = 12.0;
@@ -13,7 +17,7 @@ class AppSpacing {
   static const double p48 = 48.0;
   static const double p64 = 64.0;
 
-  // Gaps (SizedBox)
+  // --- Widgets d'espacement (SizedBox) ---
   static const Widget gap4 = SizedBox(height: p4, width: p4);
   static const Widget gap8 = SizedBox(height: p8, width: p8);
   static const Widget gap12 = SizedBox(height: p12, width: p12);
@@ -23,14 +27,14 @@ class AppSpacing {
   static const Widget gap32 = SizedBox(height: p32, width: p32);
   static const Widget gap48 = SizedBox(height: p48, width: p48);
 
-  // Slivers
+  // --- Espacements pour les Slivers (SliverToBoxAdapter) ---
   static const Widget sliverGap4 = SliverToBoxAdapter(child: gap4);
   static const Widget sliverGap8 = SliverToBoxAdapter(child: gap8);
   static const Widget sliverGap16 = SliverToBoxAdapter(child: gap16);
   static const Widget sliverGap24 = SliverToBoxAdapter(child: gap24);
   static const Widget sliverGap32 = SliverToBoxAdapter(child: gap32);
 
-  // Insets
+  // --- Insets de bordure (EdgeInsets) ---
   static const EdgeInsets edgeInsetsAll4 = EdgeInsets.all(p4);
   static const EdgeInsets edgeInsetsAll8 = EdgeInsets.all(p8);
   static const EdgeInsets edgeInsetsAll16 = EdgeInsets.all(p16);

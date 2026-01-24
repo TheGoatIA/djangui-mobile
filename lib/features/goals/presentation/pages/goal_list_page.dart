@@ -15,6 +15,10 @@ import '../../../../core/theme/app_shadows.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 
+/// Page listant les objectifs d'épargne de l'utilisateur.
+///
+/// Permet de visualiser la progression de chaque objectif, d'en ajouter de nouveaux,
+/// de les partager ou de les supprimer.
 class GoalListPage extends StatelessWidget {
   const GoalListPage({super.key});
 
@@ -24,6 +28,7 @@ class GoalListPage extends StatelessWidget {
   }
 }
 
+/// Vue principale de la liste des objectifs avec gestion du tutoriel.
 class GoalListView extends StatefulWidget {
   const GoalListView({super.key});
 
@@ -32,6 +37,7 @@ class GoalListView extends StatefulWidget {
 }
 
 class _GoalListViewState extends State<GoalListView> {
+  // Clés utilisées pour le tutoriel interactif.
   final GlobalKey _listKey = GlobalKey();
   final GlobalKey _addKey = GlobalKey();
 
@@ -52,6 +58,7 @@ class _GoalListViewState extends State<GoalListView> {
     });
   }
 
+  /// Démarre le tutoriel si l'utilisateur ne l'a pas encore vu sur cet écran.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
     if (!tutorialService.hasSeenTutorial('goals')) {
@@ -90,10 +97,12 @@ class _GoalListViewState extends State<GoalListView> {
         },
         child: BlocBuilder<GoalsBloc, GoalsState>(
           builder: (context, state) {
+            // État de chargement initial
             if (state.status == GoalsStatus.loading && state.goals.isEmpty) {
               return const Center(child: CircularProgressIndicator());
             }
 
+            // État vide
             if (state.goals.isEmpty) {
               return Center(
                 child: Showcase(
@@ -121,6 +130,7 @@ class _GoalListViewState extends State<GoalListView> {
               );
             }
 
+            // Liste des objectifs avec support du "pull-to-refresh"
             return RefreshIndicator(
               onRefresh: () async {
                 context.read<GoalsBloc>().add(
@@ -134,8 +144,9 @@ class _GoalListViewState extends State<GoalListView> {
                     const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final goal = state.goals[index];
-                  final widget = _GoalItem(goal: goal);
+                  final goalWidget = _GoalItem(goal: goal);
 
+                  // Le premier élément est mis en avant par le tutoriel
                   if (index == 0) {
                     return Showcase(
                       key: _listKey,
@@ -143,11 +154,11 @@ class _GoalListViewState extends State<GoalListView> {
                       description: AppLocalizations.of(
                         context,
                       )!.tutorialGoalsDesc,
-                      child: widget,
+                      child: goalWidget,
                     );
                   }
 
-                  return widget;
+                  return goalWidget;
                 },
               ),
             );
@@ -179,6 +190,7 @@ class _GoalListViewState extends State<GoalListView> {
   }
 }
 
+/// Widget représentant un seul objectif d'épargne dans la liste.
 class _GoalItem extends StatelessWidget {
   final GoalModel goal;
 
@@ -212,6 +224,7 @@ class _GoalItem extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                // Menu contextuel (Partager/Supprimer)
                 PopupMenuButton(
                   icon: Icon(
                     Icons.more_vert,
@@ -266,6 +279,8 @@ class _GoalItem extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
+
+            // État de progression financier
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -285,6 +300,8 @@ class _GoalItem extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
+
+            // Barre de progression visuelle
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: LinearProgressIndicator(
@@ -299,6 +316,8 @@ class _GoalItem extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Jours restants avant l'échéance
             Row(
               children: [
                 Icon(
@@ -325,6 +344,7 @@ class _GoalItem extends StatelessWidget {
     );
   }
 
+  /// Affiche une boîte de dialogue pour confirmer la suppression d'un objectif.
   void _showDeleteDialog(BuildContext context) {
     showDialog(
       context: context,

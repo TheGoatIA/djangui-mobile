@@ -236,4 +236,19 @@ final class _$AuthApiService extends AuthApiService {
       CountryChangeRequestModel
     >($request);
   }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> updateLanguage(
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/auth/language');
+    final $body = body;
+    final Request $request = Request(
+      'PATCH',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
 }

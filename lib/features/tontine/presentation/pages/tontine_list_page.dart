@@ -15,6 +15,10 @@ import 'package:showcaseview/showcaseview.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/tutorial_service.dart';
 
+/// Page listant les Tontines (épargne collective) de l'utilisateur.
+///
+/// La tontine est un système de crédit rotatif et d'épargne solidaire très utilisé
+/// en Afrique. Cette page permet de rejoindre ou de créer une tontine.
 class TontineListPage extends StatefulWidget {
   const TontineListPage({super.key});
 
@@ -23,6 +27,7 @@ class TontineListPage extends StatefulWidget {
 }
 
 class _TontineListPageState extends State<TontineListPage> {
+  // Clés utilisées pour le tutoriel interactif.
   final GlobalKey _listKey = GlobalKey();
   final GlobalKey _joinKey = GlobalKey();
   final GlobalKey _createKey = GlobalKey();
@@ -30,12 +35,14 @@ class _TontineListPageState extends State<TontineListPage> {
   @override
   void initState() {
     super.initState();
+    // Chargement initial des tontines de l'utilisateur
     context.read<TontineBloc>().add(TontinesLoadRequested());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
   }
 
+  /// Démarre le tutoriel interactif si nécessaire.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
     if (!tutorialService.hasSeenTutorial('tontines_v2')) {
@@ -59,12 +66,14 @@ class _TontineListPageState extends State<TontineListPage> {
         title: Text(l10n.tontine),
         elevation: 0,
         actions: [
+          // Guide informatif sur le fonctionnement des tontines
           IconButton(
             icon: const Icon(Icons.help_outline),
             tooltip: l10n.tontineGuideTitle,
             onPressed: () =>
                 context.pushNamed(RouteConstants.tontineGuideNamed),
           ),
+          // Bouton pour rejoindre une tontine existante via un code
           Showcase(
             key: _joinKey,
             title: l10n.tutorialJoinTontineTitle,
@@ -80,10 +89,12 @@ class _TontineListPageState extends State<TontineListPage> {
       ),
       body: BlocBuilder<TontineBloc, TontineState>(
         builder: (context, state) {
+          // État de chargement initial
           if (state.status == TontineStatus.loading && state.tontines.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          // État vide si aucune tontine n'est rejointe
           if (state.tontines.isEmpty) {
             return Showcase(
               key: _listKey,
@@ -93,6 +104,7 @@ class _TontineListPageState extends State<TontineListPage> {
             );
           }
 
+          // Liste des tontines actives avec support du rafraîchissement
           return RefreshIndicator(
             onRefresh: () async {
               context.read<TontineBloc>().add(TontinesLoadRequested());
@@ -116,6 +128,7 @@ class _TontineListPageState extends State<TontineListPage> {
           );
         },
       ),
+      // Bouton pour créer une nouvelle tontine
       floatingActionButton: Showcase(
         key: _createKey,
         title: l10n.tutorialCreateTontineButtonTitle,
@@ -129,6 +142,7 @@ class _TontineListPageState extends State<TontineListPage> {
     );
   }
 
+  /// Construit l'interface affichée lorsqu'aucune tontine n'est trouvée.
   Widget _buildEmptyState(BuildContext context, AppLocalizations l10n) {
     return Center(
       child: Column(
@@ -159,6 +173,7 @@ class _TontineListPageState extends State<TontineListPage> {
     );
   }
 
+  /// Construit la carte visuelle d'une tontine individuelle.
   Widget _buildTontineCard(
     BuildContext context,
     dynamic tontine,
@@ -180,6 +195,7 @@ class _TontineListPageState extends State<TontineListPage> {
               children: [
                 Icon(Icons.event_repeat, size: 16, color: AppColors.primary),
                 const SizedBox(width: 4),
+                // Fréquence (Hebdomadaire, Mensuelle, etc.)
                 Text(_getLocalizedFrequency(tontine.frequency, l10n)),
                 const SizedBox(width: 16),
                 Icon(
@@ -188,10 +204,12 @@ class _TontineListPageState extends State<TontineListPage> {
                   color: AppColors.primary,
                 ),
                 const SizedBox(width: 4),
+                // Montant de la cotisation
                 Text('${tontine.contributionAmount} ${tontine.currency}'),
               ],
             ),
             const SizedBox(height: 8),
+            // Barre de progression de la collecte actuelle
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
@@ -214,6 +232,7 @@ class _TontineListPageState extends State<TontineListPage> {
     );
   }
 
+  /// Traduit la fréquence de la tontine.
   String _getLocalizedFrequency(String frequency, AppLocalizations l10n) {
     switch (frequency.toLowerCase()) {
       case 'weekly':
@@ -229,12 +248,15 @@ class _TontineListPageState extends State<TontineListPage> {
     }
   }
 
+  /// Gère la demande de création de tontine avec vérification du statut Premium.
+  ///
+  /// Les utilisateurs gratuits sont limités à une seule tontine active.
   void _handleCreateTontine(BuildContext context) {
     final authState = context.read<AuthBloc>().state;
     final user = authState.authResponse?.user;
     final tontineState = context.read<TontineBloc>().state;
 
-    // Premium logic check
+    // Restriction Premium : max 1 tontine pour les utilisateurs non-prémium
     if (user != null && !user.isPremium && tontineState.tontines.isNotEmpty) {
       _showPremiumModal(context);
       return;
@@ -243,6 +265,7 @@ class _TontineListPageState extends State<TontineListPage> {
     context.pushNamed(RouteConstants.tontineCreateNamed);
   }
 
+  /// Affiche le dialogue invitant à passer à l'offre Premium pour débloquer les tontines illimitées.
   void _showPremiumModal(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(

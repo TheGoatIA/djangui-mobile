@@ -18,6 +18,10 @@ import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
 
+/// Page listant les budgets mensuels de l'utilisateur.
+///
+/// Permet de visualiser la consommation de chaque budget par rapport aux limites
+/// fixées, d'en ajouter de nouveaux ou de les supprimer.
 class BudgetListPage extends StatelessWidget {
   const BudgetListPage({super.key});
 
@@ -27,6 +31,7 @@ class BudgetListPage extends StatelessWidget {
   }
 }
 
+/// Vue principale de la liste des budgets avec gestion du tutoriel.
 class BudgetListView extends StatefulWidget {
   const BudgetListView({super.key});
 
@@ -35,6 +40,7 @@ class BudgetListView extends StatefulWidget {
 }
 
 class _BudgetListViewState extends State<BudgetListView> {
+  // Clés utilisées pour le tutoriel interactif.
   final GlobalKey _listKey = GlobalKey();
   final GlobalKey _addKey = GlobalKey();
 
@@ -59,6 +65,7 @@ class _BudgetListViewState extends State<BudgetListView> {
     });
   }
 
+  /// Démarre le tutoriel si l'utilisateur ne l'a pas encore vu sur cet écran.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
     if (!tutorialService.hasSeenTutorial('budgets')) {
@@ -97,11 +104,13 @@ class _BudgetListViewState extends State<BudgetListView> {
         },
         child: BlocBuilder<BudgetsBloc, BudgetsState>(
           builder: (context, state) {
+            // État de chargement initial
             if (state.status == BudgetsStatus.loading &&
                 state.budgets.isEmpty) {
               return const Center(child: CircularProgressIndicator());
             }
 
+            // État vide
             if (state.budgets.isEmpty) {
               return Center(
                 child: Showcase(
@@ -131,6 +140,7 @@ class _BudgetListViewState extends State<BudgetListView> {
               );
             }
 
+            // Liste des budgets avec support du "pull-to-refresh"
             return RefreshIndicator(
               onRefresh: () async {
                 context.read<BudgetsBloc>().add(
@@ -144,8 +154,9 @@ class _BudgetListViewState extends State<BudgetListView> {
                     const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final budget = state.budgets[index];
-                  final widget = _BudgetItem(budget: budget);
+                  final budgetWidget = _BudgetItem(budget: budget);
 
+                  // Le premier élément est mis en avant par le tutoriel
                   if (index == 0) {
                     return Showcase(
                       key: _listKey,
@@ -153,17 +164,18 @@ class _BudgetListViewState extends State<BudgetListView> {
                       description: AppLocalizations.of(
                         context,
                       )!.tutorialBudgetsDesc,
-                      child: widget,
+                      child: budgetWidget,
                     );
                   }
 
-                  return widget;
+                  return budgetWidget;
                 },
               ),
             );
           },
         ),
       ),
+      // Bouton pour créer un nouveau budget mensuel
       floatingActionButton: Showcase(
         key: _addKey,
         title: AppLocalizations.of(context)!.tutorialAddBudgetTitle,
@@ -191,6 +203,7 @@ class _BudgetListViewState extends State<BudgetListView> {
   }
 }
 
+/// Widget représentant un seul budget mensuel dans la liste.
 class _BudgetItem extends StatelessWidget {
   final BudgetModel budget;
 
@@ -198,9 +211,12 @@ class _BudgetItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Calcul du ratio de consommation du budget
     final progress = budget.totalAllocated > 0
         ? (budget.totalSpent / budget.totalAllocated).clamp(0.0, 1.0)
         : 0.0;
+
+    // Détermination de la couleur (rouge si dépassé, vert/primaire sinon)
     final isOverBudget = budget.totalSpent > budget.totalAllocated;
     final color = isOverBudget
         ? Theme.of(context).colorScheme.error
@@ -208,6 +224,7 @@ class _BudgetItem extends StatelessWidget {
 
     return InkWell(
       onTap: () {
+        // Affiche les détails du budget dans un "bottom sheet"
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
@@ -229,6 +246,7 @@ class _BudgetItem extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Mois et année du budget
                 Text(
                   DateFormat.yMMMM(
                     Localizations.localeOf(context).languageCode,
@@ -237,6 +255,7 @@ class _BudgetItem extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                // Pourcentage consommé
                 Text(
                   '${(progress * 100).toStringAsFixed(0)}%',
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -244,6 +263,7 @@ class _BudgetItem extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                // Bouton de suppression
                 IconButton(
                   onPressed: () => _showDeleteDialog(context),
                   icon: Icon(
@@ -256,6 +276,7 @@ class _BudgetItem extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
+            // Barre de progression visuelle de la consommation
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: LinearProgressIndicator(
@@ -266,6 +287,7 @@ class _BudgetItem extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
+            // Comparaison Dépensé vs Limite
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -289,6 +311,7 @@ class _BudgetItem extends StatelessWidget {
     );
   }
 
+  /// Affiche une boîte de dialogue pour confirmer la suppression du budget.
   void _showDeleteDialog(BuildContext context) {
     showDialog(
       context: context,

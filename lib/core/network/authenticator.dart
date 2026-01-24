@@ -5,6 +5,10 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../di/injection.dart';
 
+/// Gère les mécanismes d'authentification automatique lors d'échecs de requêtes (Code 401).
+///
+/// Principalement utilisé pour rafraîchir le jeton d'accès (Refresh Token) sans
+/// intervention de l'utilisateur.
 class KauriAuthenticator extends Authenticator {
   @override
   FutureOr<Request?> authenticate(
@@ -15,13 +19,14 @@ class KauriAuthenticator extends Authenticator {
     final logger = getIt<Logger>();
     final String requestUrl = request.url.toString();
 
+    // Traitement des erreurs 401 (Non autorisé)
     if (response.statusCode == 401) {
-      // If we're already trying to refresh or login, don't try again to avoid infinite loops
+      // Évite les boucles infinies si les appels d'authentification eux-mêmes échouent
       if (requestUrl.contains('/auth/refresh') ||
           requestUrl.contains('/auth/login') ||
           requestUrl.contains('/auth/firebase')) {
         logger.w(
-          '🔐 [Authenticator] 401 detected on an auth endpoint ($requestUrl). Breaking loop.',
+          '🔐 [Authenticator] 401 détecté sur un endpoint d\'auth ($requestUrl). Arrêt du processus.',
         );
         return null;
       }
@@ -30,33 +35,38 @@ class KauriAuthenticator extends Authenticator {
       final accessToken = await authRepository.getAccessToken();
       final refreshToken = await authRepository.getRefreshToken();
 
+      // Si aucun jeton n'est présent, on ne peut rien rafraîchir
       if (accessToken == null || refreshToken == null) {
         logger.w(
-          '🔐 [Authenticator] 401 detected but no tokens found. Probably a guest request or invalid initial state. No logout triggered.',
+          '🔐 [Authenticator] 401 détecté mais aucun jeton trouvé. Probablement une requête invitée ou un état invalide.',
         );
         return null;
       }
 
       logger.d(
-        '🔐 [Authenticator] 401 Unauthorized detected on $requestUrl. Attempting to refresh token...',
+        '🔐 [Authenticator] 401 Unauthorized sur $requestUrl. Tentative de rafraîchissement du token...',
       );
 
+      // Tentative de récupération d'un nouveau couple de jetons
       final result = await authRepository.refreshToken();
 
       return await result.fold(
         (failure) {
           logger.e(
-            '🔐 [Authenticator] Refresh failed: ${failure.message}. Redirecting to login.',
+            '🔐 [Authenticator] Échec du rafraîchissement: ${failure.message}. Redirection vers la page de connexion.',
           );
-          // Trigger global logout so UI reacts
+          // Déclenche une déconnexion globale pour que l'interface réagisse (UI)
           getIt<AuthBloc>().add(AuthLogoutRequested());
           return null;
         },
         (_) async {
-          logger.d('🔐 [Authenticator] Refresh success! Retrying request...');
+          logger.d(
+            '🔐 [Authenticator] Rafraîchissement réussi ! Relance de la requête originale...',
+          );
           final newToken = await authRepository.getAccessToken();
 
           if (newToken != null) {
+            // Recrée la requête avec le nouveau jeton dans les en-têtes
             final headers = Map<String, String>.from(request.headers);
             headers['Authorization'] = 'Bearer $newToken';
             return request.copyWith(headers: headers);
@@ -66,9 +76,10 @@ class KauriAuthenticator extends Authenticator {
       );
     }
 
+    // Traitement spécifique pour la limitation de débit (Rate Limiting)
     if (response.statusCode == 429) {
       logger.w(
-        '🔐 [Authenticator] 429 Too Many Requests detected on $requestUrl. This is usually triggered by the server or a proxy rate limiter.',
+        '🔐 [Authenticator] 429 Too Many Requests détecté sur $requestUrl.',
       );
       return null;
     }

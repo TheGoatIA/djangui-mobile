@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 
+/// Classe centrale définissant les thèmes (Clair et Sombre) de l'application.
+///
+/// Utilise Material 3 et configure tous les styles par défaut des composants
+/// standard Flutter (Buttons, Inputs, AppBars, etc.).
 class AppTheme {
+  /// Retourne la configuration complète du Thème Clair (Light Mode).
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -25,6 +30,8 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: AppColors.background,
       textTheme: AppTypography.lightTextTheme,
+
+      // Configuration des barres d'application
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.onBackground,
@@ -32,6 +39,8 @@ class AppTheme {
         scrolledUnderElevation: 0,
         centerTitle: false,
       ),
+
+      // Style par défaut des cartes
       cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: 2,
@@ -39,6 +48,8 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
+
+      // Barre de navigation inférieure
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
         indicatorColor: AppColors.primary.withValues(alpha: 0.1),
@@ -46,6 +57,8 @@ class AppTheme {
           const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
       ),
+
+      // Style global des boutons surélevés
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -60,9 +73,11 @@ class AppTheme {
           ),
         ),
       ),
+
+      // Configuration des champs de saisie (Inputs)
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Color(0xFFF3F4F6), // Slightly darker for light mode inputs
+        fillColor: const Color(0xFFF3F4F6),
         contentPadding: const EdgeInsets.all(16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -84,6 +99,7 @@ class AppTheme {
     );
   }
 
+  /// Retourne la configuration complète du Thème Sombre (Dark Mode).
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
@@ -107,6 +123,7 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: AppColors.backgroundDark,
       textTheme: AppTypography.darkTextTheme,
+
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surfaceDark,
         foregroundColor: AppColors.onBackgroundDark,
@@ -114,6 +131,7 @@ class AppTheme {
         scrolledUnderElevation: 0,
         centerTitle: false,
       ),
+
       cardTheme: CardThemeData(
         color: AppColors.surfaceDark,
         elevation: 4,
@@ -124,6 +142,7 @@ class AppTheme {
           side: const BorderSide(color: AppColors.outlineDark, width: 1),
         ),
       ),
+
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surfaceDark,
         indicatorColor: AppColors.primaryDarkTheme.withValues(alpha: 0.1),
@@ -131,6 +150,7 @@ class AppTheme {
           const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
       ),
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryDarkTheme,
@@ -145,6 +165,7 @@ class AppTheme {
           ),
         ),
       ),
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surfaceDark,

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 
+/// Styles de texte (TextStyles) bruts utilisés dans l'application.
+///
+/// Note : Il est recommandé d'utiliser le [TextTheme] du contexte via `Theme.of(context).textTheme`
+/// plutôt que ces constantes directement, sauf cas exceptionnel.
 class AppTextStyles {
+  /// Police de caractères principale (Google Fonts: Outfit).
   static const String fontFamily = 'Outfit';
 
-  // Headlines
+  // --- Titres (Headlines) ---
   static const TextStyle h1 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 32,
@@ -25,7 +30,7 @@ class AppTextStyles {
     fontWeight: FontWeight.w600,
   );
 
-  // Body
+  // --- Corps de texte (Body) ---
   static const TextStyle bodyLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 16,
@@ -44,7 +49,7 @@ class AppTextStyles {
     fontWeight: FontWeight.normal,
   );
 
-  // Labels
+  // --- Étiquettes (Labels / Captions) ---
   static const TextStyle labelLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,

@@ -12,6 +12,8 @@ import 'package:chopper/chopper.dart' as _i31;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:internet_connection_checker/internet_connection_checker.dart'
+    as _i973;
 import 'package:kauri/core/database/database.dart' as _i777;
 import 'package:kauri/core/network/network_info.dart' as _i935;
 import 'package:kauri/core/services/notification_service.dart' as _i273;
@@ -271,21 +273,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i777.AppDatabase>(() => registerModule.database);
     gh.lazySingleton<_i974.Logger>(() => registerModule.logger);
-    gh.lazySingleton<_i935.NetworkInfo>(() => _i935.NetworkInfoImpl());
+    gh.lazySingleton<_i973.InternetConnectionChecker>(
+      () => registerModule.connectionChecker,
+    );
     gh.lazySingleton<_i608.SystemRepository>(
       () => _i143.SystemRepositoryImpl(gh<_i33.SystemApiService>()),
     );
-    gh.factory<_i53.SettingsBloc>(
-      () => _i53.SettingsBloc(gh<_i460.SharedPreferences>()),
-    );
     gh.lazySingleton<_i899.TutorialService>(
       () => _i899.TutorialService(gh<_i460.SharedPreferences>()),
-    );
-    gh.lazySingleton<_i448.InsightRepository>(
-      () => _i923.InsightRepositoryImpl(
-        gh<_i830.InsightApiService>(),
-        gh<_i935.NetworkInfo>(),
-      ),
     );
     gh.lazySingleton<_i831.BudgetRemoteDataSource>(
       () => _i831.BudgetRemoteDataSourceImpl(gh<_i91.BudgetApiService>()),
@@ -297,12 +292,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i342.PaymentService>(
       () => _i342.PaymentService(gh<_i1020.PaymentApiService>()),
-    );
-    gh.lazySingleton<_i810.SupportRepository>(
-      () => _i427.SupportRepositoryImpl(
-        gh<_i677.SupportApiService>(),
-        gh<_i935.NetworkInfo>(),
-      ),
     );
     gh.factory<_i376.SystemBloc>(
       () => _i376.SystemBloc(gh<_i608.SystemRepository>()),
@@ -317,35 +306,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i974.Logger>(),
       ),
     );
-    gh.lazySingleton<_i760.ReportsRepository>(
-      () => _i423.ReportsRepositoryImpl(
-        gh<_i158.ReportsApiService>(),
-        gh<_i935.NetworkInfo>(),
-      ),
-    );
-    gh.factory<_i570.DashboardBloc>(
-      () => _i570.DashboardBloc(gh<_i760.ReportsRepository>()),
-    );
-    gh.factory<_i717.InsightsBloc>(
-      () => _i717.InsightsBloc(gh<_i760.ReportsRepository>()),
-    );
     gh.lazySingleton<_i362.GoalRemoteDataSource>(
       () => _i362.GoalRemoteDataSourceImpl(gh<_i425.GoalApiService>()),
-    );
-    gh.factory<_i111.SupportBloc>(
-      () => _i111.SupportBloc(gh<_i810.SupportRepository>()),
-    );
-    gh.lazySingleton<_i1033.VoiceRepository>(
-      () => _i271.VoiceRepositoryImpl(
-        gh<_i195.VoiceApiService>(),
-        gh<_i935.NetworkInfo>(),
-      ),
-    );
-    gh.lazySingleton<_i996.TontineRepository>(
-      () => _i699.TontineRepositoryImpl(
-        gh<_i534.TontineApiService>(),
-        gh<_i935.NetworkInfo>(),
-      ),
     );
     gh.lazySingleton<_i991.UploadRemoteDataSource>(
       () => _i991.UploadRemoteDataSourceImpl(gh<_i242.UploadApiService>()),
@@ -365,12 +327,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i680.TransactionLocalDataSource>(
       () => _i680.TransactionLocalDataSourceImpl(gh<_i777.AppDatabase>()),
     );
-    gh.lazySingleton<_i751.GoalRepository>(
-      () => _i457.GoalRepositoryImpl(
-        gh<_i362.GoalRemoteDataSource>(),
-        gh<_i612.GoalLocalDataSource>(),
-        gh<_i935.NetworkInfo>(),
-      ),
+    gh.lazySingleton<_i935.NetworkInfo>(
+      () => _i935.NetworkInfoImpl(gh<_i973.InternetConnectionChecker>()),
     );
     gh.lazySingleton<_i302.BudgetLocalDataSource>(
       () => _i302.BudgetLocalDataSourceImpl(gh<_i777.AppDatabase>()),
@@ -411,9 +369,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.factory<_i415.VoiceBloc>(
-      () => _i415.VoiceBloc(gh<_i1033.VoiceRepository>()),
-    );
     gh.lazySingleton<_i245.TransactionRepository>(
       () => _i296.TransactionRepositoryImpl(
         gh<_i534.TransactionRemoteDataSource>(),
@@ -425,6 +380,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i714.TransactionsBloc>(
       () => _i714.TransactionsBloc(gh<_i245.TransactionRepository>()),
     );
+    gh.lazySingleton<_i448.InsightRepository>(
+      () => _i923.InsightRepositoryImpl(
+        gh<_i830.InsightApiService>(),
+        gh<_i935.NetworkInfo>(),
+      ),
+    );
     gh.lazySingleton<_i375.ChallengeRepository>(
       () => _i380.ChallengeRepositoryImpl(
         gh<_i836.ChallengeRemoteDataSource>(),
@@ -435,11 +396,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i686.InvestmentsBloc>(
       () => _i686.InvestmentsBloc(gh<_i71.InvestmentRepository>()),
     );
-    gh.factory<_i946.GoalsBloc>(
-      () => _i946.GoalsBloc(gh<_i751.GoalRepository>()),
-    );
     gh.factory<_i434.BudgetsBloc>(
       () => _i434.BudgetsBloc(gh<_i116.BudgetRepository>()),
+    );
+    gh.lazySingleton<_i810.SupportRepository>(
+      () => _i427.SupportRepositoryImpl(
+        gh<_i677.SupportApiService>(),
+        gh<_i935.NetworkInfo>(),
+      ),
     );
     gh.lazySingleton<_i160.CoachRepository>(
       () => _i307.CoachRepositoryImpl(
@@ -448,8 +412,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.factory<_i96.TontineBloc>(
-      () => _i96.TontineBloc(gh<_i996.TontineRepository>()),
+    gh.lazySingleton<_i760.ReportsRepository>(
+      () => _i423.ReportsRepositoryImpl(
+        gh<_i158.ReportsApiService>(),
+        gh<_i935.NetworkInfo>(),
+      ),
+    );
+    gh.factory<_i570.DashboardBloc>(
+      () => _i570.DashboardBloc(gh<_i760.ReportsRepository>()),
+    );
+    gh.factory<_i717.InsightsBloc>(
+      () => _i717.InsightsBloc(gh<_i760.ReportsRepository>()),
     );
     gh.lazySingleton<_i105.SubscriptionRepository>(
       () => _i696.SubscriptionRepositoryImpl(
@@ -458,6 +431,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
         gh<_i777.AppDatabase>(),
       ),
+    );
+    gh.factory<_i111.SupportBloc>(
+      () => _i111.SupportBloc(gh<_i810.SupportRepository>()),
     );
     gh.lazySingleton<_i1035.AnalyticsManager>(
       () => _i1035.AnalyticsManager(
@@ -477,8 +453,27 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
+    gh.lazySingleton<_i1033.VoiceRepository>(
+      () => _i271.VoiceRepositoryImpl(
+        gh<_i195.VoiceApiService>(),
+        gh<_i935.NetworkInfo>(),
+      ),
+    );
+    gh.lazySingleton<_i996.TontineRepository>(
+      () => _i699.TontineRepositoryImpl(
+        gh<_i534.TontineApiService>(),
+        gh<_i935.NetworkInfo>(),
+      ),
+    );
     gh.factory<_i506.ChallengesBloc>(
       () => _i506.ChallengesBloc(gh<_i375.ChallengeRepository>()),
+    );
+    gh.lazySingleton<_i751.GoalRepository>(
+      () => _i457.GoalRepositoryImpl(
+        gh<_i362.GoalRemoteDataSource>(),
+        gh<_i612.GoalLocalDataSource>(),
+        gh<_i935.NetworkInfo>(),
+      ),
     );
     gh.factory<_i673.SubscriptionBloc>(
       () => _i673.SubscriptionBloc(gh<_i105.SubscriptionRepository>()),
@@ -490,9 +485,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.factory<_i405.CoachBloc>(
-      () => _i405.CoachBloc(gh<_i160.CoachRepository>()),
-    );
     gh.lazySingleton<_i75.SyncService>(
       () => _i75.SyncService(
         gh<_i777.AppDatabase>(),
@@ -500,13 +492,32 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i181.SubscriptionApiService>(),
         gh<_i344.AuthRepository>(),
         gh<_i974.Logger>(),
+        gh<_i973.InternetConnectionChecker>(),
       ),
+    );
+    gh.factory<_i405.CoachBloc>(
+      () => _i405.CoachBloc(gh<_i160.CoachRepository>()),
+    );
+    gh.factory<_i415.VoiceBloc>(
+      () => _i415.VoiceBloc(gh<_i1033.VoiceRepository>()),
+    );
+    gh.factory<_i946.GoalsBloc>(
+      () => _i946.GoalsBloc(gh<_i751.GoalRepository>()),
+    );
+    gh.factory<_i96.TontineBloc>(
+      () => _i96.TontineBloc(gh<_i996.TontineRepository>()),
     );
     gh.factory<_i786.NotificationsBloc>(
       () => _i786.NotificationsBloc(gh<_i224.NotificationRepository>()),
     );
     gh.lazySingleton<_i714.AuthBloc>(
       () => _i714.AuthBloc(gh<_i344.AuthRepository>()),
+    );
+    gh.factory<_i53.SettingsBloc>(
+      () => _i53.SettingsBloc(
+        gh<_i460.SharedPreferences>(),
+        gh<_i344.AuthRepository>(),
+      ),
     );
     return this;
   }

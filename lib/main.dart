@@ -32,21 +32,44 @@ import 'features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:showcaseview/showcaseview.dart';
 
+/// Point d'entrée principal de l'application Kauri.
+///
+/// Initialise les services critiques :
+/// - Firebase (Analytique, Crashlytics, Messaging)
+/// - Injection de dépendances (GetIt)
+/// - Services de notifications, analytique et synchronisation offline
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialisation de Firebase avec les options par défaut générées
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Pass all uncaught errors from the framework to Crashlytics.
+  // Capture automatique des erreurs fatales Flutter par Crashlytics
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
+  // Chargement des variables d'environnement (API keys, etc.)
   await dotenv.load(fileName: ".env");
+
+  // Configuration du conteneur d'injection de dépendances
   await configureDependencies();
+
+  // Initialisation des services globaux via GetIt
   await getIt<NotificationService>().initialize();
   await getIt<AnalyticsManager>().initialize();
-  getIt<SyncService>().initialize(); // Start sync listener
+  getIt<SyncService>()
+      .initialize(); // Démarre l'écouteur de synchronisation au réseau
+
   runApp(const MyApp());
 }
 
+/// Widget racine de l'application.
+///
+/// Responsable de :
+/// - La gestion globale de l'état (MultiBlocProvider)
+/// - La configuration du thème (Clair/Sombre) via SettingsBloc
+/// - La navigation (GoRouter) via appRouter
+/// - La localisation (Internationalisation)
+/// - L'observation du cycle de vie pour l'analytique
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -67,6 +90,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// Observe les changements d'état de l'application pour gérer les sessions analytiques.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
@@ -79,6 +103,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    // Injection des Blocs globaux nécessaires dès le lancement
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -125,6 +150,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
           return BlocListener<AuthBloc, AuthState>(
+            // Actualise les données si le pays de l'utilisateur change (devise, frais, etc.)
             listenWhen: (previous, current) {
               final prevCountry = previous.authResponse?.user.country;
               final currCountry = current.authResponse?.user.country;
@@ -157,6 +183,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   locale: state.locale,
                   routerConfig: appRouter,
                   builder: (context, child) => child!,
+                  // Configuration de l'internationalisation
                   localizationsDelegates: [
                     AppLocalizations.delegate,
                     GlobalMaterialLocalizations.delegate,

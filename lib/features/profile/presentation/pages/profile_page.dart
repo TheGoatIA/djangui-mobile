@@ -29,6 +29,14 @@ import '../../../../core/services/tutorial_service.dart';
 import 'package:showcaseview/showcaseview.dart';
 // import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
+/// Page de profil de l'utilisateur regroupant ses informations et les paramètres de l'application.
+///
+/// Cette page permet :
+/// - La modification des informations personnelles (nom, revenus).
+/// - Le changement de la photo de profil (avatar).
+/// - La gestion des préférences (langue, thème, notifications).
+/// - L'accès aux sections légales et au support technique.
+/// - La déconnexion.
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -37,7 +45,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // bool _isLoadingSms = false;
+  // Clés utilisées pour le tutoriel interactif guidant l'utilisateur sur son profil.
   final GlobalKey _resetTutorialsKey = GlobalKey();
   final ImagePicker _picker = ImagePicker();
   final GlobalKey _profileHeaderKey = GlobalKey();
@@ -52,15 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    context.watch<TutorialService>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startTutorial();
-    });
-  }
-
+  /// Démarre le tutoriel si l'utilisateur ne l'a pas encore vu sur cet écran.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
     if (!tutorialService.hasSeenTutorial('profile')) {
@@ -88,6 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
+  /// Ouvre la galerie pour sélectionner et télécharger un nouvel avatar.
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(
       source: ImageSource.gallery,
@@ -120,6 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
           },
           (response) {
             if (mounted) {
+              // Rafraîchit les données utilisateur pour afficher le nouvel avatar
               context.read<AuthBloc>().add(AuthRefreshUserRequested());
             }
           },
@@ -128,6 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  /// Affiche une boîte de dialogue pour modifier les informations de base du profil.
   void _showEditProfileDialog(BuildContext context) {
     final user = context.read<AuthBloc>().state.authResponse?.user;
     if (user == null) return;
@@ -221,6 +224,7 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.profile),
         actions: [
+          // Bouton d'édition rapide du profil
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: () => _showEditProfileDialog(context),
@@ -229,6 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
+          // Gestion des erreurs d'authentification ou des notifications de changement de pays
           if (state.status == AuthStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -271,6 +276,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
+                      // Section En-tête (Avatar + Nom)
                       Showcase(
                         key: _profileHeaderKey,
                         title: AppLocalizations.of(
@@ -287,10 +293,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       const SizedBox(height: 24),
+                      // Liste des badges de gamification obtenus
                       if (user != null && user.badges.isNotEmpty) ...[
                         BadgesList(badges: user.badges),
                         const SizedBox(height: 24),
                       ],
+                      // Section Premium / Bannière d'abonnement
                       if (user != null && !user.isPremium) ...[
                         Showcase(
                           key: _premiumKey,
@@ -316,15 +324,17 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         const SizedBox(height: 24),
                       ],
+                      // Section des paramètres (Réglages)
                       Showcase(
                         key: _settingsKey,
                         title: AppLocalizations.of(context)!.settings,
                         description: AppLocalizations.of(
                           context,
-                        )!.tutorialProfileDesc, // Reuse or find better
+                        )!.tutorialProfileDesc,
                         child: _buildSettingsSection(context),
                       ),
                       const SizedBox(height: 32),
+                      // Bouton de déconnexion
                       _buildLogoutButton(context),
                     ],
                   ),
@@ -509,10 +519,8 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             ),
             onTap: () {
-              final authState = context.read<AuthBloc>().state;
-              if (authState.authResponse?.user.phone == null) {
-                context.push(RouteConstants.phoneLogin);
-              }
+              // Always allow navigation to allow updating the number
+              context.push(RouteConstants.phoneLogin, extra: true);
             },
           ),
           const Divider(height: 1, color: Colors.transparent),

@@ -40,6 +40,7 @@ abstract class AuthRemoteDataSource {
   Future<UserModel> getCurrentUser();
   Future<void> logConnection(ConnectionRequest request);
   Future<CountryChangeRequestModel> requestCountryChange(String countryCode);
+  Future<void> updateLanguage(String languageCode);
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -338,6 +339,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<void> updateLanguage(String languageCode) async {
+    final response = await _apiService.updateLanguage({
+      'language': languageCode,
+    });
+    if (!response.isSuccessful) {
       throw Exception(response.errorMessage);
     }
   }
