@@ -21,10 +21,7 @@ final class _$AiApiService extends AiApiService {
   Future<Response<Map<String, dynamic>>> scanReceipt(String imagePath) {
     final Uri $url = Uri.parse('/ocr/scan');
     final List<PartValue> $parts = <PartValue>[
-      PartValueFile<String>(
-        'image',
-        imagePath,
-      )
+      PartValueFile<String>('image', imagePath),
     ];
     final Request $request = Request(
       'POST',
@@ -39,11 +36,7 @@ final class _$AiApiService extends AiApiService {
   @override
   Future<Response<Map<String, dynamic>>> getNarrativeReport() {
     final Uri $url = Uri.parse('/reports/narrative');
-    final Request $request = Request(
-      'GET',
-      $url,
-      client.baseUrl,
-    );
+    final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
 }
