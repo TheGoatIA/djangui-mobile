@@ -685,5 +685,12 @@
     "sectionAccount": "My Account",
     "sectionAppearance": "Appearance",
     "sectionLegal": "Help & Legal",
-    "sectionDanger": "Danger Zone"
+    "sectionDanger": "Danger Zone",
+    "coachTone": "Coach Tone",
+    "toneBalanced": "Balanced (Recommended)",
+    "toneEncouraging": "Encouraging",
+    "toneFirm": "Firm",
+    "toneBillionaire": "Billionaire Mentor",
+    "toneAccountant": "Strict Accountant",
+    "toneAuntie": "Kind Auntie"
 }

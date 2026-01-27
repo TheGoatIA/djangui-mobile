@@ -3775,6 +3775,48 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Zone de Danger'**
   String get sectionDanger;
+
+  /// No description provided for @coachTone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton du Coach'**
+  String get coachTone;
+
+  /// No description provided for @toneBalanced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équilibré (Recommandé)'**
+  String get toneBalanced;
+
+  /// No description provided for @toneEncouraging.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encourageant'**
+  String get toneEncouraging;
+
+  /// No description provided for @toneFirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Directif'**
+  String get toneFirm;
+
+  /// No description provided for @toneBillionaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mentor Milliardaire'**
+  String get toneBillionaire;
+
+  /// No description provided for @toneAccountant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comptable Strict'**
+  String get toneAccountant;
+
+  /// No description provided for @toneAuntie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tata Bienveillante'**
+  String get toneAuntie;
 }
 
 class _AppLocalizationsDelegate

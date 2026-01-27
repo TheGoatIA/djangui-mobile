@@ -685,5 +685,12 @@
     "sectionAccount": "Mon Compte",
     "sectionAppearance": "Apparence",
     "sectionLegal": "Aide & Informations",
-    "sectionDanger": "Zone de Danger"
+    "sectionDanger": "Zone de Danger",
+    "coachTone": "Ton du Coach",
+    "toneBalanced": "Équilibré (Recommandé)",
+    "toneEncouraging": "Encourageant",
+    "toneFirm": "Directif",
+    "toneBillionaire": "Mentor Milliardaire",
+    "toneAccountant": "Comptable Strict",
+    "toneAuntie": "Tata Bienveillante"
 }

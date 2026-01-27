@@ -1958,4 +1958,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sectionDanger => 'Danger Zone';
+
+  @override
+  String get coachTone => 'Coach Tone';
+
+  @override
+  String get toneBalanced => 'Balanced (Recommended)';
+
+  @override
+  String get toneEncouraging => 'Encouraging';
+
+  @override
+  String get toneFirm => 'Firm';
+
+  @override
+  String get toneBillionaire => 'Billionaire Mentor';
+
+  @override
+  String get toneAccountant => 'Strict Accountant';
+
+  @override
+  String get toneAuntie => 'Kind Auntie';
 }

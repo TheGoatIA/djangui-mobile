@@ -624,6 +624,47 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             BlocBuilder<AuthBloc, AuthState>(
               builder: (context, authState) {
+                final isPremium =
+                    authState.authResponse?.user.isPremium ?? false;
+                final currentTone =
+                    authState.authResponse?.user.preferences?.coachTone ??
+                    'balanced';
+
+                return _buildSettingsTile(
+                  Icons.record_voice_over_outlined,
+                  AppLocalizations.of(context)!.coachTone,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _getCoachToneName(context, currentTone),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      if (!isPremium) ...[
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.lock_outline,
+                          size: 14,
+                          color: Colors.orange,
+                        ),
+                      ],
+                    ],
+                  ),
+                  onTap: () {
+                    if (isPremium) {
+                      _showCoachToneSelectionDialog(context, currentTone);
+                    } else {
+                      context.push(RouteConstants.subscription);
+                    }
+                  },
+                );
+              },
+            ),
+
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
                 if (authState.authResponse?.user.isPremium ?? false) {
                   return Column(
                     children: [
@@ -1523,6 +1564,71 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             duration: const Duration(seconds: 2),
           ),
+        );
+      },
+    );
+  }
+
+  String _getCoachToneName(BuildContext context, String? tone) {
+    switch (tone) {
+      case 'encouraging':
+        return AppLocalizations.of(context)!.toneEncouraging;
+      case 'firm':
+        return AppLocalizations.of(context)!.toneFirm;
+      case 'billionaire_mentor':
+        return AppLocalizations.of(context)!.toneBillionaire;
+      case 'strict_accountant':
+        return AppLocalizations.of(context)!.toneAccountant;
+      case 'kind_auntie':
+        return AppLocalizations.of(context)!.toneAuntie;
+      case 'balanced':
+      default:
+        return AppLocalizations.of(context)!.toneBalanced;
+    }
+  }
+
+  void _showCoachToneSelectionDialog(BuildContext context, String currentTone) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context)!.coachTone),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children:
+                  [
+                    'balanced',
+                    'encouraging',
+                    'firm',
+                    'billionaire_mentor',
+                    'strict_accountant',
+                    'kind_auntie',
+                  ].map((tone) {
+                    return RadioListTile<String>(
+                      title: Text(_getCoachToneName(context, tone)),
+                      value: tone,
+                      groupValue: currentTone,
+                      onChanged: (value) {
+                        if (value != null) {
+                          context.read<AuthBloc>().add(
+                            AuthUpdateProfileRequested(
+                              preferences: UserPreferences(coachTone: value),
+                            ),
+                          );
+                          Navigator.pop(context);
+                        }
+                      },
+                    );
+                  }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(AppLocalizations.of(context)!.cancel),
+            ),
+          ],
         );
       },
     );

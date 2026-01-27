@@ -1967,4 +1967,25 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get sectionDanger => 'Zone de Danger';
+
+  @override
+  String get coachTone => 'Ton du Coach';
+
+  @override
+  String get toneBalanced => 'Équilibré (Recommandé)';
+
+  @override
+  String get toneEncouraging => 'Encourageant';
+
+  @override
+  String get toneFirm => 'Directif';
+
+  @override
+  String get toneBillionaire => 'Mentor Milliardaire';
+
+  @override
+  String get toneAccountant => 'Comptable Strict';
+
+  @override
+  String get toneAuntie => 'Tata Bienveillante';
 }
