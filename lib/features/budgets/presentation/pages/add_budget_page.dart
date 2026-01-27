@@ -150,24 +150,48 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
   }
 
   Widget _buildCategoryDropdown(_CategoryRowItem item) {
-    return DropdownButtonFormField<String>(
-      initialValue: item.selectedCategory,
-      decoration: InputDecoration(
-        labelText: AppLocalizations.of(context)!.categoryLabel,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      hint: Text(AppLocalizations.of(context)!.categoryHint),
-      items: AppCategories.categories.map((String category) {
-        return DropdownMenuItem<String>(value: category, child: Text(category));
-      }).toList(),
-      onChanged: (String? newValue) {
-        setState(() {
-          item.selectedCategory = newValue;
-        });
+    return BlocBuilder<BudgetsBloc, BudgetsState>(
+      builder: (context, state) {
+        final budgetCategoryNames = state.budgets
+            .expand((b) => b.categories)
+            .map((c) => c.name)
+            .toSet();
+
+        final allCategories = {
+          ...AppCategories.categories,
+          ...budgetCategoryNames,
+        }.toList()..sort();
+
+        // S'assurer que la catégorie sélectionnée est dans la liste
+        if (item.selectedCategory != null &&
+            !allCategories.contains(item.selectedCategory)) {
+          allCategories.add(item.selectedCategory!);
+          allCategories.sort();
+        }
+
+        return DropdownButtonFormField<String>(
+          initialValue: item.selectedCategory,
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.categoryLabel,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          hint: Text(AppLocalizations.of(context)!.categoryHint),
+          items: allCategories.map((String category) {
+            return DropdownMenuItem<String>(
+              value: category,
+              child: Text(category),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              item.selectedCategory = newValue;
+            });
+          },
+          validator: (value) => (value == null || value.isEmpty)
+              ? AppLocalizations.of(context)!.requiredField
+              : null,
+        );
       },
-      validator: (value) => (value == null || value.isEmpty)
-          ? AppLocalizations.of(context)!.requiredField
-          : null,
     );
   }
 

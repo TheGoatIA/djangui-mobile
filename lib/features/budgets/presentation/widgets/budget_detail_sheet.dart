@@ -4,6 +4,9 @@ import 'package:kauri/core/theme/app_colors.dart';
 import 'package:kauri/core/theme/app_text_styles.dart';
 import 'package:kauri/l10n/app_localizations.dart';
 import 'package:kauri/features/budgets/data/models/budget_model.dart';
+import 'package:kauri/core/utils/currency_helper.dart';
+import 'package:kauri/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BudgetDetailSheet extends StatelessWidget {
   final BudgetModel budget;
@@ -181,16 +184,18 @@ class _SummaryItem extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          amount.toStringAsFixed(0),
+          CurrencyHelper.formatAmount(
+            amount,
+            currencyCode: context
+                .read<AuthBloc>()
+                .state
+                .authResponse
+                ?.user
+                .currency,
+          ),
           style: AppTextStyles.bodyLarge.copyWith(
             fontWeight: FontWeight.bold,
             color: color,
-          ),
-        ),
-        Text(
-          'XAF',
-          style: AppTextStyles.labelSmall.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],
@@ -226,7 +231,7 @@ class _CategoryItem extends StatelessWidget {
               ),
             ),
             Text(
-              '${category.spent.toStringAsFixed(0)} / ${category.allocated.toStringAsFixed(0)} XAF',
+              '${CurrencyHelper.formatAmount(category.spent, currencyCode: context.read<AuthBloc>().state.authResponse?.user.currency)} / ${CurrencyHelper.formatAmount(category.allocated, currencyCode: context.read<AuthBloc>().state.authResponse?.user.currency)}',
               style: AppTextStyles.bodySmall.copyWith(
                 color: isOver
                     ? Theme.of(context).colorScheme.error

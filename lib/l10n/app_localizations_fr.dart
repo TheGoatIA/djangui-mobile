@@ -2000,4 +2000,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get freqLow => 'Faible (Critique uniquement)';
+
+  @override
+  String get generateViaAnne => 'Générer via Anne';
+
+  @override
+  String get anneAnalyzing => 'Anne analyse vos finances...';
+
+  @override
+  String get applyBudgets => 'Appliquer';
+
+  @override
+  String get anneAnalysisTitle => 'Analyse d\'Anne';
+
+  @override
+  String get autoBudgetSuccess => 'Budgets appliqués avec succès !';
 }

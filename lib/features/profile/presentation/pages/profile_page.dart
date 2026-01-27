@@ -1634,33 +1634,35 @@ class _ProfilePageState extends State<ProfilePage> {
         return AlertDialog(
           title: Text(AppLocalizations.of(context)!.coachTone),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children:
-                  [
-                    'balanced',
-                    'encouraging',
-                    'firm',
-                    'billionaire_mentor',
-                    'strict_accountant',
-                    'kind_auntie',
-                  ].map((tone) {
-                    return RadioListTile<String>(
-                      title: Text(_getCoachToneName(context, tone)),
-                      value: tone,
-                      groupValue: currentTone,
-                      onChanged: (value) {
-                        if (value != null) {
-                          context.read<AuthBloc>().add(
-                            AuthUpdateProfileRequested(
-                              preferences: UserPreferences(coachTone: value),
-                            ),
-                          );
-                          Navigator.pop(context);
-                        }
-                      },
-                    );
-                  }).toList(),
+            child: RadioGroup<String>(
+              groupValue: currentTone,
+              onChanged: (value) {
+                if (value != null) {
+                  context.read<AuthBloc>().add(
+                    AuthUpdateProfileRequested(
+                      preferences: UserPreferences(coachTone: value),
+                    ),
+                  );
+                  Navigator.pop(context);
+                }
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children:
+                    [
+                      'balanced',
+                      'encouraging',
+                      'firm',
+                      'billionaire_mentor',
+                      'strict_accountant',
+                      'kind_auntie',
+                    ].map((tone) {
+                      return RadioListTile<String>(
+                        title: Text(_getCoachToneName(context, tone)),
+                        value: tone,
+                      );
+                    }).toList(),
+              ),
             ),
           ),
           actions: [
@@ -1699,27 +1701,29 @@ class _ProfilePageState extends State<ProfilePage> {
         return AlertDialog(
           title: Text(AppLocalizations.of(context)!.notificationFrequency),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: ['high', 'medium', 'low'].map((freq) {
-                return RadioListTile<String>(
-                  title: Text(_getNotificationFrequencyName(context, freq)),
-                  value: freq,
-                  groupValue: currentFrequency,
-                  onChanged: (value) {
-                    if (value != null) {
-                      context.read<AuthBloc>().add(
-                        AuthUpdateProfileRequested(
-                          preferences: UserPreferences(
-                            notificationFrequency: value,
-                          ),
-                        ),
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                );
-              }).toList(),
+            child: RadioGroup<String>(
+              groupValue: currentFrequency,
+              onChanged: (value) {
+                if (value != null) {
+                  context.read<AuthBloc>().add(
+                    AuthUpdateProfileRequested(
+                      preferences: UserPreferences(
+                        notificationFrequency: value,
+                      ),
+                    ),
+                  );
+                  Navigator.pop(context);
+                }
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: ['high', 'medium', 'low'].map((freq) {
+                  return RadioListTile<String>(
+                    title: Text(_getNotificationFrequencyName(context, freq)),
+                    value: freq,
+                  );
+                }).toList(),
+              ),
             ),
           ),
           actions: [

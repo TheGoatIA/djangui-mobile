@@ -12,6 +12,8 @@ import '../../../../l10n/app_localizations.dart';
 import '../bloc/transactions_bloc.dart';
 import '../../data/models/transaction_model.dart';
 import '../../../../core/services/ocr_service.dart';
+import '../../../budgets/presentation/bloc/budgets_bloc.dart';
+import '../../../budgets/presentation/bloc/budgets_state.dart';
 import '../../../../core/constants/app_categories.dart';
 import '../../../goals/presentation/bloc/goals_bloc.dart';
 import '../../../goals/presentation/bloc/goals_state.dart';
@@ -395,29 +397,51 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 const SizedBox(height: 20),
 
                 // Sélecteur de catégorie
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedCategory,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.categoryLabel,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  hint: Text(AppLocalizations.of(context)!.categoryHint),
-                  items: AppCategories.categories.map((String category) {
-                    return DropdownMenuItem<String>(
-                      value: category,
-                      child: Text(category),
+                BlocBuilder<BudgetsBloc, BudgetsState>(
+                  builder: (context, budgetState) {
+                    // Union des catégories standards et des catégories existantes dans les budgets
+                    final budgetCategoryNames = budgetState.budgets
+                        .expand((b) => b.categories)
+                        .map((c) => c.name)
+                        .toSet();
+
+                    final allCategories = {
+                      ...AppCategories.categories,
+                      ...budgetCategoryNames,
+                    }.toList()..sort();
+
+                    // S'assurer que la catégorie sélectionnée est dans la liste
+                    if (_selectedCategory != null &&
+                        !allCategories.contains(_selectedCategory)) {
+                      allCategories.add(_selectedCategory!);
+                      allCategories.sort();
+                    }
+
+                    return DropdownButtonFormField<String>(
+                      initialValue: _selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.categoryLabel,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      hint: Text(AppLocalizations.of(context)!.categoryHint),
+                      items: allCategories.map((String category) {
+                        return DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(category),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedCategory = newValue;
+                        });
+                      },
+                      validator: (value) => (value == null || value.isEmpty)
+                          ? AppLocalizations.of(context)!.requiredField
+                          : null,
                     );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedCategory = newValue;
-                    });
                   },
-                  validator: (value) => (value == null || value.isEmpty)
-                      ? AppLocalizations.of(context)!.requiredField
-                      : null,
                 ),
                 const SizedBox(height: 20),
 

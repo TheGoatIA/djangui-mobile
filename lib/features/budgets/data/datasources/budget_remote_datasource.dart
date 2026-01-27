@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'budget_api_service.dart';
 import '../models/budget_model.dart';
+import '../models/auto_budget_response.dart';
 import '../../../../core/network/api_response_extensions.dart';
 
 abstract class BudgetRemoteDataSource {
@@ -8,6 +9,7 @@ abstract class BudgetRemoteDataSource {
   Future<BudgetModel> createBudget(BudgetModel budget);
   Future<BudgetModel> updateBudget(String id, double totalAllocated);
   Future<void> deleteBudget(String id);
+  Future<AutoBudgetResponse> generateAutoBudget();
 }
 
 @LazySingleton(as: BudgetRemoteDataSource)
@@ -19,8 +21,12 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
   @override
   Future<List<BudgetModel>> getBudgets() async {
     final response = await _apiService.getCurrentBudget();
-    if (response.isSuccessful && response.body?.data != null) {
-      return [response.body!.data!];
+    if (response.isSuccessful) {
+      if (response.body?.data != null) {
+        return [response.body!.data!];
+      }
+      // Si la requête réussit mais data est null, cela signifie qu'il n'y a pas de budget courant.
+      return [];
     } else {
       if (response.statusCode == 404) return [];
       throw Exception(response.errorMessage);
@@ -61,6 +67,16 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
   Future<void> deleteBudget(String id) async {
     final response = await _apiService.deleteBudget(id);
     if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<AutoBudgetResponse> generateAutoBudget() async {
+    final response = await _apiService.generateAutoBudget();
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
+    } else {
       throw Exception(response.errorMessage);
     }
   }

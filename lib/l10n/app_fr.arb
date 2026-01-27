@@ -696,5 +696,10 @@
     "notificationFrequency": "Fréquence des Notifications",
     "freqHigh": "Élevée (Toutes les actus)",
     "freqMedium": "Moyenne (Essentiel)",
-    "freqLow": "Faible (Critique uniquement)"
+    "freqLow": "Faible (Critique uniquement)",
+    "generateViaAnne": "Générer via Anne",
+    "anneAnalyzing": "Anne analyse vos finances...",
+    "applyBudgets": "Appliquer",
+    "anneAnalysisTitle": "Analyse d'Anne",
+    "autoBudgetSuccess": "Budgets appliqués avec succès !"
 }

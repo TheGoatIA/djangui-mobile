@@ -6,6 +6,7 @@ import '../datasources/budget_local_datasource.dart';
 import '../datasources/budget_remote_datasource.dart';
 import '../../domain/repositories/budget_repository.dart';
 import '../models/budget_model.dart';
+import '../models/auto_budget_response.dart';
 
 @LazySingleton(as: BudgetRepository)
 class BudgetRepositoryImpl implements BudgetRepository {
@@ -91,6 +92,20 @@ class BudgetRepositoryImpl implements BudgetRepository {
         await _remoteDataSource.deleteBudget(id);
         await _localDataSource.deleteBudget(id);
         return const Right(null);
+      } catch (e) {
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, AutoBudgetResponse>> generateAutoBudget() async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final result = await _remoteDataSource.generateAutoBudget();
+        return Right(result);
       } catch (e) {
         return Left(ServerFailure(e.toString()));
       }

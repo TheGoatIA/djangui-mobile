@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/errors/failures.dart';
 import '../../data/models/budget_model.dart';
+import '../../data/models/auto_budget_response.dart';
 
 abstract class BudgetRepository {
   Future<Either<Failure, List<BudgetModel>>> getBudgets({
@@ -12,4 +13,5 @@ abstract class BudgetRepository {
     double totalAllocated,
   );
   Future<Either<Failure, void>> deleteBudget(String id);
+  Future<Either<Failure, AutoBudgetResponse>> generateAutoBudget();
 }

@@ -3841,6 +3841,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Faible (Critique uniquement)'**
   String get freqLow;
+
+  /// No description provided for @generateViaAnne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Générer via Anne'**
+  String get generateViaAnne;
+
+  /// No description provided for @anneAnalyzing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anne analyse vos finances...'**
+  String get anneAnalyzing;
+
+  /// No description provided for @applyBudgets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer'**
+  String get applyBudgets;
+
+  /// No description provided for @anneAnalysisTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse d\'Anne'**
+  String get anneAnalysisTitle;
+
+  /// No description provided for @autoBudgetSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budgets appliqués avec succès !'**
+  String get autoBudgetSuccess;
 }
 
 class _AppLocalizationsDelegate

@@ -1991,4 +1991,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get freqLow => 'Low (Critical only)';
+
+  @override
+  String get generateViaAnne => 'Generate via Anne';
+
+  @override
+  String get anneAnalyzing => 'Anne is analyzing your finances...';
+
+  @override
+  String get applyBudgets => 'Apply';
+
+  @override
+  String get anneAnalysisTitle => 'Anne\'s Analysis';
+
+  @override
+  String get autoBudgetSuccess => 'Budgets applied successfully!';
 }

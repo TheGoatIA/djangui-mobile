@@ -5,6 +5,7 @@ part 'budget_model.g.dart';
 
 @JsonSerializable()
 class BudgetPeriodModel extends Equatable {
+  @JsonKey(defaultValue: 'monthly')
   final String type; // 'monthly', 'yearly'
   final int month;
   final int year;
