@@ -692,5 +692,9 @@
     "toneFirm": "Directif",
     "toneBillionaire": "Mentor Milliardaire",
     "toneAccountant": "Comptable Strict",
-    "toneAuntie": "Tata Bienveillante"
+    "toneAuntie": "Tata Bienveillante",
+    "notificationFrequency": "Fréquence des Notifications",
+    "freqHigh": "Élevée (Toutes les actus)",
+    "freqMedium": "Moyenne (Essentiel)",
+    "freqLow": "Faible (Critique uniquement)"
 }

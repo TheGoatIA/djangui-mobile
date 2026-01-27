@@ -466,6 +466,46 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             ),
 
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                final currentFrequency =
+                    state
+                        .authResponse
+                        ?.user
+                        .preferences
+                        ?.notificationFrequency ??
+                    'medium';
+
+                return _buildSettingsTile(
+                  Icons.notification_important_outlined,
+                  AppLocalizations.of(context)!.notificationFrequency,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _getNotificationFrequencyName(
+                          context,
+                          currentFrequency,
+                        ),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                  onTap: () => _showNotificationFrequencySelectionDialog(
+                    context,
+                    currentFrequency,
+                  ),
+                );
+              },
+            ),
+
             _buildSettingsTile(
               Icons.security_outlined,
               AppLocalizations.of(context)!.security,
@@ -1621,6 +1661,65 @@ class _ProfilePageState extends State<ProfilePage> {
                       },
                     );
                   }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(AppLocalizations.of(context)!.cancel),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _getNotificationFrequencyName(
+    BuildContext context,
+    String? frequency,
+  ) {
+    switch (frequency) {
+      case 'high':
+        return AppLocalizations.of(context)!.freqHigh;
+      case 'low':
+        return AppLocalizations.of(context)!.freqLow;
+      case 'medium':
+      default:
+        return AppLocalizations.of(context)!.freqMedium;
+    }
+  }
+
+  void _showNotificationFrequencySelectionDialog(
+    BuildContext context,
+    String currentFrequency,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context)!.notificationFrequency),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: ['high', 'medium', 'low'].map((freq) {
+                return RadioListTile<String>(
+                  title: Text(_getNotificationFrequencyName(context, freq)),
+                  value: freq,
+                  groupValue: currentFrequency,
+                  onChanged: (value) {
+                    if (value != null) {
+                      context.read<AuthBloc>().add(
+                        AuthUpdateProfileRequested(
+                          preferences: UserPreferences(
+                            notificationFrequency: value,
+                          ),
+                        ),
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                );
+              }).toList(),
             ),
           ),
           actions: [

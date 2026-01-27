@@ -1979,4 +1979,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get toneAuntie => 'Kind Auntie';
+
+  @override
+  String get notificationFrequency => 'Notification Frequency';
+
+  @override
+  String get freqHigh => 'High (All updates)';
+
+  @override
+  String get freqMedium => 'Medium (Essential)';
+
+  @override
+  String get freqLow => 'Low (Critical only)';
 }

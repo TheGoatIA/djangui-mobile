@@ -692,5 +692,9 @@
     "toneFirm": "Firm",
     "toneBillionaire": "Billionaire Mentor",
     "toneAccountant": "Strict Accountant",
-    "toneAuntie": "Kind Auntie"
+    "toneAuntie": "Kind Auntie",
+    "notificationFrequency": "Notification Frequency",
+    "freqHigh": "High (All updates)",
+    "freqMedium": "Medium (Essential)",
+    "freqLow": "Low (Critical only)"
 }

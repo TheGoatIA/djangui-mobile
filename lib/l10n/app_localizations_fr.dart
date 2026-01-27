@@ -1988,4 +1988,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get toneAuntie => 'Tata Bienveillante';
+
+  @override
+  String get notificationFrequency => 'Fréquence des Notifications';
+
+  @override
+  String get freqHigh => 'Élevée (Toutes les actus)';
+
+  @override
+  String get freqMedium => 'Moyenne (Essentiel)';
+
+  @override
+  String get freqLow => 'Faible (Critique uniquement)';
 }

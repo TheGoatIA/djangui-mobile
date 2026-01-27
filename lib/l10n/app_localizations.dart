@@ -3817,6 +3817,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Tata Bienveillante'**
   String get toneAuntie;
+
+  /// No description provided for @notificationFrequency.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fréquence des Notifications'**
+  String get notificationFrequency;
+
+  /// No description provided for @freqHigh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élevée (Toutes les actus)'**
+  String get freqHigh;
+
+  /// No description provided for @freqMedium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyenne (Essentiel)'**
+  String get freqMedium;
+
+  /// No description provided for @freqLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faible (Critique uniquement)'**
+  String get freqLow;
 }
 
 class _AppLocalizationsDelegate
