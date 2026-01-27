@@ -670,5 +670,20 @@
     "tutorialCreateTontineButtonDesc": "Start a new tontine and invite your friends.",
     "verifyYourEmail": "Verify your Email",
     "verifyEmailDescription": "A verification link has been sent to your email address. Please check your inbox and click on the link to activate your account.",
-    "backToLogin": "Back to Login"
+    "backToLogin": "Back to Login",
+    "premiumThemes": "Elite Themes (Premium)",
+    "obsidianGoldThemeLabel": "Obsidian & Gold",
+    "polarNightThemeLabel": "Polar Night",
+    "sunsetGlowThemeLabel": "Sunset Glow",
+    "emeraldForestThemeLabel": "Emerald Forest",
+    "midnightRoyalThemeLabel": "Midnight Royal",
+    "fontFamily": "Font Family",
+    "elegantFont": "Elegant (Playfair)",
+    "modernFont": "Modern (Poppins)",
+    "technicalFont": "Technical (Roboto Mono)",
+    "classicFont": "Classic (Outfit)",
+    "sectionAccount": "My Account",
+    "sectionAppearance": "Appearance",
+    "sectionLegal": "Help & Legal",
+    "sectionDanger": "Danger Zone"
 }

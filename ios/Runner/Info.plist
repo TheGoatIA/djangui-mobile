@@ -47,6 +47,10 @@
 	<string>Kauri requires access to your photo library to select profile photos.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Kauri requires access to Face ID for secure authentication.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Kauri requires access to the microphone for voice notes.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Kauri requires speech recognition to transcribe your voice notes.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
@@ -65,6 +69,30 @@
 			</array>
 		</dict>
 	</array>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>gold</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>logo_gold</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>dark</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>logo_dark</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+		</dict>
+	</dict>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>https</string>

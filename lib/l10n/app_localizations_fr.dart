@@ -1922,4 +1922,49 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get backToLogin => 'Retour à la connexion';
+
+  @override
+  String get premiumThemes => 'Thèmes Élite (Premium)';
+
+  @override
+  String get obsidianGoldThemeLabel => 'Obsidienne & Or';
+
+  @override
+  String get polarNightThemeLabel => 'Nuit Polaire';
+
+  @override
+  String get sunsetGlowThemeLabel => 'Crépuscule';
+
+  @override
+  String get emeraldForestThemeLabel => 'Forêt d\'Émeraude';
+
+  @override
+  String get midnightRoyalThemeLabel => 'Royal de Minuit';
+
+  @override
+  String get fontFamily => 'Police d\'écriture';
+
+  @override
+  String get elegantFont => 'Élégant (Playfair)';
+
+  @override
+  String get modernFont => 'Moderne (Poppins)';
+
+  @override
+  String get technicalFont => 'Technique (Roboto Mono)';
+
+  @override
+  String get classicFont => 'Classique (Outfit)';
+
+  @override
+  String get sectionAccount => 'Mon Compte';
+
+  @override
+  String get sectionAppearance => 'Apparence';
+
+  @override
+  String get sectionLegal => 'Aide & Informations';
+
+  @override
+  String get sectionDanger => 'Zone de Danger';
 }

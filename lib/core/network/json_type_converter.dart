@@ -77,11 +77,14 @@ class JsonToTypeConverter extends JsonConverter {
 
   /// Méthode récursive pour décoder une structure (List ou Map) vers un type typé.
   dynamic _decode<ResultType, Item>(dynamic body) {
-    if (body == null) return null;
+    // 🛠️ SANITIZATION: Fix raw Mongoose documents and Buffer IDs
+    final sanitizedBody = _sanitizeResponse(body);
+
+    if (sanitizedBody == null) return null;
 
     // Si le corps est une liste, on décode chaque élément vers le type 'Item'
-    if (body is List) {
-      return body
+    if (sanitizedBody is List) {
+      return sanitizedBody
               .map<Item>(
                 (e) => _decodeMap<Item, dynamic>(e as Map<String, dynamic>),
               )
@@ -89,11 +92,57 @@ class JsonToTypeConverter extends JsonConverter {
           as ResultType;
     }
 
-    if (body is Map<String, dynamic>) {
-      return _decodeMap<ResultType, Item>(body);
+    if (sanitizedBody is Map<String, dynamic>) {
+      return _decodeMap<ResultType, Item>(sanitizedBody);
     }
 
-    return body;
+    return sanitizedBody;
+  }
+
+  /// Nettoie la réponse JSON pour gérer les documents Mongoose bruts et les Buffers
+  dynamic _sanitizeResponse(dynamic data) {
+    if (data is List) {
+      return data.map((e) => _sanitizeResponse(e)).toList();
+    }
+    if (data is Map<String, dynamic>) {
+      Map<String, dynamic> map = data;
+      // 1. Flatten Mongoose _doc if present (backend returns raw doc)
+      if (map.containsKey('_doc') && map['_doc'] is Map) {
+        map = Map<String, dynamic>.from(map['_doc']);
+      }
+
+      final Map<String, dynamic> newMap = {};
+      map.forEach((key, value) {
+        // 2. Fix Buffer objects for IDs (e.g. _id: { buffer: {0: 105...} })
+        if ((key == '_id' || key.endsWith('Id')) &&
+            value is Map &&
+            value.containsKey('buffer')) {
+          try {
+            final buffer = value['buffer'];
+            if (buffer is Map) {
+              final sortedKeys =
+                  buffer.keys.map((k) => int.parse(k.toString())).toList()
+                    ..sort();
+              final List<int> bytes = sortedKeys
+                  .map((k) => buffer[k.toString()] as int)
+                  .toList();
+              // Convert bytes to Hex String
+              newMap[key] = bytes
+                  .map((b) => b.toRadixString(16).padLeft(2, '0'))
+                  .join();
+            } else {
+              newMap[key] = _sanitizeResponse(value);
+            }
+          } catch (e) {
+            newMap[key] = value;
+          }
+        } else {
+          newMap[key] = _sanitizeResponse(value);
+        }
+      });
+      return newMap;
+    }
+    return data;
   }
 
   /// Décode une Map unique vers le type cible [T].

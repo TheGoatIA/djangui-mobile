@@ -8,6 +8,7 @@ import 'core/services/tutorial_service.dart';
 import 'di/injection.dart';
 import 'routes/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/app_theme_type.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/sync_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -174,24 +175,59 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             child: ChangeNotifierProvider.value(
               value: getIt<TutorialService>(),
               child: ShowCaseWidget(
-                builder: (context) => MaterialApp.router(
-                  title: 'Kauri',
-                  debugShowCheckedModeBanner: false,
-                  theme: AppTheme.lightTheme,
-                  darkTheme: AppTheme.darkTheme,
-                  themeMode: state.themeMode,
-                  locale: state.locale,
-                  routerConfig: appRouter,
-                  builder: (context, child) => child!,
-                  // Configuration de l'internationalisation
-                  localizationsDelegates: [
-                    AppLocalizations.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  supportedLocales: AppLocalizations.supportedLocales,
-                ),
+                builder: (context) {
+                  final authState = context.watch<AuthBloc>().state;
+                  final isPremium =
+                      authState.authResponse?.user.isPremium ?? false;
+
+                  // Fallback pour le thème si l'utilisateur n'est plus Premium
+                  final effectiveThemeType =
+                      (isPremium || !state.themeType.isPremiumOnly)
+                      ? state.themeType
+                      : AppThemeType.system;
+
+                  // Fallback pour la police si l'utilisateur n'est plus Premium
+                  final effectiveFontFamily =
+                      (isPremium || state.fontFamily == 'Outfit')
+                      ? state.fontFamily
+                      : 'Outfit';
+
+                  return MaterialApp.router(
+                    title: 'Kauri',
+                    debugShowCheckedModeBanner: false,
+                    theme: AppTheme.lightTheme(effectiveFontFamily),
+                    darkTheme: switch (effectiveThemeType) {
+                      AppThemeType.obsidianGold => AppTheme.obsidianGoldTheme(
+                        effectiveFontFamily,
+                      ),
+                      AppThemeType.polarNight => AppTheme.polarNightTheme(
+                        effectiveFontFamily,
+                      ),
+                      AppThemeType.sunsetGlow => AppTheme.sunsetGlowTheme(
+                        effectiveFontFamily,
+                      ),
+                      AppThemeType.emeraldForest => AppTheme.emeraldForestTheme(
+                        effectiveFontFamily,
+                      ),
+                      AppThemeType.midnightRoyal => AppTheme.midnightRoyalTheme(
+                        effectiveFontFamily,
+                      ),
+                      _ => AppTheme.darkTheme(effectiveFontFamily),
+                    },
+                    themeMode: effectiveThemeType.toThemeMode,
+                    locale: state.locale,
+                    routerConfig: appRouter,
+                    builder: (context, child) => child!,
+                    // Configuration de l'internationalisation
+                    localizationsDelegates: [
+                      AppLocalizations.delegate,
+                      GlobalMaterialLocalizations.delegate,
+                      GlobalWidgetsLocalizations.delegate,
+                      GlobalCupertinoLocalizations.delegate,
+                    ],
+                    supportedLocales: AppLocalizations.supportedLocales,
+                  );
+                },
               ),
             ),
           );

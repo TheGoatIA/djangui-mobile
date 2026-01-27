@@ -670,5 +670,20 @@
     "tutorialCreateTontineButtonDesc": "Lancez une nouvelle tontine et invitez vos amis.",
     "verifyYourEmail": "Vérifiez votre E-mail",
     "verifyEmailDescription": "Un lien de vérification a été envoyé à votre adresse e-mail. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour activer votre compte.",
-    "backToLogin": "Retour à la connexion"
+    "backToLogin": "Retour à la connexion",
+    "premiumThemes": "Thèmes Élite (Premium)",
+    "obsidianGoldThemeLabel": "Obsidienne & Or",
+    "polarNightThemeLabel": "Nuit Polaire",
+    "sunsetGlowThemeLabel": "Crépuscule",
+    "emeraldForestThemeLabel": "Forêt d'Émeraude",
+    "midnightRoyalThemeLabel": "Royal de Minuit",
+    "fontFamily": "Police d'écriture",
+    "elegantFont": "Élégant (Playfair)",
+    "modernFont": "Moderne (Poppins)",
+    "technicalFont": "Technique (Roboto Mono)",
+    "classicFont": "Classique (Outfit)",
+    "sectionAccount": "Mon Compte",
+    "sectionAppearance": "Apparence",
+    "sectionLegal": "Aide & Informations",
+    "sectionDanger": "Zone de Danger"
 }

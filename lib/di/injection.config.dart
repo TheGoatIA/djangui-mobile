@@ -16,10 +16,12 @@ import 'package:internet_connection_checker/internet_connection_checker.dart'
     as _i973;
 import 'package:kauri/core/database/database.dart' as _i777;
 import 'package:kauri/core/network/network_info.dart' as _i935;
+import 'package:kauri/core/services/app_icon_service.dart' as _i40;
 import 'package:kauri/core/services/notification_service.dart' as _i273;
 import 'package:kauri/core/services/ocr_service.dart' as _i950;
 import 'package:kauri/core/services/payment_service.dart' as _i342;
 import 'package:kauri/core/services/share_service.dart' as _i639;
+import 'package:kauri/core/services/success_animation_service.dart' as _i3;
 import 'package:kauri/core/services/sync_service.dart' as _i75;
 import 'package:kauri/core/services/tutorial_service.dart' as _i899;
 import 'package:kauri/di/register_module.dart' as _i617;
@@ -211,11 +213,15 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.prefs,
       preResolve: true,
     );
+    gh.lazySingleton<_i40.AppIconService>(() => _i40.AppIconService());
     gh.lazySingleton<_i273.NotificationService>(
       () => _i273.NotificationService(),
     );
     gh.lazySingleton<_i950.OCRService>(() => _i950.OCRService());
     gh.lazySingleton<_i639.ShareService>(() => _i639.ShareService());
+    gh.lazySingleton<_i3.SuccessAnimationService>(
+      () => _i3.SuccessAnimationService(),
+    );
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );

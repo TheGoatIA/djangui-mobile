@@ -4,7 +4,9 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import '../../../../l10n/app_localizations.dart';
+import 'package:kauri/core/theme/app_theme_type.dart';
 import '../../../../core/theme/app_colors.dart';
+
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/settings/presentation/bloc/settings_bloc.dart';
@@ -335,7 +337,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 32),
                       // Bouton de déconnexion
-                      _buildLogoutButton(context),
                     ],
                   ),
                 ),
@@ -420,232 +421,346 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildSettingsSection(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          BlocBuilder<NotificationsBloc, NotificationsState>(
-            builder: (context, state) {
-              return _buildSettingsTile(
-                Icons.notifications_outlined,
-                AppLocalizations.of(context)!.notifications,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (state.unreadCount > 0)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          state.unreadCount.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+    return Column(
+      children: [
+        _buildSettingsGroup(
+          context,
+          title: AppLocalizations.of(context)!.sectionAccount,
+          children: [
+            BlocBuilder<NotificationsBloc, NotificationsState>(
+              builder: (context, state) {
+                return _buildSettingsTile(
+                  Icons.notifications_outlined,
+                  AppLocalizations.of(context)!.notifications,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (state.unreadCount > 0)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            state.unreadCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                    const SizedBox(width: 8),
-                    Icon(
-                      Icons.chevron_right,
+                    ],
+                  ),
+                  onTap: () => context.push(RouteConstants.notifications),
+                );
+              },
+            ),
+
+            _buildSettingsTile(
+              Icons.security_outlined,
+              AppLocalizations.of(context)!.security,
+              onTap: () => context.push(RouteConstants.security),
+            ),
+
+            _buildSettingsTile(
+              Icons.phone_android_outlined,
+              AppLocalizations.of(context)!.phoneNumber,
+              trailing: BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, state) {
+                  final phone = state.authResponse?.user.phone;
+                  return Text(
+                    phone ?? '',
+                    style: AppTextStyles.bodyMedium.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
+                  );
+                },
+              ),
+              onTap: () {
+                context.push(RouteConstants.phoneLogin, extra: true);
+              },
+            ),
+
+            _buildSettingsTile(
+              Icons.public_outlined,
+              AppLocalizations.of(context)!.countryLabel,
+              trailing: BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, state) {
+                  final country = state.authResponse?.user.country;
+                  return Text(
+                    country ?? AppLocalizations.of(context)!.notSet,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  );
+                },
+              ),
+              onTap: () {
+                final country = context
+                    .read<AuthBloc>()
+                    .state
+                    .authResponse
+                    ?.user
+                    .country;
+                _showCountrySelectionDialog(context, country ?? 'CM');
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        _buildSettingsGroup(
+          context,
+          title: AppLocalizations.of(context)!.sectionAppearance,
+          children: [
+            BlocBuilder<SettingsBloc, SettingsState>(
+              builder: (context, state) {
+                return _buildSettingsTile(
+                  Icons.language_outlined,
+                  AppLocalizations.of(context)!.language,
+                  trailing: Text(
+                    state.locale.languageCode == 'fr' ? 'Français' : 'English',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  onTap: () =>
+                      _showLanguageSelectionDialog(context, state.locale),
+                );
+              },
+            ),
+
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
+                final isPremium =
+                    authState.authResponse?.user.isPremium ?? false;
+                return BlocBuilder<SettingsBloc, SettingsState>(
+                  builder: (context, state) {
+                    return _buildSettingsTile(
+                      Icons.brightness_6_outlined,
+                      AppLocalizations.of(context)!.theme,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _getThemeName(context, state.themeType),
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          if (!isPremium && state.themeType.isPremiumOnly) ...[
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.lock_outline,
+                              size: 14,
+                              color: Colors.orange,
+                            ),
+                          ],
+                        ],
+                      ),
+                      onTap: () =>
+                          _showThemeSelectionDialog(context, state.themeType),
+                    );
+                  },
+                );
+              },
+            ),
+
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
+                final isPremium =
+                    authState.authResponse?.user.isPremium ?? false;
+                return BlocBuilder<SettingsBloc, SettingsState>(
+                  builder: (context, settingsState) {
+                    return _buildSettingsTile(
+                      Icons.font_download_outlined,
+                      AppLocalizations.of(context)!.fontFamily,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _getFontName(settingsState.fontFamily),
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          if (!isPremium) ...[
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.lock_outline,
+                              size: 14,
+                              color: Colors.orange,
+                            ),
+                          ],
+                        ],
+                      ),
+                      onTap: () {
+                        if (isPremium) {
+                          _showFontSelectionDialog(
+                            context,
+                            settingsState.fontFamily,
+                          );
+                        } else {
+                          context.push(RouteConstants.subscription);
+                        }
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
+                if (authState.authResponse?.user.isPremium ?? false) {
+                  return Column(
+                    children: [
+                      _buildSettingsTile(
+                        Icons.category_outlined,
+                        "Icône de l'application",
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => _showAppIconSelectionDialog(context),
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        _buildSettingsGroup(
+          context,
+          title: AppLocalizations.of(context)!.sectionLegal,
+          children: [
+            _buildSettingsTile(
+              Icons.help_outline,
+              AppLocalizations.of(context)!.helpSupport,
+              onTap: () => context.push(RouteConstants.supportTickets),
+            ),
+
+            BlocBuilder<SystemBloc, SystemState>(
+              builder: (context, state) {
+                return Column(
+                  children: [
+                    _buildSettingsTile(
+                      Icons.description_outlined,
+                      AppLocalizations.of(context)!.termsOfService,
+                      onTap: () async {
+                        final url = state.settings?.termsOfServiceUrl;
+                        if (url != null) {
+                          await launchUrl(Uri.parse(url));
+                        }
+                      },
+                    ),
+
+                    _buildSettingsTile(
+                      Icons.privacy_tip_outlined,
+                      AppLocalizations.of(context)!.privacyPolicy,
+                      onTap: () async {
+                        final url = state.settings?.privacyPolicyUrl;
+                        if (url != null) {
+                          await launchUrl(Uri.parse(url));
+                        }
+                      },
+                    ),
+
+                    _buildSettingsTile(
+                      Icons.help_center_outlined,
+                      AppLocalizations.of(context)!.howKauriWorks,
+                      onTap: () async {
+                        await launchUrl(
+                          Uri.parse('https://kauri-app.com/about.html'),
+                        );
+                      },
+                    ),
+
+                    _buildSettingsTile(
+                      Icons.info_outline,
+                      AppLocalizations.of(context)!.aboutApp,
+                      onTap: () => _showAboutDialog(context),
+                    ),
                   ],
-                ),
-                onTap: () => context.push(RouteConstants.notifications),
-              );
-            },
-          ),
-          const Divider(height: 1, color: Colors.transparent),
-          /*
-          _buildSettingsTile(
-            Icons.sms_outlined,
-            AppLocalizations.of(context)!.importSms,
-            onTap: _isLoadingSms ? null : () => _handleSmsImport(context),
-          ),
-          const Divider(height: 1, color: Colors.transparent),
-          */
-          _buildSettingsTile(
-            Icons.security_outlined,
-            AppLocalizations.of(context)!.security,
-            onTap: () => context.push(RouteConstants.security),
-          ),
-          const Divider(height: 1, color: Colors.transparent),
-          BlocBuilder<SettingsBloc, SettingsState>(
-            builder: (context, state) {
-              return _buildSettingsTile(
-                Icons.language_outlined,
-                AppLocalizations.of(context)!.language,
-                trailing: Text(
-                  state.locale.languageCode == 'fr' ? 'Français' : 'English',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                onTap: () =>
-                    _showLanguageSelectionDialog(context, state.locale),
-              );
-            },
-          ),
-          const Divider(height: 1, color: Colors.transparent),
-          _buildSettingsTile(
-            Icons.phone_android_outlined,
-            AppLocalizations.of(context)!.phoneNumber,
-            trailing: BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                final phone = state.authResponse?.user.phone;
-                return Text(
-                  phone ?? '',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
                 );
               },
             ),
-            onTap: () {
-              // Always allow navigation to allow updating the number
-              context.push(RouteConstants.phoneLogin, extra: true);
-            },
-          ),
-          const Divider(height: 1, color: Colors.transparent),
-          _buildSettingsTile(
-            Icons.public_outlined,
-            AppLocalizations.of(context)!.countryLabel,
-            trailing: BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                final country = state.authResponse?.user.country;
-                return Text(
-                  country ?? AppLocalizations.of(context)!.notSet,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                );
-              },
+
+            Showcase(
+              key: _resetTutorialsKey,
+              title: AppLocalizations.of(context)!.resetTutorials,
+              description: AppLocalizations.of(context)!.resetTutorialsDesc,
+              child: _buildSettingsTile(
+                Icons.restart_alt_outlined,
+                AppLocalizations.of(context)!.resetTutorials,
+                onTap: () => _resetTutorials(context),
+              ),
             ),
-            onTap: () {
-              final country = context
-                  .read<AuthBloc>()
-                  .state
-                  .authResponse
-                  ?.user
-                  .country;
-              _showCountrySelectionDialog(context, country ?? 'CM');
-            },
-          ),
-          const Divider(height: 1, color: Colors.transparent),
-          BlocBuilder<SettingsBloc, SettingsState>(
-            builder: (context, state) {
-              return _buildSettingsTile(
-                Icons.brightness_6_outlined,
-                AppLocalizations.of(context)!.theme,
-                trailing: Text(
-                  _getThemeName(context, state.themeMode),
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                onTap: () =>
-                    _showThemeSelectionDialog(context, state.themeMode),
-              );
-            },
-          ),
-          const Divider(height: 1, color: Colors.transparent),
-          Showcase(
-            key: _resetTutorialsKey,
-            title: AppLocalizations.of(context)!.resetTutorials,
-            description: AppLocalizations.of(
-              context,
-            )!.resetTutorialsDesc, // Assuming this exists or using resetTutorials
-            child: _buildSettingsTile(
-              Icons.restart_alt_outlined,
-              AppLocalizations.of(context)!.resetTutorials,
-              onTap: () => _resetTutorials(context),
+          ],
+        ),
+        const SizedBox(height: 24),
+        _buildSettingsGroup(
+          context,
+          title: AppLocalizations.of(context)!.sectionDanger,
+          titleColor: Theme.of(context).colorScheme.error,
+          children: [
+            _buildLogoutButton(context),
+            // Future: Add Delete Account here
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingsGroup(
+    BuildContext context, {
+    required String title,
+    required List<Widget> children,
+    Color? titleColor,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 16, bottom: 8),
+          child: Text(
+            title.toUpperCase(),
+            style: AppTextStyles.bodySmall.copyWith(
+              color:
+                  titleColor ?? Theme.of(context).colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
             ),
           ),
-          const Divider(height: 1, color: Colors.transparent),
-          _buildSettingsTile(
-            Icons.help_outline,
-            AppLocalizations.of(context)!.helpSupport,
-            onTap: () => context.push(RouteConstants.supportTickets),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const Divider(height: 1, color: Colors.transparent),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.legalSection,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          BlocBuilder<SystemBloc, SystemState>(
-            builder: (context, state) {
-              return Column(
-                children: [
-                  _buildSettingsTile(
-                    Icons.description_outlined,
-                    AppLocalizations.of(context)!.termsOfService,
-                    onTap: () async {
-                      final url = state.settings?.termsOfServiceUrl;
-                      if (url != null) {
-                        await launchUrl(Uri.parse(url));
-                      }
-                    },
-                  ),
-                  const Divider(height: 1, color: Colors.transparent),
-                  _buildSettingsTile(
-                    Icons.privacy_tip_outlined,
-                    AppLocalizations.of(context)!.privacyPolicy,
-                    onTap: () async {
-                      final url = state.settings?.privacyPolicyUrl;
-                      if (url != null) {
-                        await launchUrl(Uri.parse(url));
-                      }
-                    },
-                  ),
-                  const Divider(height: 1, color: Colors.transparent),
-                  _buildSettingsTile(
-                    Icons.help_center_outlined,
-                    AppLocalizations.of(context)!.howKauriWorks,
-                    onTap: () async {
-                      await launchUrl(
-                        Uri.parse('https://kauri-app.com/about.html'),
-                      );
-                    },
-                  ),
-                  const Divider(height: 1, color: Colors.transparent),
-                  _buildSettingsTile(
-                    Icons.info_outline,
-                    AppLocalizations.of(context)!.aboutApp,
-                    onTap: () => _showAboutDialog(context),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(children: children),
+        ),
+      ],
     );
   }
 
@@ -781,18 +896,17 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  String _getThemeName(BuildContext context, ThemeMode mode) {
-    switch (mode) {
-      case ThemeMode.light:
-        return AppLocalizations.of(context)!.lightTheme;
-      case ThemeMode.dark:
-        return AppLocalizations.of(context)!.darkTheme;
-      case ThemeMode.system:
-        return AppLocalizations.of(context)!.systemTheme;
-    }
+  String _getThemeName(BuildContext context, AppThemeType mode) {
+    return mode.getLabel(AppLocalizations.of(context)!);
   }
 
-  void _showThemeSelectionDialog(BuildContext context, ThemeMode currentMode) {
+  void _showThemeSelectionDialog(
+    BuildContext context,
+    AppThemeType currentMode,
+  ) {
+    final user = context.read<AuthBloc>().state.authResponse?.user;
+    final isPremium = user?.isPremium ?? false;
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -802,9 +916,9 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             _buildThemeOption(
               context,
-              ThemeMode.light,
+              AppThemeType.light,
               currentMode,
-              AppLocalizations.of(context)!.lightTheme,
+              AppThemeType.light.getLabel(AppLocalizations.of(context)!),
               (value) {
                 context.read<SettingsBloc>().add(ThemeChanged(value!));
                 Navigator.pop(dialogContext);
@@ -812,9 +926,9 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             _buildThemeOption(
               context,
-              ThemeMode.dark,
+              AppThemeType.dark,
               currentMode,
-              AppLocalizations.of(context)!.darkTheme,
+              AppThemeType.dark.getLabel(AppLocalizations.of(context)!),
               (value) {
                 context.read<SettingsBloc>().add(ThemeChanged(value!));
                 Navigator.pop(dialogContext);
@@ -822,11 +936,148 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             _buildThemeOption(
               context,
-              ThemeMode.system,
+              AppThemeType.system,
               currentMode,
-              AppLocalizations.of(context)!.systemTheme,
+              AppThemeType.system.getLabel(AppLocalizations.of(context)!),
               (value) {
                 context.read<SettingsBloc>().add(ThemeChanged(value!));
+                Navigator.pop(dialogContext);
+              },
+            ),
+            const Divider(),
+            _buildThemeOption(
+              context,
+              AppThemeType.obsidianGold,
+              currentMode,
+              AppThemeType.obsidianGold.getLabel(AppLocalizations.of(context)!),
+              (value) {
+                if (isPremium) {
+                  context.read<SettingsBloc>().add(ThemeChanged(value!));
+                  Navigator.pop(dialogContext);
+                } else {
+                  Navigator.pop(dialogContext);
+                  context.push(RouteConstants.subscription);
+                }
+              },
+              isPremiumOnly: true,
+              isPremium: isPremium,
+            ),
+            _buildThemeOption(
+              context,
+              AppThemeType.polarNight,
+              currentMode,
+              AppThemeType.polarNight.getLabel(AppLocalizations.of(context)!),
+              (value) {
+                if (isPremium) {
+                  context.read<SettingsBloc>().add(ThemeChanged(value!));
+                  Navigator.pop(dialogContext);
+                } else {
+                  Navigator.pop(dialogContext);
+                  context.push(RouteConstants.subscription);
+                }
+              },
+              isPremiumOnly: true,
+              isPremium: isPremium,
+            ),
+            _buildThemeOption(
+              context,
+              AppThemeType.sunsetGlow,
+              currentMode,
+              AppThemeType.sunsetGlow.getLabel(AppLocalizations.of(context)!),
+              (value) {
+                if (isPremium) {
+                  context.read<SettingsBloc>().add(ThemeChanged(value!));
+                  Navigator.pop(dialogContext);
+                } else {
+                  Navigator.pop(dialogContext);
+                  context.push(RouteConstants.subscription);
+                }
+              },
+              isPremiumOnly: true,
+              isPremium: isPremium,
+            ),
+            _buildThemeOption(
+              context,
+              AppThemeType.emeraldForest,
+              currentMode,
+              AppThemeType.emeraldForest.getLabel(
+                AppLocalizations.of(context)!,
+              ),
+              (value) {
+                if (isPremium) {
+                  context.read<SettingsBloc>().add(ThemeChanged(value!));
+                  Navigator.pop(dialogContext);
+                } else {
+                  Navigator.pop(dialogContext);
+                  context.push(RouteConstants.subscription);
+                }
+              },
+              isPremiumOnly: true,
+              isPremium: isPremium,
+            ),
+            _buildThemeOption(
+              context,
+              AppThemeType.midnightRoyal,
+              currentMode,
+              AppThemeType.midnightRoyal.getLabel(
+                AppLocalizations.of(context)!,
+              ),
+              (value) {
+                if (isPremium) {
+                  context.read<SettingsBloc>().add(ThemeChanged(value!));
+                  Navigator.pop(dialogContext);
+                } else {
+                  Navigator.pop(dialogContext);
+                  context.push(RouteConstants.subscription);
+                }
+              },
+              isPremiumOnly: true,
+              isPremium: isPremium,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showFontSelectionDialog(BuildContext context, String currentFont) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.fontFamily),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildFontOption(context, 'Outfit', l10n.classicFont, currentFont, (
+              val,
+            ) {
+              context.read<SettingsBloc>().add(FontChanged(val));
+              Navigator.pop(dialogContext);
+            }),
+            _buildFontOption(
+              context,
+              'Playfair Display',
+              l10n.elegantFont,
+              currentFont,
+              (val) {
+                context.read<SettingsBloc>().add(FontChanged(val));
+                Navigator.pop(dialogContext);
+              },
+            ),
+            _buildFontOption(context, 'Poppins', l10n.modernFont, currentFont, (
+              val,
+            ) {
+              context.read<SettingsBloc>().add(FontChanged(val));
+              Navigator.pop(dialogContext);
+            }),
+            _buildFontOption(
+              context,
+              'Roboto Mono',
+              l10n.technicalFont,
+              currentFont,
+              (val) {
+                context.read<SettingsBloc>().add(FontChanged(val));
                 Navigator.pop(dialogContext);
               },
             ),
@@ -834,6 +1085,39 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  Widget _buildFontOption(
+    BuildContext context,
+    String value,
+    String label,
+    String groupValue,
+    ValueChanged<String> onChanged,
+  ) {
+    final isSelected = value == groupValue;
+    return ListTile(
+      title: Text(label, style: TextStyle(fontFamily: value)),
+      leading: Icon(
+        isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+        color: isSelected
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
+      onTap: () => onChanged(value),
+    );
+  }
+
+  String _getFontName(String family) {
+    switch (family) {
+      case 'Playfair Display':
+        return 'Playfair';
+      case 'Poppins':
+        return 'Poppins';
+      case 'Roboto Mono':
+        return 'Roboto Mono';
+      default:
+        return 'Outfit';
+    }
   }
 
   Widget _buildPremiumBanner(BuildContext context) {
@@ -995,11 +1279,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildThemeOption(
     BuildContext context,
-    ThemeMode mode,
-    ThemeMode groupValue,
+    AppThemeType mode,
+    AppThemeType groupValue,
     String label,
-    ValueChanged<ThemeMode?> onChanged,
-  ) {
+    ValueChanged<AppThemeType?> onChanged, {
+    bool isPremiumOnly = false,
+    bool isPremium = false,
+  }) {
     final isSelected = mode == groupValue;
     return ListTile(
       title: Text(label),
@@ -1009,6 +1295,9 @@ class _ProfilePageState extends State<ProfilePage> {
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.onSurfaceVariant,
       ),
+      trailing: isPremiumOnly && !isPremium
+          ? const Icon(Icons.lock_outline, size: 18, color: Colors.orange)
+          : null,
       onTap: () => onChanged(mode),
     );
   }
@@ -1164,4 +1453,78 @@ class _ProfilePageState extends State<ProfilePage> {
     // ... (logic)
   }
   */
+  void _showAppIconSelectionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Choisir l'icône"),
+        content: BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, state) {
+            final currentIcon = state.appIcon;
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildIconTile(
+                  context,
+                  title: "Par défaut (Vert)",
+                  assetPath: "assets/images/logo.png",
+                  value: null,
+                  groupValue: currentIcon,
+                ),
+                _buildIconTile(
+                  context,
+                  title: "Premium Gold",
+                  assetPath: "assets/images/icons/logo_gold.png",
+                  value: "gold",
+                  groupValue: currentIcon,
+                ),
+                _buildIconTile(
+                  context,
+                  title: "Obsidian Dark",
+                  assetPath: "assets/images/icons/logo_dark.png",
+                  value: "dark",
+                  groupValue: currentIcon,
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIconTile(
+    BuildContext context, {
+    required String title,
+    required String assetPath,
+    required String? value,
+    required String? groupValue,
+  }) {
+    final isSelected = value == groupValue;
+
+    return ListTile(
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.asset(assetPath, width: 40, height: 40, fit: BoxFit.cover),
+      ),
+      title: Text(title),
+      trailing: isSelected
+          ? Icon(Icons.check_circle, color: Theme.of(context).primaryColor)
+          : null,
+      onTap: () {
+        context.read<SettingsBloc>().add(AppIconChanged(value));
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Icône changée en $title. Redémarrage possible requis.",
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+    );
+  }
 }

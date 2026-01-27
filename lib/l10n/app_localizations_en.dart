@@ -1913,4 +1913,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backToLogin => 'Back to Login';
+
+  @override
+  String get premiumThemes => 'Elite Themes (Premium)';
+
+  @override
+  String get obsidianGoldThemeLabel => 'Obsidian & Gold';
+
+  @override
+  String get polarNightThemeLabel => 'Polar Night';
+
+  @override
+  String get sunsetGlowThemeLabel => 'Sunset Glow';
+
+  @override
+  String get emeraldForestThemeLabel => 'Emerald Forest';
+
+  @override
+  String get midnightRoyalThemeLabel => 'Midnight Royal';
+
+  @override
+  String get fontFamily => 'Font Family';
+
+  @override
+  String get elegantFont => 'Elegant (Playfair)';
+
+  @override
+  String get modernFont => 'Modern (Poppins)';
+
+  @override
+  String get technicalFont => 'Technical (Roboto Mono)';
+
+  @override
+  String get classicFont => 'Classic (Outfit)';
+
+  @override
+  String get sectionAccount => 'My Account';
+
+  @override
+  String get sectionAppearance => 'Appearance';
+
+  @override
+  String get sectionLegal => 'Help & Legal';
+
+  @override
+  String get sectionDanger => 'Danger Zone';
 }

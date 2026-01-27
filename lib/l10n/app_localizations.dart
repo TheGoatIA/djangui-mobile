@@ -3685,6 +3685,96 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Retour à la connexion'**
   String get backToLogin;
+
+  /// No description provided for @premiumThemes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Thèmes Élite (Premium)'**
+  String get premiumThemes;
+
+  /// No description provided for @obsidianGoldThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obsidienne & Or'**
+  String get obsidianGoldThemeLabel;
+
+  /// No description provided for @polarNightThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nuit Polaire'**
+  String get polarNightThemeLabel;
+
+  /// No description provided for @sunsetGlowThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crépuscule'**
+  String get sunsetGlowThemeLabel;
+
+  /// No description provided for @emeraldForestThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Forêt d\'Émeraude'**
+  String get emeraldForestThemeLabel;
+
+  /// No description provided for @midnightRoyalThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Royal de Minuit'**
+  String get midnightRoyalThemeLabel;
+
+  /// No description provided for @fontFamily.
+  ///
+  /// In fr, this message translates to:
+  /// **'Police d\'écriture'**
+  String get fontFamily;
+
+  /// No description provided for @elegantFont.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élégant (Playfair)'**
+  String get elegantFont;
+
+  /// No description provided for @modernFont.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moderne (Poppins)'**
+  String get modernFont;
+
+  /// No description provided for @technicalFont.
+  ///
+  /// In fr, this message translates to:
+  /// **'Technique (Roboto Mono)'**
+  String get technicalFont;
+
+  /// No description provided for @classicFont.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classique (Outfit)'**
+  String get classicFont;
+
+  /// No description provided for @sectionAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon Compte'**
+  String get sectionAccount;
+
+  /// No description provided for @sectionAppearance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apparence'**
+  String get sectionAppearance;
+
+  /// No description provided for @sectionLegal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide & Informations'**
+  String get sectionLegal;
+
+  /// No description provided for @sectionDanger.
+  ///
+  /// In fr, this message translates to:
+  /// **'Zone de Danger'**
+  String get sectionDanger;
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import '../../domain/entities/tontine_entities.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/tontine_bloc.dart';
@@ -19,13 +22,46 @@ class TontineChatTab extends StatefulWidget {
 class _TontineChatTabState extends State<TontineChatTab> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
+  final SpeechToText _speechToText = SpeechToText();
+  bool _speechEnabled = false;
+  bool _isListening = false;
 
   @override
   void initState() {
     super.initState();
+    _initSpeech();
     context.read<TontineBloc>().add(
       TontineMessagesLoadRequested(widget.tontineId),
     );
+  }
+
+  void _initSpeech() async {
+    _speechEnabled = await _speechToText.initialize();
+    setState(() {});
+  }
+
+  void _startListening() async {
+    await _speechToText.listen(onResult: _onSpeechResult);
+    setState(() {
+      _isListening = true;
+    });
+  }
+
+  void _stopListening() async {
+    await _speechToText.stop();
+    setState(() {
+      _isListening = false;
+    });
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      _messageController.text = result.recognizedWords;
+      // Move cursor to end
+      _messageController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _messageController.text.length),
+      );
+    });
   }
 
   void _sendMessage() {
@@ -52,8 +88,10 @@ class _TontineChatTabState extends State<TontineChatTab> {
 
               return BlocBuilder<TontineBloc, TontineState>(
                 builder: (context, state) {
-                  final messages = state.selectedTontineMessages;
-                  final members = state.selectedTontineMembers;
+                  final List<TontineMessage> messages =
+                      state.selectedTontineMessages;
+                  final List<TontineMember> members =
+                      state.selectedTontineMembers;
 
                   if (messages.isEmpty) {
                     return Center(
@@ -250,11 +288,34 @@ class _TontineChatTabState extends State<TontineChatTab> {
           ),
           child: Row(
             children: [
+              // Voice Note Button - Only show if speech recognition is available
+              if (_speechEnabled) ...[
+                GestureDetector(
+                  onTapDown: (_) => _startListening(),
+                  onTapUp: (_) => _stopListening(),
+                  onTapCancel: _stopListening,
+                  child: CircleAvatar(
+                    backgroundColor: _isListening
+                        ? Colors.red
+                        : Theme.of(context).colorScheme.surfaceContainerHighest,
+                    child: Icon(
+                      _isListening ? Icons.mic : Icons.mic_none,
+                      color: _isListening
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
               Expanded(
                 child: TextField(
                   controller: _messageController,
                   decoration: InputDecoration(
-                    hintText: l10n.typeAMessage,
+                    hintText: _isListening
+                        ? 'Écoute en cours...'
+                        : l10n.typeAMessage,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(24),
                       borderSide: BorderSide.none,
