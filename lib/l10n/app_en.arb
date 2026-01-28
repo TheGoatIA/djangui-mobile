@@ -701,5 +701,10 @@
     "anneAnalyzing": "Anne is analyzing your finances...",
     "applyBudgets": "Apply",
     "anneAnalysisTitle": "Anne's Analysis",
-    "autoBudgetSuccess": "Budgets applied successfully!"
+    "autoBudgetSuccess": "Budgets applied successfully!",
+    "tutorialAnneTitle": "Auto Generation",
+    "tutorialAnneDesc": "Anne analyzes your income and expenses to suggest an optimized budget for the coming month.",
+    "budgetExistsTitle": "Budget Already Exists",
+    "budgetExistsMessage": "A budget for this period already exists. Do you want to replace it with Anne's analysis?",
+    "replaceBudget": "Replace"
 }

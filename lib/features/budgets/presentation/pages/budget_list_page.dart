@@ -48,6 +48,7 @@ class _BudgetListViewState extends State<BudgetListView> {
   // Clés utilisées pour le tutoriel interactif.
   final _listKey = GlobalKey();
   final _addKey = GlobalKey();
+  final _anneKey = GlobalKey();
   bool _isAnneLoaderVisible = false;
 
   @override
@@ -83,7 +84,7 @@ class _BudgetListViewState extends State<BudgetListView> {
       }
       Future.delayed(const Duration(milliseconds: 500), () {
         if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
+        ShowCaseWidget.of(context).startShowCase([_anneKey, _listKey, _addKey]);
         tutorialService.markTutorialAsSeen('budgets');
       });
     }
@@ -104,19 +105,24 @@ class _BudgetListViewState extends State<BudgetListView> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.myBudgets),
         actions: [
-          TextButton.icon(
-            onPressed: () {
-              context.read<BudgetsBloc>().add(
-                const GenerateAutoBudgetRequested(),
-              );
-              _showAnneLoader(context);
-            },
-            icon: const Icon(Icons.psychology_outlined, size: 20),
-            label: Text(
-              AppLocalizations.of(context)!.generateViaAnne,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
+          Showcase(
+            key: _anneKey,
+            title: AppLocalizations.of(context)!.tutorialAnneTitle,
+            description: AppLocalizations.of(context)!.tutorialAnneDesc,
+            child: TextButton.icon(
+              onPressed: () {
+                context.read<BudgetsBloc>().add(
+                  const GenerateAutoBudgetRequested(),
+                );
+                _showAnneLoader(context);
+              },
+              icon: const Icon(Icons.psychology_outlined, size: 20),
+              label: Text(
+                AppLocalizations.of(context)!.generateViaAnne,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -360,10 +366,56 @@ class _BudgetListViewState extends State<BudgetListView> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final budgetsBloc = context.read<BudgetsBloc>();
 
-                    // 1. Mapper et agréger les montants par catégorie standard
+                    // 1. Détecter si un budget existe déjà pour cette période
+                    final existingBudget = budgetsBloc.state.budgets.any(
+                      (b) =>
+                          b.period.year == response.budgets.first.period.year &&
+                          b.period.month == response.budgets.first.period.month,
+                    );
+
+                    if (existingBudget) {
+                      final shouldReplace = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: Text(
+                            AppLocalizations.of(context)!.budgetExistsTitle,
+                          ),
+                          content: Text(
+                            AppLocalizations.of(context)!.budgetExistsMessage,
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: Text(AppLocalizations.of(context)!.cancel),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: Text(
+                                AppLocalizations.of(context)!.replaceBudget,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (shouldReplace != true) return;
+
+                      // Si on remplace, on supprime d'abord l'existant
+                      final budgetToDelete = budgetsBloc.state.budgets
+                          .firstWhere(
+                            (b) =>
+                                b.period.year ==
+                                    response.budgets.first.period.year &&
+                                b.period.month ==
+                                    response.budgets.first.period.month,
+                          );
+                      budgetsBloc.add(DeleteBudgetRequested(budgetToDelete.id));
+                    }
+
+                    // 2. Mapper et agréger les montants par catégorie standard
                     final Map<String, double> aggregatedBudgets = {};
                     for (final entry in response.budgets) {
                       final standardCategory =
@@ -373,7 +425,7 @@ class _BudgetListViewState extends State<BudgetListView> {
                           entry.amount;
                     }
 
-                    // 2. Créer les catégories consolidées
+                    // 3. Créer les catégories consolidées
                     final List<BudgetCategoryModel> categories =
                         aggregatedBudgets.entries.map((entry) {
                           return BudgetCategoryModel(
@@ -389,7 +441,7 @@ class _BudgetListViewState extends State<BudgetListView> {
                       (sum, item) => sum + item.allocated,
                     );
 
-                    // 3. Envoyer UNE SEULE requête pour tout le budget du mois
+                    // 4. Envoyer UNE SEULE requête pour tout le budget du mois
                     budgetsBloc.add(const ClearAutoBudgetResponse());
                     budgetsBloc.add(
                       AddBudgetRequested(
@@ -404,14 +456,16 @@ class _BudgetListViewState extends State<BudgetListView> {
                         ),
                       ),
                     );
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          AppLocalizations.of(context)!.autoBudgetSuccess,
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.of(context)!.autoBudgetSuccess,
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,

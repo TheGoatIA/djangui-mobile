@@ -2015,4 +2015,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get autoBudgetSuccess => 'Budgets appliqués avec succès !';
+
+  @override
+  String get tutorialAnneTitle => 'Génération Auto';
+
+  @override
+  String get tutorialAnneDesc =>
+      'Anne analyse vos revenus et dépenses pour vous proposer un budget optimisé pour le mois à venir.';
+
+  @override
+  String get budgetExistsTitle => 'Budget déjà existant';
+
+  @override
+  String get budgetExistsMessage =>
+      'Un budget pour cette période existe déjà. Voulez-vous le remplacer par l\'analyse d\'Anne ?';
+
+  @override
+  String get replaceBudget => 'Remplacer';
 }

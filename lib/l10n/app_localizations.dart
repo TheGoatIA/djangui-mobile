@@ -3871,6 +3871,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Budgets appliqués avec succès !'**
   String get autoBudgetSuccess;
+
+  /// No description provided for @tutorialAnneTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Génération Auto'**
+  String get tutorialAnneTitle;
+
+  /// No description provided for @tutorialAnneDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anne analyse vos revenus et dépenses pour vous proposer un budget optimisé pour le mois à venir.'**
+  String get tutorialAnneDesc;
+
+  /// No description provided for @budgetExistsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget déjà existant'**
+  String get budgetExistsTitle;
+
+  /// No description provided for @budgetExistsMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un budget pour cette période existe déjà. Voulez-vous le remplacer par l\'analyse d\'Anne ?'**
+  String get budgetExistsMessage;
+
+  /// No description provided for @replaceBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplacer'**
+  String get replaceBudget;
 }
 
 class _AppLocalizationsDelegate

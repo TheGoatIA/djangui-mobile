@@ -2006,4 +2006,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get autoBudgetSuccess => 'Budgets applied successfully!';
+
+  @override
+  String get tutorialAnneTitle => 'Auto Generation';
+
+  @override
+  String get tutorialAnneDesc =>
+      'Anne analyzes your income and expenses to suggest an optimized budget for the coming month.';
+
+  @override
+  String get budgetExistsTitle => 'Budget Already Exists';
+
+  @override
+  String get budgetExistsMessage =>
+      'A budget for this period already exists. Do you want to replace it with Anne\'s analysis?';
+
+  @override
+  String get replaceBudget => 'Replace';
 }
