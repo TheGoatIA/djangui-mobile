@@ -8,6 +8,7 @@
     "email": "E-mail",
     "password": "Mot de passe",
     "forgotPassword": "Mot de passe oublié ?",
+    "optional": "Optionnel",
     "forgotPasswordSubtitle": "Entrez votre e-mail pour recevoir un lien de réinitialisation.",
     "sendResetLink": "Envoyer le lien",
     "emailSent": "E-mail envoyé avec succès",

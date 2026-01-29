@@ -146,6 +146,12 @@ abstract class AppLocalizations {
   /// **'Mot de passe oublié ?'**
   String get forgotPassword;
 
+  /// No description provided for @optional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optionnel'**
+  String get optional;
+
   /// No description provided for @forgotPasswordSubtitle.
   ///
   /// In fr, this message translates to:

@@ -8,6 +8,7 @@
     "email": "Email",
     "password": "Password",
     "forgotPassword": "Forgot Password?",
+    "optional": "Optional",
     "forgotPasswordSubtitle": "Enter your email to receive a reset link.",
     "sendResetLink": "Send Reset Link",
     "emailSent": "Email sent successfully",

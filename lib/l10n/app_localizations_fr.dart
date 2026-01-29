@@ -33,6 +33,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get forgotPassword => 'Mot de passe oublié ?';
 
   @override
+  String get optional => 'Optionnel';
+
+  @override
   String get forgotPasswordSubtitle =>
       'Entrez votre e-mail pour recevoir un lien de réinitialisation.';
 
