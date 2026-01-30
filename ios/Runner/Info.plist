@@ -78,6 +78,9 @@
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>logo_gold</string>
+					<string>logo_gold-120</string>
+					<string>logo_gold-152</string>
+					<string>logo_gold-167</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>
@@ -87,6 +90,39 @@
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>logo_dark</string>
+					<string>logo_dark-120</string>
+					<string>logo_dark-152</string>
+					<string>logo_dark-167</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+		</dict>
+	</dict>
+	<key>CFBundleIcons~ipad</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>gold</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>logo_gold</string>
+					<string>logo_gold-120</string>
+					<string>logo_gold-152</string>
+					<string>logo_gold-167</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>dark</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>logo_dark</string>
+					<string>logo_dark-120</string>
+					<string>logo_dark-152</string>
+					<string>logo_dark-167</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>
