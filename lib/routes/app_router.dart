@@ -70,6 +70,14 @@ final appRouter = GoRouter(
           state.uri.path == '/tontines/join') {
         return '${RouteConstants.joinTontine}?${state.uri.query}';
       }
+      // If the link is kauri://reset-password?token=XYZ
+      if (state.uri.host == 'reset-password') {
+        return '${RouteConstants.resetPassword}?${state.uri.query}';
+      }
+      // If the link is kauri://share/goal?data=XYZ
+      if (state.uri.host == 'share' && state.uri.path == '/goal') {
+        return '${RouteConstants.shareGoal}?${state.uri.query}';
+      }
     }
     return null;
   },
