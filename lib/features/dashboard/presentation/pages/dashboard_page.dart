@@ -26,6 +26,7 @@ import '../../../voice/presentation/bloc/voice_bloc.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../../../notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import 'package:kauri/features/settings/presentation/bloc/settings_bloc.dart';
 
 /// Page d'accueil (Tableau de bord) de l'application.
 ///
@@ -64,6 +65,8 @@ class _DashboardViewState extends State<DashboardView> {
   final GlobalKey _balanceKey = GlobalKey();
   final GlobalKey _quickActionsKey = GlobalKey();
   final GlobalKey _incomeKey = GlobalKey();
+
+  bool _isEditing = false;
 
   @override
   void initState() {
@@ -196,123 +199,171 @@ class _DashboardViewState extends State<DashboardView> {
               const GetTransactionsRequested(forceRefresh: true),
             );
           },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // En-tête avec les points d'expérience et le niveau
-                Showcase(
-                  key: _gamificationKey,
-                  title: AppLocalizations.of(
-                    context,
-                  )!.tutorialGamificationTitle,
-                  description: AppLocalizations.of(
-                    context,
-                  )!.tutorialGamificationDesc,
-                  child: const GamificationHeader(),
-                ),
-                const SizedBox(height: 10),
+          child: BlocBuilder<SettingsBloc, SettingsState>(
+            builder: (context, settingsState) {
+              final widgets = _buildDashboardWidgets(
+                context,
+                settingsState.dashboardOrder,
+              );
 
-                // Carte du solde total
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child:
-                      Showcase(
-                            key: _balanceKey,
-                            title: AppLocalizations.of(
-                              context,
-                            )!.tutorialBalanceCardTitle,
-                            description: AppLocalizations.of(
-                              context,
-                            )!.tutorialBalanceCardDesc,
-                            child: _buildBalanceCard(context),
-                          )
-                          .animate()
-                          .fade(duration: 500.ms)
-                          .slideY(
-                            begin: 0.1,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
+              if (_isEditing) {
+                return ReorderableListView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 20,
+                  ),
+                  onReorder: (oldIndex, newIndex) {
+                    if (newIndex > oldIndex) newIndex -= 1;
+                    final items = List<String>.from(
+                      settingsState.dashboardOrder,
+                    );
+                    final item = items.removeAt(oldIndex);
+                    items.insert(newIndex, item);
+                    context.read<SettingsBloc>().add(
+                      UpdateDashboardOrder(items),
+                    );
+                  },
+                  children: widgets
+                      .asMap()
+                      .entries
+                      .map(
+                        (entry) => Material(
+                          key: ValueKey(
+                            settingsState.dashboardOrder[entry.key],
                           ),
-                ),
-                const SizedBox(height: 24),
-
-                // Widget des prochaines factures/abonnements
-                const NextInvoicesWidget()
-                    .animate(delay: 100.ms)
-                    .fade(duration: 500.ms)
-                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
-                const SizedBox(height: 24),
-
-                // Actions rapides (Investir, Tontine, Coach, etc.)
-                Showcase(
-                      key: _quickActionsKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialQuickActionsTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialQuickActionsDesc,
-                      child: _buildQuickActions(context),
-                    )
-                    .animate(delay: 200.ms)
-                    .fade(duration: 500.ms)
-                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
-                const SizedBox(height: 32),
-
-                // Liste des activités récentes
-                _buildSectionHeader(
-                  context,
-                  AppLocalizations.of(context)!.recentActivities,
-                  action: TextButton.icon(
-                    onPressed: () =>
-                        context.push(RouteConstants.addTransaction),
-                    icon: const Icon(Icons.add_circle_outline, size: 20),
-                    label: Text(
-                      AppLocalizations.of(context)!.add,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ).animate(delay: 300.ms).fade(),
-                const SizedBox(height: 16),
-                _buildRecentActivities(context)
-                    .animate(delay: 400.ms)
-                    .fade(duration: 500.ms)
-                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
-                const SizedBox(height: 24),
-
-                // Bouton pour gérer toutes les transactions
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () =>
-                          context.push(RouteConstants.transactions),
-                      icon: const Icon(Icons.list_alt),
-                      label: Text(
-                        AppLocalizations.of(context)!.manageTransactions,
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.transparent,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Stack(
+                              children: [
+                                Opacity(opacity: 0.7, child: entry.value),
+                                const Positioned.fill(
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.drag_indicator,
+                                      size: 40,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                ).animate(delay: 500.ms).fade(),
-              ],
-            ),
+                      )
+                      .toList(),
+                );
+              }
+
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: widgets,
+                ),
+              );
+            },
           ),
         ),
       ),
     );
+  }
+
+  List<Widget> _buildDashboardWidgets(
+    BuildContext context,
+    List<String> order,
+  ) {
+    final Map<String, Widget> widgetMap = {
+      'gamification': Showcase(
+        key: _gamificationKey,
+        title: AppLocalizations.of(context)!.tutorialGamificationTitle,
+        description: AppLocalizations.of(context)!.tutorialGamificationDesc,
+        child: const GamificationHeader(),
+      ),
+      'balance': Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child:
+            Showcase(
+                  key: _balanceKey,
+                  title: AppLocalizations.of(context)!.tutorialBalanceCardTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.tutorialBalanceCardDesc,
+                  child: _buildBalanceCard(context),
+                )
+                .animate()
+                .fade(duration: 500.ms)
+                .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+      ),
+      'invoices': const NextInvoicesWidget()
+          .animate(delay: 100.ms)
+          .fade(duration: 500.ms)
+          .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+      'quick_actions':
+          Showcase(
+                key: _quickActionsKey,
+                title: AppLocalizations.of(context)!.tutorialQuickActionsTitle,
+                description: AppLocalizations.of(
+                  context,
+                )!.tutorialQuickActionsDesc,
+                child: _buildQuickActions(context),
+              )
+              .animate(delay: 200.ms)
+              .fade(duration: 500.ms)
+              .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+      'recent_activities': Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(
+            context,
+            AppLocalizations.of(context)!.recentActivities,
+            action: TextButton.icon(
+              onPressed: () => context.push(RouteConstants.addTransaction),
+              icon: const Icon(Icons.add_circle_outline, size: 20),
+              label: Text(
+                AppLocalizations.of(context)!.add,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ).animate(delay: 300.ms).fade(),
+          const SizedBox(height: 16),
+          _buildRecentActivities(context)
+              .animate(delay: 400.ms)
+              .fade(duration: 500.ms)
+              .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => context.push(RouteConstants.transactions),
+                icon: const Icon(Icons.list_alt),
+                label: Text(AppLocalizations.of(context)!.manageTransactions),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ).animate(delay: 500.ms).fade(),
+        ],
+      ),
+    };
+
+    return order
+        .map((id) => widgetMap[id] ?? const SizedBox())
+        .map(
+          (w) =>
+              Padding(padding: const EdgeInsets.only(bottom: 24.0), child: w),
+        )
+        .toList();
   }
 
   /// Construit la barre d'application avec salutations, notifications et bouton déconnexion.
@@ -369,6 +420,26 @@ class _DashboardViewState extends State<DashboardView> {
               color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
+        ),
+        BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, authState) {
+            if (authState.authResponse?.user.isPremium ?? false) {
+              return IconButton(
+                onPressed: () {
+                  setState(() {
+                    _isEditing = !_isEditing;
+                  });
+                },
+                icon: Icon(
+                  _isEditing ? Icons.check_circle : Icons.tune_rounded,
+                  color: _isEditing
+                      ? AppColors.primary
+                      : Theme.of(context).colorScheme.onSurface,
+                ),
+              );
+            }
+            return const SizedBox();
+          },
         ),
       ],
     );

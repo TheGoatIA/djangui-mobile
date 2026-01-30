@@ -14,6 +14,43 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
     on<AddBudgetRequested>(_onAddBudgetRequested);
     on<DeleteBudgetRequested>(_onDeleteBudgetRequested);
     on<UpdateBudgetRequested>(_onUpdateBudgetRequested);
+    on<GenerateAutoBudgetRequested>(_onGenerateAutoBudgetRequested);
+    on<ClearAutoBudgetResponse>(_onClearAutoBudgetResponse);
+  }
+
+  void _onClearAutoBudgetResponse(
+    ClearAutoBudgetResponse event,
+    Emitter<BudgetsState> emit,
+  ) {
+    emit(state.copyWith(autoBudgetResponse: () => null));
+  }
+
+  Future<void> _onGenerateAutoBudgetRequested(
+    GenerateAutoBudgetRequested event,
+    Emitter<BudgetsState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        status: BudgetsStatus.loading,
+        autoBudgetResponse: () => null,
+        errorMessage: null,
+      ),
+    );
+    final result = await _budgetRepository.generateAutoBudget();
+    result.fold<void>(
+      (failure) => emit(
+        state.copyWith(
+          status: BudgetsStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (response) => emit(
+        state.copyWith(
+          status: BudgetsStatus.success,
+          autoBudgetResponse: () => response,
+        ),
+      ),
+    );
   }
 
   Future<void> _onGetBudgetsRequested(

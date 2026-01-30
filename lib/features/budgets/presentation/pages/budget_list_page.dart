@@ -5,12 +5,17 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import 'package:uuid/uuid.dart';
+import '../../../../core/constants/app_categories.dart';
+import '../../../../core/utils/currency_helper.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../bloc/budgets_bloc.dart';
 import '../bloc/budgets_event.dart';
 import '../bloc/budgets_state.dart';
 import '../../data/models/budget_model.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../widgets/budget_detail_sheet.dart';
+import '../../data/models/auto_budget_response.dart';
 import '../../../../core/theme/app_shadows.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
@@ -41,8 +46,10 @@ class BudgetListView extends StatefulWidget {
 
 class _BudgetListViewState extends State<BudgetListView> {
   // Clés utilisées pour le tutoriel interactif.
-  final GlobalKey _listKey = GlobalKey();
-  final GlobalKey _addKey = GlobalKey();
+  final _listKey = GlobalKey();
+  final _addKey = GlobalKey();
+  final _anneKey = GlobalKey();
+  bool _isAnneLoaderVisible = false;
 
   @override
   void initState() {
@@ -77,7 +84,7 @@ class _BudgetListViewState extends State<BudgetListView> {
       }
       Future.delayed(const Duration(milliseconds: 500), () {
         if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
+        ShowCaseWidget.of(context).startShowCase([_anneKey, _listKey, _addKey]);
         tutorialService.markTutorialAsSeen('budgets');
       });
     }
@@ -95,11 +102,53 @@ class _BudgetListViewState extends State<BudgetListView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.myBudgets)),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.myBudgets),
+        actions: [
+          Showcase(
+            key: _anneKey,
+            title: AppLocalizations.of(context)!.tutorialAnneTitle,
+            description: AppLocalizations.of(context)!.tutorialAnneDesc,
+            child: TextButton.icon(
+              onPressed: () {
+                context.read<BudgetsBloc>().add(
+                  const GenerateAutoBudgetRequested(),
+                );
+                _showAnneLoader(context);
+              },
+              icon: const Icon(Icons.psychology_outlined, size: 20),
+              label: Text(
+                AppLocalizations.of(context)!.generateViaAnne,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: BlocListener<BudgetsBloc, BudgetsState>(
         listener: (context, state) {
           if (state.status == BudgetsStatus.success) {
             _startTutorial();
+            if (_isAnneLoaderVisible && state.autoBudgetResponse != null) {
+              _isAnneLoaderVisible = false;
+              Navigator.of(context, rootNavigator: true).pop();
+              _showAutoBudgetResults(context, state.autoBudgetResponse!);
+            }
+          } else if (state.status == BudgetsStatus.error) {
+            if (_isAnneLoaderVisible) {
+              _isAnneLoaderVisible = false;
+              Navigator.of(context, rootNavigator: true).pop();
+            }
+
+            if (state.errorMessage != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.errorMessage ?? 'Error')),
+              );
+            }
           }
         },
         child: BlocBuilder<BudgetsBloc, BudgetsState>(
@@ -201,6 +250,241 @@ class _BudgetListViewState extends State<BudgetListView> {
       ),
     );
   }
+
+  void _showAnneLoader(BuildContext context) {
+    _isAnneLoaderVisible = true;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(AppLocalizations.of(context)!.anneAnalyzing),
+          ],
+        ),
+      ),
+    ).then((_) => _isAnneLoaderVisible = false);
+  }
+
+  void _showAutoBudgetResults(
+    BuildContext context,
+    AutoBudgetResponse response,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Icon(
+                    Icons.psychology_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 32,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    AppLocalizations.of(context)!.anneAnalysisTitle,
+                    style: AppTextStyles.h3,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(response.analysis, style: AppTextStyles.bodyMedium),
+              const SizedBox(height: 24),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.4,
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: response.budgets.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final entry = response.budgets[index];
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(entry.category, style: AppTextStyles.bodyMedium),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              CurrencyHelper.formatAmount(
+                                entry.amount,
+                                currencyCode: context
+                                    .read<AuthBloc>()
+                                    .state
+                                    .authResponse
+                                    ?.user
+                                    .currency,
+                              ),
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.end,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final budgetsBloc = context.read<BudgetsBloc>();
+
+                    // 1. Détecter si un budget existe déjà pour cette période
+                    final existingBudget = budgetsBloc.state.budgets.any(
+                      (b) =>
+                          b.period.year == response.budgets.first.period.year &&
+                          b.period.month == response.budgets.first.period.month,
+                    );
+
+                    if (existingBudget) {
+                      final shouldReplace = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: Text(
+                            AppLocalizations.of(context)!.budgetExistsTitle,
+                          ),
+                          content: Text(
+                            AppLocalizations.of(context)!.budgetExistsMessage,
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: Text(AppLocalizations.of(context)!.cancel),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: Text(
+                                AppLocalizations.of(context)!.replaceBudget,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (shouldReplace != true) return;
+
+                      // Si on remplace, on supprime d'abord l'existant
+                      final budgetToDelete = budgetsBloc.state.budgets
+                          .firstWhere(
+                            (b) =>
+                                b.period.year ==
+                                    response.budgets.first.period.year &&
+                                b.period.month ==
+                                    response.budgets.first.period.month,
+                          );
+                      budgetsBloc.add(DeleteBudgetRequested(budgetToDelete.id));
+                    }
+
+                    // 2. Mapper et agréger les montants par catégorie standard
+                    final Map<String, double> aggregatedBudgets = {};
+                    for (final entry in response.budgets) {
+                      final standardCategory =
+                          AppCategories.mapToStandardCategory(entry.category);
+                      aggregatedBudgets[standardCategory] =
+                          (aggregatedBudgets[standardCategory] ?? 0) +
+                          entry.amount;
+                    }
+
+                    // 3. Créer les catégories consolidées
+                    final List<BudgetCategoryModel> categories =
+                        aggregatedBudgets.entries.map((entry) {
+                          return BudgetCategoryModel(
+                            name: entry.key,
+                            allocated: entry.value,
+                            spent: 0,
+                            percentage: 0,
+                          );
+                        }).toList();
+
+                    final totalAllocated = categories.fold<double>(
+                      0,
+                      (sum, item) => sum + item.allocated,
+                    );
+
+                    // 4. Envoyer UNE SEULE requête pour tout le budget du mois
+                    budgetsBloc.add(const ClearAutoBudgetResponse());
+                    budgetsBloc.add(
+                      AddBudgetRequested(
+                        BudgetModel(
+                          id: Uuid().v4(),
+                          period: response.budgets.first.period,
+                          categories: categories,
+                          totalAllocated: totalAllocated,
+                          totalSpent: 0,
+                          status: 'active',
+                          createdAt: DateTime.now(),
+                        ),
+                      ),
+                    );
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.of(context)!.autoBudgetSuccess,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: Text(AppLocalizations.of(context)!.applyBudgets),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Widget représentant un seul budget mensuel dans la liste.
@@ -292,13 +576,13 @@ class _BudgetItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${AppLocalizations.of(context)!.spentLabel}: ${budget.totalSpent.toStringAsFixed(0)} XAF',
+                  '${AppLocalizations.of(context)!.spentLabel}: ${CurrencyHelper.formatAmount(budget.totalSpent, currencyCode: context.read<AuthBloc>().state.authResponse?.user.currency)}',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 Text(
-                  '${AppLocalizations.of(context)!.limitLabel}: ${budget.totalAllocated.toStringAsFixed(0)} XAF',
+                  '${AppLocalizations.of(context)!.limitLabel}: ${CurrencyHelper.formatAmount(budget.totalAllocated, currencyCode: context.read<AuthBloc>().state.authResponse?.user.currency)}',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),

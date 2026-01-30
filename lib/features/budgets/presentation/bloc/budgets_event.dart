@@ -44,3 +44,17 @@ class UpdateBudgetRequested extends BudgetsEvent {
   @override
   List<Object?> get props => [id, totalAllocated];
 }
+
+class GenerateAutoBudgetRequested extends BudgetsEvent {
+  const GenerateAutoBudgetRequested();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class ClearAutoBudgetResponse extends BudgetsEvent {
+  const ClearAutoBudgetResponse();
+
+  @override
+  List<Object?> get props => [];
+}

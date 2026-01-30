@@ -15,6 +15,8 @@ import '../../../budgets/presentation/bloc/budgets_bloc.dart';
 import '../../../budgets/presentation/bloc/budgets_event.dart';
 import '../../../transactions/presentation/bloc/transactions_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import 'package:kauri/core/services/success_animation_service.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class GoalDetailPage extends StatelessWidget {
   final String goalId;
@@ -51,88 +53,117 @@ class GoalDetailPage extends StatelessWidget {
         final daysRemaining = goal.deadline.difference(DateTime.now()).inDays;
         final l10n = AppLocalizations.of(context)!;
 
-        return Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          appBar: AppBar(
-            title: Text(goal.name),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.share),
-                onPressed: () {
-                  getIt<AnalyticsManager>().trackEvent(
-                    feature: 'Goals',
-                    action: 'share',
-                    details: {'id': goal.id},
-                  );
-                  getIt<ShareService>().shareGoal(goal);
-                },
-              ),
-              PopupMenuButton(
-                onSelected: (value) {
-                  if (value == 'delete') {
-                    _showDeleteDialog(context, goal);
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Text(
-                      l10n.delete,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+        return BlocListener<GoalsBloc, GoalsState>(
+          listenWhen: (previous, current) {
+            final prevGoal = previous.goals.firstWhere(
+              (g) => g.id == goalId,
+              orElse: () => goal,
+            );
+            final currGoal = current.goals.firstWhere(
+              (g) => g.id == goalId,
+              orElse: () => goal,
+            );
+            return (currGoal.currentAmount / currGoal.targetAmount) >= 1.0 &&
+                (prevGoal.currentAmount / prevGoal.targetAmount) < 1.0;
+          },
+          listener: (context, state) {
+            final isPremium =
+                context.read<AuthBloc>().state.authResponse?.user.isPremium ??
+                false;
+            if (isPremium) {
+              getIt<SuccessAnimationService>().showSuccess();
+            }
+          },
+          child: Stack(
+            children: [
+              Scaffold(
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                appBar: AppBar(
+                  title: Text(goal.name),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.share),
+                      onPressed: () {
+                        getIt<AnalyticsManager>().trackEvent(
+                          feature: 'Goals',
+                          action: 'share',
+                          details: {'id': goal.id},
+                        );
+                        getIt<ShareService>().shareGoal(goal);
+                      },
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(context, goal, progress, daysRemaining),
-                const SizedBox(height: 32),
-                _buildAmountSection(context, goal),
-                const SizedBox(height: 32),
-                _buildStrategySection(context, goal),
-                const SizedBox(height: 32),
-                _buildAutoSaveSection(context, goal),
-                const SizedBox(height: 48),
-                AppButton(
-                  text: l10n.addSavingsAction,
-                  onPressed: () async {
-                    // Reset status to prevent immediate pop if coming from a previous success
-                    context.read<TransactionsBloc>().add(
-                      ResetTransactionsStatus(),
-                    );
-
-                    final refresh = await context.push<bool>(
-                      '${RouteConstants.transactions}/add',
-                      extra: goal.id,
-                    );
-                    getIt<AnalyticsManager>().trackEvent(
-                      feature: 'Goals',
-                      action: 'add_savings_click',
-                      details: {'goal_id': goal.id},
-                    );
-                    if (refresh == true && context.mounted) {
-                      // Refresh everything to ensure UI is in sync
-                      context.read<TransactionsBloc>().add(
-                        const GetTransactionsRequested(forceRefresh: true),
-                      );
-                      context.read<BudgetsBloc>().add(
-                        const GetBudgetsRequested(forceRefresh: true),
-                      );
-                      context.read<GoalsBloc>().add(
-                        const GetGoalsRequested(forceRefresh: true),
-                      );
-                    }
-                  },
+                    PopupMenuButton(
+                      onSelected: (value) {
+                        if (value == 'delete') {
+                          _showDeleteDialog(context, goal);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Text(
+                            l10n.delete,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+                body: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeader(context, goal, progress, daysRemaining),
+                      const SizedBox(height: 32),
+                      _buildAmountSection(context, goal),
+                      const SizedBox(height: 32),
+                      _buildStrategySection(context, goal),
+                      const SizedBox(height: 32),
+                      _buildAutoSaveSection(context, goal),
+                      const SizedBox(height: 48),
+                      AppButton(
+                        text: l10n.addSavingsAction,
+                        onPressed: () async {
+                          // Reset status to prevent immediate pop if coming from a previous success
+                          context.read<TransactionsBloc>().add(
+                            ResetTransactionsStatus(),
+                          );
+
+                          final refresh = await context.push<bool>(
+                            '${RouteConstants.transactions}/add',
+                            extra: goal.id,
+                          );
+                          getIt<AnalyticsManager>().trackEvent(
+                            feature: 'Goals',
+                            action: 'add_savings_click',
+                            details: {'goal_id': goal.id},
+                          );
+                          if (refresh == true && context.mounted) {
+                            // Refresh everything to ensure UI is in sync
+                            context.read<TransactionsBloc>().add(
+                              const GetTransactionsRequested(
+                                forceRefresh: true,
+                              ),
+                            );
+                            context.read<BudgetsBloc>().add(
+                              const GetBudgetsRequested(forceRefresh: true),
+                            );
+                            context.read<GoalsBloc>().add(
+                              const GetGoalsRequested(forceRefresh: true),
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              getIt<SuccessAnimationService>().buildConfettiWidget(),
+            ],
           ),
         );
       },

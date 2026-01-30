@@ -146,6 +146,12 @@ abstract class AppLocalizations {
   /// **'Mot de passe oublié ?'**
   String get forgotPassword;
 
+  /// No description provided for @optional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optionnel'**
+  String get optional;
+
   /// No description provided for @forgotPasswordSubtitle.
   ///
   /// In fr, this message translates to:
@@ -3685,6 +3691,222 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Retour à la connexion'**
   String get backToLogin;
+
+  /// No description provided for @premiumThemes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Thèmes Élite (Premium)'**
+  String get premiumThemes;
+
+  /// No description provided for @obsidianGoldThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obsidienne & Or'**
+  String get obsidianGoldThemeLabel;
+
+  /// No description provided for @polarNightThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nuit Polaire'**
+  String get polarNightThemeLabel;
+
+  /// No description provided for @sunsetGlowThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crépuscule'**
+  String get sunsetGlowThemeLabel;
+
+  /// No description provided for @emeraldForestThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Forêt d\'Émeraude'**
+  String get emeraldForestThemeLabel;
+
+  /// No description provided for @midnightRoyalThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Royal de Minuit'**
+  String get midnightRoyalThemeLabel;
+
+  /// No description provided for @fontFamily.
+  ///
+  /// In fr, this message translates to:
+  /// **'Police d\'écriture'**
+  String get fontFamily;
+
+  /// No description provided for @elegantFont.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élégant (Playfair)'**
+  String get elegantFont;
+
+  /// No description provided for @modernFont.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moderne (Poppins)'**
+  String get modernFont;
+
+  /// No description provided for @technicalFont.
+  ///
+  /// In fr, this message translates to:
+  /// **'Technique (Roboto Mono)'**
+  String get technicalFont;
+
+  /// No description provided for @classicFont.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classique (Outfit)'**
+  String get classicFont;
+
+  /// No description provided for @sectionAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon Compte'**
+  String get sectionAccount;
+
+  /// No description provided for @sectionAppearance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apparence'**
+  String get sectionAppearance;
+
+  /// No description provided for @sectionLegal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide & Informations'**
+  String get sectionLegal;
+
+  /// No description provided for @sectionDanger.
+  ///
+  /// In fr, this message translates to:
+  /// **'Zone de Danger'**
+  String get sectionDanger;
+
+  /// No description provided for @coachTone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton du Coach'**
+  String get coachTone;
+
+  /// No description provided for @toneBalanced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équilibré (Recommandé)'**
+  String get toneBalanced;
+
+  /// No description provided for @toneEncouraging.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encourageant'**
+  String get toneEncouraging;
+
+  /// No description provided for @toneFirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Directif'**
+  String get toneFirm;
+
+  /// No description provided for @toneBillionaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mentor Milliardaire'**
+  String get toneBillionaire;
+
+  /// No description provided for @toneAccountant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comptable Strict'**
+  String get toneAccountant;
+
+  /// No description provided for @toneAuntie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tata Bienveillante'**
+  String get toneAuntie;
+
+  /// No description provided for @notificationFrequency.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fréquence des Notifications'**
+  String get notificationFrequency;
+
+  /// No description provided for @freqHigh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élevée (Toutes les actus)'**
+  String get freqHigh;
+
+  /// No description provided for @freqMedium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyenne (Essentiel)'**
+  String get freqMedium;
+
+  /// No description provided for @freqLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faible (Critique uniquement)'**
+  String get freqLow;
+
+  /// No description provided for @generateViaAnne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Générer via Anne'**
+  String get generateViaAnne;
+
+  /// No description provided for @anneAnalyzing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anne analyse vos finances...'**
+  String get anneAnalyzing;
+
+  /// No description provided for @applyBudgets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer'**
+  String get applyBudgets;
+
+  /// No description provided for @anneAnalysisTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse d\'Anne'**
+  String get anneAnalysisTitle;
+
+  /// No description provided for @autoBudgetSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budgets appliqués avec succès !'**
+  String get autoBudgetSuccess;
+
+  /// No description provided for @tutorialAnneTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Génération Auto'**
+  String get tutorialAnneTitle;
+
+  /// No description provided for @tutorialAnneDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anne analyse vos revenus et dépenses pour vous proposer un budget optimisé pour le mois à venir.'**
+  String get tutorialAnneDesc;
+
+  /// No description provided for @budgetExistsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget déjà existant'**
+  String get budgetExistsTitle;
+
+  /// No description provided for @budgetExistsMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un budget pour cette période existe déjà. Voulez-vous le remplacer par l\'analyse d\'Anne ?'**
+  String get budgetExistsMessage;
+
+  /// No description provided for @replaceBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplacer'**
+  String get replaceBudget;
 }
 
 class _AppLocalizationsDelegate

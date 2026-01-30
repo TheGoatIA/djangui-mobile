@@ -4,16 +4,16 @@ abstract class SettingsEvent extends Equatable {
   const SettingsEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class ThemeChanged extends SettingsEvent {
-  final ThemeMode themeMode;
+  final AppThemeType themeType;
 
-  const ThemeChanged(this.themeMode);
+  const ThemeChanged(this.themeType);
 
   @override
-  List<Object> get props => [themeMode];
+  List<Object> get props => [themeType];
 }
 
 class LocaleChanged extends SettingsEvent {
@@ -34,4 +34,31 @@ class ToggleBiometrics extends SettingsEvent {
 
   @override
   List<Object> get props => [enabled];
+}
+
+class UpdateDashboardOrder extends SettingsEvent {
+  final List<String> newOrder;
+
+  const UpdateDashboardOrder(this.newOrder);
+
+  @override
+  List<Object> get props => [newOrder];
+}
+
+class FontChanged extends SettingsEvent {
+  final String fontFamily;
+
+  const FontChanged(this.fontFamily);
+
+  @override
+  List<Object> get props => [fontFamily];
+}
+
+class AppIconChanged extends SettingsEvent {
+  final String? iconName;
+
+  const AppIconChanged(this.iconName);
+
+  @override
+  List<Object?> get props => [iconName];
 }

@@ -65,6 +65,7 @@ abstract class AuthRepository {
     String? country,
     String? avatar,
     double? monthlyIncome,
+    UserPreferences? preferences,
   });
 
   /// Met à jour la préférence linguistique de l'utilisateur sur le serveur.

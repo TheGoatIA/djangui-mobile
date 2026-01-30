@@ -33,6 +33,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get forgotPassword => 'Mot de passe oublié ?';
 
   @override
+  String get optional => 'Optionnel';
+
+  @override
   String get forgotPasswordSubtitle =>
       'Entrez votre e-mail pour recevoir un lien de réinitialisation.';
 
@@ -1922,4 +1925,114 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get backToLogin => 'Retour à la connexion';
+
+  @override
+  String get premiumThemes => 'Thèmes Élite (Premium)';
+
+  @override
+  String get obsidianGoldThemeLabel => 'Obsidienne & Or';
+
+  @override
+  String get polarNightThemeLabel => 'Nuit Polaire';
+
+  @override
+  String get sunsetGlowThemeLabel => 'Crépuscule';
+
+  @override
+  String get emeraldForestThemeLabel => 'Forêt d\'Émeraude';
+
+  @override
+  String get midnightRoyalThemeLabel => 'Royal de Minuit';
+
+  @override
+  String get fontFamily => 'Police d\'écriture';
+
+  @override
+  String get elegantFont => 'Élégant (Playfair)';
+
+  @override
+  String get modernFont => 'Moderne (Poppins)';
+
+  @override
+  String get technicalFont => 'Technique (Roboto Mono)';
+
+  @override
+  String get classicFont => 'Classique (Outfit)';
+
+  @override
+  String get sectionAccount => 'Mon Compte';
+
+  @override
+  String get sectionAppearance => 'Apparence';
+
+  @override
+  String get sectionLegal => 'Aide & Informations';
+
+  @override
+  String get sectionDanger => 'Zone de Danger';
+
+  @override
+  String get coachTone => 'Ton du Coach';
+
+  @override
+  String get toneBalanced => 'Équilibré (Recommandé)';
+
+  @override
+  String get toneEncouraging => 'Encourageant';
+
+  @override
+  String get toneFirm => 'Directif';
+
+  @override
+  String get toneBillionaire => 'Mentor Milliardaire';
+
+  @override
+  String get toneAccountant => 'Comptable Strict';
+
+  @override
+  String get toneAuntie => 'Tata Bienveillante';
+
+  @override
+  String get notificationFrequency => 'Fréquence des Notifications';
+
+  @override
+  String get freqHigh => 'Élevée (Toutes les actus)';
+
+  @override
+  String get freqMedium => 'Moyenne (Essentiel)';
+
+  @override
+  String get freqLow => 'Faible (Critique uniquement)';
+
+  @override
+  String get generateViaAnne => 'Générer via Anne';
+
+  @override
+  String get anneAnalyzing => 'Anne analyse vos finances...';
+
+  @override
+  String get applyBudgets => 'Appliquer';
+
+  @override
+  String get anneAnalysisTitle => 'Analyse d\'Anne';
+
+  @override
+  String get autoBudgetSuccess => 'Budgets appliqués avec succès !';
+
+  @override
+  String get tutorialAnneTitle => 'Génération Auto';
+
+  @override
+  String get tutorialAnneDesc =>
+      'Anne analyse vos revenus et dépenses pour vous proposer un budget optimisé pour le mois à venir.';
+
+  @override
+  String get budgetExistsTitle => 'Budget déjà existant';
+
+  @override
+  String get budgetExistsMessage =>
+      'Un budget pour cette période existe déjà. Voulez-vous le remplacer par l\'analyse d\'Anne ?';
+
+  @override
+  String get replaceBudget => 'Remplacer';
 }

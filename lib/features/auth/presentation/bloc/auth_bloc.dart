@@ -6,6 +6,7 @@ import '../../data/models/auth_response.dart';
 import '../../data/models/login_request.dart';
 import '../../data/models/register_request.dart';
 import '../../data/models/session_model.dart';
+import '../../data/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 part 'auth_event.dart';
@@ -345,6 +346,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       country: event.country,
       avatar: event.avatar,
       monthlyIncome: event.monthlyIncome,
+      preferences: event.preferences,
     );
     result.fold(
       (failure) => emit(

@@ -5,6 +5,7 @@ import 'package:kauri/features/auth/data/models/auth_response.dart';
 import 'package:kauri/features/auth/data/models/user_model.dart';
 import 'package:kauri/features/auth/data/models/badge_model.dart';
 import 'package:kauri/features/budgets/data/models/budget_model.dart';
+import 'package:kauri/features/budgets/data/models/auto_budget_response.dart';
 import 'package:kauri/features/challenges/data/models/challenge_model.dart';
 import 'package:kauri/features/goals/data/models/goal_model.dart';
 import 'package:kauri/features/insights/data/models/insight_model.dart';
@@ -88,6 +89,7 @@ class KauriApiClient {
         SubscriptionModel: (json) => SubscriptionModel.fromJson(json),
         SubscriptionSuggestion: (json) => SubscriptionSuggestion.fromJson(json),
         SessionStartResponse: (json) => SessionStartResponse.fromJson(json),
+        AutoBudgetResponse: (json) => AutoBudgetResponse.fromJson(json),
       }),
       // Convertisseur d'erreur spécifique pour les retours 4xx/5xx ayant une structure JSON.
       errorConverter: JsonToTypeConverter({

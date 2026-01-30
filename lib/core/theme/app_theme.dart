@@ -8,11 +8,16 @@ import 'app_typography.dart';
 /// standard Flutter (Buttons, Inputs, AppBars, etc.).
 class AppTheme {
   /// Retourne la configuration complète du Thème Clair (Light Mode).
-  static ThemeData get lightTheme {
+  static ThemeData lightTheme([String? fontFamily]) {
+    final textTheme = AppTypography.getTextTheme(
+      Brightness.light,
+      fontFamily ?? AppTypography.fontFamily,
+    );
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      fontFamily: AppTypography.fontFamily,
+      fontFamily: fontFamily ?? AppTypography.fontFamily,
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         onPrimary: Colors.white,
@@ -29,7 +34,7 @@ class AppTheme {
         onError: Colors.white,
       ),
       scaffoldBackgroundColor: AppColors.background,
-      textTheme: AppTypography.lightTextTheme,
+      textTheme: textTheme,
 
       // Configuration des barres d'application
       appBarTheme: const AppBarTheme(
@@ -54,7 +59,11 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         indicatorColor: AppColors.primary.withValues(alpha: 0.1),
         labelTextStyle: WidgetStateProperty.all(
-          const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+          TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            fontFamily: fontFamily ?? AppTypography.fontFamily,
+          ),
         ),
       ),
 
@@ -68,7 +77,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: AppTypography.lightTextTheme.labelLarge?.copyWith(
+          textStyle: textTheme.labelLarge?.copyWith(
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -100,11 +109,16 @@ class AppTheme {
   }
 
   /// Retourne la configuration complète du Thème Sombre (Dark Mode).
-  static ThemeData get darkTheme {
+  static ThemeData darkTheme([String? fontFamily]) {
+    final textTheme = AppTypography.getTextTheme(
+      Brightness.dark,
+      fontFamily ?? AppTypography.fontFamily,
+    );
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      fontFamily: AppTypography.fontFamily,
+      fontFamily: fontFamily ?? AppTypography.fontFamily,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primaryDarkTheme,
         onPrimary: AppColors.backgroundDark,
@@ -122,7 +136,7 @@ class AppTheme {
         onError: Colors.white,
       ),
       scaffoldBackgroundColor: AppColors.backgroundDark,
-      textTheme: AppTypography.darkTextTheme,
+      textTheme: textTheme,
 
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surfaceDark,
@@ -147,7 +161,11 @@ class AppTheme {
         backgroundColor: AppColors.surfaceDark,
         indicatorColor: AppColors.primaryDarkTheme.withValues(alpha: 0.1),
         labelTextStyle: WidgetStateProperty.all(
-          const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+          TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            fontFamily: fontFamily ?? AppTypography.fontFamily,
+          ),
         ),
       ),
 
@@ -160,7 +178,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: AppTypography.darkTextTheme.labelLarge?.copyWith(
+          textStyle: textTheme.labelLarge?.copyWith(
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -189,6 +207,156 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.error),
         ),
+      ),
+    );
+  }
+
+  /// Retourne le thème exclusif "Obsidienne & Or" pour les membres Premium.
+  static ThemeData obsidianGoldTheme([String? fontFamily]) {
+    final base = darkTheme(fontFamily);
+    return base.copyWith(
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.goldAccent,
+        onPrimary: AppColors.obsidianBlack,
+        secondary: AppColors.goldLight,
+        onSecondary: AppColors.obsidianBlack,
+        surface: AppColors.obsidianSurface,
+        onSurface: Colors.white,
+        outline: AppColors.goldAccent.withValues(alpha: 0.3),
+      ),
+      scaffoldBackgroundColor: AppColors.obsidianBlack,
+      cardTheme: base.cardTheme.copyWith(
+        color: AppColors.obsidianSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.goldAccent, width: 0.5),
+        ),
+      ),
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: AppColors.obsidianBlack,
+      ),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        backgroundColor: AppColors.obsidianBlack,
+      ),
+    );
+  }
+
+  /// Retourne le thème exclusif "Nuit Polaire" pour les membres Premium.
+  static ThemeData polarNightTheme([String? fontFamily]) {
+    final base = darkTheme(fontFamily);
+    return base.copyWith(
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.polarIce,
+        onPrimary: AppColors.polarDeepBlue,
+        secondary: AppColors.polarSilver,
+        onSecondary: AppColors.polarDeepBlue,
+        surface: AppColors.polarSurface,
+        onSurface: Colors.white,
+        outline: AppColors.polarIce.withValues(alpha: 0.2),
+      ),
+      scaffoldBackgroundColor: AppColors.polarDeepBlue,
+      cardTheme: base.cardTheme.copyWith(
+        color: AppColors.polarSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.polarIce, width: 0.5),
+        ),
+      ),
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: AppColors.polarDeepBlue,
+      ),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        backgroundColor: AppColors.polarDeepBlue,
+      ),
+    );
+  }
+
+  /// Retourne le thème exclusif "Crépuscule" pour les membres Premium.
+  static ThemeData sunsetGlowTheme([String? fontFamily]) {
+    final base = darkTheme(fontFamily);
+    return base.copyWith(
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.sunsetOrange,
+        onPrimary: AppColors.sunsetPurple,
+        secondary: AppColors.sunsetPink,
+        onSecondary: Colors.white,
+        surface: AppColors.sunsetSurface,
+        onSurface: Colors.white,
+        outline: AppColors.sunsetOrange.withValues(alpha: 0.2),
+      ),
+      scaffoldBackgroundColor: AppColors.sunsetPurple,
+      cardTheme: base.cardTheme.copyWith(
+        color: AppColors.sunsetSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.sunsetOrange, width: 0.5),
+        ),
+      ),
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: AppColors.sunsetPurple,
+      ),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        backgroundColor: AppColors.sunsetPurple,
+      ),
+    );
+  }
+
+  /// Retourne le thème exclusif "Forêt d'Émeraude" pour les membres Premium.
+  static ThemeData emeraldForestTheme([String? fontFamily]) {
+    final base = darkTheme(fontFamily);
+    return base.copyWith(
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.emeraldLime,
+        onPrimary: AppColors.emeraldDeep,
+        secondary: AppColors.emeraldWood,
+        onSecondary: Colors.white,
+        surface: AppColors.emeraldSurface,
+        onSurface: Colors.white,
+        outline: AppColors.emeraldLime.withValues(alpha: 0.2),
+      ),
+      scaffoldBackgroundColor: AppColors.emeraldDeep,
+      cardTheme: base.cardTheme.copyWith(
+        color: AppColors.emeraldSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.emeraldLime, width: 0.5),
+        ),
+      ),
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: AppColors.emeraldDeep,
+      ),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        backgroundColor: AppColors.emeraldDeep,
+      ),
+    );
+  }
+
+  /// Retourne le thème exclusif "Royal de Minuit" pour les membres Premium.
+  static ThemeData midnightRoyalTheme([String? fontFamily]) {
+    final base = darkTheme(fontFamily);
+    return base.copyWith(
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.royalGold,
+        onPrimary: AppColors.royalBlue,
+        secondary: AppColors.royalAccent,
+        onSecondary: Colors.white,
+        surface: AppColors.royalSurface,
+        onSurface: Colors.white,
+        outline: AppColors.royalAccent.withValues(alpha: 0.3),
+      ),
+      scaffoldBackgroundColor: AppColors.royalBlue,
+      cardTheme: base.cardTheme.copyWith(
+        color: AppColors.royalSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.royalAccent, width: 0.5),
+        ),
+      ),
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: AppColors.royalBlue,
+      ),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        backgroundColor: AppColors.royalBlue,
       ),
     );
   }

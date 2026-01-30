@@ -70,4 +70,13 @@ final class _$BudgetApiService extends BudgetApiService {
     final Request $request = Request('DELETE', $url, client.baseUrl);
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
+
+  @override
+  Future<Response<BaseResponse<AutoBudgetResponse>>> generateAutoBudget() {
+    final Uri $url = Uri.parse('/premium/auto-budget');
+    final Request $request = Request('POST', $url, client.baseUrl);
+    return client.send<BaseResponse<AutoBudgetResponse>, AutoBudgetResponse>(
+      $request,
+    );
+  }
 }

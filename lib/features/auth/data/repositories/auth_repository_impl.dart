@@ -278,6 +278,7 @@ class AuthRepositoryImpl implements AuthRepository {
     String? country,
     String? avatar,
     double? monthlyIncome,
+    UserPreferences? preferences,
   }) async {
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
 
@@ -288,6 +289,7 @@ class AuthRepositoryImpl implements AuthRepository {
         country: country,
         avatar: avatar,
         monthlyIncome: monthlyIncome,
+        preferences: preferences,
       );
       await _localDataSource.saveUser(user);
       return Right(user);

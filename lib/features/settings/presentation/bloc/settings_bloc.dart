@@ -5,6 +5,9 @@ import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:kauri/features/auth/domain/repositories/auth_repository.dart';
+import '../../../../core/theme/app_theme_type.dart';
+import '../../../../core/services/app_icon_service.dart';
+import '../../../../di/injection.dart';
 
 part 'settings_event.dart';
 part 'settings_state.dart';
@@ -20,6 +23,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<ThemeChanged>(_onThemeChanged);
     on<LocaleChanged>(_onLocaleChanged);
     on<ToggleBiometrics>(_onToggleBiometrics);
+    on<UpdateDashboardOrder>(_onUpdateDashboardOrder);
+    on<FontChanged>(_onFontChanged);
+    on<AppIconChanged>(_onAppIconChanged);
   }
 
   void _onLoadSettings(LoadSettings event, Emitter<SettingsState> emit) {
@@ -27,15 +33,22 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     final languageCode = _prefs.getString('language_code');
     final biometricsEnabled = _prefs.getBool('biometrics_enabled') ?? false;
 
+    final dashboardOrder = _prefs.getStringList('dashboard_order');
+    final fontFamily = _prefs.getString('font_family') ?? 'Outfit';
+    final appIcon = _prefs.getString('app_icon');
+
     emit(
       state.copyWith(
-        themeMode: themeIndex != null
-            ? ThemeMode.values[themeIndex]
-            : ThemeMode.system,
+        themeType: themeIndex != null
+            ? AppThemeType.values[themeIndex]
+            : AppThemeType.system,
         locale: languageCode != null
             ? Locale(languageCode)
             : const Locale('fr'),
         biometricsEnabled: biometricsEnabled,
+        dashboardOrder: dashboardOrder,
+        fontFamily: fontFamily,
+        appIcon: appIcon,
       ),
     );
   }
@@ -44,8 +57,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     ThemeChanged event,
     Emitter<SettingsState> emit,
   ) async {
-    await _prefs.setInt('theme_mode', event.themeMode.index);
-    emit(state.copyWith(themeMode: event.themeMode));
+    await _prefs.setInt('theme_mode', event.themeType.index);
+    emit(state.copyWith(themeType: event.themeType));
   }
 
   Future<void> _onLocaleChanged(
@@ -71,5 +84,39 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   ) async {
     await _prefs.setBool('biometrics_enabled', event.enabled);
     emit(state.copyWith(biometricsEnabled: event.enabled));
+  }
+
+  Future<void> _onUpdateDashboardOrder(
+    UpdateDashboardOrder event,
+    Emitter<SettingsState> emit,
+  ) async {
+    await _prefs.setStringList('dashboard_order', event.newOrder);
+    emit(state.copyWith(dashboardOrder: event.newOrder));
+  }
+
+  Future<void> _onFontChanged(
+    FontChanged event,
+    Emitter<SettingsState> emit,
+  ) async {
+    await _prefs.setString('font_family', event.fontFamily);
+    emit(state.copyWith(fontFamily: event.fontFamily));
+  }
+
+  Future<void> _onAppIconChanged(
+    AppIconChanged event,
+    Emitter<SettingsState> emit,
+  ) async {
+    // 1. Sauvegarder la préférence locale (Source de vérité UI)
+    if (event.iconName != null) {
+      await _prefs.setString('app_icon', event.iconName!);
+    } else {
+      await _prefs.remove('app_icon');
+    }
+
+    emit(state.copyWith(appIcon: event.iconName));
+
+    // 2. Appeler le service natif (Fire-and-forget pour ne pas bloquer l'UI)
+    // On ne bloque pas l'émission de l'état car le changement d'icône peut être lent ou kill l'app.
+    getIt<AppIconService>().changeIcon(event.iconName);
   }
 }

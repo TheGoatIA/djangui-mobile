@@ -259,7 +259,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
                       return DropdownButtonFormField<String>(
                         decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.country,
+                          labelText:
+                              '${AppLocalizations.of(context)!.country} (${AppLocalizations.of(context)!.optional})',
                           hintText: AppLocalizations.of(context)!.selectCountry,
                           prefixIcon: const Icon(Icons.public),
                           border: OutlineInputBorder(
@@ -294,9 +295,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 password: _passwordController.text,
                                 firstName: _firstNameController.text,
                                 lastName: _lastNameController.text,
-                                country:
-                                    _selectedCountry ??
-                                    'CM', // Default to CM if not selected
+                                country: _selectedCountry,
                               ),
                             );
                           }

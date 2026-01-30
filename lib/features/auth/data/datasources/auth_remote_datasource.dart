@@ -25,6 +25,7 @@ abstract class AuthRemoteDataSource {
     String? country,
     String? avatar,
     double? monthlyIncome,
+    UserPreferences? preferences,
   });
   Future<void> forgotPassword(String email);
   Future<void> resetPassword(String token, String newPassword);
@@ -114,6 +115,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String? country,
     String? avatar,
     double? monthlyIncome,
+    UserPreferences? preferences,
   }) async {
     final response = await _apiService.updateProfile({
       if (firstName != null) 'firstName': firstName,
@@ -121,6 +123,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (country != null) 'country': country,
       if (avatar != null) 'avatar': avatar,
       if (monthlyIncome != null) 'monthlyIncome': monthlyIncome,
+      if (preferences != null) 'preferences': preferences.toJson(),
     });
 
     if (response.isSuccessful && response.body?.data != null) {

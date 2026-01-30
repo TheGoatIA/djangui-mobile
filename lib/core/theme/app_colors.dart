@@ -91,4 +91,64 @@ class AppColors {
   static const Color textPrimaryDark = Color(0xFFF9FAFB);
   static const Color textSecondaryDark = Color(0xFFD1D5DB);
   static const Color textTertiaryDark = Color(0xFF9CA3AF);
+
+  // --- Obsidian & Gold (Premium) ---
+  static const Color obsidianBlack = Color(0xFF0F0F0F);
+  static const Color obsidianSurface = Color(0xFF1A1A1A);
+  static const Color goldAccent = Color(0xFFD4AF37);
+  static const Color goldLight = Color(0xFFFFD700);
+
+  static const LinearGradient obsidianGoldGradient = LinearGradient(
+    colors: [obsidianBlack, Color(0xFF2C2C2C)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // --- Polar Night (Premium) ---
+  static const Color polarDeepBlue = Color(0xFF0B1118);
+  static const Color polarSurface = Color(0xFF141D26);
+  static const Color polarIce = Color(0xFF81D4FA);
+  static const Color polarSilver = Color(0xFFB0BEC5);
+
+  static const LinearGradient polarNightGradient = LinearGradient(
+    colors: [polarDeepBlue, Color(0xFF1A2634)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // --- Sunset Glow (Premium) ---
+  static const Color sunsetPurple = Color(0xFF2D1B36);
+  static const Color sunsetSurface = Color(0xFF3B2447);
+  static const Color sunsetOrange = Color(0xFFFF8C42);
+  static const Color sunsetPink = Color(0xFFF06292);
+
+  static const LinearGradient sunsetGradient = LinearGradient(
+    colors: [sunsetPurple, Color(0xFF4A2C59)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // --- Emerald Forest (Premium) ---
+  static const Color emeraldDeep = Color(0xFF062C21);
+  static const Color emeraldSurface = Color(0xFF0A3D2E);
+  static const Color emeraldLime = Color(0xFFD4E157);
+  static const Color emeraldWood = Color(0xFF795548);
+
+  static const LinearGradient emeraldGradient = LinearGradient(
+    colors: [emeraldDeep, Color(0xFF0E4D3B)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // --- Midnight Royal (Premium) ---
+  static const Color royalBlue = Color(0xFF0D1B2A);
+  static const Color royalSurface = Color(0xFF1B263B);
+  static const Color royalGold = Color(0xFFE0E1DD);
+  static const Color royalAccent = Color(0xFF415A77);
+
+  static const LinearGradient royalGradient = LinearGradient(
+    colors: [royalBlue, Color(0xFF1B3A5A)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }

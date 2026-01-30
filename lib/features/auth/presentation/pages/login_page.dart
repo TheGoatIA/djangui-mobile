@@ -14,7 +14,6 @@ import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../../di/injection.dart';
-import '../../../../features/system/presentation/bloc/system_bloc.dart';
 
 /// Page de connexion de l'application.
 ///
@@ -297,10 +296,13 @@ class _LoginPageState extends State<LoginPage> {
                   // Connexion Google
                   OutlinedButton(
                     onPressed: () {
-                      _showSocialCountryDialog(
-                        context,
-                        (countryCode) =>
-                            AuthGoogleSignInRequested(countryCode: countryCode),
+                      getIt<AnalyticsManager>().trackEvent(
+                        feature: 'Auth',
+                        action: 'social_login_attempt',
+                        details: {'provider': 'google'},
+                      );
+                      context.read<AuthBloc>().add(
+                        const AuthGoogleSignInRequested(),
                       );
                     },
                     style: OutlinedButton.styleFrom(
@@ -336,11 +338,13 @@ class _LoginPageState extends State<LoginPage> {
                   if (Platform.isIOS) ...[
                     OutlinedButton(
                       onPressed: () {
-                        _showSocialCountryDialog(
-                          context,
-                          (countryCode) => AuthAppleSignInRequested(
-                            countryCode: countryCode,
-                          ),
+                        getIt<AnalyticsManager>().trackEvent(
+                          feature: 'Auth',
+                          action: 'social_login_attempt',
+                          details: {'provider': 'apple'},
+                        );
+                        context.read<AuthBloc>().add(
+                          const AuthAppleSignInRequested(),
                         );
                       },
                       style: OutlinedButton.styleFrom(
@@ -431,57 +435,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  /// Affiche une boîte de dialogue pour sélectionner un pays avant une connexion sociale.
-  ///
-  /// Ceci est nécessaire pour configurer les paramètres régionaux de l'utilisateur
-  /// lors de sa première inscription via Google ou Apple.
-  void _showSocialCountryDialog(
-    BuildContext context,
-    AuthEvent Function(String countryCode) createEvent,
-  ) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.selectCountry),
-        content: BlocBuilder<SystemBloc, SystemState>(
-          builder: (context, state) {
-            if (state.countries.isEmpty) {
-              return const SizedBox(
-                height: 100,
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: state.countries.where((c) => c.isActive).map((
-                  country,
-                ) {
-                  return ListTile(
-                    title: Text(country.name),
-                    onTap: () {
-                      getIt<AnalyticsManager>().trackEvent(
-                        feature: 'Auth',
-                        action: 'social_login_attempt',
-                        details: {
-                          'provider': createEvent is AuthGoogleSignInRequested
-                              ? 'google'
-                              : 'apple',
-                        },
-                      );
-                      Navigator.pop(dialogContext);
-                      context.read<AuthBloc>().add(createEvent(country.code));
-                    },
-                  );
-                }).toList(),
-              ),
-            );
-          },
         ),
       ),
     );

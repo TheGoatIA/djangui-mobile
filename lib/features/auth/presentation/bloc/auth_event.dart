@@ -44,6 +44,7 @@ class AuthUpdateProfileRequested extends AuthEvent {
   final String? country;
   final String? avatar;
   final double? monthlyIncome;
+  final UserPreferences? preferences;
 
   const AuthUpdateProfileRequested({
     this.firstName,
@@ -51,6 +52,7 @@ class AuthUpdateProfileRequested extends AuthEvent {
     this.country,
     this.avatar,
     this.monthlyIncome,
+    this.preferences,
   });
 
   @override
@@ -59,7 +61,9 @@ class AuthUpdateProfileRequested extends AuthEvent {
     lastName,
     country,
     avatar,
+    avatar,
     monthlyIncome,
+    preferences,
   ];
 }
 

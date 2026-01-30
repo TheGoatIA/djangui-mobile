@@ -8,7 +8,7 @@ part of 'budget_model.dart';
 
 BudgetPeriodModel _$BudgetPeriodModelFromJson(Map<String, dynamic> json) =>
     BudgetPeriodModel(
-      type: json['type'] as String,
+      type: json['type'] as String? ?? 'monthly',
       month: (json['month'] as num).toInt(),
       year: (json['year'] as num).toInt(),
     );
