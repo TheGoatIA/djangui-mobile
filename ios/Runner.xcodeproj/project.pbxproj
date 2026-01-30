@@ -15,6 +15,14 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		F8F982022B45678900ABCDEF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F8F982012B45678900ABCDEF /* GoogleService-Info.plist */; };
+		F8F982042B45678900ABCDEF /* logo_dark.png in Resources */ = {isa = PBXBuildFile; fileRef = F8F982032B45678900ABCDEF /* logo_dark.png */; };
+		F8F982062B45678900ABCDEF /* logo_dark-120.png in Resources */ = {isa = PBXBuildFile; fileRef = F8F982052B45678900ABCDEF /* logo_dark-120.png */; };
+		F8F982082B45678900ABCDEF /* logo_dark-152.png in Resources */ = {isa = PBXBuildFile; fileRef = F8F982072B45678900ABCDEF /* logo_dark-152.png */; };
+		F8F9820A2B45678900ABCDEF /* logo_dark-167.png in Resources */ = {isa = PBXBuildFile; fileRef = F8F982092B45678900ABCDEF /* logo_dark-167.png */; };
+		F8F9820C2B45678900ABCDEF /* logo_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = F8F9820B2B45678900ABCDEF /* logo_gold.png */; };
+		F8F9820E2B45678900ABCDEF /* logo_gold-120.png in Resources */ = {isa = PBXBuildFile; fileRef = F8F9820D2B45678900ABCDEF /* logo_gold-120.png */; };
+		F8F982102B45678900ABCDEF /* logo_gold-152.png in Resources */ = {isa = PBXBuildFile; fileRef = F8F9820F2B45678900ABCDEF /* logo_gold-152.png */; };
+		F8F982122B45678900ABCDEF /* logo_gold-167.png in Resources */ = {isa = PBXBuildFile; fileRef = F8F982112B45678900ABCDEF /* logo_gold-167.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +66,14 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F85B2FD12B00000000000000 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		F8F982012B45678900ABCDEF /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		F8F982032B45678900ABCDEF /* logo_dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo_dark.png; sourceTree = "<group>"; };
+		F8F982052B45678900ABCDEF /* logo_dark-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo_dark-120.png"; sourceTree = "<group>"; };
+		F8F982072B45678900ABCDEF /* logo_dark-152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo_dark-152.png"; sourceTree = "<group>"; };
+		F8F982092B45678900ABCDEF /* logo_dark-167.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo_dark-167.png"; sourceTree = "<group>"; };
+		F8F9820B2B45678900ABCDEF /* logo_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo_gold.png; sourceTree = "<group>"; };
+		F8F9820D2B45678900ABCDEF /* logo_gold-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo_gold-120.png"; sourceTree = "<group>"; };
+		F8F9820F2B45678900ABCDEF /* logo_gold-152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo_gold-152.png"; sourceTree = "<group>"; };
+		F8F982112B45678900ABCDEF /* logo_gold-167.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo_gold-167.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +138,14 @@
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				F85B2FD12B00000000000000 /* Runner.entitlements */,
 				F8F982012B45678900ABCDEF /* GoogleService-Info.plist */,
+				F8F982032B45678900ABCDEF /* logo_dark.png */,
+				F8F982052B45678900ABCDEF /* logo_dark-120.png */,
+				F8F982072B45678900ABCDEF /* logo_dark-152.png */,
+				F8F982092B45678900ABCDEF /* logo_dark-167.png */,
+				F8F9820B2B45678900ABCDEF /* logo_gold.png */,
+				F8F9820D2B45678900ABCDEF /* logo_gold-120.png */,
+				F8F9820F2B45678900ABCDEF /* logo_gold-152.png */,
+				F8F982112B45678900ABCDEF /* logo_gold-167.png */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -222,6 +246,14 @@
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				F8F982022B45678900ABCDEF /* GoogleService-Info.plist in Resources */,
+				F8F982042B45678900ABCDEF /* logo_dark.png in Resources */,
+				F8F982062B45678900ABCDEF /* logo_dark-120.png in Resources */,
+				F8F982082B45678900ABCDEF /* logo_dark-152.png in Resources */,
+				F8F9820A2B45678900ABCDEF /* logo_dark-167.png in Resources */,
+				F8F9820C2B45678900ABCDEF /* logo_gold.png in Resources */,
+				F8F9820E2B45678900ABCDEF /* logo_gold-120.png in Resources */,
+				F8F982102B45678900ABCDEF /* logo_gold-152.png in Resources */,
+				F8F982122B45678900ABCDEF /* logo_gold-167.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
