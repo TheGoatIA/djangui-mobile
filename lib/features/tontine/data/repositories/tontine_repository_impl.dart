@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/database/database.dart' as db;
 import 'package:http/http.dart' show MultipartFile;
 import 'package:http_parser/http_parser.dart';
 import 'package:kauri/core/errors/failures.dart';
 import 'package:kauri/core/network/network_info.dart';
 import '../datasources/tontine_api_service.dart';
+import '../datasources/tontine_local_datasource.dart';
 import '../../domain/entities/tontine_entities.dart';
 import '../models/tontine_model.dart';
 import '../../domain/repositories/tontine_repository.dart';
@@ -13,9 +16,16 @@ import '../../domain/repositories/tontine_repository.dart';
 @LazySingleton(as: TontineRepository)
 class TontineRepositoryImpl implements TontineRepository {
   final TontineApiService _apiService;
+  final TontineLocalDataSource _localDataSource;
   final NetworkInfo _networkInfo;
+  final db.AppDatabase _db;
 
-  TontineRepositoryImpl(this._apiService, this._networkInfo);
+  TontineRepositoryImpl(
+    this._apiService,
+    this._localDataSource,
+    this._networkInfo,
+    this._db,
+  );
 
   @override
   Future<Either<Failure, Tontine>> createTontine(
@@ -25,7 +35,9 @@ class TontineRepositoryImpl implements TontineRepository {
       try {
         final response = await _apiService.createTontine(params);
         if (response.isSuccessful && response.body?.data != null) {
-          return Right(_mapModelToEntity(response.body!.data!));
+          final model = response.body!.data!;
+          await _localDataSource.saveTontine(model);
+          return Right(_mapModelToEntity(model));
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
@@ -38,34 +50,62 @@ class TontineRepositoryImpl implements TontineRepository {
 
   @override
   Future<Either<Failure, List<Tontine>>> getTontines() async {
+    final localModels = await _localDataSource.getTontines();
+    if (localModels.isNotEmpty && !await _networkInfo.isConnected) {
+      return Right(localModels.map(_mapModelToEntity).toList());
+    }
+
     if (await _networkInfo.isConnected) {
       try {
         final response = await _apiService.getTontines();
         if (response.isSuccessful && response.body?.data != null) {
-          return Right(response.body!.data!.map(_mapModelToEntity).toList());
+          final remoteModels = response.body!.data!;
+          await _localDataSource.saveTontines(remoteModels);
+          return Right(remoteModels.map(_mapModelToEntity).toList());
+        }
+        if (localModels.isNotEmpty) {
+          return Right(localModels.map(_mapModelToEntity).toList());
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
+        if (localModels.isNotEmpty) {
+          return Right(localModels.map(_mapModelToEntity).toList());
+        }
         return Left(ServerFailure(e.toString()));
       }
     } else {
+      if (localModels.isNotEmpty) {
+        return Right(localModels.map(_mapModelToEntity).toList());
+      }
       return Left(NetworkFailure());
     }
   }
 
   @override
   Future<Either<Failure, Tontine>> getTontineDetails(String id) async {
+    final localModels = await _localDataSource.getTontines();
+    final localModel = localModels.where((t) => t.id == id).firstOrNull;
+
+    if (localModel != null && !await _networkInfo.isConnected) {
+      return Right(_mapModelToEntity(localModel));
+    }
+
     if (await _networkInfo.isConnected) {
       try {
         final response = await _apiService.getTontineDetails(id);
         if (response.isSuccessful && response.body?.data != null) {
-          return Right(_mapModelToEntity(response.body!.data!));
+          final remoteModel = response.body!.data!;
+          await _localDataSource.saveTontine(remoteModel);
+          return Right(_mapModelToEntity(remoteModel));
         }
+        if (localModel != null) return Right(_mapModelToEntity(localModel));
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
+        if (localModel != null) return Right(_mapModelToEntity(localModel));
         return Left(ServerFailure(e.toString()));
       }
     } else {
+      if (localModel != null) return Right(_mapModelToEntity(localModel));
       return Left(NetworkFailure());
     }
   }
@@ -79,7 +119,9 @@ class TontineRepositoryImpl implements TontineRepository {
       try {
         final response = await _apiService.updateTontine(id, params);
         if (response.isSuccessful && response.body?.data != null) {
-          return Right(_mapModelToEntity(response.body!.data!));
+          final model = response.body!.data!;
+          await _localDataSource.saveTontine(model);
+          return Right(_mapModelToEntity(model));
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
@@ -95,7 +137,10 @@ class TontineRepositoryImpl implements TontineRepository {
     if (await _networkInfo.isConnected) {
       try {
         final response = await _apiService.deleteTontine(id);
-        if (response.isSuccessful) return const Right(unit);
+        if (response.isSuccessful) {
+          await _localDataSource.deleteTontine(id);
+          return const Right(unit);
+        }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
         return Left(ServerFailure(e.toString()));
@@ -125,9 +170,31 @@ class TontineRepositoryImpl implements TontineRepository {
           );
           if (tontineResponse.isSuccessful &&
               tontineResponse.body?.data != null) {
-            return Right(_mapModelToEntity(tontineResponse.body!.data!));
+            final tontineModel = tontineResponse.body!.data!;
+            await _localDataSource.saveTontine(tontineModel);
+            return Right(_mapModelToEntity(tontineModel));
           }
           return Left(ServerFailure(_getErrorMessage(tontineResponse.error)));
+        }
+        return Left(ServerFailure(_getErrorMessage(response.error)));
+      } catch (e) {
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> leaveTontine(String id) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final response = await _apiService.removeMember(
+          id,
+          'me',
+        ); // Simplified for example
+        if (response.isSuccessful) {
+          return const Right(null);
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
@@ -144,7 +211,9 @@ class TontineRepositoryImpl implements TontineRepository {
       try {
         final response = await _apiService.startTontine(id);
         if (response.isSuccessful && response.body?.data != null) {
-          return Right(_mapModelToEntity(response.body!.data!));
+          final model = response.body!.data!;
+          await _localDataSource.saveTontine(model);
+          return Right(_mapModelToEntity(model));
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
@@ -159,19 +228,66 @@ class TontineRepositoryImpl implements TontineRepository {
   Future<Either<Failure, List<TontineMember>>> getTontineMembers(
     String id,
   ) async {
+    final localMembers = await _localDataSource.getTontineMembers(id);
+    if (localMembers.isNotEmpty && !await _networkInfo.isConnected) {
+      return Right(localMembers.map(_mapMemberModelToEntity).toList());
+    }
+
     if (await _networkInfo.isConnected) {
       try {
         final response = await _apiService.getTontineMembers(id);
         if (response.isSuccessful && response.body?.data != null) {
-          return Right(
-            response.body!.data!.map(_mapMemberModelToEntity).toList(),
-          );
+          final remoteMembers = response.body!.data!;
+          await _localDataSource.saveTontineMembers(id, remoteMembers);
+          return Right(remoteMembers.map(_mapMemberModelToEntity).toList());
+        }
+        if (localMembers.isNotEmpty) {
+          return Right(localMembers.map(_mapMemberModelToEntity).toList());
+        }
+        return Left(ServerFailure(_getErrorMessage(response.error)));
+      } catch (e) {
+        if (localMembers.isNotEmpty) {
+          return Right(localMembers.map(_mapMemberModelToEntity).toList());
+        }
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      if (localMembers.isNotEmpty) {
+        return Right(localMembers.map(_mapMemberModelToEntity).toList());
+      }
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, TontineMember>> getMemberDetails(
+    String tontineId,
+    String memberId,
+  ) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final response = await _apiService.getTontineMembers(tontineId);
+        if (response.isSuccessful && response.body?.data != null) {
+          final memberModel = response.body!.data!
+              .where((m) => m.id == memberId)
+              .firstOrNull;
+          if (memberModel != null) {
+            return Right(_mapMemberModelToEntity(memberModel));
+          }
+          return Left(ServerFailure('Membre non trouvé'));
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
         return Left(ServerFailure(e.toString()));
       }
     } else {
+      final localMembers = await _localDataSource.getTontineMembers(tontineId);
+      final memberModel = localMembers
+          .where((m) => m.id == memberId)
+          .firstOrNull;
+      if (memberModel != null) {
+        return Right(_mapMemberModelToEntity(memberModel));
+      }
       return Left(NetworkFailure());
     }
   }
@@ -220,19 +336,33 @@ class TontineRepositoryImpl implements TontineRepository {
   Future<Either<Failure, List<TontineMessage>>> getTontineMessages(
     String id,
   ) async {
+    final localMessages = await _localDataSource.getTontineMessages(id);
+    if (localMessages.isNotEmpty && !await _networkInfo.isConnected) {
+      return Right(localMessages.map(_mapMessageModelToEntity).toList());
+    }
+
     if (await _networkInfo.isConnected) {
       try {
         final response = await _apiService.getTontineMessages(id);
         if (response.isSuccessful && response.body?.data != null) {
-          return Right(
-            response.body!.data!.map(_mapMessageModelToEntity).toList(),
-          );
+          final remoteMessages = response.body!.data!;
+          await _localDataSource.saveTontineMessages(id, remoteMessages);
+          return Right(remoteMessages.map(_mapMessageModelToEntity).toList());
+        }
+        if (localMessages.isNotEmpty) {
+          return Right(localMessages.map(_mapMessageModelToEntity).toList());
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
+        if (localMessages.isNotEmpty) {
+          return Right(localMessages.map(_mapMessageModelToEntity).toList());
+        }
         return Left(ServerFailure(e.toString()));
       }
     } else {
+      if (localMessages.isNotEmpty) {
+        return Right(localMessages.map(_mapMessageModelToEntity).toList());
+      }
       return Left(NetworkFailure());
     }
   }
@@ -242,20 +372,41 @@ class TontineRepositoryImpl implements TontineRepository {
     String id,
     String content,
   ) async {
+    // Generate temporary message for UI
+    final tempMessage = TontineMessageModel(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      tontineId: id,
+      senderId: 'me',
+      content: content,
+      createdAt: DateTime.now(),
+    );
+    await _localDataSource.saveTontineMessage(tempMessage);
+
     if (await _networkInfo.isConnected) {
       try {
         final response = await _apiService.sendMessage(id, {
           'content': content,
         });
         if (response.isSuccessful && response.body?.data != null) {
-          return Right(_mapMessageModelToEntity(response.body!.data!));
+          final remoteMessage = response.body!.data!;
+          await _localDataSource.saveTontineMessage(remoteMessage);
+          return Right(_mapMessageModelToEntity(remoteMessage));
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
         return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure());
+      await _db
+          .into(_db.syncRequests)
+          .insert(
+            db.SyncRequestsCompanion.insert(
+              table: 'tontines',
+              action: 'send_message',
+              payload: jsonEncode({'tontineId': id, 'content': content}),
+            ),
+          );
+      return Right(_mapMessageModelToEntity(tempMessage));
     }
   }
 
@@ -263,19 +414,48 @@ class TontineRepositoryImpl implements TontineRepository {
   Future<Either<Failure, List<TontineContribution>>> getContributions(
     String id,
   ) async {
+    final localContributions = await _localDataSource.getTontineContributions(
+      id,
+    );
+    if (localContributions.isNotEmpty && !await _networkInfo.isConnected) {
+      return Right(
+        localContributions.map(_mapContributionModelToEntity).toList(),
+      );
+    }
+
     if (await _networkInfo.isConnected) {
       try {
         final response = await _apiService.getContributions(id);
         if (response.isSuccessful && response.body?.data != null) {
+          final remoteContributions = response.body!.data!;
+          await _localDataSource.saveTontineContributions(
+            id,
+            remoteContributions,
+          );
           return Right(
-            response.body!.data!.map(_mapContributionModelToEntity).toList(),
+            remoteContributions.map(_mapContributionModelToEntity).toList(),
+          );
+        }
+        if (localContributions.isNotEmpty) {
+          return Right(
+            localContributions.map(_mapContributionModelToEntity).toList(),
           );
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
+        if (localContributions.isNotEmpty) {
+          return Right(
+            localContributions.map(_mapContributionModelToEntity).toList(),
+          );
+        }
         return Left(ServerFailure(e.toString()));
       }
     } else {
+      if (localContributions.isNotEmpty) {
+        return Right(
+          localContributions.map(_mapContributionModelToEntity).toList(),
+        );
+      }
       return Left(NetworkFailure());
     }
   }

@@ -80,6 +80,28 @@ class BudgetModel extends Equatable {
   }
   Map<String, dynamic> toJson() => _$BudgetModelToJson(this);
 
+  BudgetModel copyWith({
+    String? id,
+    BudgetPeriodModel? period,
+    List<BudgetCategoryModel>? categories,
+    double? totalAllocated,
+    double? totalSpent,
+    String? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return BudgetModel(
+      id: id ?? this.id,
+      period: period ?? this.period,
+      categories: categories ?? this.categories,
+      totalAllocated: totalAllocated ?? this.totalAllocated,
+      totalSpent: totalSpent ?? this.totalSpent,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   @override
   List<Object?> get props => [
     id,

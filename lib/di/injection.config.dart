@@ -154,6 +154,8 @@ import 'package:kauri/features/system/presentation/bloc/system_bloc.dart'
     as _i376;
 import 'package:kauri/features/tontine/data/datasources/tontine_api_service.dart'
     as _i534;
+import 'package:kauri/features/tontine/data/datasources/tontine_local_datasource.dart'
+    as _i430;
 import 'package:kauri/features/tontine/data/repositories/tontine_repository_impl.dart'
     as _i699;
 import 'package:kauri/features/tontine/domain/repositories/tontine_repository.dart'
@@ -327,6 +329,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i580.CoachLocalDataSource>(
       () => _i580.CoachLocalDataSourceImpl(gh<_i777.AppDatabase>()),
     );
+    gh.lazySingleton<_i430.TontineLocalDataSource>(
+      () => _i430.TontineLocalDataSourceImpl(gh<_i777.AppDatabase>()),
+    );
     gh.lazySingleton<_i617.CoachRemoteDataSource>(
       () => _i617.CoachRemoteDataSourceImpl(gh<_i621.CoachApiService>()),
     );
@@ -348,13 +353,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i565.InvestmentApiService>(),
       ),
     );
-    gh.lazySingleton<_i116.BudgetRepository>(
-      () => _i136.BudgetRepositoryImpl(
-        gh<_i831.BudgetRemoteDataSource>(),
-        gh<_i302.BudgetLocalDataSource>(),
-        gh<_i935.NetworkInfo>(),
-      ),
-    );
     gh.lazySingleton<_i777.AuthRemoteDataSource>(
       () => _i777.AuthRemoteDataSourceImpl(
         gh<_i974.AuthApiService>(),
@@ -369,10 +367,26 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i921.NotificationApiService>(),
       ),
     );
+    gh.lazySingleton<_i996.TontineRepository>(
+      () => _i699.TontineRepositoryImpl(
+        gh<_i534.TontineApiService>(),
+        gh<_i430.TontineLocalDataSource>(),
+        gh<_i935.NetworkInfo>(),
+        gh<_i777.AppDatabase>(),
+      ),
+    );
     gh.lazySingleton<_i924.AnalyticsRepository>(
       () => _i859.AnalyticsRepositoryImpl(
         gh<_i769.AnalyticsApiService>(),
         gh<_i935.NetworkInfo>(),
+      ),
+    );
+    gh.lazySingleton<_i375.ChallengeRepository>(
+      () => _i380.ChallengeRepositoryImpl(
+        gh<_i836.ChallengeRemoteDataSource>(),
+        gh<_i895.ChallengeLocalDataSource>(),
+        gh<_i935.NetworkInfo>(),
+        gh<_i777.AppDatabase>(),
       ),
     );
     gh.lazySingleton<_i245.TransactionRepository>(
@@ -392,18 +406,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.lazySingleton<_i375.ChallengeRepository>(
-      () => _i380.ChallengeRepositoryImpl(
-        gh<_i836.ChallengeRemoteDataSource>(),
-        gh<_i895.ChallengeLocalDataSource>(),
-        gh<_i935.NetworkInfo>(),
-      ),
-    );
     gh.factory<_i686.InvestmentsBloc>(
       () => _i686.InvestmentsBloc(gh<_i71.InvestmentRepository>()),
-    );
-    gh.factory<_i434.BudgetsBloc>(
-      () => _i434.BudgetsBloc(gh<_i116.BudgetRepository>()),
     );
     gh.lazySingleton<_i810.SupportRepository>(
       () => _i427.SupportRepositoryImpl(
@@ -418,6 +422,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
+    gh.lazySingleton<_i116.BudgetRepository>(
+      () => _i136.BudgetRepositoryImpl(
+        gh<_i831.BudgetRemoteDataSource>(),
+        gh<_i302.BudgetLocalDataSource>(),
+        gh<_i935.NetworkInfo>(),
+        gh<_i777.AppDatabase>(),
+      ),
+    );
+    gh.factory<_i96.TontineBloc>(
+      () => _i96.TontineBloc(gh<_i996.TontineRepository>()),
+    );
     gh.lazySingleton<_i760.ReportsRepository>(
       () => _i423.ReportsRepositoryImpl(
         gh<_i158.ReportsApiService>(),
@@ -429,6 +444,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i717.InsightsBloc>(
       () => _i717.InsightsBloc(gh<_i760.ReportsRepository>()),
+    );
+    gh.lazySingleton<_i751.GoalRepository>(
+      () => _i457.GoalRepositoryImpl(
+        gh<_i362.GoalRemoteDataSource>(),
+        gh<_i612.GoalLocalDataSource>(),
+        gh<_i935.NetworkInfo>(),
+        gh<_i777.AppDatabase>(),
+      ),
     );
     gh.lazySingleton<_i105.SubscriptionRepository>(
       () => _i696.SubscriptionRepositoryImpl(
@@ -465,21 +488,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.lazySingleton<_i996.TontineRepository>(
-      () => _i699.TontineRepositoryImpl(
-        gh<_i534.TontineApiService>(),
-        gh<_i935.NetworkInfo>(),
-      ),
-    );
     gh.factory<_i506.ChallengesBloc>(
       () => _i506.ChallengesBloc(gh<_i375.ChallengeRepository>()),
-    );
-    gh.lazySingleton<_i751.GoalRepository>(
-      () => _i457.GoalRepositoryImpl(
-        gh<_i362.GoalRemoteDataSource>(),
-        gh<_i612.GoalLocalDataSource>(),
-        gh<_i935.NetworkInfo>(),
-      ),
     );
     gh.factory<_i673.SubscriptionBloc>(
       () => _i673.SubscriptionBloc(gh<_i105.SubscriptionRepository>()),
@@ -491,16 +501,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.lazySingleton<_i75.SyncService>(
-      () => _i75.SyncService(
-        gh<_i777.AppDatabase>(),
-        gh<_i534.TransactionRemoteDataSource>(),
-        gh<_i181.SubscriptionApiService>(),
-        gh<_i344.AuthRepository>(),
-        gh<_i974.Logger>(),
-        gh<_i973.InternetConnectionChecker>(),
-      ),
-    );
     gh.factory<_i405.CoachBloc>(
       () => _i405.CoachBloc(gh<_i160.CoachRepository>()),
     );
@@ -510,14 +510,28 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i946.GoalsBloc>(
       () => _i946.GoalsBloc(gh<_i751.GoalRepository>()),
     );
-    gh.factory<_i96.TontineBloc>(
-      () => _i96.TontineBloc(gh<_i996.TontineRepository>()),
+    gh.factory<_i434.BudgetsBloc>(
+      () => _i434.BudgetsBloc(gh<_i116.BudgetRepository>()),
     );
     gh.factory<_i786.NotificationsBloc>(
       () => _i786.NotificationsBloc(gh<_i224.NotificationRepository>()),
     );
     gh.lazySingleton<_i714.AuthBloc>(
       () => _i714.AuthBloc(gh<_i344.AuthRepository>()),
+    );
+    gh.lazySingleton<_i75.SyncService>(
+      () => _i75.SyncService(
+        gh<_i777.AppDatabase>(),
+        gh<_i534.TransactionRemoteDataSource>(),
+        gh<_i181.SubscriptionApiService>(),
+        gh<_i362.GoalRemoteDataSource>(),
+        gh<_i836.ChallengeRemoteDataSource>(),
+        gh<_i831.BudgetRemoteDataSource>(),
+        gh<_i534.TontineApiService>(),
+        gh<_i344.AuthRepository>(),
+        gh<_i974.Logger>(),
+        gh<_i973.InternetConnectionChecker>(),
+      ),
     );
     gh.factory<_i53.SettingsBloc>(
       () => _i53.SettingsBloc(

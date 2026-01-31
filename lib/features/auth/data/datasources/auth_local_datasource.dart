@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
-import '../../../../core/database/database.dart';
-import '../models/user_model.dart';
-import '../models/badge_model.dart';
+import 'package:kauri/core/database/database.dart';
+import 'package:kauri/features/auth/data/models/user_model.dart';
+import 'package:kauri/features/auth/data/models/badge_model.dart';
 import 'package:drift/drift.dart' as drift;
 
 abstract class AuthLocalDataSource {

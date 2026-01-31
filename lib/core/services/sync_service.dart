@@ -2,13 +2,18 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
-import '../database/database.dart';
-import '../../features/transactions/data/datasources/transaction_remote_datasource.dart';
-import '../../features/transactions/data/models/transaction_model.dart';
-import '../../features/user_subscriptions/data/datasources/subscription_api_service.dart';
-import '../../features/user_subscriptions/data/models/subscription_model.dart';
-
-import '../../features/auth/domain/repositories/auth_repository.dart';
+import 'package:kauri/core/database/database.dart' as db;
+import 'package:kauri/features/transactions/data/datasources/transaction_remote_datasource.dart';
+import 'package:kauri/features/transactions/data/models/transaction_model.dart';
+import 'package:kauri/features/user_subscriptions/data/datasources/subscription_api_service.dart';
+import 'package:kauri/features/user_subscriptions/data/models/subscription_model.dart';
+import 'package:kauri/features/challenges/data/datasources/challenge_remote_datasource.dart';
+import 'package:kauri/features/goals/data/datasources/goal_remote_datasource.dart';
+import 'package:kauri/features/budgets/data/datasources/budget_remote_datasource.dart';
+import 'package:kauri/features/budgets/data/models/budget_model.dart';
+import 'package:kauri/features/tontine/data/datasources/tontine_api_service.dart';
+import 'package:kauri/features/goals/data/models/goal_model.dart';
+import 'package:kauri/features/auth/domain/repositories/auth_repository.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 /// Service gérant la synchronisation des données entre le cache local et le serveur.
@@ -17,9 +22,13 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 /// connectivité et traite la file d'attente (syncRequests) dès que le réseau est disponible.
 @lazySingleton
 class SyncService {
-  final AppDatabase _database;
+  final db.AppDatabase _database;
   final TransactionRemoteDataSource _transactionRemoteDataSource;
   final SubscriptionApiService _subscriptionApiService;
+  final GoalRemoteDataSource _goalRemoteDataSource;
+  final ChallengeRemoteDataSource _challengeRemoteDataSource;
+  final BudgetRemoteDataSource _budgetRemoteDataSource;
+  final TontineApiService _tontineApiService;
   final AuthRepository _authRepository;
   final Logger _logger;
   final InternetConnectionChecker _connectionChecker;
@@ -28,6 +37,10 @@ class SyncService {
     this._database,
     this._transactionRemoteDataSource,
     this._subscriptionApiService,
+    this._goalRemoteDataSource,
+    this._challengeRemoteDataSource,
+    this._budgetRemoteDataSource,
+    this._tontineApiService,
     this._authRepository,
     this._logger,
     this._connectionChecker,
@@ -74,6 +87,14 @@ class SyncService {
           await _processTransactionRequest(request);
         } else if (request.table == 'subscriptions') {
           await _processSubscriptionRequest(request);
+        } else if (request.table == 'goals') {
+          await _processGoalRequest(request);
+        } else if (request.table == 'challenges') {
+          await _processChallengeRequest(request);
+        } else if (request.table == 'budgets') {
+          await _processBudgetRequest(request);
+        } else if (request.table == 'tontines') {
+          await _processTontineRequest(request);
         }
 
         // Si l'exécution réussit sans exception, on supprime la requête de la file d'attente locale
@@ -89,7 +110,7 @@ class SyncService {
   }
 
   /// Traite une opération synchronisée spécifique à la table 'transactions'.
-  Future<void> _processTransactionRequest(SyncRequest request) async {
+  Future<void> _processTransactionRequest(db.SyncRequest request) async {
     final payload = jsonDecode(request.payload);
 
     if (request.action == 'create') {
@@ -102,7 +123,7 @@ class SyncService {
   }
 
   /// Traite une opération synchronisée spécifique à la table 'subscriptions'.
-  Future<void> _processSubscriptionRequest(SyncRequest request) async {
+  Future<void> _processSubscriptionRequest(db.SyncRequest request) async {
     final payload = jsonDecode(request.payload);
 
     if (request.action == 'create') {
@@ -118,6 +139,67 @@ class SyncService {
     } else if (request.action == 'delete') {
       final id = payload['id'] as String;
       await _subscriptionApiService.deleteSubscription(id);
+    }
+  }
+
+  /// Traite une opération synchronisée spécifique à la table 'goals'.
+  Future<void> _processGoalRequest(db.SyncRequest request) async {
+    final payload = jsonDecode(request.payload);
+
+    if (request.action == 'create') {
+      final goal = GoalModel.fromJson(payload);
+      await _goalRemoteDataSource.createGoal(goal);
+    } else if (request.action == 'delete') {
+      final id = payload['id'] as String;
+      await _goalRemoteDataSource.deleteGoal(id);
+    }
+  }
+
+  /// Traite une opération synchronisée spécifique à la table 'challenges'.
+  Future<void> _processChallengeRequest(db.SyncRequest request) async {
+    final payload = jsonDecode(request.payload);
+
+    if (request.action == 'join') {
+      final id = payload['id'] as String;
+      await _challengeRemoteDataSource.joinChallenge(id);
+    } else if (request.action == 'unjoin') {
+      final id = payload['id'] as String;
+      await _challengeRemoteDataSource.unjoinChallenge(id);
+    } else if (request.action == 'validate_week') {
+      await _challengeRemoteDataSource.validateWeek(
+        payload['userChallengeId'] as String,
+        payload['weekNumber'] as int,
+        (payload['amount'] as num).toDouble(),
+        payload['proofPath'] as String,
+      );
+    }
+  }
+
+  /// Traite une opération synchronisée spécifique à la table 'budgets'.
+  Future<void> _processBudgetRequest(db.SyncRequest request) async {
+    final payload = jsonDecode(request.payload);
+
+    if (request.action == 'create') {
+      final budget = BudgetModel.fromJson(payload);
+      await _budgetRemoteDataSource.createBudget(budget);
+    } else if (request.action == 'update') {
+      final id = payload['id'] as String;
+      final totalAllocated = (payload['totalAllocated'] as num).toDouble();
+      await _budgetRemoteDataSource.updateBudget(id, totalAllocated);
+    } else if (request.action == 'delete') {
+      final id = payload['id'] as String;
+      await _budgetRemoteDataSource.deleteBudget(id);
+    }
+  }
+
+  /// Traite une opération synchronisée spécifique à la table 'tontines'.
+  Future<void> _processTontineRequest(db.SyncRequest request) async {
+    final payload = jsonDecode(request.payload);
+
+    if (request.action == 'send_message') {
+      final tontineId = payload['tontineId'] as String;
+      final content = payload['content'] as String;
+      await _tontineApiService.sendMessage(tontineId, {'content': content});
     }
   }
 }

@@ -6470,6 +6470,3173 @@ class UserSubscriptionsCompanion extends UpdateCompanion<UserSubscription> {
   }
 }
 
+class $UserChallengesTable extends UserChallenges
+    with TableInfo<$UserChallengesTable, UserChallenge> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserChallengesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('active'),
+  );
+  static const VerificationMeta _progressMeta = const VerificationMeta(
+    'progress',
+  );
+  @override
+  late final GeneratedColumn<double> progress = GeneratedColumn<double>(
+    'progress',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _currentValueMeta = const VerificationMeta(
+    'currentValue',
+  );
+  @override
+  late final GeneratedColumn<double> currentValue = GeneratedColumn<double>(
+    'current_value',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _challengeDataMeta = const VerificationMeta(
+    'challengeData',
+  );
+  @override
+  late final GeneratedColumn<String> challengeData = GeneratedColumn<String>(
+    'challenge_data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _weeksMeta = const VerificationMeta('weeks');
+  @override
+  late final GeneratedColumn<String> weeks = GeneratedColumn<String>(
+    'weeks',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    status,
+    progress,
+    currentValue,
+    challengeData,
+    weeks,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_challenges';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UserChallenge> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('progress')) {
+      context.handle(
+        _progressMeta,
+        progress.isAcceptableOrUnknown(data['progress']!, _progressMeta),
+      );
+    }
+    if (data.containsKey('current_value')) {
+      context.handle(
+        _currentValueMeta,
+        currentValue.isAcceptableOrUnknown(
+          data['current_value']!,
+          _currentValueMeta,
+        ),
+      );
+    }
+    if (data.containsKey('challenge_data')) {
+      context.handle(
+        _challengeDataMeta,
+        challengeData.isAcceptableOrUnknown(
+          data['challenge_data']!,
+          _challengeDataMeta,
+        ),
+      );
+    }
+    if (data.containsKey('weeks')) {
+      context.handle(
+        _weeksMeta,
+        weeks.isAcceptableOrUnknown(data['weeks']!, _weeksMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserChallenge map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserChallenge(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      progress: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}progress'],
+      )!,
+      currentValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}current_value'],
+      )!,
+      challengeData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}challenge_data'],
+      ),
+      weeks: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}weeks'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+    );
+  }
+
+  @override
+  $UserChallengesTable createAlias(String alias) {
+    return $UserChallengesTable(attachedDatabase, alias);
+  }
+}
+
+class UserChallenge extends DataClass implements Insertable<UserChallenge> {
+  final String id;
+  final String status;
+  final double progress;
+  final double currentValue;
+  final String? challengeData;
+  final String? weeks;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  const UserChallenge({
+    required this.id,
+    required this.status,
+    required this.progress,
+    required this.currentValue,
+    this.challengeData,
+    this.weeks,
+    this.createdAt,
+    this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['status'] = Variable<String>(status);
+    map['progress'] = Variable<double>(progress);
+    map['current_value'] = Variable<double>(currentValue);
+    if (!nullToAbsent || challengeData != null) {
+      map['challenge_data'] = Variable<String>(challengeData);
+    }
+    if (!nullToAbsent || weeks != null) {
+      map['weeks'] = Variable<String>(weeks);
+    }
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    return map;
+  }
+
+  UserChallengesCompanion toCompanion(bool nullToAbsent) {
+    return UserChallengesCompanion(
+      id: Value(id),
+      status: Value(status),
+      progress: Value(progress),
+      currentValue: Value(currentValue),
+      challengeData: challengeData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(challengeData),
+      weeks: weeks == null && nullToAbsent
+          ? const Value.absent()
+          : Value(weeks),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory UserChallenge.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserChallenge(
+      id: serializer.fromJson<String>(json['id']),
+      status: serializer.fromJson<String>(json['status']),
+      progress: serializer.fromJson<double>(json['progress']),
+      currentValue: serializer.fromJson<double>(json['currentValue']),
+      challengeData: serializer.fromJson<String?>(json['challengeData']),
+      weeks: serializer.fromJson<String?>(json['weeks']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'status': serializer.toJson<String>(status),
+      'progress': serializer.toJson<double>(progress),
+      'currentValue': serializer.toJson<double>(currentValue),
+      'challengeData': serializer.toJson<String?>(challengeData),
+      'weeks': serializer.toJson<String?>(weeks),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+    };
+  }
+
+  UserChallenge copyWith({
+    String? id,
+    String? status,
+    double? progress,
+    double? currentValue,
+    Value<String?> challengeData = const Value.absent(),
+    Value<String?> weeks = const Value.absent(),
+    Value<DateTime?> createdAt = const Value.absent(),
+    Value<DateTime?> updatedAt = const Value.absent(),
+  }) => UserChallenge(
+    id: id ?? this.id,
+    status: status ?? this.status,
+    progress: progress ?? this.progress,
+    currentValue: currentValue ?? this.currentValue,
+    challengeData: challengeData.present
+        ? challengeData.value
+        : this.challengeData,
+    weeks: weeks.present ? weeks.value : this.weeks,
+    createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+  );
+  UserChallenge copyWithCompanion(UserChallengesCompanion data) {
+    return UserChallenge(
+      id: data.id.present ? data.id.value : this.id,
+      status: data.status.present ? data.status.value : this.status,
+      progress: data.progress.present ? data.progress.value : this.progress,
+      currentValue: data.currentValue.present
+          ? data.currentValue.value
+          : this.currentValue,
+      challengeData: data.challengeData.present
+          ? data.challengeData.value
+          : this.challengeData,
+      weeks: data.weeks.present ? data.weeks.value : this.weeks,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserChallenge(')
+          ..write('id: $id, ')
+          ..write('status: $status, ')
+          ..write('progress: $progress, ')
+          ..write('currentValue: $currentValue, ')
+          ..write('challengeData: $challengeData, ')
+          ..write('weeks: $weeks, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    status,
+    progress,
+    currentValue,
+    challengeData,
+    weeks,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserChallenge &&
+          other.id == this.id &&
+          other.status == this.status &&
+          other.progress == this.progress &&
+          other.currentValue == this.currentValue &&
+          other.challengeData == this.challengeData &&
+          other.weeks == this.weeks &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class UserChallengesCompanion extends UpdateCompanion<UserChallenge> {
+  final Value<String> id;
+  final Value<String> status;
+  final Value<double> progress;
+  final Value<double> currentValue;
+  final Value<String?> challengeData;
+  final Value<String?> weeks;
+  final Value<DateTime?> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<int> rowid;
+  const UserChallengesCompanion({
+    this.id = const Value.absent(),
+    this.status = const Value.absent(),
+    this.progress = const Value.absent(),
+    this.currentValue = const Value.absent(),
+    this.challengeData = const Value.absent(),
+    this.weeks = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserChallengesCompanion.insert({
+    required String id,
+    this.status = const Value.absent(),
+    this.progress = const Value.absent(),
+    this.currentValue = const Value.absent(),
+    this.challengeData = const Value.absent(),
+    this.weeks = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id);
+  static Insertable<UserChallenge> custom({
+    Expression<String>? id,
+    Expression<String>? status,
+    Expression<double>? progress,
+    Expression<double>? currentValue,
+    Expression<String>? challengeData,
+    Expression<String>? weeks,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (status != null) 'status': status,
+      if (progress != null) 'progress': progress,
+      if (currentValue != null) 'current_value': currentValue,
+      if (challengeData != null) 'challenge_data': challengeData,
+      if (weeks != null) 'weeks': weeks,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserChallengesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? status,
+    Value<double>? progress,
+    Value<double>? currentValue,
+    Value<String?>? challengeData,
+    Value<String?>? weeks,
+    Value<DateTime?>? createdAt,
+    Value<DateTime?>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return UserChallengesCompanion(
+      id: id ?? this.id,
+      status: status ?? this.status,
+      progress: progress ?? this.progress,
+      currentValue: currentValue ?? this.currentValue,
+      challengeData: challengeData ?? this.challengeData,
+      weeks: weeks ?? this.weeks,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (progress.present) {
+      map['progress'] = Variable<double>(progress.value);
+    }
+    if (currentValue.present) {
+      map['current_value'] = Variable<double>(currentValue.value);
+    }
+    if (challengeData.present) {
+      map['challenge_data'] = Variable<String>(challengeData.value);
+    }
+    if (weeks.present) {
+      map['weeks'] = Variable<String>(weeks.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserChallengesCompanion(')
+          ..write('id: $id, ')
+          ..write('status: $status, ')
+          ..write('progress: $progress, ')
+          ..write('currentValue: $currentValue, ')
+          ..write('challengeData: $challengeData, ')
+          ..write('weeks: $weeks, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TontinesTable extends Tontines with TableInfo<$TontinesTable, Tontine> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TontinesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _frequencyMeta = const VerificationMeta(
+    'frequency',
+  );
+  @override
+  late final GeneratedColumn<String> frequency = GeneratedColumn<String>(
+    'frequency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contributionAmountMeta =
+      const VerificationMeta('contributionAmount');
+  @override
+  late final GeneratedColumn<double> contributionAmount =
+      GeneratedColumn<double>(
+        'contribution_amount',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _totalPartsMeta = const VerificationMeta(
+    'totalParts',
+  );
+  @override
+  late final GeneratedColumn<int> totalParts = GeneratedColumn<int>(
+    'total_parts',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('XAF'),
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pending'),
+  );
+  static const VerificationMeta _creatorIdMeta = const VerificationMeta(
+    'creatorId',
+  );
+  @override
+  late final GeneratedColumn<String> creatorId = GeneratedColumn<String>(
+    'creator_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _inviteCodeMeta = const VerificationMeta(
+    'inviteCode',
+  );
+  @override
+  late final GeneratedColumn<String> inviteCode = GeneratedColumn<String>(
+    'invite_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _currentTurnMeta = const VerificationMeta(
+    'currentTurn',
+  );
+  @override
+  late final GeneratedColumn<int> currentTurn = GeneratedColumn<int>(
+    'current_turn',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
+    'start_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rotationModeMeta = const VerificationMeta(
+    'rotationMode',
+  );
+  @override
+  late final GeneratedColumn<String> rotationMode = GeneratedColumn<String>(
+    'rotation_mode',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _validationModeMeta = const VerificationMeta(
+    'validationMode',
+  );
+  @override
+  late final GeneratedColumn<String> validationMode = GeneratedColumn<String>(
+    'validation_mode',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sanctionsMeta = const VerificationMeta(
+    'sanctions',
+  );
+  @override
+  late final GeneratedColumn<String> sanctions = GeneratedColumn<String>(
+    'sanctions',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _socialFundMeta = const VerificationMeta(
+    'socialFund',
+  );
+  @override
+  late final GeneratedColumn<String> socialFund = GeneratedColumn<String>(
+    'social_fund',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _escrowDetailsMeta = const VerificationMeta(
+    'escrowDetails',
+  );
+  @override
+  late final GeneratedColumn<String> escrowDetails = GeneratedColumn<String>(
+    'escrow_details',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _autoRenewMeta = const VerificationMeta(
+    'autoRenew',
+  );
+  @override
+  late final GeneratedColumn<bool> autoRenew = GeneratedColumn<bool>(
+    'auto_renew',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("auto_renew" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _rulesAcceptedByAllMeta =
+      const VerificationMeta('rulesAcceptedByAll');
+  @override
+  late final GeneratedColumn<bool> rulesAcceptedByAll = GeneratedColumn<bool>(
+    'rules_accepted_by_all',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("rules_accepted_by_all" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _extraDataMeta = const VerificationMeta(
+    'extraData',
+  );
+  @override
+  late final GeneratedColumn<String> extraData = GeneratedColumn<String>(
+    'extra_data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    frequency,
+    contributionAmount,
+    totalParts,
+    currency,
+    status,
+    creatorId,
+    inviteCode,
+    currentTurn,
+    startDate,
+    createdAt,
+    updatedAt,
+    rotationMode,
+    validationMode,
+    sanctions,
+    socialFund,
+    escrowDetails,
+    autoRenew,
+    rulesAcceptedByAll,
+    extraData,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tontines';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Tontine> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('frequency')) {
+      context.handle(
+        _frequencyMeta,
+        frequency.isAcceptableOrUnknown(data['frequency']!, _frequencyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_frequencyMeta);
+    }
+    if (data.containsKey('contribution_amount')) {
+      context.handle(
+        _contributionAmountMeta,
+        contributionAmount.isAcceptableOrUnknown(
+          data['contribution_amount']!,
+          _contributionAmountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contributionAmountMeta);
+    }
+    if (data.containsKey('total_parts')) {
+      context.handle(
+        _totalPartsMeta,
+        totalParts.isAcceptableOrUnknown(data['total_parts']!, _totalPartsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_totalPartsMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('creator_id')) {
+      context.handle(
+        _creatorIdMeta,
+        creatorId.isAcceptableOrUnknown(data['creator_id']!, _creatorIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_creatorIdMeta);
+    }
+    if (data.containsKey('invite_code')) {
+      context.handle(
+        _inviteCodeMeta,
+        inviteCode.isAcceptableOrUnknown(data['invite_code']!, _inviteCodeMeta),
+      );
+    }
+    if (data.containsKey('current_turn')) {
+      context.handle(
+        _currentTurnMeta,
+        currentTurn.isAcceptableOrUnknown(
+          data['current_turn']!,
+          _currentTurnMeta,
+        ),
+      );
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('rotation_mode')) {
+      context.handle(
+        _rotationModeMeta,
+        rotationMode.isAcceptableOrUnknown(
+          data['rotation_mode']!,
+          _rotationModeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('validation_mode')) {
+      context.handle(
+        _validationModeMeta,
+        validationMode.isAcceptableOrUnknown(
+          data['validation_mode']!,
+          _validationModeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sanctions')) {
+      context.handle(
+        _sanctionsMeta,
+        sanctions.isAcceptableOrUnknown(data['sanctions']!, _sanctionsMeta),
+      );
+    }
+    if (data.containsKey('social_fund')) {
+      context.handle(
+        _socialFundMeta,
+        socialFund.isAcceptableOrUnknown(data['social_fund']!, _socialFundMeta),
+      );
+    }
+    if (data.containsKey('escrow_details')) {
+      context.handle(
+        _escrowDetailsMeta,
+        escrowDetails.isAcceptableOrUnknown(
+          data['escrow_details']!,
+          _escrowDetailsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('auto_renew')) {
+      context.handle(
+        _autoRenewMeta,
+        autoRenew.isAcceptableOrUnknown(data['auto_renew']!, _autoRenewMeta),
+      );
+    }
+    if (data.containsKey('rules_accepted_by_all')) {
+      context.handle(
+        _rulesAcceptedByAllMeta,
+        rulesAcceptedByAll.isAcceptableOrUnknown(
+          data['rules_accepted_by_all']!,
+          _rulesAcceptedByAllMeta,
+        ),
+      );
+    }
+    if (data.containsKey('extra_data')) {
+      context.handle(
+        _extraDataMeta,
+        extraData.isAcceptableOrUnknown(data['extra_data']!, _extraDataMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Tontine map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Tontine(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      frequency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}frequency'],
+      )!,
+      contributionAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}contribution_amount'],
+      )!,
+      totalParts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_parts'],
+      )!,
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      creatorId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}creator_id'],
+      )!,
+      inviteCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}invite_code'],
+      ),
+      currentTurn: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}current_turn'],
+      )!,
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_date'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      rotationMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rotation_mode'],
+      ),
+      validationMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}validation_mode'],
+      ),
+      sanctions: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sanctions'],
+      ),
+      socialFund: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}social_fund'],
+      ),
+      escrowDetails: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}escrow_details'],
+      ),
+      autoRenew: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}auto_renew'],
+      ),
+      rulesAcceptedByAll: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}rules_accepted_by_all'],
+      ),
+      extraData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extra_data'],
+      ),
+    );
+  }
+
+  @override
+  $TontinesTable createAlias(String alias) {
+    return $TontinesTable(attachedDatabase, alias);
+  }
+}
+
+class Tontine extends DataClass implements Insertable<Tontine> {
+  final String id;
+  final String name;
+  final String frequency;
+  final double contributionAmount;
+  final int totalParts;
+  final String currency;
+  final String status;
+  final String creatorId;
+  final String? inviteCode;
+  final int currentTurn;
+  final DateTime? startDate;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final String? rotationMode;
+  final String? validationMode;
+  final String? sanctions;
+  final String? socialFund;
+  final String? escrowDetails;
+  final bool? autoRenew;
+  final bool? rulesAcceptedByAll;
+  final String? extraData;
+  const Tontine({
+    required this.id,
+    required this.name,
+    required this.frequency,
+    required this.contributionAmount,
+    required this.totalParts,
+    required this.currency,
+    required this.status,
+    required this.creatorId,
+    this.inviteCode,
+    required this.currentTurn,
+    this.startDate,
+    this.createdAt,
+    this.updatedAt,
+    this.rotationMode,
+    this.validationMode,
+    this.sanctions,
+    this.socialFund,
+    this.escrowDetails,
+    this.autoRenew,
+    this.rulesAcceptedByAll,
+    this.extraData,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['frequency'] = Variable<String>(frequency);
+    map['contribution_amount'] = Variable<double>(contributionAmount);
+    map['total_parts'] = Variable<int>(totalParts);
+    map['currency'] = Variable<String>(currency);
+    map['status'] = Variable<String>(status);
+    map['creator_id'] = Variable<String>(creatorId);
+    if (!nullToAbsent || inviteCode != null) {
+      map['invite_code'] = Variable<String>(inviteCode);
+    }
+    map['current_turn'] = Variable<int>(currentTurn);
+    if (!nullToAbsent || startDate != null) {
+      map['start_date'] = Variable<DateTime>(startDate);
+    }
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    if (!nullToAbsent || rotationMode != null) {
+      map['rotation_mode'] = Variable<String>(rotationMode);
+    }
+    if (!nullToAbsent || validationMode != null) {
+      map['validation_mode'] = Variable<String>(validationMode);
+    }
+    if (!nullToAbsent || sanctions != null) {
+      map['sanctions'] = Variable<String>(sanctions);
+    }
+    if (!nullToAbsent || socialFund != null) {
+      map['social_fund'] = Variable<String>(socialFund);
+    }
+    if (!nullToAbsent || escrowDetails != null) {
+      map['escrow_details'] = Variable<String>(escrowDetails);
+    }
+    if (!nullToAbsent || autoRenew != null) {
+      map['auto_renew'] = Variable<bool>(autoRenew);
+    }
+    if (!nullToAbsent || rulesAcceptedByAll != null) {
+      map['rules_accepted_by_all'] = Variable<bool>(rulesAcceptedByAll);
+    }
+    if (!nullToAbsent || extraData != null) {
+      map['extra_data'] = Variable<String>(extraData);
+    }
+    return map;
+  }
+
+  TontinesCompanion toCompanion(bool nullToAbsent) {
+    return TontinesCompanion(
+      id: Value(id),
+      name: Value(name),
+      frequency: Value(frequency),
+      contributionAmount: Value(contributionAmount),
+      totalParts: Value(totalParts),
+      currency: Value(currency),
+      status: Value(status),
+      creatorId: Value(creatorId),
+      inviteCode: inviteCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(inviteCode),
+      currentTurn: Value(currentTurn),
+      startDate: startDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startDate),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      rotationMode: rotationMode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rotationMode),
+      validationMode: validationMode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(validationMode),
+      sanctions: sanctions == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sanctions),
+      socialFund: socialFund == null && nullToAbsent
+          ? const Value.absent()
+          : Value(socialFund),
+      escrowDetails: escrowDetails == null && nullToAbsent
+          ? const Value.absent()
+          : Value(escrowDetails),
+      autoRenew: autoRenew == null && nullToAbsent
+          ? const Value.absent()
+          : Value(autoRenew),
+      rulesAcceptedByAll: rulesAcceptedByAll == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rulesAcceptedByAll),
+      extraData: extraData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(extraData),
+    );
+  }
+
+  factory Tontine.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Tontine(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      frequency: serializer.fromJson<String>(json['frequency']),
+      contributionAmount: serializer.fromJson<double>(
+        json['contributionAmount'],
+      ),
+      totalParts: serializer.fromJson<int>(json['totalParts']),
+      currency: serializer.fromJson<String>(json['currency']),
+      status: serializer.fromJson<String>(json['status']),
+      creatorId: serializer.fromJson<String>(json['creatorId']),
+      inviteCode: serializer.fromJson<String?>(json['inviteCode']),
+      currentTurn: serializer.fromJson<int>(json['currentTurn']),
+      startDate: serializer.fromJson<DateTime?>(json['startDate']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      rotationMode: serializer.fromJson<String?>(json['rotationMode']),
+      validationMode: serializer.fromJson<String?>(json['validationMode']),
+      sanctions: serializer.fromJson<String?>(json['sanctions']),
+      socialFund: serializer.fromJson<String?>(json['socialFund']),
+      escrowDetails: serializer.fromJson<String?>(json['escrowDetails']),
+      autoRenew: serializer.fromJson<bool?>(json['autoRenew']),
+      rulesAcceptedByAll: serializer.fromJson<bool?>(
+        json['rulesAcceptedByAll'],
+      ),
+      extraData: serializer.fromJson<String?>(json['extraData']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'frequency': serializer.toJson<String>(frequency),
+      'contributionAmount': serializer.toJson<double>(contributionAmount),
+      'totalParts': serializer.toJson<int>(totalParts),
+      'currency': serializer.toJson<String>(currency),
+      'status': serializer.toJson<String>(status),
+      'creatorId': serializer.toJson<String>(creatorId),
+      'inviteCode': serializer.toJson<String?>(inviteCode),
+      'currentTurn': serializer.toJson<int>(currentTurn),
+      'startDate': serializer.toJson<DateTime?>(startDate),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'rotationMode': serializer.toJson<String?>(rotationMode),
+      'validationMode': serializer.toJson<String?>(validationMode),
+      'sanctions': serializer.toJson<String?>(sanctions),
+      'socialFund': serializer.toJson<String?>(socialFund),
+      'escrowDetails': serializer.toJson<String?>(escrowDetails),
+      'autoRenew': serializer.toJson<bool?>(autoRenew),
+      'rulesAcceptedByAll': serializer.toJson<bool?>(rulesAcceptedByAll),
+      'extraData': serializer.toJson<String?>(extraData),
+    };
+  }
+
+  Tontine copyWith({
+    String? id,
+    String? name,
+    String? frequency,
+    double? contributionAmount,
+    int? totalParts,
+    String? currency,
+    String? status,
+    String? creatorId,
+    Value<String?> inviteCode = const Value.absent(),
+    int? currentTurn,
+    Value<DateTime?> startDate = const Value.absent(),
+    Value<DateTime?> createdAt = const Value.absent(),
+    Value<DateTime?> updatedAt = const Value.absent(),
+    Value<String?> rotationMode = const Value.absent(),
+    Value<String?> validationMode = const Value.absent(),
+    Value<String?> sanctions = const Value.absent(),
+    Value<String?> socialFund = const Value.absent(),
+    Value<String?> escrowDetails = const Value.absent(),
+    Value<bool?> autoRenew = const Value.absent(),
+    Value<bool?> rulesAcceptedByAll = const Value.absent(),
+    Value<String?> extraData = const Value.absent(),
+  }) => Tontine(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    frequency: frequency ?? this.frequency,
+    contributionAmount: contributionAmount ?? this.contributionAmount,
+    totalParts: totalParts ?? this.totalParts,
+    currency: currency ?? this.currency,
+    status: status ?? this.status,
+    creatorId: creatorId ?? this.creatorId,
+    inviteCode: inviteCode.present ? inviteCode.value : this.inviteCode,
+    currentTurn: currentTurn ?? this.currentTurn,
+    startDate: startDate.present ? startDate.value : this.startDate,
+    createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    rotationMode: rotationMode.present ? rotationMode.value : this.rotationMode,
+    validationMode: validationMode.present
+        ? validationMode.value
+        : this.validationMode,
+    sanctions: sanctions.present ? sanctions.value : this.sanctions,
+    socialFund: socialFund.present ? socialFund.value : this.socialFund,
+    escrowDetails: escrowDetails.present
+        ? escrowDetails.value
+        : this.escrowDetails,
+    autoRenew: autoRenew.present ? autoRenew.value : this.autoRenew,
+    rulesAcceptedByAll: rulesAcceptedByAll.present
+        ? rulesAcceptedByAll.value
+        : this.rulesAcceptedByAll,
+    extraData: extraData.present ? extraData.value : this.extraData,
+  );
+  Tontine copyWithCompanion(TontinesCompanion data) {
+    return Tontine(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      frequency: data.frequency.present ? data.frequency.value : this.frequency,
+      contributionAmount: data.contributionAmount.present
+          ? data.contributionAmount.value
+          : this.contributionAmount,
+      totalParts: data.totalParts.present
+          ? data.totalParts.value
+          : this.totalParts,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      status: data.status.present ? data.status.value : this.status,
+      creatorId: data.creatorId.present ? data.creatorId.value : this.creatorId,
+      inviteCode: data.inviteCode.present
+          ? data.inviteCode.value
+          : this.inviteCode,
+      currentTurn: data.currentTurn.present
+          ? data.currentTurn.value
+          : this.currentTurn,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      rotationMode: data.rotationMode.present
+          ? data.rotationMode.value
+          : this.rotationMode,
+      validationMode: data.validationMode.present
+          ? data.validationMode.value
+          : this.validationMode,
+      sanctions: data.sanctions.present ? data.sanctions.value : this.sanctions,
+      socialFund: data.socialFund.present
+          ? data.socialFund.value
+          : this.socialFund,
+      escrowDetails: data.escrowDetails.present
+          ? data.escrowDetails.value
+          : this.escrowDetails,
+      autoRenew: data.autoRenew.present ? data.autoRenew.value : this.autoRenew,
+      rulesAcceptedByAll: data.rulesAcceptedByAll.present
+          ? data.rulesAcceptedByAll.value
+          : this.rulesAcceptedByAll,
+      extraData: data.extraData.present ? data.extraData.value : this.extraData,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Tontine(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('frequency: $frequency, ')
+          ..write('contributionAmount: $contributionAmount, ')
+          ..write('totalParts: $totalParts, ')
+          ..write('currency: $currency, ')
+          ..write('status: $status, ')
+          ..write('creatorId: $creatorId, ')
+          ..write('inviteCode: $inviteCode, ')
+          ..write('currentTurn: $currentTurn, ')
+          ..write('startDate: $startDate, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rotationMode: $rotationMode, ')
+          ..write('validationMode: $validationMode, ')
+          ..write('sanctions: $sanctions, ')
+          ..write('socialFund: $socialFund, ')
+          ..write('escrowDetails: $escrowDetails, ')
+          ..write('autoRenew: $autoRenew, ')
+          ..write('rulesAcceptedByAll: $rulesAcceptedByAll, ')
+          ..write('extraData: $extraData')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    name,
+    frequency,
+    contributionAmount,
+    totalParts,
+    currency,
+    status,
+    creatorId,
+    inviteCode,
+    currentTurn,
+    startDate,
+    createdAt,
+    updatedAt,
+    rotationMode,
+    validationMode,
+    sanctions,
+    socialFund,
+    escrowDetails,
+    autoRenew,
+    rulesAcceptedByAll,
+    extraData,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Tontine &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.frequency == this.frequency &&
+          other.contributionAmount == this.contributionAmount &&
+          other.totalParts == this.totalParts &&
+          other.currency == this.currency &&
+          other.status == this.status &&
+          other.creatorId == this.creatorId &&
+          other.inviteCode == this.inviteCode &&
+          other.currentTurn == this.currentTurn &&
+          other.startDate == this.startDate &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.rotationMode == this.rotationMode &&
+          other.validationMode == this.validationMode &&
+          other.sanctions == this.sanctions &&
+          other.socialFund == this.socialFund &&
+          other.escrowDetails == this.escrowDetails &&
+          other.autoRenew == this.autoRenew &&
+          other.rulesAcceptedByAll == this.rulesAcceptedByAll &&
+          other.extraData == this.extraData);
+}
+
+class TontinesCompanion extends UpdateCompanion<Tontine> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> frequency;
+  final Value<double> contributionAmount;
+  final Value<int> totalParts;
+  final Value<String> currency;
+  final Value<String> status;
+  final Value<String> creatorId;
+  final Value<String?> inviteCode;
+  final Value<int> currentTurn;
+  final Value<DateTime?> startDate;
+  final Value<DateTime?> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<String?> rotationMode;
+  final Value<String?> validationMode;
+  final Value<String?> sanctions;
+  final Value<String?> socialFund;
+  final Value<String?> escrowDetails;
+  final Value<bool?> autoRenew;
+  final Value<bool?> rulesAcceptedByAll;
+  final Value<String?> extraData;
+  final Value<int> rowid;
+  const TontinesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.frequency = const Value.absent(),
+    this.contributionAmount = const Value.absent(),
+    this.totalParts = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.status = const Value.absent(),
+    this.creatorId = const Value.absent(),
+    this.inviteCode = const Value.absent(),
+    this.currentTurn = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rotationMode = const Value.absent(),
+    this.validationMode = const Value.absent(),
+    this.sanctions = const Value.absent(),
+    this.socialFund = const Value.absent(),
+    this.escrowDetails = const Value.absent(),
+    this.autoRenew = const Value.absent(),
+    this.rulesAcceptedByAll = const Value.absent(),
+    this.extraData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TontinesCompanion.insert({
+    required String id,
+    required String name,
+    required String frequency,
+    required double contributionAmount,
+    required int totalParts,
+    this.currency = const Value.absent(),
+    this.status = const Value.absent(),
+    required String creatorId,
+    this.inviteCode = const Value.absent(),
+    this.currentTurn = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rotationMode = const Value.absent(),
+    this.validationMode = const Value.absent(),
+    this.sanctions = const Value.absent(),
+    this.socialFund = const Value.absent(),
+    this.escrowDetails = const Value.absent(),
+    this.autoRenew = const Value.absent(),
+    this.rulesAcceptedByAll = const Value.absent(),
+    this.extraData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       frequency = Value(frequency),
+       contributionAmount = Value(contributionAmount),
+       totalParts = Value(totalParts),
+       creatorId = Value(creatorId);
+  static Insertable<Tontine> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? frequency,
+    Expression<double>? contributionAmount,
+    Expression<int>? totalParts,
+    Expression<String>? currency,
+    Expression<String>? status,
+    Expression<String>? creatorId,
+    Expression<String>? inviteCode,
+    Expression<int>? currentTurn,
+    Expression<DateTime>? startDate,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? rotationMode,
+    Expression<String>? validationMode,
+    Expression<String>? sanctions,
+    Expression<String>? socialFund,
+    Expression<String>? escrowDetails,
+    Expression<bool>? autoRenew,
+    Expression<bool>? rulesAcceptedByAll,
+    Expression<String>? extraData,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (frequency != null) 'frequency': frequency,
+      if (contributionAmount != null) 'contribution_amount': contributionAmount,
+      if (totalParts != null) 'total_parts': totalParts,
+      if (currency != null) 'currency': currency,
+      if (status != null) 'status': status,
+      if (creatorId != null) 'creator_id': creatorId,
+      if (inviteCode != null) 'invite_code': inviteCode,
+      if (currentTurn != null) 'current_turn': currentTurn,
+      if (startDate != null) 'start_date': startDate,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rotationMode != null) 'rotation_mode': rotationMode,
+      if (validationMode != null) 'validation_mode': validationMode,
+      if (sanctions != null) 'sanctions': sanctions,
+      if (socialFund != null) 'social_fund': socialFund,
+      if (escrowDetails != null) 'escrow_details': escrowDetails,
+      if (autoRenew != null) 'auto_renew': autoRenew,
+      if (rulesAcceptedByAll != null)
+        'rules_accepted_by_all': rulesAcceptedByAll,
+      if (extraData != null) 'extra_data': extraData,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TontinesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? frequency,
+    Value<double>? contributionAmount,
+    Value<int>? totalParts,
+    Value<String>? currency,
+    Value<String>? status,
+    Value<String>? creatorId,
+    Value<String?>? inviteCode,
+    Value<int>? currentTurn,
+    Value<DateTime?>? startDate,
+    Value<DateTime?>? createdAt,
+    Value<DateTime?>? updatedAt,
+    Value<String?>? rotationMode,
+    Value<String?>? validationMode,
+    Value<String?>? sanctions,
+    Value<String?>? socialFund,
+    Value<String?>? escrowDetails,
+    Value<bool?>? autoRenew,
+    Value<bool?>? rulesAcceptedByAll,
+    Value<String?>? extraData,
+    Value<int>? rowid,
+  }) {
+    return TontinesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      frequency: frequency ?? this.frequency,
+      contributionAmount: contributionAmount ?? this.contributionAmount,
+      totalParts: totalParts ?? this.totalParts,
+      currency: currency ?? this.currency,
+      status: status ?? this.status,
+      creatorId: creatorId ?? this.creatorId,
+      inviteCode: inviteCode ?? this.inviteCode,
+      currentTurn: currentTurn ?? this.currentTurn,
+      startDate: startDate ?? this.startDate,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rotationMode: rotationMode ?? this.rotationMode,
+      validationMode: validationMode ?? this.validationMode,
+      sanctions: sanctions ?? this.sanctions,
+      socialFund: socialFund ?? this.socialFund,
+      escrowDetails: escrowDetails ?? this.escrowDetails,
+      autoRenew: autoRenew ?? this.autoRenew,
+      rulesAcceptedByAll: rulesAcceptedByAll ?? this.rulesAcceptedByAll,
+      extraData: extraData ?? this.extraData,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (frequency.present) {
+      map['frequency'] = Variable<String>(frequency.value);
+    }
+    if (contributionAmount.present) {
+      map['contribution_amount'] = Variable<double>(contributionAmount.value);
+    }
+    if (totalParts.present) {
+      map['total_parts'] = Variable<int>(totalParts.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (creatorId.present) {
+      map['creator_id'] = Variable<String>(creatorId.value);
+    }
+    if (inviteCode.present) {
+      map['invite_code'] = Variable<String>(inviteCode.value);
+    }
+    if (currentTurn.present) {
+      map['current_turn'] = Variable<int>(currentTurn.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<DateTime>(startDate.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rotationMode.present) {
+      map['rotation_mode'] = Variable<String>(rotationMode.value);
+    }
+    if (validationMode.present) {
+      map['validation_mode'] = Variable<String>(validationMode.value);
+    }
+    if (sanctions.present) {
+      map['sanctions'] = Variable<String>(sanctions.value);
+    }
+    if (socialFund.present) {
+      map['social_fund'] = Variable<String>(socialFund.value);
+    }
+    if (escrowDetails.present) {
+      map['escrow_details'] = Variable<String>(escrowDetails.value);
+    }
+    if (autoRenew.present) {
+      map['auto_renew'] = Variable<bool>(autoRenew.value);
+    }
+    if (rulesAcceptedByAll.present) {
+      map['rules_accepted_by_all'] = Variable<bool>(rulesAcceptedByAll.value);
+    }
+    if (extraData.present) {
+      map['extra_data'] = Variable<String>(extraData.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TontinesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('frequency: $frequency, ')
+          ..write('contributionAmount: $contributionAmount, ')
+          ..write('totalParts: $totalParts, ')
+          ..write('currency: $currency, ')
+          ..write('status: $status, ')
+          ..write('creatorId: $creatorId, ')
+          ..write('inviteCode: $inviteCode, ')
+          ..write('currentTurn: $currentTurn, ')
+          ..write('startDate: $startDate, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rotationMode: $rotationMode, ')
+          ..write('validationMode: $validationMode, ')
+          ..write('sanctions: $sanctions, ')
+          ..write('socialFund: $socialFund, ')
+          ..write('escrowDetails: $escrowDetails, ')
+          ..write('autoRenew: $autoRenew, ')
+          ..write('rulesAcceptedByAll: $rulesAcceptedByAll, ')
+          ..write('extraData: $extraData, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TontineMembersTable extends TontineMembers
+    with TableInfo<$TontineMembersTable, TontineMember> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TontineMembersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tontineIdMeta = const VerificationMeta(
+    'tontineId',
+  );
+  @override
+  late final GeneratedColumn<String> tontineId = GeneratedColumn<String>(
+    'tontine_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _displayNameMeta = const VerificationMeta(
+    'displayName',
+  );
+  @override
+  late final GeneratedColumn<String> displayName = GeneratedColumn<String>(
+    'display_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _partsMeta = const VerificationMeta('parts');
+  @override
+  late final GeneratedColumn<int> parts = GeneratedColumn<int>(
+    'parts',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _trustScoreMeta = const VerificationMeta(
+    'trustScore',
+  );
+  @override
+  late final GeneratedColumn<double> trustScore = GeneratedColumn<double>(
+    'trust_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _hasPaidSocialFundMeta = const VerificationMeta(
+    'hasPaidSocialFund',
+  );
+  @override
+  late final GeneratedColumn<bool> hasPaidSocialFund = GeneratedColumn<bool>(
+    'has_paid_social_fund',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("has_paid_social_fund" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _payoutDetailsMeta = const VerificationMeta(
+    'payoutDetails',
+  );
+  @override
+  late final GeneratedColumn<String> payoutDetails = GeneratedColumn<String>(
+    'payout_details',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    tontineId,
+    userId,
+    displayName,
+    parts,
+    trustScore,
+    hasPaidSocialFund,
+    payoutDetails,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tontine_members';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TontineMember> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('tontine_id')) {
+      context.handle(
+        _tontineIdMeta,
+        tontineId.isAcceptableOrUnknown(data['tontine_id']!, _tontineIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tontineIdMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+        _displayNameMeta,
+        displayName.isAcceptableOrUnknown(
+          data['display_name']!,
+          _displayNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_displayNameMeta);
+    }
+    if (data.containsKey('parts')) {
+      context.handle(
+        _partsMeta,
+        parts.isAcceptableOrUnknown(data['parts']!, _partsMeta),
+      );
+    }
+    if (data.containsKey('trust_score')) {
+      context.handle(
+        _trustScoreMeta,
+        trustScore.isAcceptableOrUnknown(data['trust_score']!, _trustScoreMeta),
+      );
+    }
+    if (data.containsKey('has_paid_social_fund')) {
+      context.handle(
+        _hasPaidSocialFundMeta,
+        hasPaidSocialFund.isAcceptableOrUnknown(
+          data['has_paid_social_fund']!,
+          _hasPaidSocialFundMeta,
+        ),
+      );
+    }
+    if (data.containsKey('payout_details')) {
+      context.handle(
+        _payoutDetailsMeta,
+        payoutDetails.isAcceptableOrUnknown(
+          data['payout_details']!,
+          _payoutDetailsMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TontineMember map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TontineMember(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      tontineId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tontine_id'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      displayName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_name'],
+      )!,
+      parts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}parts'],
+      )!,
+      trustScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}trust_score'],
+      )!,
+      hasPaidSocialFund: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}has_paid_social_fund'],
+      )!,
+      payoutDetails: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payout_details'],
+      ),
+    );
+  }
+
+  @override
+  $TontineMembersTable createAlias(String alias) {
+    return $TontineMembersTable(attachedDatabase, alias);
+  }
+}
+
+class TontineMember extends DataClass implements Insertable<TontineMember> {
+  final String id;
+  final String tontineId;
+  final String userId;
+  final String displayName;
+  final int parts;
+  final double trustScore;
+  final bool hasPaidSocialFund;
+  final String? payoutDetails;
+  const TontineMember({
+    required this.id,
+    required this.tontineId,
+    required this.userId,
+    required this.displayName,
+    required this.parts,
+    required this.trustScore,
+    required this.hasPaidSocialFund,
+    this.payoutDetails,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['tontine_id'] = Variable<String>(tontineId);
+    map['user_id'] = Variable<String>(userId);
+    map['display_name'] = Variable<String>(displayName);
+    map['parts'] = Variable<int>(parts);
+    map['trust_score'] = Variable<double>(trustScore);
+    map['has_paid_social_fund'] = Variable<bool>(hasPaidSocialFund);
+    if (!nullToAbsent || payoutDetails != null) {
+      map['payout_details'] = Variable<String>(payoutDetails);
+    }
+    return map;
+  }
+
+  TontineMembersCompanion toCompanion(bool nullToAbsent) {
+    return TontineMembersCompanion(
+      id: Value(id),
+      tontineId: Value(tontineId),
+      userId: Value(userId),
+      displayName: Value(displayName),
+      parts: Value(parts),
+      trustScore: Value(trustScore),
+      hasPaidSocialFund: Value(hasPaidSocialFund),
+      payoutDetails: payoutDetails == null && nullToAbsent
+          ? const Value.absent()
+          : Value(payoutDetails),
+    );
+  }
+
+  factory TontineMember.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TontineMember(
+      id: serializer.fromJson<String>(json['id']),
+      tontineId: serializer.fromJson<String>(json['tontineId']),
+      userId: serializer.fromJson<String>(json['userId']),
+      displayName: serializer.fromJson<String>(json['displayName']),
+      parts: serializer.fromJson<int>(json['parts']),
+      trustScore: serializer.fromJson<double>(json['trustScore']),
+      hasPaidSocialFund: serializer.fromJson<bool>(json['hasPaidSocialFund']),
+      payoutDetails: serializer.fromJson<String?>(json['payoutDetails']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'tontineId': serializer.toJson<String>(tontineId),
+      'userId': serializer.toJson<String>(userId),
+      'displayName': serializer.toJson<String>(displayName),
+      'parts': serializer.toJson<int>(parts),
+      'trustScore': serializer.toJson<double>(trustScore),
+      'hasPaidSocialFund': serializer.toJson<bool>(hasPaidSocialFund),
+      'payoutDetails': serializer.toJson<String?>(payoutDetails),
+    };
+  }
+
+  TontineMember copyWith({
+    String? id,
+    String? tontineId,
+    String? userId,
+    String? displayName,
+    int? parts,
+    double? trustScore,
+    bool? hasPaidSocialFund,
+    Value<String?> payoutDetails = const Value.absent(),
+  }) => TontineMember(
+    id: id ?? this.id,
+    tontineId: tontineId ?? this.tontineId,
+    userId: userId ?? this.userId,
+    displayName: displayName ?? this.displayName,
+    parts: parts ?? this.parts,
+    trustScore: trustScore ?? this.trustScore,
+    hasPaidSocialFund: hasPaidSocialFund ?? this.hasPaidSocialFund,
+    payoutDetails: payoutDetails.present
+        ? payoutDetails.value
+        : this.payoutDetails,
+  );
+  TontineMember copyWithCompanion(TontineMembersCompanion data) {
+    return TontineMember(
+      id: data.id.present ? data.id.value : this.id,
+      tontineId: data.tontineId.present ? data.tontineId.value : this.tontineId,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      displayName: data.displayName.present
+          ? data.displayName.value
+          : this.displayName,
+      parts: data.parts.present ? data.parts.value : this.parts,
+      trustScore: data.trustScore.present
+          ? data.trustScore.value
+          : this.trustScore,
+      hasPaidSocialFund: data.hasPaidSocialFund.present
+          ? data.hasPaidSocialFund.value
+          : this.hasPaidSocialFund,
+      payoutDetails: data.payoutDetails.present
+          ? data.payoutDetails.value
+          : this.payoutDetails,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TontineMember(')
+          ..write('id: $id, ')
+          ..write('tontineId: $tontineId, ')
+          ..write('userId: $userId, ')
+          ..write('displayName: $displayName, ')
+          ..write('parts: $parts, ')
+          ..write('trustScore: $trustScore, ')
+          ..write('hasPaidSocialFund: $hasPaidSocialFund, ')
+          ..write('payoutDetails: $payoutDetails')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    tontineId,
+    userId,
+    displayName,
+    parts,
+    trustScore,
+    hasPaidSocialFund,
+    payoutDetails,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TontineMember &&
+          other.id == this.id &&
+          other.tontineId == this.tontineId &&
+          other.userId == this.userId &&
+          other.displayName == this.displayName &&
+          other.parts == this.parts &&
+          other.trustScore == this.trustScore &&
+          other.hasPaidSocialFund == this.hasPaidSocialFund &&
+          other.payoutDetails == this.payoutDetails);
+}
+
+class TontineMembersCompanion extends UpdateCompanion<TontineMember> {
+  final Value<String> id;
+  final Value<String> tontineId;
+  final Value<String> userId;
+  final Value<String> displayName;
+  final Value<int> parts;
+  final Value<double> trustScore;
+  final Value<bool> hasPaidSocialFund;
+  final Value<String?> payoutDetails;
+  final Value<int> rowid;
+  const TontineMembersCompanion({
+    this.id = const Value.absent(),
+    this.tontineId = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.displayName = const Value.absent(),
+    this.parts = const Value.absent(),
+    this.trustScore = const Value.absent(),
+    this.hasPaidSocialFund = const Value.absent(),
+    this.payoutDetails = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TontineMembersCompanion.insert({
+    required String id,
+    required String tontineId,
+    required String userId,
+    required String displayName,
+    this.parts = const Value.absent(),
+    this.trustScore = const Value.absent(),
+    this.hasPaidSocialFund = const Value.absent(),
+    this.payoutDetails = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       tontineId = Value(tontineId),
+       userId = Value(userId),
+       displayName = Value(displayName);
+  static Insertable<TontineMember> custom({
+    Expression<String>? id,
+    Expression<String>? tontineId,
+    Expression<String>? userId,
+    Expression<String>? displayName,
+    Expression<int>? parts,
+    Expression<double>? trustScore,
+    Expression<bool>? hasPaidSocialFund,
+    Expression<String>? payoutDetails,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (tontineId != null) 'tontine_id': tontineId,
+      if (userId != null) 'user_id': userId,
+      if (displayName != null) 'display_name': displayName,
+      if (parts != null) 'parts': parts,
+      if (trustScore != null) 'trust_score': trustScore,
+      if (hasPaidSocialFund != null) 'has_paid_social_fund': hasPaidSocialFund,
+      if (payoutDetails != null) 'payout_details': payoutDetails,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TontineMembersCompanion copyWith({
+    Value<String>? id,
+    Value<String>? tontineId,
+    Value<String>? userId,
+    Value<String>? displayName,
+    Value<int>? parts,
+    Value<double>? trustScore,
+    Value<bool>? hasPaidSocialFund,
+    Value<String?>? payoutDetails,
+    Value<int>? rowid,
+  }) {
+    return TontineMembersCompanion(
+      id: id ?? this.id,
+      tontineId: tontineId ?? this.tontineId,
+      userId: userId ?? this.userId,
+      displayName: displayName ?? this.displayName,
+      parts: parts ?? this.parts,
+      trustScore: trustScore ?? this.trustScore,
+      hasPaidSocialFund: hasPaidSocialFund ?? this.hasPaidSocialFund,
+      payoutDetails: payoutDetails ?? this.payoutDetails,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (tontineId.present) {
+      map['tontine_id'] = Variable<String>(tontineId.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (parts.present) {
+      map['parts'] = Variable<int>(parts.value);
+    }
+    if (trustScore.present) {
+      map['trust_score'] = Variable<double>(trustScore.value);
+    }
+    if (hasPaidSocialFund.present) {
+      map['has_paid_social_fund'] = Variable<bool>(hasPaidSocialFund.value);
+    }
+    if (payoutDetails.present) {
+      map['payout_details'] = Variable<String>(payoutDetails.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TontineMembersCompanion(')
+          ..write('id: $id, ')
+          ..write('tontineId: $tontineId, ')
+          ..write('userId: $userId, ')
+          ..write('displayName: $displayName, ')
+          ..write('parts: $parts, ')
+          ..write('trustScore: $trustScore, ')
+          ..write('hasPaidSocialFund: $hasPaidSocialFund, ')
+          ..write('payoutDetails: $payoutDetails, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TontineMessagesTable extends TontineMessages
+    with TableInfo<$TontineMessagesTable, TontineMessage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TontineMessagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tontineIdMeta = const VerificationMeta(
+    'tontineId',
+  );
+  @override
+  late final GeneratedColumn<String> tontineId = GeneratedColumn<String>(
+    'tontine_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _senderIdMeta = const VerificationMeta(
+    'senderId',
+  );
+  @override
+  late final GeneratedColumn<String> senderId = GeneratedColumn<String>(
+    'sender_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    tontineId,
+    senderId,
+    content,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tontine_messages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TontineMessage> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('tontine_id')) {
+      context.handle(
+        _tontineIdMeta,
+        tontineId.isAcceptableOrUnknown(data['tontine_id']!, _tontineIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tontineIdMeta);
+    }
+    if (data.containsKey('sender_id')) {
+      context.handle(
+        _senderIdMeta,
+        senderId.isAcceptableOrUnknown(data['sender_id']!, _senderIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_senderIdMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TontineMessage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TontineMessage(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      tontineId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tontine_id'],
+      )!,
+      senderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sender_id'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TontineMessagesTable createAlias(String alias) {
+    return $TontineMessagesTable(attachedDatabase, alias);
+  }
+}
+
+class TontineMessage extends DataClass implements Insertable<TontineMessage> {
+  final String id;
+  final String tontineId;
+  final String senderId;
+  final String content;
+  final DateTime createdAt;
+  const TontineMessage({
+    required this.id,
+    required this.tontineId,
+    required this.senderId,
+    required this.content,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['tontine_id'] = Variable<String>(tontineId);
+    map['sender_id'] = Variable<String>(senderId);
+    map['content'] = Variable<String>(content);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  TontineMessagesCompanion toCompanion(bool nullToAbsent) {
+    return TontineMessagesCompanion(
+      id: Value(id),
+      tontineId: Value(tontineId),
+      senderId: Value(senderId),
+      content: Value(content),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory TontineMessage.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TontineMessage(
+      id: serializer.fromJson<String>(json['id']),
+      tontineId: serializer.fromJson<String>(json['tontineId']),
+      senderId: serializer.fromJson<String>(json['senderId']),
+      content: serializer.fromJson<String>(json['content']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'tontineId': serializer.toJson<String>(tontineId),
+      'senderId': serializer.toJson<String>(senderId),
+      'content': serializer.toJson<String>(content),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  TontineMessage copyWith({
+    String? id,
+    String? tontineId,
+    String? senderId,
+    String? content,
+    DateTime? createdAt,
+  }) => TontineMessage(
+    id: id ?? this.id,
+    tontineId: tontineId ?? this.tontineId,
+    senderId: senderId ?? this.senderId,
+    content: content ?? this.content,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  TontineMessage copyWithCompanion(TontineMessagesCompanion data) {
+    return TontineMessage(
+      id: data.id.present ? data.id.value : this.id,
+      tontineId: data.tontineId.present ? data.tontineId.value : this.tontineId,
+      senderId: data.senderId.present ? data.senderId.value : this.senderId,
+      content: data.content.present ? data.content.value : this.content,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TontineMessage(')
+          ..write('id: $id, ')
+          ..write('tontineId: $tontineId, ')
+          ..write('senderId: $senderId, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, tontineId, senderId, content, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TontineMessage &&
+          other.id == this.id &&
+          other.tontineId == this.tontineId &&
+          other.senderId == this.senderId &&
+          other.content == this.content &&
+          other.createdAt == this.createdAt);
+}
+
+class TontineMessagesCompanion extends UpdateCompanion<TontineMessage> {
+  final Value<String> id;
+  final Value<String> tontineId;
+  final Value<String> senderId;
+  final Value<String> content;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const TontineMessagesCompanion({
+    this.id = const Value.absent(),
+    this.tontineId = const Value.absent(),
+    this.senderId = const Value.absent(),
+    this.content = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TontineMessagesCompanion.insert({
+    required String id,
+    required String tontineId,
+    required String senderId,
+    required String content,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       tontineId = Value(tontineId),
+       senderId = Value(senderId),
+       content = Value(content),
+       createdAt = Value(createdAt);
+  static Insertable<TontineMessage> custom({
+    Expression<String>? id,
+    Expression<String>? tontineId,
+    Expression<String>? senderId,
+    Expression<String>? content,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (tontineId != null) 'tontine_id': tontineId,
+      if (senderId != null) 'sender_id': senderId,
+      if (content != null) 'content': content,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TontineMessagesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? tontineId,
+    Value<String>? senderId,
+    Value<String>? content,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return TontineMessagesCompanion(
+      id: id ?? this.id,
+      tontineId: tontineId ?? this.tontineId,
+      senderId: senderId ?? this.senderId,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (tontineId.present) {
+      map['tontine_id'] = Variable<String>(tontineId.value);
+    }
+    if (senderId.present) {
+      map['sender_id'] = Variable<String>(senderId.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TontineMessagesCompanion(')
+          ..write('id: $id, ')
+          ..write('tontineId: $tontineId, ')
+          ..write('senderId: $senderId, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TontineContributionsTable extends TontineContributions
+    with TableInfo<$TontineContributionsTable, TontineContribution> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TontineContributionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tontineIdMeta = const VerificationMeta(
+    'tontineId',
+  );
+  @override
+  late final GeneratedColumn<String> tontineId = GeneratedColumn<String>(
+    'tontine_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _memberIdMeta = const VerificationMeta(
+    'memberId',
+  );
+  @override
+  late final GeneratedColumn<String> memberId = GeneratedColumn<String>(
+    'member_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _turnIndexMeta = const VerificationMeta(
+    'turnIndex',
+  );
+  @override
+  late final GeneratedColumn<int> turnIndex = GeneratedColumn<int>(
+    'turn_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountPaidMeta = const VerificationMeta(
+    'amountPaid',
+  );
+  @override
+  late final GeneratedColumn<double> amountPaid = GeneratedColumn<double>(
+    'amount_paid',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _proofImageMeta = const VerificationMeta(
+    'proofImage',
+  );
+  @override
+  late final GeneratedColumn<String> proofImage = GeneratedColumn<String>(
+    'proof_image',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _validationStatusMeta = const VerificationMeta(
+    'validationStatus',
+  );
+  @override
+  late final GeneratedColumn<String> validationStatus = GeneratedColumn<String>(
+    'validation_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pending'),
+  );
+  static const VerificationMeta _aiAnalysisMeta = const VerificationMeta(
+    'aiAnalysis',
+  );
+  @override
+  late final GeneratedColumn<String> aiAnalysis = GeneratedColumn<String>(
+    'ai_analysis',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    tontineId,
+    memberId,
+    turnIndex,
+    amountPaid,
+    proofImage,
+    validationStatus,
+    aiAnalysis,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tontine_contributions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TontineContribution> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('tontine_id')) {
+      context.handle(
+        _tontineIdMeta,
+        tontineId.isAcceptableOrUnknown(data['tontine_id']!, _tontineIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tontineIdMeta);
+    }
+    if (data.containsKey('member_id')) {
+      context.handle(
+        _memberIdMeta,
+        memberId.isAcceptableOrUnknown(data['member_id']!, _memberIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_memberIdMeta);
+    }
+    if (data.containsKey('turn_index')) {
+      context.handle(
+        _turnIndexMeta,
+        turnIndex.isAcceptableOrUnknown(data['turn_index']!, _turnIndexMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_turnIndexMeta);
+    }
+    if (data.containsKey('amount_paid')) {
+      context.handle(
+        _amountPaidMeta,
+        amountPaid.isAcceptableOrUnknown(data['amount_paid']!, _amountPaidMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountPaidMeta);
+    }
+    if (data.containsKey('proof_image')) {
+      context.handle(
+        _proofImageMeta,
+        proofImage.isAcceptableOrUnknown(data['proof_image']!, _proofImageMeta),
+      );
+    }
+    if (data.containsKey('validation_status')) {
+      context.handle(
+        _validationStatusMeta,
+        validationStatus.isAcceptableOrUnknown(
+          data['validation_status']!,
+          _validationStatusMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ai_analysis')) {
+      context.handle(
+        _aiAnalysisMeta,
+        aiAnalysis.isAcceptableOrUnknown(data['ai_analysis']!, _aiAnalysisMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TontineContribution map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TontineContribution(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      tontineId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tontine_id'],
+      )!,
+      memberId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}member_id'],
+      )!,
+      turnIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}turn_index'],
+      )!,
+      amountPaid: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}amount_paid'],
+      )!,
+      proofImage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}proof_image'],
+      ),
+      validationStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}validation_status'],
+      )!,
+      aiAnalysis: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ai_analysis'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TontineContributionsTable createAlias(String alias) {
+    return $TontineContributionsTable(attachedDatabase, alias);
+  }
+}
+
+class TontineContribution extends DataClass
+    implements Insertable<TontineContribution> {
+  final String id;
+  final String tontineId;
+  final String memberId;
+  final int turnIndex;
+  final double amountPaid;
+  final String? proofImage;
+  final String validationStatus;
+  final String? aiAnalysis;
+  final DateTime createdAt;
+  const TontineContribution({
+    required this.id,
+    required this.tontineId,
+    required this.memberId,
+    required this.turnIndex,
+    required this.amountPaid,
+    this.proofImage,
+    required this.validationStatus,
+    this.aiAnalysis,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['tontine_id'] = Variable<String>(tontineId);
+    map['member_id'] = Variable<String>(memberId);
+    map['turn_index'] = Variable<int>(turnIndex);
+    map['amount_paid'] = Variable<double>(amountPaid);
+    if (!nullToAbsent || proofImage != null) {
+      map['proof_image'] = Variable<String>(proofImage);
+    }
+    map['validation_status'] = Variable<String>(validationStatus);
+    if (!nullToAbsent || aiAnalysis != null) {
+      map['ai_analysis'] = Variable<String>(aiAnalysis);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  TontineContributionsCompanion toCompanion(bool nullToAbsent) {
+    return TontineContributionsCompanion(
+      id: Value(id),
+      tontineId: Value(tontineId),
+      memberId: Value(memberId),
+      turnIndex: Value(turnIndex),
+      amountPaid: Value(amountPaid),
+      proofImage: proofImage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(proofImage),
+      validationStatus: Value(validationStatus),
+      aiAnalysis: aiAnalysis == null && nullToAbsent
+          ? const Value.absent()
+          : Value(aiAnalysis),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory TontineContribution.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TontineContribution(
+      id: serializer.fromJson<String>(json['id']),
+      tontineId: serializer.fromJson<String>(json['tontineId']),
+      memberId: serializer.fromJson<String>(json['memberId']),
+      turnIndex: serializer.fromJson<int>(json['turnIndex']),
+      amountPaid: serializer.fromJson<double>(json['amountPaid']),
+      proofImage: serializer.fromJson<String?>(json['proofImage']),
+      validationStatus: serializer.fromJson<String>(json['validationStatus']),
+      aiAnalysis: serializer.fromJson<String?>(json['aiAnalysis']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'tontineId': serializer.toJson<String>(tontineId),
+      'memberId': serializer.toJson<String>(memberId),
+      'turnIndex': serializer.toJson<int>(turnIndex),
+      'amountPaid': serializer.toJson<double>(amountPaid),
+      'proofImage': serializer.toJson<String?>(proofImage),
+      'validationStatus': serializer.toJson<String>(validationStatus),
+      'aiAnalysis': serializer.toJson<String?>(aiAnalysis),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  TontineContribution copyWith({
+    String? id,
+    String? tontineId,
+    String? memberId,
+    int? turnIndex,
+    double? amountPaid,
+    Value<String?> proofImage = const Value.absent(),
+    String? validationStatus,
+    Value<String?> aiAnalysis = const Value.absent(),
+    DateTime? createdAt,
+  }) => TontineContribution(
+    id: id ?? this.id,
+    tontineId: tontineId ?? this.tontineId,
+    memberId: memberId ?? this.memberId,
+    turnIndex: turnIndex ?? this.turnIndex,
+    amountPaid: amountPaid ?? this.amountPaid,
+    proofImage: proofImage.present ? proofImage.value : this.proofImage,
+    validationStatus: validationStatus ?? this.validationStatus,
+    aiAnalysis: aiAnalysis.present ? aiAnalysis.value : this.aiAnalysis,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  TontineContribution copyWithCompanion(TontineContributionsCompanion data) {
+    return TontineContribution(
+      id: data.id.present ? data.id.value : this.id,
+      tontineId: data.tontineId.present ? data.tontineId.value : this.tontineId,
+      memberId: data.memberId.present ? data.memberId.value : this.memberId,
+      turnIndex: data.turnIndex.present ? data.turnIndex.value : this.turnIndex,
+      amountPaid: data.amountPaid.present
+          ? data.amountPaid.value
+          : this.amountPaid,
+      proofImage: data.proofImage.present
+          ? data.proofImage.value
+          : this.proofImage,
+      validationStatus: data.validationStatus.present
+          ? data.validationStatus.value
+          : this.validationStatus,
+      aiAnalysis: data.aiAnalysis.present
+          ? data.aiAnalysis.value
+          : this.aiAnalysis,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TontineContribution(')
+          ..write('id: $id, ')
+          ..write('tontineId: $tontineId, ')
+          ..write('memberId: $memberId, ')
+          ..write('turnIndex: $turnIndex, ')
+          ..write('amountPaid: $amountPaid, ')
+          ..write('proofImage: $proofImage, ')
+          ..write('validationStatus: $validationStatus, ')
+          ..write('aiAnalysis: $aiAnalysis, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    tontineId,
+    memberId,
+    turnIndex,
+    amountPaid,
+    proofImage,
+    validationStatus,
+    aiAnalysis,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TontineContribution &&
+          other.id == this.id &&
+          other.tontineId == this.tontineId &&
+          other.memberId == this.memberId &&
+          other.turnIndex == this.turnIndex &&
+          other.amountPaid == this.amountPaid &&
+          other.proofImage == this.proofImage &&
+          other.validationStatus == this.validationStatus &&
+          other.aiAnalysis == this.aiAnalysis &&
+          other.createdAt == this.createdAt);
+}
+
+class TontineContributionsCompanion
+    extends UpdateCompanion<TontineContribution> {
+  final Value<String> id;
+  final Value<String> tontineId;
+  final Value<String> memberId;
+  final Value<int> turnIndex;
+  final Value<double> amountPaid;
+  final Value<String?> proofImage;
+  final Value<String> validationStatus;
+  final Value<String?> aiAnalysis;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const TontineContributionsCompanion({
+    this.id = const Value.absent(),
+    this.tontineId = const Value.absent(),
+    this.memberId = const Value.absent(),
+    this.turnIndex = const Value.absent(),
+    this.amountPaid = const Value.absent(),
+    this.proofImage = const Value.absent(),
+    this.validationStatus = const Value.absent(),
+    this.aiAnalysis = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TontineContributionsCompanion.insert({
+    required String id,
+    required String tontineId,
+    required String memberId,
+    required int turnIndex,
+    required double amountPaid,
+    this.proofImage = const Value.absent(),
+    this.validationStatus = const Value.absent(),
+    this.aiAnalysis = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       tontineId = Value(tontineId),
+       memberId = Value(memberId),
+       turnIndex = Value(turnIndex),
+       amountPaid = Value(amountPaid),
+       createdAt = Value(createdAt);
+  static Insertable<TontineContribution> custom({
+    Expression<String>? id,
+    Expression<String>? tontineId,
+    Expression<String>? memberId,
+    Expression<int>? turnIndex,
+    Expression<double>? amountPaid,
+    Expression<String>? proofImage,
+    Expression<String>? validationStatus,
+    Expression<String>? aiAnalysis,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (tontineId != null) 'tontine_id': tontineId,
+      if (memberId != null) 'member_id': memberId,
+      if (turnIndex != null) 'turn_index': turnIndex,
+      if (amountPaid != null) 'amount_paid': amountPaid,
+      if (proofImage != null) 'proof_image': proofImage,
+      if (validationStatus != null) 'validation_status': validationStatus,
+      if (aiAnalysis != null) 'ai_analysis': aiAnalysis,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TontineContributionsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? tontineId,
+    Value<String>? memberId,
+    Value<int>? turnIndex,
+    Value<double>? amountPaid,
+    Value<String?>? proofImage,
+    Value<String>? validationStatus,
+    Value<String?>? aiAnalysis,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return TontineContributionsCompanion(
+      id: id ?? this.id,
+      tontineId: tontineId ?? this.tontineId,
+      memberId: memberId ?? this.memberId,
+      turnIndex: turnIndex ?? this.turnIndex,
+      amountPaid: amountPaid ?? this.amountPaid,
+      proofImage: proofImage ?? this.proofImage,
+      validationStatus: validationStatus ?? this.validationStatus,
+      aiAnalysis: aiAnalysis ?? this.aiAnalysis,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (tontineId.present) {
+      map['tontine_id'] = Variable<String>(tontineId.value);
+    }
+    if (memberId.present) {
+      map['member_id'] = Variable<String>(memberId.value);
+    }
+    if (turnIndex.present) {
+      map['turn_index'] = Variable<int>(turnIndex.value);
+    }
+    if (amountPaid.present) {
+      map['amount_paid'] = Variable<double>(amountPaid.value);
+    }
+    if (proofImage.present) {
+      map['proof_image'] = Variable<String>(proofImage.value);
+    }
+    if (validationStatus.present) {
+      map['validation_status'] = Variable<String>(validationStatus.value);
+    }
+    if (aiAnalysis.present) {
+      map['ai_analysis'] = Variable<String>(aiAnalysis.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TontineContributionsCompanion(')
+          ..write('id: $id, ')
+          ..write('tontineId: $tontineId, ')
+          ..write('memberId: $memberId, ')
+          ..write('turnIndex: $turnIndex, ')
+          ..write('amountPaid: $amountPaid, ')
+          ..write('proofImage: $proofImage, ')
+          ..write('validationStatus: $validationStatus, ')
+          ..write('aiAnalysis: $aiAnalysis, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -6483,6 +9650,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SyncRequestsTable syncRequests = $SyncRequestsTable(this);
   late final $UserSubscriptionsTable userSubscriptions =
       $UserSubscriptionsTable(this);
+  late final $UserChallengesTable userChallenges = $UserChallengesTable(this);
+  late final $TontinesTable tontines = $TontinesTable(this);
+  late final $TontineMembersTable tontineMembers = $TontineMembersTable(this);
+  late final $TontineMessagesTable tontineMessages = $TontineMessagesTable(
+    this,
+  );
+  late final $TontineContributionsTable tontineContributions =
+      $TontineContributionsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6497,6 +9672,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     investments,
     syncRequests,
     userSubscriptions,
+    userChallenges,
+    tontines,
+    tontineMembers,
+    tontineMessages,
+    tontineContributions,
   ];
 }
 
@@ -9571,6 +12751,1558 @@ typedef $$UserSubscriptionsTableProcessedTableManager =
       UserSubscription,
       PrefetchHooks Function()
     >;
+typedef $$UserChallengesTableCreateCompanionBuilder =
+    UserChallengesCompanion Function({
+      required String id,
+      Value<String> status,
+      Value<double> progress,
+      Value<double> currentValue,
+      Value<String?> challengeData,
+      Value<String?> weeks,
+      Value<DateTime?> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$UserChallengesTableUpdateCompanionBuilder =
+    UserChallengesCompanion Function({
+      Value<String> id,
+      Value<String> status,
+      Value<double> progress,
+      Value<double> currentValue,
+      Value<String?> challengeData,
+      Value<String?> weeks,
+      Value<DateTime?> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$UserChallengesTableFilterComposer
+    extends Composer<_$AppDatabase, $UserChallengesTable> {
+  $$UserChallengesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get currentValue => $composableBuilder(
+    column: $table.currentValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get challengeData => $composableBuilder(
+    column: $table.challengeData,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get weeks => $composableBuilder(
+    column: $table.weeks,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$UserChallengesTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserChallengesTable> {
+  $$UserChallengesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get currentValue => $composableBuilder(
+    column: $table.currentValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get challengeData => $composableBuilder(
+    column: $table.challengeData,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get weeks => $composableBuilder(
+    column: $table.weeks,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$UserChallengesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserChallengesTable> {
+  $$UserChallengesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<double> get progress =>
+      $composableBuilder(column: $table.progress, builder: (column) => column);
+
+  GeneratedColumn<double> get currentValue => $composableBuilder(
+    column: $table.currentValue,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get challengeData => $composableBuilder(
+    column: $table.challengeData,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get weeks =>
+      $composableBuilder(column: $table.weeks, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$UserChallengesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UserChallengesTable,
+          UserChallenge,
+          $$UserChallengesTableFilterComposer,
+          $$UserChallengesTableOrderingComposer,
+          $$UserChallengesTableAnnotationComposer,
+          $$UserChallengesTableCreateCompanionBuilder,
+          $$UserChallengesTableUpdateCompanionBuilder,
+          (
+            UserChallenge,
+            BaseReferences<_$AppDatabase, $UserChallengesTable, UserChallenge>,
+          ),
+          UserChallenge,
+          PrefetchHooks Function()
+        > {
+  $$UserChallengesTableTableManager(
+    _$AppDatabase db,
+    $UserChallengesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserChallengesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserChallengesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserChallengesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<double> progress = const Value.absent(),
+                Value<double> currentValue = const Value.absent(),
+                Value<String?> challengeData = const Value.absent(),
+                Value<String?> weeks = const Value.absent(),
+                Value<DateTime?> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UserChallengesCompanion(
+                id: id,
+                status: status,
+                progress: progress,
+                currentValue: currentValue,
+                challengeData: challengeData,
+                weeks: weeks,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<String> status = const Value.absent(),
+                Value<double> progress = const Value.absent(),
+                Value<double> currentValue = const Value.absent(),
+                Value<String?> challengeData = const Value.absent(),
+                Value<String?> weeks = const Value.absent(),
+                Value<DateTime?> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UserChallengesCompanion.insert(
+                id: id,
+                status: status,
+                progress: progress,
+                currentValue: currentValue,
+                challengeData: challengeData,
+                weeks: weeks,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$UserChallengesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UserChallengesTable,
+      UserChallenge,
+      $$UserChallengesTableFilterComposer,
+      $$UserChallengesTableOrderingComposer,
+      $$UserChallengesTableAnnotationComposer,
+      $$UserChallengesTableCreateCompanionBuilder,
+      $$UserChallengesTableUpdateCompanionBuilder,
+      (
+        UserChallenge,
+        BaseReferences<_$AppDatabase, $UserChallengesTable, UserChallenge>,
+      ),
+      UserChallenge,
+      PrefetchHooks Function()
+    >;
+typedef $$TontinesTableCreateCompanionBuilder =
+    TontinesCompanion Function({
+      required String id,
+      required String name,
+      required String frequency,
+      required double contributionAmount,
+      required int totalParts,
+      Value<String> currency,
+      Value<String> status,
+      required String creatorId,
+      Value<String?> inviteCode,
+      Value<int> currentTurn,
+      Value<DateTime?> startDate,
+      Value<DateTime?> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<String?> rotationMode,
+      Value<String?> validationMode,
+      Value<String?> sanctions,
+      Value<String?> socialFund,
+      Value<String?> escrowDetails,
+      Value<bool?> autoRenew,
+      Value<bool?> rulesAcceptedByAll,
+      Value<String?> extraData,
+      Value<int> rowid,
+    });
+typedef $$TontinesTableUpdateCompanionBuilder =
+    TontinesCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> frequency,
+      Value<double> contributionAmount,
+      Value<int> totalParts,
+      Value<String> currency,
+      Value<String> status,
+      Value<String> creatorId,
+      Value<String?> inviteCode,
+      Value<int> currentTurn,
+      Value<DateTime?> startDate,
+      Value<DateTime?> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<String?> rotationMode,
+      Value<String?> validationMode,
+      Value<String?> sanctions,
+      Value<String?> socialFund,
+      Value<String?> escrowDetails,
+      Value<bool?> autoRenew,
+      Value<bool?> rulesAcceptedByAll,
+      Value<String?> extraData,
+      Value<int> rowid,
+    });
+
+class $$TontinesTableFilterComposer
+    extends Composer<_$AppDatabase, $TontinesTable> {
+  $$TontinesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get frequency => $composableBuilder(
+    column: $table.frequency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get contributionAmount => $composableBuilder(
+    column: $table.contributionAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalParts => $composableBuilder(
+    column: $table.totalParts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get currency => $composableBuilder(
+    column: $table.currency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get creatorId => $composableBuilder(
+    column: $table.creatorId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get inviteCode => $composableBuilder(
+    column: $table.inviteCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get currentTurn => $composableBuilder(
+    column: $table.currentTurn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rotationMode => $composableBuilder(
+    column: $table.rotationMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get validationMode => $composableBuilder(
+    column: $table.validationMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sanctions => $composableBuilder(
+    column: $table.sanctions,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get socialFund => $composableBuilder(
+    column: $table.socialFund,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get escrowDetails => $composableBuilder(
+    column: $table.escrowDetails,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get autoRenew => $composableBuilder(
+    column: $table.autoRenew,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get rulesAcceptedByAll => $composableBuilder(
+    column: $table.rulesAcceptedByAll,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get extraData => $composableBuilder(
+    column: $table.extraData,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TontinesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TontinesTable> {
+  $$TontinesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get frequency => $composableBuilder(
+    column: $table.frequency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get contributionAmount => $composableBuilder(
+    column: $table.contributionAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalParts => $composableBuilder(
+    column: $table.totalParts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get currency => $composableBuilder(
+    column: $table.currency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get creatorId => $composableBuilder(
+    column: $table.creatorId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get inviteCode => $composableBuilder(
+    column: $table.inviteCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get currentTurn => $composableBuilder(
+    column: $table.currentTurn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get rotationMode => $composableBuilder(
+    column: $table.rotationMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get validationMode => $composableBuilder(
+    column: $table.validationMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sanctions => $composableBuilder(
+    column: $table.sanctions,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get socialFund => $composableBuilder(
+    column: $table.socialFund,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get escrowDetails => $composableBuilder(
+    column: $table.escrowDetails,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get autoRenew => $composableBuilder(
+    column: $table.autoRenew,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get rulesAcceptedByAll => $composableBuilder(
+    column: $table.rulesAcceptedByAll,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get extraData => $composableBuilder(
+    column: $table.extraData,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TontinesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TontinesTable> {
+  $$TontinesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get frequency =>
+      $composableBuilder(column: $table.frequency, builder: (column) => column);
+
+  GeneratedColumn<double> get contributionAmount => $composableBuilder(
+    column: $table.contributionAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalParts => $composableBuilder(
+    column: $table.totalParts,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get creatorId =>
+      $composableBuilder(column: $table.creatorId, builder: (column) => column);
+
+  GeneratedColumn<String> get inviteCode => $composableBuilder(
+    column: $table.inviteCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get currentTurn => $composableBuilder(
+    column: $table.currentTurn,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get rotationMode => $composableBuilder(
+    column: $table.rotationMode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get validationMode => $composableBuilder(
+    column: $table.validationMode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sanctions =>
+      $composableBuilder(column: $table.sanctions, builder: (column) => column);
+
+  GeneratedColumn<String> get socialFund => $composableBuilder(
+    column: $table.socialFund,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get escrowDetails => $composableBuilder(
+    column: $table.escrowDetails,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get autoRenew =>
+      $composableBuilder(column: $table.autoRenew, builder: (column) => column);
+
+  GeneratedColumn<bool> get rulesAcceptedByAll => $composableBuilder(
+    column: $table.rulesAcceptedByAll,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get extraData =>
+      $composableBuilder(column: $table.extraData, builder: (column) => column);
+}
+
+class $$TontinesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TontinesTable,
+          Tontine,
+          $$TontinesTableFilterComposer,
+          $$TontinesTableOrderingComposer,
+          $$TontinesTableAnnotationComposer,
+          $$TontinesTableCreateCompanionBuilder,
+          $$TontinesTableUpdateCompanionBuilder,
+          (Tontine, BaseReferences<_$AppDatabase, $TontinesTable, Tontine>),
+          Tontine,
+          PrefetchHooks Function()
+        > {
+  $$TontinesTableTableManager(_$AppDatabase db, $TontinesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TontinesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TontinesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TontinesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> frequency = const Value.absent(),
+                Value<double> contributionAmount = const Value.absent(),
+                Value<int> totalParts = const Value.absent(),
+                Value<String> currency = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> creatorId = const Value.absent(),
+                Value<String?> inviteCode = const Value.absent(),
+                Value<int> currentTurn = const Value.absent(),
+                Value<DateTime?> startDate = const Value.absent(),
+                Value<DateTime?> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<String?> rotationMode = const Value.absent(),
+                Value<String?> validationMode = const Value.absent(),
+                Value<String?> sanctions = const Value.absent(),
+                Value<String?> socialFund = const Value.absent(),
+                Value<String?> escrowDetails = const Value.absent(),
+                Value<bool?> autoRenew = const Value.absent(),
+                Value<bool?> rulesAcceptedByAll = const Value.absent(),
+                Value<String?> extraData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TontinesCompanion(
+                id: id,
+                name: name,
+                frequency: frequency,
+                contributionAmount: contributionAmount,
+                totalParts: totalParts,
+                currency: currency,
+                status: status,
+                creatorId: creatorId,
+                inviteCode: inviteCode,
+                currentTurn: currentTurn,
+                startDate: startDate,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rotationMode: rotationMode,
+                validationMode: validationMode,
+                sanctions: sanctions,
+                socialFund: socialFund,
+                escrowDetails: escrowDetails,
+                autoRenew: autoRenew,
+                rulesAcceptedByAll: rulesAcceptedByAll,
+                extraData: extraData,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required String frequency,
+                required double contributionAmount,
+                required int totalParts,
+                Value<String> currency = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                required String creatorId,
+                Value<String?> inviteCode = const Value.absent(),
+                Value<int> currentTurn = const Value.absent(),
+                Value<DateTime?> startDate = const Value.absent(),
+                Value<DateTime?> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<String?> rotationMode = const Value.absent(),
+                Value<String?> validationMode = const Value.absent(),
+                Value<String?> sanctions = const Value.absent(),
+                Value<String?> socialFund = const Value.absent(),
+                Value<String?> escrowDetails = const Value.absent(),
+                Value<bool?> autoRenew = const Value.absent(),
+                Value<bool?> rulesAcceptedByAll = const Value.absent(),
+                Value<String?> extraData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TontinesCompanion.insert(
+                id: id,
+                name: name,
+                frequency: frequency,
+                contributionAmount: contributionAmount,
+                totalParts: totalParts,
+                currency: currency,
+                status: status,
+                creatorId: creatorId,
+                inviteCode: inviteCode,
+                currentTurn: currentTurn,
+                startDate: startDate,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rotationMode: rotationMode,
+                validationMode: validationMode,
+                sanctions: sanctions,
+                socialFund: socialFund,
+                escrowDetails: escrowDetails,
+                autoRenew: autoRenew,
+                rulesAcceptedByAll: rulesAcceptedByAll,
+                extraData: extraData,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TontinesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TontinesTable,
+      Tontine,
+      $$TontinesTableFilterComposer,
+      $$TontinesTableOrderingComposer,
+      $$TontinesTableAnnotationComposer,
+      $$TontinesTableCreateCompanionBuilder,
+      $$TontinesTableUpdateCompanionBuilder,
+      (Tontine, BaseReferences<_$AppDatabase, $TontinesTable, Tontine>),
+      Tontine,
+      PrefetchHooks Function()
+    >;
+typedef $$TontineMembersTableCreateCompanionBuilder =
+    TontineMembersCompanion Function({
+      required String id,
+      required String tontineId,
+      required String userId,
+      required String displayName,
+      Value<int> parts,
+      Value<double> trustScore,
+      Value<bool> hasPaidSocialFund,
+      Value<String?> payoutDetails,
+      Value<int> rowid,
+    });
+typedef $$TontineMembersTableUpdateCompanionBuilder =
+    TontineMembersCompanion Function({
+      Value<String> id,
+      Value<String> tontineId,
+      Value<String> userId,
+      Value<String> displayName,
+      Value<int> parts,
+      Value<double> trustScore,
+      Value<bool> hasPaidSocialFund,
+      Value<String?> payoutDetails,
+      Value<int> rowid,
+    });
+
+class $$TontineMembersTableFilterComposer
+    extends Composer<_$AppDatabase, $TontineMembersTable> {
+  $$TontineMembersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tontineId => $composableBuilder(
+    column: $table.tontineId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get parts => $composableBuilder(
+    column: $table.parts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get trustScore => $composableBuilder(
+    column: $table.trustScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hasPaidSocialFund => $composableBuilder(
+    column: $table.hasPaidSocialFund,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payoutDetails => $composableBuilder(
+    column: $table.payoutDetails,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TontineMembersTableOrderingComposer
+    extends Composer<_$AppDatabase, $TontineMembersTable> {
+  $$TontineMembersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tontineId => $composableBuilder(
+    column: $table.tontineId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get parts => $composableBuilder(
+    column: $table.parts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get trustScore => $composableBuilder(
+    column: $table.trustScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hasPaidSocialFund => $composableBuilder(
+    column: $table.hasPaidSocialFund,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payoutDetails => $composableBuilder(
+    column: $table.payoutDetails,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TontineMembersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TontineMembersTable> {
+  $$TontineMembersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get tontineId =>
+      $composableBuilder(column: $table.tontineId, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get parts =>
+      $composableBuilder(column: $table.parts, builder: (column) => column);
+
+  GeneratedColumn<double> get trustScore => $composableBuilder(
+    column: $table.trustScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get hasPaidSocialFund => $composableBuilder(
+    column: $table.hasPaidSocialFund,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get payoutDetails => $composableBuilder(
+    column: $table.payoutDetails,
+    builder: (column) => column,
+  );
+}
+
+class $$TontineMembersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TontineMembersTable,
+          TontineMember,
+          $$TontineMembersTableFilterComposer,
+          $$TontineMembersTableOrderingComposer,
+          $$TontineMembersTableAnnotationComposer,
+          $$TontineMembersTableCreateCompanionBuilder,
+          $$TontineMembersTableUpdateCompanionBuilder,
+          (
+            TontineMember,
+            BaseReferences<_$AppDatabase, $TontineMembersTable, TontineMember>,
+          ),
+          TontineMember,
+          PrefetchHooks Function()
+        > {
+  $$TontineMembersTableTableManager(
+    _$AppDatabase db,
+    $TontineMembersTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TontineMembersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TontineMembersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TontineMembersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> tontineId = const Value.absent(),
+                Value<String> userId = const Value.absent(),
+                Value<String> displayName = const Value.absent(),
+                Value<int> parts = const Value.absent(),
+                Value<double> trustScore = const Value.absent(),
+                Value<bool> hasPaidSocialFund = const Value.absent(),
+                Value<String?> payoutDetails = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TontineMembersCompanion(
+                id: id,
+                tontineId: tontineId,
+                userId: userId,
+                displayName: displayName,
+                parts: parts,
+                trustScore: trustScore,
+                hasPaidSocialFund: hasPaidSocialFund,
+                payoutDetails: payoutDetails,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String tontineId,
+                required String userId,
+                required String displayName,
+                Value<int> parts = const Value.absent(),
+                Value<double> trustScore = const Value.absent(),
+                Value<bool> hasPaidSocialFund = const Value.absent(),
+                Value<String?> payoutDetails = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TontineMembersCompanion.insert(
+                id: id,
+                tontineId: tontineId,
+                userId: userId,
+                displayName: displayName,
+                parts: parts,
+                trustScore: trustScore,
+                hasPaidSocialFund: hasPaidSocialFund,
+                payoutDetails: payoutDetails,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TontineMembersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TontineMembersTable,
+      TontineMember,
+      $$TontineMembersTableFilterComposer,
+      $$TontineMembersTableOrderingComposer,
+      $$TontineMembersTableAnnotationComposer,
+      $$TontineMembersTableCreateCompanionBuilder,
+      $$TontineMembersTableUpdateCompanionBuilder,
+      (
+        TontineMember,
+        BaseReferences<_$AppDatabase, $TontineMembersTable, TontineMember>,
+      ),
+      TontineMember,
+      PrefetchHooks Function()
+    >;
+typedef $$TontineMessagesTableCreateCompanionBuilder =
+    TontineMessagesCompanion Function({
+      required String id,
+      required String tontineId,
+      required String senderId,
+      required String content,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$TontineMessagesTableUpdateCompanionBuilder =
+    TontineMessagesCompanion Function({
+      Value<String> id,
+      Value<String> tontineId,
+      Value<String> senderId,
+      Value<String> content,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$TontineMessagesTableFilterComposer
+    extends Composer<_$AppDatabase, $TontineMessagesTable> {
+  $$TontineMessagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tontineId => $composableBuilder(
+    column: $table.tontineId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get senderId => $composableBuilder(
+    column: $table.senderId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TontineMessagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TontineMessagesTable> {
+  $$TontineMessagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tontineId => $composableBuilder(
+    column: $table.tontineId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get senderId => $composableBuilder(
+    column: $table.senderId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TontineMessagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TontineMessagesTable> {
+  $$TontineMessagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get tontineId =>
+      $composableBuilder(column: $table.tontineId, builder: (column) => column);
+
+  GeneratedColumn<String> get senderId =>
+      $composableBuilder(column: $table.senderId, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$TontineMessagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TontineMessagesTable,
+          TontineMessage,
+          $$TontineMessagesTableFilterComposer,
+          $$TontineMessagesTableOrderingComposer,
+          $$TontineMessagesTableAnnotationComposer,
+          $$TontineMessagesTableCreateCompanionBuilder,
+          $$TontineMessagesTableUpdateCompanionBuilder,
+          (
+            TontineMessage,
+            BaseReferences<
+              _$AppDatabase,
+              $TontineMessagesTable,
+              TontineMessage
+            >,
+          ),
+          TontineMessage,
+          PrefetchHooks Function()
+        > {
+  $$TontineMessagesTableTableManager(
+    _$AppDatabase db,
+    $TontineMessagesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TontineMessagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TontineMessagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TontineMessagesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> tontineId = const Value.absent(),
+                Value<String> senderId = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TontineMessagesCompanion(
+                id: id,
+                tontineId: tontineId,
+                senderId: senderId,
+                content: content,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String tontineId,
+                required String senderId,
+                required String content,
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => TontineMessagesCompanion.insert(
+                id: id,
+                tontineId: tontineId,
+                senderId: senderId,
+                content: content,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TontineMessagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TontineMessagesTable,
+      TontineMessage,
+      $$TontineMessagesTableFilterComposer,
+      $$TontineMessagesTableOrderingComposer,
+      $$TontineMessagesTableAnnotationComposer,
+      $$TontineMessagesTableCreateCompanionBuilder,
+      $$TontineMessagesTableUpdateCompanionBuilder,
+      (
+        TontineMessage,
+        BaseReferences<_$AppDatabase, $TontineMessagesTable, TontineMessage>,
+      ),
+      TontineMessage,
+      PrefetchHooks Function()
+    >;
+typedef $$TontineContributionsTableCreateCompanionBuilder =
+    TontineContributionsCompanion Function({
+      required String id,
+      required String tontineId,
+      required String memberId,
+      required int turnIndex,
+      required double amountPaid,
+      Value<String?> proofImage,
+      Value<String> validationStatus,
+      Value<String?> aiAnalysis,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$TontineContributionsTableUpdateCompanionBuilder =
+    TontineContributionsCompanion Function({
+      Value<String> id,
+      Value<String> tontineId,
+      Value<String> memberId,
+      Value<int> turnIndex,
+      Value<double> amountPaid,
+      Value<String?> proofImage,
+      Value<String> validationStatus,
+      Value<String?> aiAnalysis,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$TontineContributionsTableFilterComposer
+    extends Composer<_$AppDatabase, $TontineContributionsTable> {
+  $$TontineContributionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tontineId => $composableBuilder(
+    column: $table.tontineId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get memberId => $composableBuilder(
+    column: $table.memberId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get turnIndex => $composableBuilder(
+    column: $table.turnIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get amountPaid => $composableBuilder(
+    column: $table.amountPaid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get proofImage => $composableBuilder(
+    column: $table.proofImage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get validationStatus => $composableBuilder(
+    column: $table.validationStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get aiAnalysis => $composableBuilder(
+    column: $table.aiAnalysis,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TontineContributionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TontineContributionsTable> {
+  $$TontineContributionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tontineId => $composableBuilder(
+    column: $table.tontineId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get memberId => $composableBuilder(
+    column: $table.memberId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get turnIndex => $composableBuilder(
+    column: $table.turnIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get amountPaid => $composableBuilder(
+    column: $table.amountPaid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get proofImage => $composableBuilder(
+    column: $table.proofImage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get validationStatus => $composableBuilder(
+    column: $table.validationStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get aiAnalysis => $composableBuilder(
+    column: $table.aiAnalysis,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TontineContributionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TontineContributionsTable> {
+  $$TontineContributionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get tontineId =>
+      $composableBuilder(column: $table.tontineId, builder: (column) => column);
+
+  GeneratedColumn<String> get memberId =>
+      $composableBuilder(column: $table.memberId, builder: (column) => column);
+
+  GeneratedColumn<int> get turnIndex =>
+      $composableBuilder(column: $table.turnIndex, builder: (column) => column);
+
+  GeneratedColumn<double> get amountPaid => $composableBuilder(
+    column: $table.amountPaid,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get proofImage => $composableBuilder(
+    column: $table.proofImage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get validationStatus => $composableBuilder(
+    column: $table.validationStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get aiAnalysis => $composableBuilder(
+    column: $table.aiAnalysis,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$TontineContributionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TontineContributionsTable,
+          TontineContribution,
+          $$TontineContributionsTableFilterComposer,
+          $$TontineContributionsTableOrderingComposer,
+          $$TontineContributionsTableAnnotationComposer,
+          $$TontineContributionsTableCreateCompanionBuilder,
+          $$TontineContributionsTableUpdateCompanionBuilder,
+          (
+            TontineContribution,
+            BaseReferences<
+              _$AppDatabase,
+              $TontineContributionsTable,
+              TontineContribution
+            >,
+          ),
+          TontineContribution,
+          PrefetchHooks Function()
+        > {
+  $$TontineContributionsTableTableManager(
+    _$AppDatabase db,
+    $TontineContributionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TontineContributionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TontineContributionsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$TontineContributionsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> tontineId = const Value.absent(),
+                Value<String> memberId = const Value.absent(),
+                Value<int> turnIndex = const Value.absent(),
+                Value<double> amountPaid = const Value.absent(),
+                Value<String?> proofImage = const Value.absent(),
+                Value<String> validationStatus = const Value.absent(),
+                Value<String?> aiAnalysis = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TontineContributionsCompanion(
+                id: id,
+                tontineId: tontineId,
+                memberId: memberId,
+                turnIndex: turnIndex,
+                amountPaid: amountPaid,
+                proofImage: proofImage,
+                validationStatus: validationStatus,
+                aiAnalysis: aiAnalysis,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String tontineId,
+                required String memberId,
+                required int turnIndex,
+                required double amountPaid,
+                Value<String?> proofImage = const Value.absent(),
+                Value<String> validationStatus = const Value.absent(),
+                Value<String?> aiAnalysis = const Value.absent(),
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => TontineContributionsCompanion.insert(
+                id: id,
+                tontineId: tontineId,
+                memberId: memberId,
+                turnIndex: turnIndex,
+                amountPaid: amountPaid,
+                proofImage: proofImage,
+                validationStatus: validationStatus,
+                aiAnalysis: aiAnalysis,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TontineContributionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TontineContributionsTable,
+      TontineContribution,
+      $$TontineContributionsTableFilterComposer,
+      $$TontineContributionsTableOrderingComposer,
+      $$TontineContributionsTableAnnotationComposer,
+      $$TontineContributionsTableCreateCompanionBuilder,
+      $$TontineContributionsTableUpdateCompanionBuilder,
+      (
+        TontineContribution,
+        BaseReferences<
+          _$AppDatabase,
+          $TontineContributionsTable,
+          TontineContribution
+        >,
+      ),
+      TontineContribution,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -9593,4 +14325,14 @@ class $AppDatabaseManager {
       $$SyncRequestsTableTableManager(_db, _db.syncRequests);
   $$UserSubscriptionsTableTableManager get userSubscriptions =>
       $$UserSubscriptionsTableTableManager(_db, _db.userSubscriptions);
+  $$UserChallengesTableTableManager get userChallenges =>
+      $$UserChallengesTableTableManager(_db, _db.userChallenges);
+  $$TontinesTableTableManager get tontines =>
+      $$TontinesTableTableManager(_db, _db.tontines);
+  $$TontineMembersTableTableManager get tontineMembers =>
+      $$TontineMembersTableTableManager(_db, _db.tontineMembers);
+  $$TontineMessagesTableTableManager get tontineMessages =>
+      $$TontineMessagesTableTableManager(_db, _db.tontineMessages);
+  $$TontineContributionsTableTableManager get tontineContributions =>
+      $$TontineContributionsTableTableManager(_db, _db.tontineContributions);
 }
