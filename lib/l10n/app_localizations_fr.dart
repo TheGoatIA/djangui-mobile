@@ -2035,4 +2035,71 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get replaceBudget => 'Remplacer';
+
+  @override
+  String get deleteTransaction => 'Supprimer la transaction';
+
+  @override
+  String get deleteConfirmation =>
+      'Êtes-vous sûr de vouloir supprimer cette transaction ?';
+
+  @override
+  String get success => 'Succès';
+
+  @override
+  String get debtType => 'Dette';
+
+  @override
+  String get strategy_snowball => 'Boule de neige';
+
+  @override
+  String get strategy_snowball_desc =>
+      'Remboursez vos plus petites dettes en premier pour gagner en élan.';
+
+  @override
+  String get strategy_avalanche => 'Avalanche';
+
+  @override
+  String get strategy_avalanche_desc =>
+      'Remboursez les dettes aux taux d\'intérêt les plus élevés pour économiser.';
+
+  @override
+  String get repaymentAction => 'Rembourser';
+
+  @override
+  String get repaymentSuccess => 'Remboursement enregistré avec succès';
+
+  @override
+  String get repaymentDialogTitle => 'Enregistrer un remboursement';
+
+  @override
+  String get repaymentAmountHint => 'Montant à rembourser';
+
+  @override
+  String get noteLabel => 'Note';
+
+  @override
+  String get noteHint => 'ex: Échéance de Janvier';
+
+  @override
+  String get historyLabel => 'Historique des contributions';
+
+  @override
+  String get contributionLabel => 'Contribution';
+
+  @override
+  String get goalForcedExpenseHint =>
+      'L\'épargne pour un objectif est enregistrée comme une dépense de votre portefeuille.';
+
+  @override
+  String get enableSurplusDesc =>
+      'Épargne automatiquement ce qui reste de votre budget à la fin du mois.';
+
+  @override
+  String get enableRoundupDesc =>
+      'Arrondit vos dépenses à l\'euro supérieur et épargne la différence.';
+
+  @override
+  String get percentageIncomeDesc =>
+      'Pourcentage de chaque revenu automatiquement mis de côté.';
 }

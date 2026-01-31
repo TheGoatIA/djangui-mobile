@@ -7,7 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/currency_helper.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
+
 import '../bloc/subscription_bloc.dart';
 
 class NextInvoicesWidget extends StatefulWidget {
@@ -88,12 +88,7 @@ class NextInvoicesView extends StatelessWidget {
                   final daysLeft = sub.nextBillingDate
                       .difference(DateTime.now())
                       .inDays;
-                  final currency = context
-                      .read<AuthBloc>()
-                      .state
-                      .authResponse
-                      ?.user
-                      .currency;
+                  final currency = sub.currency;
 
                   return Container(
                     width: 200,

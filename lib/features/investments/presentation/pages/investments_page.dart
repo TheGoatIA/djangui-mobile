@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+
 import '../../../../core/constants/route_constants.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../bloc/investments_bloc.dart';
 import '../../../../core/theme/app_shadows.dart';
+import '../../../../core/utils/currency_helper.dart';
 
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
@@ -269,11 +270,6 @@ class _InvestmentsViewState extends State<InvestmentsView> {
   }
 
   Widget _buildInvestmentCard(BuildContext context, dynamic investment) {
-    final currencyFormat = NumberFormat.currency(
-      locale: 'fr_FR',
-      symbol: 'XAF',
-      decimalDigits: 0,
-    );
     final isPositive = investment.roi >= 0;
 
     return Container(
@@ -324,7 +320,10 @@ class _InvestmentsViewState extends State<InvestmentsView> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                currencyFormat.format(investment.currentAmount),
+                CurrencyHelper.formatAmount(
+                  investment.currentAmount,
+                  currencyCode: investment.currency,
+                ),
                 style: AppTextStyles.bodyLarge.copyWith(
                   fontWeight: FontWeight.bold,
                 ),

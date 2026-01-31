@@ -3907,6 +3907,126 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Remplacer'**
   String get replaceBudget;
+
+  /// No description provided for @deleteTransaction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la transaction'**
+  String get deleteTransaction;
+
+  /// No description provided for @deleteConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir supprimer cette transaction ?'**
+  String get deleteConfirmation;
+
+  /// No description provided for @success.
+  ///
+  /// In fr, this message translates to:
+  /// **'Succès'**
+  String get success;
+
+  /// No description provided for @debtType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dette'**
+  String get debtType;
+
+  /// No description provided for @strategy_snowball.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boule de neige'**
+  String get strategy_snowball;
+
+  /// No description provided for @strategy_snowball_desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remboursez vos plus petites dettes en premier pour gagner en élan.'**
+  String get strategy_snowball_desc;
+
+  /// No description provided for @strategy_avalanche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avalanche'**
+  String get strategy_avalanche;
+
+  /// No description provided for @strategy_avalanche_desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remboursez les dettes aux taux d\'intérêt les plus élevés pour économiser.'**
+  String get strategy_avalanche_desc;
+
+  /// No description provided for @repaymentAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rembourser'**
+  String get repaymentAction;
+
+  /// No description provided for @repaymentSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remboursement enregistré avec succès'**
+  String get repaymentSuccess;
+
+  /// No description provided for @repaymentDialogTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer un remboursement'**
+  String get repaymentDialogTitle;
+
+  /// No description provided for @repaymentAmountHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant à rembourser'**
+  String get repaymentAmountHint;
+
+  /// No description provided for @noteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note'**
+  String get noteLabel;
+
+  /// No description provided for @noteHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'ex: Échéance de Janvier'**
+  String get noteHint;
+
+  /// No description provided for @historyLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique des contributions'**
+  String get historyLabel;
+
+  /// No description provided for @contributionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contribution'**
+  String get contributionLabel;
+
+  /// No description provided for @goalForcedExpenseHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'épargne pour un objectif est enregistrée comme une dépense de votre portefeuille.'**
+  String get goalForcedExpenseHint;
+
+  /// No description provided for @enableSurplusDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne automatiquement ce qui reste de votre budget à la fin du mois.'**
+  String get enableSurplusDesc;
+
+  /// No description provided for @enableRoundupDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrondit vos dépenses à l\'euro supérieur et épargne la différence.'**
+  String get enableRoundupDesc;
+
+  /// No description provided for @percentageIncomeDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourcentage de chaque revenu automatiquement mis de côté.'**
+  String get percentageIncomeDesc;
 }
 
 class _AppLocalizationsDelegate

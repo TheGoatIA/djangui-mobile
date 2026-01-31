@@ -171,6 +171,91 @@ class UserSubscriptions extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class UserChallenges extends Table {
+  TextColumn get id => text()();
+  TextColumn get status => text().withDefault(const Constant('active'))();
+  RealColumn get progress => real().withDefault(const Constant(0.0))();
+  RealColumn get currentValue => real().withDefault(const Constant(0.0))();
+  TextColumn get challengeData =>
+      text().nullable()(); // JSON representation of ChallengeModel
+  TextColumn get weeks => text().nullable()(); // JSON List<ChallengeWeekModel>
+  DateTimeColumn get createdAt => dateTime().nullable()();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class Tontines extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get frequency => text()();
+  RealColumn get contributionAmount => real()();
+  IntColumn get totalParts => integer()();
+  TextColumn get currency => text().withDefault(const Constant('XAF'))();
+  TextColumn get status => text().withDefault(const Constant('pending'))();
+  TextColumn get creatorId => text()();
+  TextColumn get inviteCode => text().nullable()();
+  IntColumn get currentTurn => integer().withDefault(const Constant(0))();
+  DateTimeColumn get startDate => dateTime().nullable()();
+  DateTimeColumn get createdAt => dateTime().nullable()();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+  TextColumn get rotationMode => text().nullable()();
+  TextColumn get validationMode => text().nullable()();
+  TextColumn get sanctions => text().nullable()(); // JSON
+  TextColumn get socialFund => text().nullable()(); // JSON
+  TextColumn get escrowDetails => text().nullable()(); // JSON
+  BoolColumn get autoRenew => boolean().nullable()();
+  BoolColumn get rulesAcceptedByAll => boolean().nullable()();
+  TextColumn get extraData =>
+      text().nullable()(); // For turnSummary and other JSON fields
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class TontineMembers extends Table {
+  TextColumn get id => text()();
+  TextColumn get tontineId => text()();
+  TextColumn get userId => text()();
+  TextColumn get displayName => text()();
+  IntColumn get parts => integer().withDefault(const Constant(1))();
+  RealColumn get trustScore => real().withDefault(const Constant(0.0))();
+  BoolColumn get hasPaidSocialFund =>
+      boolean().withDefault(const Constant(false))();
+  TextColumn get payoutDetails => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class TontineMessages extends Table {
+  TextColumn get id => text()();
+  TextColumn get tontineId => text()();
+  TextColumn get senderId => text()();
+  TextColumn get content => text()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class TontineContributions extends Table {
+  TextColumn get id => text()();
+  TextColumn get tontineId => text()();
+  TextColumn get memberId => text()();
+  IntColumn get turnIndex => integer()();
+  RealColumn get amountPaid => real()();
+  TextColumn get proofImage => text().nullable()();
+  TextColumn get validationStatus =>
+      text().withDefault(const Constant('pending'))();
+  TextColumn get aiAnalysis => text().nullable()(); // JSON
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(
   tables: [
     Users,
@@ -182,13 +267,18 @@ class UserSubscriptions extends Table {
     Investments,
     SyncRequests,
     UserSubscriptions,
+    UserChallenges,
+    Tontines,
+    TontineMembers,
+    TontineMessages,
+    TontineContributions,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration {
@@ -213,6 +303,15 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 18) {
           await m.createTable(userSubscriptions);
+        }
+        if (from < 19) {
+          await m.createTable(userChallenges);
+        }
+        if (from < 20) {
+          await m.createTable(tontines);
+          await m.createTable(tontineMembers);
+          await m.createTable(tontineMessages);
+          await m.createTable(tontineContributions);
         }
       },
       beforeOpen: (details) async {

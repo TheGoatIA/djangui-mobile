@@ -14,6 +14,8 @@ import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class AddBudgetPage extends StatefulWidget {
   const AddBudgetPage({super.key});
@@ -144,6 +146,8 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
         status: 'active',
         createdAt: now,
         updatedAt: now,
+        currency:
+            context.read<AuthBloc>().state.authResponse?.user.currency ?? 'XAF',
       );
       context.read<BudgetsBloc>().add(AddBudgetRequested(budget));
     }
@@ -210,6 +214,10 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
         }
         return null;
       },
+      suffix: Text(
+        context.read<AuthBloc>().state.authResponse?.user.currency ?? 'XAF',
+        style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+      ),
     );
   }
 

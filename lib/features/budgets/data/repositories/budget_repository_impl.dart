@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../core/database/database.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/network_info.dart';
 import '../datasources/budget_local_datasource.dart';
@@ -13,11 +15,13 @@ class BudgetRepositoryImpl implements BudgetRepository {
   final BudgetRemoteDataSource _remoteDataSource;
   final BudgetLocalDataSource _localDataSource;
   final NetworkInfo _networkInfo;
+  final AppDatabase _database;
 
   BudgetRepositoryImpl(
     this._remoteDataSource,
     this._localDataSource,
     this._networkInfo,
+    this._database,
   );
 
   @override
@@ -51,16 +55,33 @@ class BudgetRepositoryImpl implements BudgetRepository {
 
   @override
   Future<Either<Failure, BudgetModel>> createBudget(BudgetModel budget) async {
+    // Save locally first (Optimistic)
+    final tempId = budget.id.isEmpty
+        ? 'temp_${DateTime.now().millisecondsSinceEpoch}'
+        : budget.id;
+    final budgetToSave = budget.copyWith(id: tempId);
+    await _localDataSource.saveBudget(budgetToSave);
+
     if (await _networkInfo.isConnected) {
       try {
         final remoteBudget = await _remoteDataSource.createBudget(budget);
+        await _localDataSource.deleteBudget(tempId); // Remove temp
         await _localDataSource.saveBudget(remoteBudget);
         return Right(remoteBudget);
       } catch (e) {
         return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure());
+      await _database
+          .into(_database.syncRequests)
+          .insert(
+            SyncRequestsCompanion.insert(
+              table: 'budgets',
+              action: 'create',
+              payload: jsonEncode(budgetToSave.toJson()),
+            ),
+          );
+      return Right(budgetToSave);
     }
   }
 
@@ -69,34 +90,69 @@ class BudgetRepositoryImpl implements BudgetRepository {
     String id,
     double totalAllocated,
   ) async {
-    if (await _networkInfo.isConnected) {
-      try {
-        final remoteBudget = await _remoteDataSource.updateBudget(
-          id,
-          totalAllocated,
-        );
-        await _localDataSource.saveBudget(remoteBudget);
-        return Right(remoteBudget);
-      } catch (e) {
-        return Left(ServerFailure(e.toString()));
+    // We need the full model to save locally
+    final localBudgets = await _localDataSource.getBudgets();
+    final existingBudget = localBudgets.where((b) => b.id == id).firstOrNull;
+
+    if (existingBudget != null) {
+      final updatedBudget = existingBudget.copyWith(
+        totalAllocated: totalAllocated,
+      );
+      await _localDataSource.saveBudget(updatedBudget);
+
+      if (await _networkInfo.isConnected) {
+        try {
+          final remoteBudget = await _remoteDataSource.updateBudget(
+            id,
+            totalAllocated,
+          );
+          await _localDataSource.saveBudget(remoteBudget);
+          return Right(remoteBudget);
+        } catch (e) {
+          return Left(ServerFailure(e.toString()));
+        }
+      } else {
+        await _database
+            .into(_database.syncRequests)
+            .insert(
+              SyncRequestsCompanion.insert(
+                table: 'budgets',
+                action: 'update',
+                payload: jsonEncode({
+                  'id': id,
+                  'totalAllocated': totalAllocated,
+                }),
+              ),
+            );
+        return Right(updatedBudget);
       }
-    } else {
-      return Left(NetworkFailure());
     }
+
+    return Left(CacheFailure('Budget non trouvé localement'));
   }
 
   @override
   Future<Either<Failure, void>> deleteBudget(String id) async {
+    await _localDataSource.deleteBudget(id);
+
     if (await _networkInfo.isConnected) {
       try {
         await _remoteDataSource.deleteBudget(id);
-        await _localDataSource.deleteBudget(id);
         return const Right(null);
       } catch (e) {
         return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure());
+      await _database
+          .into(_database.syncRequests)
+          .insert(
+            SyncRequestsCompanion.insert(
+              table: 'budgets',
+              action: 'delete',
+              payload: jsonEncode({'id': id}),
+            ),
+          );
+      return const Right(null);
     }
   }
 

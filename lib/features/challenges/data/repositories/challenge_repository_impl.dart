@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/database/database.dart';
 import 'package:kauri/core/errors/failures.dart';
 import 'package:kauri/core/network/network_info.dart';
 import 'package:kauri/features/challenges/data/datasources/challenge_local_datasource.dart';
@@ -13,11 +15,13 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
   final ChallengeRemoteDataSource _remoteDataSource;
   final ChallengeLocalDataSource _localDataSource;
   final NetworkInfo _networkInfo;
+  final AppDatabase _database;
 
   ChallengeRepositoryImpl(
     this._remoteDataSource,
     this._localDataSource,
     this._networkInfo,
+    this._database,
   );
 
   @override
@@ -71,8 +75,9 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
   @override
   Future<Either<Failure, List<UserChallengeModel>>> getUserChallenges() async {
     // Try local cache first if offline
+    final localChallengesJson = await _localDataSource.getUserChallenges();
+
     if (!await _networkInfo.isConnected) {
-      final localChallengesJson = _localDataSource.getUserChallenges();
       if (localChallengesJson.isNotEmpty) {
         final localModels = localChallengesJson
             .map((e) => UserChallengeModel.fromJson(e))
@@ -86,13 +91,12 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
     try {
       final result = await _remoteDataSource.getUserChallenges();
       // Cache the result
-      _localDataSource.saveUserChallenges(
+      await _localDataSource.saveUserChallenges(
         result.map((e) => e.toJson()).toList(),
       );
       return Right(result);
     } catch (e) {
       // Fallback to cache on error
-      final localChallengesJson = _localDataSource.getUserChallenges();
       if (localChallengesJson.isNotEmpty) {
         final localModels = localChallengesJson
             .map((e) => UserChallengeModel.fromJson(e))
@@ -108,13 +112,22 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
     if (await _networkInfo.isConnected) {
       try {
         await _remoteDataSource.joinChallenge(id);
-        // We might want to refresh challenges or user challenges here
         return const Right(null);
       } catch (e) {
         return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure());
+      // Offline: Queue it
+      await _database
+          .into(_database.syncRequests)
+          .insert(
+            SyncRequestsCompanion.insert(
+              table: 'challenges',
+              action: 'join',
+              payload: jsonEncode({'id': id}),
+            ),
+          );
+      return const Right(null);
     }
   }
 
@@ -138,7 +151,22 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
         return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure());
+      // Offline: Queue it
+      await _database
+          .into(_database.syncRequests)
+          .insert(
+            SyncRequestsCompanion.insert(
+              table: 'challenges',
+              action: 'validate_week',
+              payload: jsonEncode({
+                'userChallengeId': userChallengeId,
+                'weekNumber': weekNumber,
+                'amount': amount,
+                'proofPath': proofPath,
+              }),
+            ),
+          );
+      return const Right(null);
     }
   }
 
@@ -152,7 +180,17 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
         return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure());
+      // Offline: Queue it
+      await _database
+          .into(_database.syncRequests)
+          .insert(
+            SyncRequestsCompanion.insert(
+              table: 'challenges',
+              action: 'unjoin',
+              payload: jsonEncode({'id': id}),
+            ),
+          );
+      return const Right(null);
     }
   }
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/database/database.dart';
@@ -27,48 +26,34 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
   @override
   Future<Either<Failure, List<SubscriptionModel>>> getSubscriptions() async {
+    // Return local data immediately if available
+    final localSubs = await _localDataSource.getSubscriptions();
+    if (localSubs.isNotEmpty && !await _networkInfo.isConnected) {
+      return Right(localSubs);
+    }
+
     if (await _networkInfo.isConnected) {
       try {
-        if (kDebugMode) {
-          debugPrint(
-            '🔍 [SubscriptionRepo] Fetching subscriptions from API...',
-          );
-        }
         final response = await _apiService.getSubscriptions().timeout(
           const Duration(seconds: 10),
           onTimeout: () => throw TimeoutException('Subscription API timeout'),
         );
 
-        if (kDebugMode) {
-          debugPrint(
-            '🔍 [SubscriptionRepo] API Response status: ${response.statusCode}',
-          );
-        }
-
         if (response.isSuccessful && response.body != null) {
           final subscriptions = response.body!.data ?? [];
-          if (kDebugMode) {
-            debugPrint(
-              '🔍 [SubscriptionRepo] Received ${subscriptions.length} subscriptions',
-            );
-          }
           await _localDataSource.saveSubscriptions(subscriptions);
           return Right(subscriptions);
         }
+        // If API fails, return local data as fallback
+        if (localSubs.isNotEmpty) return Right(localSubs);
         return Left(ServerFailure(response.body?.message ?? 'Server error'));
-      } catch (e, stack) {
-        if (kDebugMode) {
-          debugPrint('❌ [SubscriptionRepo] Error: $e\n$stack');
-        }
+      } catch (e) {
+        if (localSubs.isNotEmpty) return Right(localSubs);
         return Left(ServerFailure(e.toString()));
       }
     } else {
-      try {
-        final localSubs = await _localDataSource.getSubscriptions();
-        return Right(localSubs);
-      } catch (e) {
-        return Left(CacheFailure(e.toString()));
-      }
+      if (localSubs.isNotEmpty) return Right(localSubs);
+      return Left(NetworkFailure());
     }
   }
 

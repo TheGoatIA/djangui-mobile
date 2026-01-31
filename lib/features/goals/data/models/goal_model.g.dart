@@ -32,6 +32,7 @@ Map<String, dynamic> _$AutoSaveRulesModelToJson(AutoSaveRulesModel instance) =>
 GoalContributionModel _$GoalContributionModelFromJson(
   Map<String, dynamic> json,
 ) => GoalContributionModel(
+  id: GoalModel._idFromJson(json['_id']),
   amount: (json['amount'] as num).toDouble(),
   date: DateTime.parse(json['date'] as String),
   note: json['note'] as String?,
@@ -40,6 +41,7 @@ GoalContributionModel _$GoalContributionModelFromJson(
 Map<String, dynamic> _$GoalContributionModelToJson(
   GoalContributionModel instance,
 ) => <String, dynamic>{
+  '_id': instance.id,
   'amount': instance.amount,
   'date': instance.date.toIso8601String(),
   'note': instance.note,

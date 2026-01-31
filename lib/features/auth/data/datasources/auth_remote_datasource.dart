@@ -1,17 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
-import 'auth_api_service.dart';
-import 'auth_local_datasource.dart';
+import 'package:kauri/features/auth/data/datasources/auth_api_service.dart';
+import 'package:kauri/features/auth/data/datasources/auth_local_datasource.dart';
 
-import '../models/auth_response.dart';
-import '../models/login_request.dart';
-import '../models/register_request.dart';
-import '../models/user_model.dart';
-import '../models/device_info_request.dart';
-import '../models/connection_request.dart';
-import '../models/session_model.dart';
-import '../models/country_change_request.dart';
-import '../../../../core/network/api_response_extensions.dart';
+import 'package:kauri/features/auth/data/models/auth_response.dart';
+import 'package:kauri/features/auth/data/models/login_request.dart';
+import 'package:kauri/features/auth/data/models/register_request.dart';
+import 'package:kauri/features/auth/data/models/user_model.dart';
+import 'package:kauri/features/auth/data/models/device_info_request.dart';
+import 'package:kauri/features/auth/data/models/connection_request.dart';
+import 'package:kauri/features/auth/data/models/session_model.dart';
+import 'package:kauri/features/auth/data/models/country_change_request.dart';
+import 'package:kauri/core/network/api_response_extensions.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponse> login(LoginRequest request);

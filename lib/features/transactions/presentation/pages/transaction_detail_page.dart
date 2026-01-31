@@ -8,6 +8,8 @@ import '../../../goals/presentation/bloc/goals_bloc.dart';
 import '../../../goals/presentation/bloc/goals_state.dart';
 import '../../../../l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import '../bloc/transactions_bloc.dart';
+import '../../../../core/utils/toast_utils.dart';
 
 class TransactionDetailPage extends StatelessWidget {
   final TransactionModel transaction;
@@ -40,118 +42,181 @@ class TransactionDetailPage extends StatelessWidget {
             title: Text(l10n.transactions),
             backgroundColor: Colors.transparent,
             elevation: 0,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                onPressed: () => _showDeleteConfirmation(context),
+              ),
+              const SizedBox(width: 8),
+            ],
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Card
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
+          body: BlocListener<TransactionsBloc, TransactionsState>(
+            listenWhen: (previous, current) =>
+                previous.status != current.status,
+            listener: (context, state) {
+              if (state.status == TransactionsStatus.loading) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) =>
+                      const Center(child: CircularProgressIndicator()),
+                );
+              } else if (state.status == TransactionsStatus.success) {
+                Navigator.of(context).pop(); // Pop loading
+                Navigator.of(context).pop(); // Pop detail page
+                ToastUtils.showSuccess(context, l10n.success);
+              } else if (state.status == TransactionsStatus.error) {
+                Navigator.of(context).pop(); // Pop loading
+                ToastUtils.showError(
+                  context,
+                  state.errorMessage ?? l10n.unknownError,
+                );
+                context.read<TransactionsBloc>().add(ResetTransactionsStatus());
+              }
+            },
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color:
+                                (isExpense
+                                        ? AppColors.error
+                                        : AppColors.success)
+                                    .withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isExpense
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                            color: isExpense
+                                ? AppColors.error
+                                : AppColors.success,
+                            size: 32,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          '${isExpense ? '-' : '+'} ${transaction.amount.toStringAsFixed(0)} ${transaction.currency}',
+                          style: AppTextStyles.h1.copyWith(
+                            color: isExpense
+                                ? AppColors.error
+                                : AppColors.success,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          transaction.description,
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color:
-                              (isExpense ? AppColors.error : AppColors.success)
-                                  .withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isExpense ? Icons.arrow_upward : Icons.arrow_downward,
-                          color: isExpense
-                              ? AppColors.error
-                              : AppColors.success,
-                          size: 32,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '${isExpense ? '-' : '+'} ${transaction.amount.toStringAsFixed(0)} ${transaction.currency}',
-                        style: AppTextStyles.h1.copyWith(
-                          color: isExpense
-                              ? AppColors.error
-                              : AppColors.success,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        transaction.description,
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-                Text(l10n.categoryDetails, style: AppTextStyles.h3),
-                const SizedBox(height: 16),
+                  Text(l10n.categoryDetails, style: AppTextStyles.h3),
+                  const SizedBox(height: 16),
 
-                _InfoTile(
-                  label: l10n.categoryLabel,
-                  value: transaction.category,
-                  icon: Icons.category_outlined,
-                ),
-                if (transaction.subcategory != null)
                   _InfoTile(
-                    label: l10n.subcategoryLabel,
-                    value: transaction.subcategory!,
-                    icon: Icons.layers_outlined,
+                    label: l10n.categoryLabel,
+                    value: transaction.category,
+                    icon: Icons.category_outlined,
                   ),
-                if (transaction.merchant != null)
+                  if (transaction.subcategory != null)
+                    _InfoTile(
+                      label: l10n.subcategoryLabel,
+                      value: transaction.subcategory!,
+                      icon: Icons.layers_outlined,
+                    ),
+                  if (transaction.merchant != null)
+                    _InfoTile(
+                      label: l10n.merchantLabel,
+                      value: transaction.merchant!,
+                      icon: Icons.storefront_outlined,
+                    ),
                   _InfoTile(
-                    label: l10n.merchantLabel,
-                    value: transaction.merchant!,
-                    icon: Icons.storefront_outlined,
+                    label: l10n.date,
+                    value: dateStr,
+                    icon: Icons.calendar_today_outlined,
                   ),
-                _InfoTile(
-                  label: l10n.date,
-                  value: dateStr,
-                  icon: Icons.calendar_today_outlined,
-                ),
-                if (transaction.location != null)
-                  _InfoTile(
-                    label: l10n.locationLabel,
-                    value: transaction.location!,
-                    icon: Icons.location_on_outlined,
-                  ),
-                if (transaction.linkedGoalId != null)
-                  _InfoTile(
-                    label: l10n.linkToGoalLabel,
-                    value: linkedGoalName ?? l10n.active,
-                    icon: Icons.track_changes,
-                  ),
+                  if (transaction.location != null)
+                    _InfoTile(
+                      label: l10n.locationLabel,
+                      value: transaction.location!,
+                      icon: Icons.location_on_outlined,
+                    ),
+                  if (transaction.linkedGoalId != null)
+                    _InfoTile(
+                      label: l10n.linkToGoalLabel,
+                      value: linkedGoalName ?? l10n.active,
+                      icon: Icons.track_changes,
+                    ),
 
-                const SizedBox(height: 24),
-                Text(
-                  'ID: ${transaction.id}',
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  const SizedBox(height: 24),
+                  Text(
+                    'ID: ${transaction.id}',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
       },
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteTransaction),
+        content: Text(l10n.deleteConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.read<TransactionsBloc>().add(
+                DeleteTransactionRequested(transaction.id),
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
     );
   }
 }

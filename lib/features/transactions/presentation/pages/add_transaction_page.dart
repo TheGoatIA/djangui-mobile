@@ -68,7 +68,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     super.initState();
     _selectedGoalId = widget.initialGoalId;
     if (_selectedGoalId != null) {
-      _type = 'income'; // Définit par défaut comme revenu si lié à un objectif.
+      _type = 'expense';
     }
     context.read<TransactionsBloc>().add(ResetTransactionsStatus());
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -266,6 +266,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             : null,
         date: DateTime.now(),
         linkedGoalId: _selectedGoalId,
+        currency: authState.authResponse?.user.currency ?? 'XAF',
       );
       context.read<TransactionsBloc>().add(
         AddTransactionRequested(transaction),
@@ -355,15 +356,21 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     _TypeButton(
                       label: AppLocalizations.of(context)!.expense,
                       isSelected: _type == 'expense',
-                      onTap: () => setState(() => _type = 'expense'),
+                      onTap: _selectedGoalId != null
+                          ? () {} // Disabled
+                          : () => setState(() => _type = 'expense'),
                       color: AppColors.error,
+                      enabled: _selectedGoalId == null || _type == 'expense',
                     ),
                     const SizedBox(width: 12),
                     _TypeButton(
                       label: AppLocalizations.of(context)!.income,
                       isSelected: _type == 'income',
-                      onTap: () => setState(() => _type = 'income'),
+                      onTap: _selectedGoalId != null
+                          ? () {} // Disabled
+                          : () => setState(() => _type = 'income'),
                       color: AppColors.success,
+                      enabled: _selectedGoalId == null,
                     ),
                   ],
                 ),
@@ -392,6 +399,18 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       }
                       return null;
                     },
+                    suffix: Text(
+                      context
+                              .read<AuthBloc>()
+                              .state
+                              .authResponse
+                              ?.user
+                              .currency ??
+                          'XAF',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -514,11 +533,30 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                   );
                                 }),
                               ],
-                              onChanged: (value) =>
-                                  setState(() => _selectedGoalId = value),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedGoalId = value;
+                                  if (_selectedGoalId != null) {
+                                    _type = 'expense';
+                                  }
+                                });
+                              },
                             ),
                           ),
                         ),
+                        if (_selectedGoalId != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0, left: 4.0),
+                            child: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.goalForcedExpenseHint,
+                              style: AppTextStyles.labelSmall.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
                         const SizedBox(height: 20),
                       ],
                     );
@@ -561,36 +599,43 @@ class _TypeButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final Color color;
+  final bool enabled;
 
   const _TypeButton({
     required this.label,
     required this.isSelected,
     required this.onTap,
     required this.color,
+    this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: isSelected ? color : Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? color : Theme.of(context).colorScheme.outline,
-            ),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: AppTextStyles.bodyMedium.copyWith(
+        onTap: enabled ? onTap : null,
+        child: Opacity(
+          opacity: enabled ? 1.0 : 0.5,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            decoration: BoxDecoration(
+              color: isSelected ? color : Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
                 color: isSelected
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onSurface,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ? color
+                    : Theme.of(context).colorScheme.outline,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                label,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: isSelected
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSurface,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
               ),
             ),
           ),

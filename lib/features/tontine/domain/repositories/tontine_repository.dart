@@ -19,6 +19,11 @@ abstract class TontineRepository {
   });
   Future<Either<Failure, Tontine>> startTontine(String id);
   Future<Either<Failure, List<TontineMember>>> getTontineMembers(String id);
+  Future<Either<Failure, void>> leaveTontine(String id);
+  Future<Either<Failure, TontineMember>> getMemberDetails(
+    String tontineId,
+    String memberId,
+  );
   Future<Either<Failure, TontineContribution>> contribute(
     String tontineId,
     File proofImage,

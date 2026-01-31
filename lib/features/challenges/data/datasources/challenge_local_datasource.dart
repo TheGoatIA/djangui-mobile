@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:injectable/injectable.dart';
 import 'package:drift/drift.dart' as drift;
 import '../../../../core/database/database.dart';
@@ -9,18 +10,15 @@ abstract class ChallengeLocalDataSource {
   Future<void> saveChallenge(ChallengeModel challenge);
   Future<void> clearChallenges();
 
-  // User challenges methods (in-memory cache)
-  List<Map<String, dynamic>> getUserChallenges();
-  void saveUserChallenges(List<Map<String, dynamic>> userChallenges);
-  void clearUserChallenges();
+  // User challenges methods (persistent)
+  Future<List<Map<String, dynamic>>> getUserChallenges();
+  Future<void> saveUserChallenges(List<Map<String, dynamic>> userChallenges);
+  Future<void> clearUserChallenges();
 }
 
 @LazySingleton(as: ChallengeLocalDataSource)
 class ChallengeLocalDataSourceImpl implements ChallengeLocalDataSource {
   final AppDatabase _database;
-
-  // In-memory cache for user challenges
-  List<Map<String, dynamic>> _userChallengesCache = [];
 
   ChallengeLocalDataSourceImpl(this._database);
 
@@ -98,17 +96,66 @@ class ChallengeLocalDataSourceImpl implements ChallengeLocalDataSource {
   }
 
   @override
-  List<Map<String, dynamic>> getUserChallenges() {
-    return List.from(_userChallengesCache);
+  Future<List<Map<String, dynamic>>> getUserChallenges() async {
+    final rows = await _database.select(_database.userChallenges).get();
+    return rows.map((row) {
+      final challengeData = row.challengeData != null
+          ? json.decode(row.challengeData!) as Map<String, dynamic>
+          : <String, dynamic>{};
+      final weeks = row.weeks != null
+          ? json.decode(row.weeks!) as List<dynamic>
+          : <dynamic>[];
+
+      return {
+        '_id': row.id,
+        'status': row.status,
+        'progress': row.progress,
+        'currentValue': row.currentValue,
+        'challengeId': challengeData,
+        'weeks': weeks,
+        'createdAt': row.createdAt?.toIso8601String(),
+        'updatedAt': row.updatedAt?.toIso8601String(),
+      };
+    }).toList();
   }
 
   @override
-  void saveUserChallenges(List<Map<String, dynamic>> userChallenges) {
-    _userChallengesCache = List.from(userChallenges);
+  Future<void> saveUserChallenges(
+    List<Map<String, dynamic>> userChallenges,
+  ) async {
+    await _database.batch((batch) {
+      batch.insertAllOnConflictUpdate(
+        _database.userChallenges,
+        userChallenges.map((uc) {
+          final id = uc['_id'] ?? uc['id'];
+          final challengeId = uc['challengeId'];
+          final weeks = uc['weeks'];
+
+          return UserChallengesCompanion.insert(
+            id: id.toString(),
+            status: drift.Value(uc['status'] ?? 'active'),
+            progress: drift.Value((uc['progress'] as num?)?.toDouble() ?? 0.0),
+            currentValue: drift.Value(
+              (uc['currentValue'] as num?)?.toDouble() ?? 0.0,
+            ),
+            challengeData: drift.Value(
+              challengeId != null ? json.encode(challengeId) : null,
+            ),
+            weeks: drift.Value(weeks != null ? json.encode(weeks) : null),
+            createdAt: drift.Value(
+              uc['createdAt'] != null ? DateTime.parse(uc['createdAt']) : null,
+            ),
+            updatedAt: drift.Value(
+              uc['updatedAt'] != null ? DateTime.parse(uc['updatedAt']) : null,
+            ),
+          );
+        }).toList(),
+      );
+    });
   }
 
   @override
-  void clearUserChallenges() {
-    _userChallengesCache.clear();
+  Future<void> clearUserChallenges() async {
+    await _database.delete(_database.userChallenges).go();
   }
 }

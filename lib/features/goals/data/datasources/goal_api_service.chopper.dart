@@ -42,13 +42,13 @@ final class _$GoalApiService extends GoalApiService {
   }
 
   @override
-  Future<Response<BaseResponse<dynamic>>> contributeToGoal(
+  Future<Response<BaseResponse<GoalModel>>> contributeToGoal(
     String id,
     Map<String, dynamic> body,
   ) {
     final Uri $url = Uri.parse('/goals/${id}/contribute');
     final $body = body;
     final Request $request = Request('POST', $url, client.baseUrl, body: $body);
-    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+    return client.send<BaseResponse<GoalModel>, GoalModel>($request);
   }
 }

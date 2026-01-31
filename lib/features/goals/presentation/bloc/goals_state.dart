@@ -1,7 +1,14 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/goal_model.dart';
 
-enum GoalsStatus { initial, loading, success, error, goalCreated }
+enum GoalsStatus {
+  initial,
+  loading,
+  success,
+  error,
+  goalCreated,
+  contributionSuccess,
+}
 
 class GoalsState extends Equatable {
   final GoalsStatus status;

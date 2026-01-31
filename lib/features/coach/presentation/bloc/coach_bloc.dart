@@ -21,15 +21,23 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
     GetChatHistoryRequested event,
     Emitter<CoachState> emit,
   ) async {
-    emit(state.copyWith(status: CoachStatus.loading));
+    // If we already have messages in state, don't show loading spinner, but we can still refresh
+    if (state.messages.isEmpty) {
+      emit(state.copyWith(status: CoachStatus.loading));
+    }
+
     final result = await _coachRepository.getChatHistory();
     result.fold<void>(
-      (failure) => emit(
-        state.copyWith(
-          status: CoachStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        if (state.messages.isEmpty) {
+          emit(
+            state.copyWith(
+              status: CoachStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        }
+      },
       (history) =>
           emit(state.copyWith(status: CoachStatus.success, messages: history)),
     );

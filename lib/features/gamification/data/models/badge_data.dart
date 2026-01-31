@@ -29,14 +29,14 @@ class BadgesData {
     'saver_lvl_1': BadgeData(
       id: 'saver_lvl_1',
       name: 'Économe Débutant',
-      description: 'A épargné 10 000 FCFA',
+      description: 'A épargné 10 000',
       icon: Icons.savings,
       color: AppColors.primary,
     ),
     'saver_lvl_2': BadgeData(
       id: 'saver_lvl_2',
       name: 'Économe Confirmé',
-      description: 'A épargné 100 000 FCFA',
+      description: 'A épargné 100 000',
       icon: Icons.account_balance_wallet,
       color: AppColors.primaryDark,
     ),

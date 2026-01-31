@@ -12,6 +12,9 @@ class AppTextField extends StatelessWidget {
   /// Texte d'aide à l'intérieur du champ.
   final String? hint;
 
+  /// Texte d'aide affiché sous le champ.
+  final String? helperText;
+
   /// Contrôleur gérant la valeur textuelle.
   final TextEditingController controller;
 
@@ -41,6 +44,7 @@ class AppTextField extends StatelessWidget {
     required this.label,
     required this.controller,
     this.hint,
+    this.helperText,
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
@@ -68,6 +72,8 @@ class AppTextField extends StatelessWidget {
           textAlign: textAlign,
           validator: validator,
           decoration: InputDecoration(
+            helperText: helperText,
+            helperMaxLines: 2,
             hintText: hint,
             prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20) : null,
             suffixIcon: suffix != null
