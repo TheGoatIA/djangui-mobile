@@ -707,5 +707,8 @@
     "tutorialAnneDesc": "Anne analyse vos revenus et dépenses pour vous proposer un budget optimisé pour le mois à venir.",
     "budgetExistsTitle": "Budget déjà existant",
     "budgetExistsMessage": "Un budget pour cette période existe déjà. Voulez-vous le remplacer par l'analyse d'Anne ?",
-    "replaceBudget": "Remplacer"
+    "replaceBudget": "Remplacer",
+    "deleteTransaction": "Supprimer la transaction",
+    "deleteConfirmation": "Êtes-vous sûr de vouloir supprimer cette transaction ?",
+    "success": "Succès"
 }

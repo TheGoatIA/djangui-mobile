@@ -2026,4 +2026,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get replaceBudget => 'Replace';
+
+  @override
+  String get deleteTransaction => 'Delete Transaction';
+
+  @override
+  String get deleteConfirmation =>
+      'Are you sure you want to delete this transaction?';
+
+  @override
+  String get success => 'Success';
 }

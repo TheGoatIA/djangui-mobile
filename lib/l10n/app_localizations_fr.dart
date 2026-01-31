@@ -2035,4 +2035,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get replaceBudget => 'Remplacer';
+
+  @override
+  String get deleteTransaction => 'Supprimer la transaction';
+
+  @override
+  String get deleteConfirmation =>
+      'Êtes-vous sûr de vouloir supprimer cette transaction ?';
+
+  @override
+  String get success => 'Succès';
 }

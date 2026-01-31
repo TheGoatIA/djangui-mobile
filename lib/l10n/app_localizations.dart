@@ -3907,6 +3907,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Remplacer'**
   String get replaceBudget;
+
+  /// No description provided for @deleteTransaction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la transaction'**
+  String get deleteTransaction;
+
+  /// No description provided for @deleteConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir supprimer cette transaction ?'**
+  String get deleteConfirmation;
+
+  /// No description provided for @success.
+  ///
+  /// In fr, this message translates to:
+  /// **'Succès'**
+  String get success;
 }
 
 class _AppLocalizationsDelegate
