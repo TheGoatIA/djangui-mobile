@@ -152,6 +152,10 @@ class SyncService {
     } else if (request.action == 'delete') {
       final id = payload['id'] as String;
       await _goalRemoteDataSource.deleteGoal(id);
+    } else if (request.action == 'contribute') {
+      final id = payload['id'] as String;
+      final amount = (payload['amount'] as num).toDouble();
+      await _goalRemoteDataSource.contributeToGoal(id, amount);
     }
   }
 

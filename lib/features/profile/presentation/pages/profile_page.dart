@@ -177,7 +177,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 controller: incomeController,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.monthlyIncome,
-                  suffixText: 'FCFA',
+                  suffixText:
+                      context
+                          .read<AuthBloc>()
+                          .state
+                          .authResponse
+                          ?.user
+                          .currency ??
+                      'XAF',
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {

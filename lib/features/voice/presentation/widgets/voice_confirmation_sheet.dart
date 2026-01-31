@@ -12,6 +12,7 @@ import '../bloc/voice_event.dart';
 import '../../../transactions/presentation/bloc/transactions_bloc.dart';
 import '../../../transactions/data/models/transaction_model.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../../core/utils/currency_helper.dart';
 
 class VoiceConfirmationSheet extends StatelessWidget {
   final VoiceResponseModel response;
@@ -73,7 +74,15 @@ class VoiceConfirmationSheet extends StatelessWidget {
           _buildInfoRow(
             context,
             label: l10n.amountLabel,
-            value: "${response.amount?.toStringAsFixed(0) ?? '0'} XAF",
+            value: CurrencyHelper.formatAmount(
+              response.amount ?? 0,
+              currencyCode: context
+                  .read<AuthBloc>()
+                  .state
+                  .authResponse
+                  ?.user
+                  .currency,
+            ),
             isHighlight: true,
           ),
           const SizedBox(height: 16),
@@ -212,6 +221,7 @@ class VoiceConfirmationSheet extends StatelessWidget {
       description: response.description,
       merchant: response.merchant,
       date: response.date ?? DateTime.now(),
+      currency: authState.authResponse?.user.currency ?? 'XAF',
       // targetGoal would require looking up the ID based on the name
       // For now, we'll just save the transaction.
     );

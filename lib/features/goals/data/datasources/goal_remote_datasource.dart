@@ -8,7 +8,7 @@ abstract class GoalRemoteDataSource {
   Future<List<GoalModel>> getGoals();
   Future<GoalModel> createGoal(GoalModel goal);
   Future<void> deleteGoal(String id);
-  Future<void> contributeToGoal(String id, double amount);
+  Future<GoalModel> contributeToGoal(String id, double amount, {String? note});
 }
 
 @LazySingleton(as: GoalRemoteDataSource)
@@ -60,10 +60,18 @@ class GoalRemoteDataSourceImpl implements GoalRemoteDataSource {
   }
 
   @override
-  Future<void> contributeToGoal(String id, double amount) async {
-    final response = await _apiService.contributeToGoal(id, {'amount': amount});
-    if (!response.isSuccessful) {
-      throw Exception(response.errorMessage);
+  Future<GoalModel> contributeToGoal(
+    String id,
+    double amount, {
+    String? note,
+  }) async {
+    final response = await _apiService.contributeToGoal(id, {
+      'amount': amount,
+      if (note != null) 'note': note,
+    });
+    if (!response.isSuccessful || response.body?.data == null) {
+      throw Exception(response.body?.message ?? 'Failed to contribute');
     }
+    return response.body!.data!;
   }
 }

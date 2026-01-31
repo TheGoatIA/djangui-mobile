@@ -15,6 +15,7 @@ import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class AddGoalPage extends StatefulWidget {
   const AddGoalPage({super.key});
@@ -124,7 +125,16 @@ class _AddGoalPageState extends State<AddGoalPage> {
           percentageIncome: double.tryParse(_percentageController.text) ?? 0,
         ),
         strategy: GoalStrategyModel(type: _selectedStrategy),
+        category: _selectedType == 'debt'
+            ? 'Dette'
+            : _selectedType == 'emergency'
+            ? 'Urgence'
+            : _selectedType == 'investment'
+            ? 'Investissement'
+            : 'Épargne_Générale',
         createdAt: DateTime.now(),
+        currency:
+            context.read<AuthBloc>().state.authResponse?.user.currency ?? 'XAF',
       );
       context.read<GoalsBloc>().add(AddGoalRequested(goal));
     } else if (_selectedDate == null) {
@@ -235,9 +245,25 @@ class _AddGoalPageState extends State<AddGoalPage> {
                                 AppLocalizations.of(context)!.investmentType,
                               ),
                             ),
+                            DropdownMenuItem(
+                              value: 'debt',
+                              child: Text(
+                                AppLocalizations.of(context)!.debtType,
+                              ),
+                            ),
                           ],
-                          onChanged: (value) =>
-                              setState(() => _selectedType = value!),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedType = value!;
+                              // Reset strategy if current one is not valid for the new type
+                              if (_selectedType == 'debt') {
+                                _selectedStrategy = 'snowball';
+                              } else if (_selectedStrategy == 'snowball' ||
+                                  _selectedStrategy == 'avalanche') {
+                                _selectedStrategy = 'custom';
+                              }
+                            });
+                          },
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -287,6 +313,18 @@ class _AddGoalPageState extends State<AddGoalPage> {
                       label: AppLocalizations.of(context)!.targetAmountLabel,
                       hint: AppLocalizations.of(context)!.amountHint,
                       keyboardType: TextInputType.number,
+                      suffix: Text(
+                        context
+                                .read<AuthBloc>()
+                                .state
+                                .authResponse
+                                ?.user
+                                .currency ??
+                            'XAF',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return AppLocalizations.of(context)!.requiredField;
@@ -369,6 +407,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                     _buildSwitchTile(
                       context,
                       label: AppLocalizations.of(context)!.enableSurplusLabel,
+                      subtitle: AppLocalizations.of(context)!.enableSurplusDesc,
                       value: _enableSurplus,
                       onChanged: (value) =>
                           setState(() => _enableSurplus = value),
@@ -376,6 +415,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                     _buildSwitchTile(
                       context,
                       label: AppLocalizations.of(context)!.enableRoundupLabel,
+                      subtitle: AppLocalizations.of(context)!.enableRoundupDesc,
                       value: _enableRoundup,
                       onChanged: (value) =>
                           setState(() => _enableRoundup = value),
@@ -388,6 +428,9 @@ class _AddGoalPageState extends State<AddGoalPage> {
                       )!.percentageIncomeLabel,
                       hint: '0',
                       keyboardType: TextInputType.number,
+                      helperText: AppLocalizations.of(
+                        context,
+                      )!.percentageIncomeDesc,
                       suffix: const Text('%'),
                     ),
                   ],
@@ -452,9 +495,18 @@ class _AddGoalPageState extends State<AddGoalPage> {
     required String label,
     required bool value,
     required ValueChanged<bool> onChanged,
+    String? subtitle,
   }) {
     return SwitchListTile(
       title: Text(label, style: AppTextStyles.bodyMedium),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            )
+          : null,
       value: value,
       onChanged: onChanged,
       contentPadding: EdgeInsets.zero,
@@ -464,22 +516,32 @@ class _AddGoalPageState extends State<AddGoalPage> {
 
   Widget _buildStrategyDropdown() {
     final l10n = AppLocalizations.of(context)!;
-    final strategies = [
-      ('50-30-20', l10n.strategy_50_30_20, l10n.strategy_50_30_20_desc),
-      (
-        'progressive',
-        l10n.strategy_progressive,
-        l10n.strategy_progressive_desc,
-      ),
-      ('roundup', l10n.strategy_roundup, l10n.strategy_roundup_desc),
-      (
-        'pay-yourself-first',
-        l10n.strategy_pay_yourself_first,
-        l10n.strategy_pay_yourself_first_desc,
-      ),
-      ('envelope', l10n.strategy_envelope, l10n.strategy_envelope_desc),
-      ('custom', l10n.strategy_custom, l10n.strategy_custom_desc),
-    ];
+    final List<(String, String, String)> strategies;
+
+    if (_selectedType == 'debt') {
+      strategies = [
+        ('snowball', l10n.strategy_snowball, l10n.strategy_snowball_desc),
+        ('avalanche', l10n.strategy_avalanche, l10n.strategy_avalanche_desc),
+        ('custom', l10n.strategy_custom, l10n.strategy_custom_desc),
+      ];
+    } else {
+      strategies = [
+        ('50-30-20', l10n.strategy_50_30_20, l10n.strategy_50_30_20_desc),
+        (
+          'progressive',
+          l10n.strategy_progressive,
+          l10n.strategy_progressive_desc,
+        ),
+        ('roundup', l10n.strategy_roundup, l10n.strategy_roundup_desc),
+        (
+          'pay-yourself-first',
+          l10n.strategy_pay_yourself_first,
+          l10n.strategy_pay_yourself_first_desc,
+        ),
+        ('envelope', l10n.strategy_envelope, l10n.strategy_envelope_desc),
+        ('custom', l10n.strategy_custom, l10n.strategy_custom_desc),
+      ];
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

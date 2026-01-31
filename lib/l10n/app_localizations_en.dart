@@ -2036,4 +2036,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get success => 'Success';
+
+  @override
+  String get debtType => 'Debt';
+
+  @override
+  String get strategy_snowball => 'Snowball';
+
+  @override
+  String get strategy_snowball_desc =>
+      'Pay off smallest debts first to gain momentum.';
+
+  @override
+  String get strategy_avalanche => 'Avalanche';
+
+  @override
+  String get strategy_avalanche_desc =>
+      'Pay off highest interest rates first to save money.';
+
+  @override
+  String get repaymentAction => 'Add Repayment';
+
+  @override
+  String get repaymentSuccess => 'Repayment recorded successfully';
+
+  @override
+  String get repaymentDialogTitle => 'Record Repayment';
+
+  @override
+  String get repaymentAmountHint => 'Enter amount to repay';
+
+  @override
+  String get noteLabel => 'Note';
+
+  @override
+  String get noteHint => 'e.g. January installment';
+
+  @override
+  String get historyLabel => 'Contribution History';
+
+  @override
+  String get contributionLabel => 'Contribution';
+
+  @override
+  String get goalForcedExpenseHint =>
+      'Saving for a goal is recorded as an expense from your wallet.';
+
+  @override
+  String get enableSurplusDesc =>
+      'Automatically saves what remains of your budget at the end of the month.';
+
+  @override
+  String get enableRoundupDesc =>
+      'Rounds up your expenses to the nearest currency unit and saves the difference.';
+
+  @override
+  String get percentageIncomeDesc =>
+      'Percentage of each income automatically set aside.';
 }

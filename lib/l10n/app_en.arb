@@ -710,5 +710,22 @@
     "replaceBudget": "Replace",
     "deleteTransaction": "Delete Transaction",
     "deleteConfirmation": "Are you sure you want to delete this transaction?",
-    "success": "Success"
+    "success": "Success",
+    "debtType": "Debt",
+    "strategy_snowball": "Snowball",
+    "strategy_snowball_desc": "Pay off smallest debts first to gain momentum.",
+    "strategy_avalanche": "Avalanche",
+    "strategy_avalanche_desc": "Pay off highest interest rates first to save money.",
+    "repaymentAction": "Add Repayment",
+    "repaymentSuccess": "Repayment recorded successfully",
+    "repaymentDialogTitle": "Record Repayment",
+    "repaymentAmountHint": "Enter amount to repay",
+    "noteLabel": "Note",
+    "noteHint": "e.g. January installment",
+    "historyLabel": "Contribution History",
+    "contributionLabel": "Contribution",
+    "goalForcedExpenseHint": "Saving for a goal is recorded as an expense from your wallet.",
+    "enableSurplusDesc": "Automatically saves what remains of your budget at the end of the month.",
+    "enableRoundupDesc": "Rounds up your expenses to the nearest currency unit and saves the difference.",
+    "percentageIncomeDesc": "Percentage of each income automatically set aside."
 }

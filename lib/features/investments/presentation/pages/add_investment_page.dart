@@ -8,6 +8,8 @@ import '../../../../di/injection.dart';
 import '../../data/models/investment_model.dart';
 import '../bloc/investments_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddInvestmentPage extends StatefulWidget {
   const AddInvestmentPage({super.key});
@@ -44,7 +46,8 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
         type: _selectedType,
         initialAmount: amount,
         currentAmount: currentAmount,
-        currency: 'XAF',
+        currency:
+            context.read<AuthBloc>().state.authResponse?.user.currency ?? 'XAF',
         status: 'active',
         history: [], // Initialize with empty history
         createdAt: DateTime.now(),
@@ -129,6 +132,14 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
                 decoration: _inputDecoration(
                   context,
                   AppLocalizations.of(context)!.investedAmount,
+                  suffix:
+                      context
+                          .read<AuthBloc>()
+                          .state
+                          .authResponse
+                          ?.user
+                          .currency ??
+                      'XAF',
                 ),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) => value == null || value.isEmpty
@@ -172,13 +183,21 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
     );
   }
 
-  InputDecoration _inputDecoration(BuildContext context, String label) {
+  InputDecoration _inputDecoration(
+    BuildContext context,
+    String label, {
+    String? suffix,
+  }) {
     return InputDecoration(
       labelText: label,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       filled: true,
       fillColor: Theme.of(context).colorScheme.surface,
       contentPadding: const EdgeInsets.all(16),
+      suffixText: suffix,
+      suffixStyle: AppTextStyles.bodyMedium.copyWith(
+        fontWeight: FontWeight.bold,
+      ),
     );
   }
 }

@@ -17,6 +17,7 @@ import '../../../../core/theme/app_shadows.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../../core/utils/currency_helper.dart';
 
 class InsightsPage extends StatelessWidget {
   const InsightsPage({super.key});
@@ -388,7 +389,18 @@ class _InsightsViewState extends State<InsightsView> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${item.amount.toStringAsFixed(0)} FCFA',
+                CurrencyHelper.formatAmount(
+                  item.amount,
+                  currencyCode:
+                      context
+                          .read<AuthBloc>()
+                          .state
+                          .authResponse
+                          ?.user
+                          .currency ??
+                      'XAF',
+                  locale: Localizations.localeOf(context).toString(),
+                ),
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontWeight: FontWeight.bold,
                 ),

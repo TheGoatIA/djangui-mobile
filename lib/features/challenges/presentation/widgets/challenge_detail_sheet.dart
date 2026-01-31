@@ -11,6 +11,8 @@ import 'package:kauri/di/injection.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kauri/features/challenges/presentation/bloc/challenges_state.dart';
 import 'dart:io';
+import 'package:kauri/core/utils/currency_helper.dart';
+import 'package:kauri/features/auth/presentation/bloc/auth_bloc.dart';
 
 class ChallengeDetailSheet extends StatefulWidget {
   final ChallengeModel challenge;
@@ -502,7 +504,15 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                           style: AppTextStyles.labelSmall,
                         ),
                         Text(
-                          '${pendingWeek.targetAmount.toStringAsFixed(0)} XAF',
+                          CurrencyHelper.formatAmount(
+                            pendingWeek.targetAmount,
+                            currencyCode: context
+                                .read<AuthBloc>()
+                                .state
+                                .authResponse
+                                ?.user
+                                .currency,
+                          ),
                           style: AppTextStyles.bodyLarge.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.primary,
@@ -533,7 +543,14 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 border: const UnderlineInputBorder(),
-                suffixText: 'XAF',
+                suffixText:
+                    context
+                        .read<AuthBloc>()
+                        .state
+                        .authResponse
+                        ?.user
+                        .currency ??
+                    'XAF',
                 hintText: pendingWeek.targetAmount.toStringAsFixed(0),
               ),
             ),
@@ -796,7 +813,15 @@ class _WeeklyTargetCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${amount.toStringAsFixed(0)} XAF',
+                    CurrencyHelper.formatAmount(
+                      amount,
+                      currencyCode: context
+                          .read<AuthBloc>()
+                          .state
+                          .authResponse
+                          ?.user
+                          .currency,
+                    ),
                     style: AppTextStyles.h3.copyWith(
                       fontWeight: FontWeight.bold,
                       color: isReady

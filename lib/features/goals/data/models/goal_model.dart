@@ -40,11 +40,14 @@ class AutoSaveRulesModel extends Equatable {
 
 @JsonSerializable()
 class GoalContributionModel extends Equatable {
+  @JsonKey(name: '_id', fromJson: GoalModel._idFromJson)
+  final String id;
   final double amount;
   final DateTime date;
   final String? note;
 
   const GoalContributionModel({
+    required this.id,
     required this.amount,
     required this.date,
     this.note,
@@ -55,7 +58,7 @@ class GoalContributionModel extends Equatable {
   Map<String, dynamic> toJson() => _$GoalContributionModelToJson(this);
 
   @override
-  List<Object?> get props => [amount, date, note];
+  List<Object?> get props => [id, amount, date, note];
 }
 
 @JsonSerializable()
@@ -65,7 +68,7 @@ class GoalModel extends Equatable {
   final String name;
   final String? description;
   final String? emoji;
-  final String type; // 'emergency', 'savings', 'investment'
+  final String type; // 'emergency', 'savings', 'investment', 'debt'
   final double targetAmount;
   final double currentAmount;
   final double progress;

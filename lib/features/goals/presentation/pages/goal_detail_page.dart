@@ -16,7 +16,10 @@ import '../../../budgets/presentation/bloc/budgets_event.dart';
 import '../../../transactions/presentation/bloc/transactions_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:kauri/core/services/success_animation_service.dart';
+import 'package:kauri/core/theme/app_colors.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/utils/currency_helper.dart';
 
 class GoalDetailPage extends StatelessWidget {
   final String goalId;
@@ -53,27 +56,55 @@ class GoalDetailPage extends StatelessWidget {
         final daysRemaining = goal.deadline.difference(DateTime.now()).inDays;
         final l10n = AppLocalizations.of(context)!;
 
-        return BlocListener<GoalsBloc, GoalsState>(
-          listenWhen: (previous, current) {
-            final prevGoal = previous.goals.firstWhere(
-              (g) => g.id == goalId,
-              orElse: () => goal,
-            );
-            final currGoal = current.goals.firstWhere(
-              (g) => g.id == goalId,
-              orElse: () => goal,
-            );
-            return (currGoal.currentAmount / currGoal.targetAmount) >= 1.0 &&
-                (prevGoal.currentAmount / prevGoal.targetAmount) < 1.0;
-          },
-          listener: (context, state) {
-            final isPremium =
-                context.read<AuthBloc>().state.authResponse?.user.isPremium ??
-                false;
-            if (isPremium) {
-              getIt<SuccessAnimationService>().showSuccess();
-            }
-          },
+        return MultiBlocListener(
+          listeners: [
+            BlocListener<GoalsBloc, GoalsState>(
+              listenWhen: (previous, current) {
+                final prevGoal = previous.goals.firstWhere(
+                  (g) => g.id == goalId,
+                  orElse: () => goal,
+                );
+                final currGoal = current.goals.firstWhere(
+                  (g) => g.id == goalId,
+                  orElse: () => goal,
+                );
+                return (currGoal.currentAmount / currGoal.targetAmount) >=
+                        1.0 &&
+                    (prevGoal.currentAmount / prevGoal.targetAmount) < 1.0;
+              },
+              listener: (context, state) {
+                final isPremium =
+                    context
+                        .read<AuthBloc>()
+                        .state
+                        .authResponse
+                        ?.user
+                        .isPremium ??
+                    false;
+                if (isPremium) {
+                  getIt<SuccessAnimationService>().showSuccess();
+                }
+              },
+            ),
+            BlocListener<GoalsBloc, GoalsState>(
+              listenWhen: (previous, current) =>
+                  previous.status != current.status &&
+                  current.status == GoalsStatus.contributionSuccess,
+              listener: (context, state) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.repaymentSuccess),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+                // Refresh transactions and auth (balance) as the server generated an expense
+                context.read<TransactionsBloc>().add(
+                  const GetTransactionsRequested(forceRefresh: true),
+                );
+                context.read<AuthBloc>().add(AuthRefreshUserRequested());
+              },
+            ),
+          ],
           child: Stack(
             children: [
               Scaffold(
@@ -121,13 +152,22 @@ class GoalDetailPage extends StatelessWidget {
                       const SizedBox(height: 32),
                       _buildAmountSection(context, goal),
                       const SizedBox(height: 32),
+                      _buildHistorySection(context, goal),
+                      const SizedBox(height: 32),
                       _buildStrategySection(context, goal),
                       const SizedBox(height: 32),
                       _buildAutoSaveSection(context, goal),
                       const SizedBox(height: 48),
                       AppButton(
-                        text: l10n.addSavingsAction,
+                        text: goal.type == 'debt'
+                            ? l10n.repaymentAction
+                            : l10n.addSavingsAction,
                         onPressed: () async {
+                          if (goal.type == 'debt') {
+                            _showRepaymentDialog(context, goal);
+                            return;
+                          }
+
                           // Reset status to prevent immediate pop if coming from a previous success
                           context.read<TransactionsBloc>().add(
                             ResetTransactionsStatus(),
@@ -176,6 +216,10 @@ class GoalDetailPage extends StatelessWidget {
     double progress,
     int daysRemaining,
   ) {
+    if (goal.type == 'debt') {
+      return _buildDebtBurner(context, goal, progress);
+    }
+
     final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(24),
@@ -184,7 +228,7 @@ class GoalDetailPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withAlpha(12),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -198,9 +242,7 @@ class GoalDetailPage extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.primary.withAlpha(25),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -264,7 +306,7 @@ class GoalDetailPage extends StatelessWidget {
               value: progress,
               backgroundColor: Theme.of(
                 context,
-              ).colorScheme.primary.withValues(alpha: 0.1),
+              ).colorScheme.primary.withAlpha(25),
               valueColor: AlwaysStoppedAnimation<Color>(
                 Theme.of(context).colorScheme.primary,
               ),
@@ -276,8 +318,114 @@ class GoalDetailPage extends StatelessWidget {
     );
   }
 
+  Widget _buildDebtBurner(
+    BuildContext context,
+    GoalModel goal,
+    double progress,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).shadowColor.withAlpha(12),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.error.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              goal.emoji?.isNotEmpty == true ? goal.emoji! : '🛡️',
+              style: const TextStyle(fontSize: 48),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              // Total Debt Base (Grey)
+              SizedBox(
+                height: 220,
+                width: 220,
+                child: CircularProgressIndicator(
+                  value: 1.0,
+                  strokeWidth: 14,
+                  backgroundColor: Theme.of(context).colorScheme.outline,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
+              // Remaining Debt (Red/Orange)
+              SizedBox(
+                height: 220,
+                width: 220,
+                child: CircularProgressIndicator(
+                  value: 1.0,
+                  strokeWidth: 14,
+                  color: AppColors.error,
+                  strokeCap: StrokeCap.round,
+                ),
+              ),
+              // Repaid Part (Blue/Gold - This "eats" the red)
+              SizedBox(
+                height: 220,
+                width: 220,
+                child: CircularProgressIndicator(
+                  value: progress,
+                  strokeWidth: 16,
+                  color: AppColors.secondary,
+                  strokeCap: StrokeCap.round,
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${(progress * 100).toInt()}%',
+                    style: AppTextStyles.h1.copyWith(
+                      color: AppColors.secondary,
+                    ),
+                  ),
+                  Text(
+                    AppLocalizations.of(context)!.completed.toUpperCase(),
+                    style: AppTextStyles.labelSmall.copyWith(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            AppLocalizations.of(context)!.debtType.toUpperCase(),
+            style: AppTextStyles.labelLarge.copyWith(
+              color: AppColors.error,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAmountSection(BuildContext context, GoalModel goal) {
     final l10n = AppLocalizations.of(context)!;
+    final userCurrency =
+        context.read<AuthBloc>().state.authResponse?.user.currency ??
+        goal.currency;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -289,7 +437,7 @@ class GoalDetailPage extends StatelessWidget {
               context,
               l10n.currentAmountLabel,
               goal.currentAmount,
-              goal.currency,
+              userCurrency,
               Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 16),
@@ -297,7 +445,7 @@ class GoalDetailPage extends StatelessWidget {
               context,
               l10n.targetAmountLabel,
               goal.targetAmount,
-              goal.currency,
+              userCurrency,
               Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ],
@@ -334,7 +482,7 @@ class GoalDetailPage extends StatelessWidget {
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                '${amount.toStringAsFixed(0)} $currency',
+                CurrencyHelper.formatAmount(amount, currencyCode: currency),
                 style: AppTextStyles.bodyLarge.copyWith(
                   fontWeight: FontWeight.bold,
                   color: color,
@@ -394,9 +542,7 @@ class GoalDetailPage extends StatelessWidget {
             ).colorScheme.primary.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withAlpha(25),
             ),
           ),
           child: Row(
@@ -475,6 +621,88 @@ class GoalDetailPage extends StatelessWidget {
     );
   }
 
+  Widget _buildHistorySection(BuildContext context, GoalModel goal) {
+    final l10n = AppLocalizations.of(context)!;
+    if (goal.contributions.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.historyLabel, style: AppTextStyles.h3.copyWith(fontSize: 18)),
+        const SizedBox(height: 16),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: goal.contributions.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final contribution = goal.contributions[index];
+            final userCurrency =
+                context.read<AuthBloc>().state.authResponse?.user.currency ??
+                goal.currency;
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline.withAlpha(50),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withAlpha(20),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.history,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          contribution.note ?? l10n.contributionLabel,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          contribution.date.toIso8601String().split('T')[0],
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '+ ${CurrencyHelper.formatAmount(contribution.amount, currencyCode: userCurrency)}',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.success,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildRuleItem(
     BuildContext context,
     IconData icon,
@@ -529,6 +757,54 @@ class GoalDetailPage extends StatelessWidget {
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.outline,
             ),
+        ],
+      ),
+    );
+  }
+
+  void _showRepaymentDialog(BuildContext context, GoalModel goal) {
+    final amountController = TextEditingController();
+    final noteController = TextEditingController();
+    final l10n = AppLocalizations.of(context)!;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.repaymentDialogTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppTextField(
+              controller: amountController,
+              label: l10n.amountLabel,
+              hint: l10n.repaymentAmountHint,
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            AppTextField(
+              controller: noteController,
+              label: l10n.noteLabel,
+              hint: l10n.noteHint,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          AppButton(
+            text: l10n.confirm,
+            onPressed: () {
+              final amount = double.tryParse(amountController.text);
+              if (amount != null && amount > 0) {
+                context.read<GoalsBloc>().add(
+                  UpdateGoalAmountRequested(id: goal.id, amount: amount),
+                );
+                Navigator.pop(context);
+              }
+            },
+          ),
         ],
       ),
     );

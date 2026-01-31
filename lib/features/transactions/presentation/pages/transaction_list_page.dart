@@ -14,6 +14,7 @@ import '../../../budgets/presentation/bloc/budgets_event.dart';
 import '../../../goals/presentation/bloc/goals_bloc.dart';
 import '../../../goals/presentation/bloc/goals_event.dart';
 import '../../../../core/theme/app_shadows.dart';
+import '../../../../core/utils/currency_helper.dart';
 
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
@@ -262,7 +263,7 @@ class _TransactionItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '${isIncome ? '+' : '-'}${NumberFormat('#,###').format(transaction.amount)} F',
+                  '${isIncome ? '+' : '-'}${CurrencyHelper.formatAmount(transaction.amount, currencyCode: transaction.currency)}',
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: color,
                     fontWeight: FontWeight.bold,

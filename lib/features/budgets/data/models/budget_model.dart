@@ -55,6 +55,7 @@ class BudgetModel extends Equatable {
   final double totalAllocated;
   final double totalSpent;
   final String status; // 'active', 'completed', 'exceeded'
+  final String currency;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -70,6 +71,7 @@ class BudgetModel extends Equatable {
     required this.totalAllocated,
     required this.totalSpent,
     required this.status,
+    this.currency = 'XAF',
     this.createdAt,
     this.updatedAt,
   });
@@ -87,6 +89,7 @@ class BudgetModel extends Equatable {
     double? totalAllocated,
     double? totalSpent,
     String? status,
+    String? currency,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -97,6 +100,7 @@ class BudgetModel extends Equatable {
       totalAllocated: totalAllocated ?? this.totalAllocated,
       totalSpent: totalSpent ?? this.totalSpent,
       status: status ?? this.status,
+      currency: currency ?? this.currency,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -110,6 +114,7 @@ class BudgetModel extends Equatable {
     totalAllocated,
     totalSpent,
     status,
+    currency,
     createdAt,
     updatedAt,
   ];

@@ -11,9 +11,11 @@ import '../../data/models/goal_model.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/services/share_service.dart';
 import '../../../../core/theme/app_shadows.dart';
+import '../../../../core/utils/currency_helper.dart';
 
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
+import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 
 /// Page listant les objectifs d'épargne de l'utilisateur.
 ///
@@ -284,12 +286,24 @@ class _GoalItem extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '${goal.currentAmount.toStringAsFixed(0)} F / ${goal.targetAmount.toStringAsFixed(0)} F',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Builder(
+                  builder: (context) {
+                    final userCurrency =
+                        context
+                            .read<AuthBloc>()
+                            .state
+                            .authResponse
+                            ?.user
+                            .currency ??
+                        goal.currency;
+                    return Text(
+                      '${CurrencyHelper.formatAmount(goal.currentAmount, currencyCode: userCurrency)} / ${CurrencyHelper.formatAmount(goal.targetAmount, currencyCode: userCurrency)}',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
                 ),
                 Text(
                   '${(progress * 100).toStringAsFixed(0)}%',

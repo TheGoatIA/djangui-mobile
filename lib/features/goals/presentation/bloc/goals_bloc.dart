@@ -100,7 +100,12 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
         final List<GoalModel> updatedList = state.goals
             .map((g) => g.id == updatedGoal.id ? updatedGoal : g)
             .toList();
-        emit(state.copyWith(status: GoalsStatus.success, goals: updatedList));
+        emit(
+          state.copyWith(
+            status: GoalsStatus.contributionSuccess,
+            goals: updatedList,
+          ),
+        );
       },
     );
   }

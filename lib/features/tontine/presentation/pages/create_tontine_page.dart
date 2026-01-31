@@ -8,6 +8,7 @@ import '../../domain/entities/tontine_entities.dart';
 import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:go_router/go_router.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class CreateTontinePage extends StatefulWidget {
   final Tontine? tontine;
@@ -35,7 +36,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
   final List<Map<String, String>> _escrowAccounts = [];
 
   String _frequency = 'monthly';
-  final String _currency = 'FCFA';
+  String _currency = 'XAF'; // Ddéfaut
   String _rotationMode = 'fixed';
   String _validationMode = 'ia_only';
 
@@ -44,6 +45,16 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
   @override
   void initState() {
     super.initState();
+    final userCurrency = context
+        .read<AuthBloc>()
+        .state
+        .authResponse
+        ?.user
+        .currency;
+    if (userCurrency != null) {
+      _currency = userCurrency;
+    }
+
     if (_isEditing) {
       final tontine = widget.tontine!;
       _nameController.text = tontine.name;
@@ -61,6 +72,8 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
       _rotationMode = tontine.rotationMode;
       _validationMode = tontine.validationMode;
       _startDate = tontine.startDate ?? _startDate;
+      // La devise est déjà dans la tontine si on édite, mais ici on prend celle de l'utilisateur par défaut pour la création
+      // Si on voulait supporter le changement de devise pour une tontine existante, il faudrait le gérer ici
       if (tontine.escrowDetails != null) {
         for (var account in tontine.escrowDetails!) {
           _escrowAccounts.add({
