@@ -356,6 +356,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get successGoal => 'Objectif créé avec succès';
 
   @override
+  String get successBudgetUpdate => 'Budget mis à jour avec succès';
+
+  @override
+  String get editBudgetTitle => 'Modifier le Budget';
+
+  @override
+  String get updateBudgetAction => 'Mettre à jour';
+
+  @override
   String get errorGoal => 'Erreur lors de la création de l\'objectif';
 
   @override

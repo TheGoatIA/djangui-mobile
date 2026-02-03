@@ -86,49 +86,30 @@ class BudgetRepositoryImpl implements BudgetRepository {
   }
 
   @override
-  Future<Either<Failure, BudgetModel>> updateBudget(
-    String id,
-    double totalAllocated,
-  ) async {
-    // We need the full model to save locally
-    final localBudgets = await _localDataSource.getBudgets();
-    final existingBudget = localBudgets.where((b) => b.id == id).firstOrNull;
+  Future<Either<Failure, BudgetModel>> updateBudget(BudgetModel budget) async {
+    // Save locally first
+    await _localDataSource.saveBudget(budget);
 
-    if (existingBudget != null) {
-      final updatedBudget = existingBudget.copyWith(
-        totalAllocated: totalAllocated,
-      );
-      await _localDataSource.saveBudget(updatedBudget);
-
-      if (await _networkInfo.isConnected) {
-        try {
-          final remoteBudget = await _remoteDataSource.updateBudget(
-            id,
-            totalAllocated,
-          );
-          await _localDataSource.saveBudget(remoteBudget);
-          return Right(remoteBudget);
-        } catch (e) {
-          return Left(ServerFailure(e.toString()));
-        }
-      } else {
-        await _database
-            .into(_database.syncRequests)
-            .insert(
-              SyncRequestsCompanion.insert(
-                table: 'budgets',
-                action: 'update',
-                payload: jsonEncode({
-                  'id': id,
-                  'totalAllocated': totalAllocated,
-                }),
-              ),
-            );
-        return Right(updatedBudget);
+    if (await _networkInfo.isConnected) {
+      try {
+        final remoteBudget = await _remoteDataSource.updateBudget(budget);
+        await _localDataSource.saveBudget(remoteBudget);
+        return Right(remoteBudget);
+      } catch (e) {
+        return Left(ServerFailure(e.toString()));
       }
+    } else {
+      await _database
+          .into(_database.syncRequests)
+          .insert(
+            SyncRequestsCompanion.insert(
+              table: 'budgets',
+              action: 'update',
+              payload: jsonEncode(budget.toJson()),
+            ),
+          );
+      return Right(budget);
     }
-
-    return Left(CacheFailure('Budget non trouvé localement'));
   }
 
   @override

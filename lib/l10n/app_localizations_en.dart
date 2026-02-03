@@ -353,6 +353,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get successGoal => 'Goal created successfully';
 
   @override
+  String get successBudgetUpdate => 'Budget updated successfully';
+
+  @override
+  String get editBudgetTitle => 'Edit Budget';
+
+  @override
+  String get updateBudgetAction => 'Update';
+
+  @override
   String get errorGoal => 'Error creating goal';
 
   @override

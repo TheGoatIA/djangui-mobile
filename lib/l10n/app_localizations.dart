@@ -770,6 +770,24 @@ abstract class AppLocalizations {
   /// **'Objectif créé avec succès'**
   String get successGoal;
 
+  /// No description provided for @successBudgetUpdate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget mis à jour avec succès'**
+  String get successBudgetUpdate;
+
+  /// No description provided for @editBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le Budget'**
+  String get editBudgetTitle;
+
+  /// No description provided for @updateBudgetAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre à jour'**
+  String get updateBudgetAction;
+
   /// No description provided for @errorGoal.
   ///
   /// In fr, this message translates to:
