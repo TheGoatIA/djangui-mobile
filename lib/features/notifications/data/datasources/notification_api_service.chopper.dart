@@ -33,53 +33,41 @@ final class _$NotificationApiService extends NotificationApiService {
       client.baseUrl,
       parameters: $params,
     );
-    return client
-        .send<BaseListResponse<NotificationModel>, NotificationModel>($request);
+    return client.send<BaseListResponse<NotificationModel>, NotificationModel>(
+      $request,
+    );
   }
 
   @override
   Future<Response<BaseResponse<NotificationModel>>> markAsRead(String id) {
     final Uri $url = Uri.parse('/notifications/${id}/read');
-    final Request $request = Request(
-      'PATCH',
-      $url,
-      client.baseUrl,
+    final Request $request = Request('PATCH', $url, client.baseUrl);
+    return client.send<BaseResponse<NotificationModel>, NotificationModel>(
+      $request,
     );
-    return client
-        .send<BaseResponse<NotificationModel>, NotificationModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<dynamic>>> markAllAsRead() {
     final Uri $url = Uri.parse('/notifications/mark-all-read');
-    final Request $request = Request(
-      'PATCH',
-      $url,
-      client.baseUrl,
-    );
+    final Request $request = Request('PATCH', $url, client.baseUrl);
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
   @override
   Future<Response<BaseResponse<dynamic>>> deleteNotification(String id) {
     final Uri $url = Uri.parse('/notifications/${id}');
-    final Request $request = Request(
-      'DELETE',
-      $url,
-      client.baseUrl,
-    );
+    final Request $request = Request('DELETE', $url, client.baseUrl);
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
   @override
   Future<Response<BaseResponse<Map<String, dynamic>>>> getUnreadCount() {
     final Uri $url = Uri.parse('/notifications/unread-count');
-    final Request $request = Request(
-      'GET',
-      $url,
-      client.baseUrl,
-    );
-    return client.send<BaseResponse<Map<String, dynamic>>,
-        Map<String, dynamic>>($request);
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client
+        .send<BaseResponse<Map<String, dynamic>>, Map<String, dynamic>>(
+          $request,
+        );
   }
 }

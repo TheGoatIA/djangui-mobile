@@ -19,13 +19,11 @@ final class _$VoiceApiService extends VoiceApiService {
 
   @override
   Future<Response<BaseResponse<VoiceResponseModel>>> processVoice(
-      MultipartFile audio) {
+    MultipartFile audio,
+  ) {
     final Uri $url = Uri.parse('/voice/process');
     final List<PartValue> $parts = <PartValue>[
-      PartValueFile<MultipartFile>(
-        'audio',
-        audio,
-      )
+      PartValueFile<MultipartFile>('audio', audio),
     ];
     final Request $request = Request(
       'POST',
@@ -34,7 +32,8 @@ final class _$VoiceApiService extends VoiceApiService {
       parts: $parts,
       multipart: true,
     );
-    return client
-        .send<BaseResponse<VoiceResponseModel>, VoiceResponseModel>($request);
+    return client.send<BaseResponse<VoiceResponseModel>, VoiceResponseModel>(
+      $request,
+    );
   }
 }
