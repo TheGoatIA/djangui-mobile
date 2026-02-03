@@ -230,7 +230,7 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
         const customOption = "___CUSTOM___";
 
         return DropdownButtonFormField<String>(
-          value: item.selectedCategory,
+          initialValue: item.selectedCategory,
           decoration: InputDecoration(
             labelText: AppLocalizations.of(context)!.categoryLabel,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
