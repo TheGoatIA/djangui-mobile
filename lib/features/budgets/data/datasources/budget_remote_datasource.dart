@@ -7,9 +7,9 @@ import '../../../../core/network/api_response_extensions.dart';
 abstract class BudgetRemoteDataSource {
   Future<List<BudgetModel>> getBudgets();
   Future<BudgetModel> createBudget(BudgetModel budget);
-  Future<BudgetModel> updateBudget(String id, double totalAllocated);
+  Future<BudgetModel> updateBudget(BudgetModel budget);
   Future<void> deleteBudget(String id);
-  Future<AutoBudgetResponse> generateAutoBudget();
+  Future<AutoBudgetResponse> generateAutoBudget({int? month, int? year});
 }
 
 @LazySingleton(as: BudgetRemoteDataSource)
@@ -52,10 +52,16 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
   }
 
   @override
-  Future<BudgetModel> updateBudget(String id, double totalAllocated) async {
-    final response = await _apiService.updateBudget(id, {
-      'totalAllocated': totalAllocated,
+  Future<BudgetModel> updateBudget(BudgetModel budget) async {
+    final json = budget.toJson();
+    final Map<String, dynamic> cleanBody = {};
+    json.forEach((key, value) {
+      if (key != '_id' && key != 'id') {
+        cleanBody[key] = value;
+      }
     });
+
+    final response = await _apiService.updateBudget(budget.id, cleanBody);
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
@@ -72,8 +78,11 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
   }
 
   @override
-  Future<AutoBudgetResponse> generateAutoBudget() async {
-    final response = await _apiService.generateAutoBudget();
+  Future<AutoBudgetResponse> generateAutoBudget({int? month, int? year}) async {
+    final response = await _apiService.generateAutoBudget(
+      month: month,
+      year: year,
+    );
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {

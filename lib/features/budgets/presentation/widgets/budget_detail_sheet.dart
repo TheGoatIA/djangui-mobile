@@ -7,6 +7,7 @@ import 'package:kauri/features/budgets/data/models/budget_model.dart';
 import 'package:kauri/core/utils/currency_helper.dart';
 import 'package:kauri/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kauri/features/budgets/presentation/pages/add_budget_page.dart';
 
 class BudgetDetailSheet extends StatelessWidget {
   final BudgetModel budget;
@@ -24,138 +25,161 @@ class BudgetDetailSheet extends StatelessWidget {
         ? Theme.of(context).colorScheme.error
         : Theme.of(context).colorScheme.primary;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return DraggableScrollableSheet(
+      initialChildSize: 0.6,
+      minChildSize: 0.4,
+      maxChildSize: 0.9,
+      expand: false,
+      builder: (_, scrollController) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        child: SingleChildScrollView(
+          controller: scrollController,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.budgetDetails,
-                    style: AppTextStyles.h3.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  Text(
-                    DateFormat.yMMMM(
-                      Localizations.localeOf(context).languageCode,
-                    ).format(DateTime(budget.period.year, budget.period.month)),
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.budgetDetails,
+                        style: AppTextStyles.h3.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        DateFormat.yMMMM(
+                          Localizations.localeOf(context).languageCode,
+                        ).format(
+                          DateTime(budget.period.year, budget.period.month),
+                        ),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddBudgetPage(budget: budget),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.edit_outlined),
+                    tooltip: l10n.edit,
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: mainColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '${(totalProgress * 100).toStringAsFixed(0)}%',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: mainColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 32),
+              // Overall Summary Card
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: mainColor.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${(totalProgress * 100).toStringAsFixed(0)}%',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: mainColor,
-                    fontWeight: FontWeight.bold,
+                  border: Border.all(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.1),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
-          // Overall Summary Card
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.1),
-              ),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
                   children: [
-                    _SummaryItem(
-                      label: l10n.allocated,
-                      amount: budget.totalAllocated,
-                      color: Theme.of(context).colorScheme.onSurface,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _SummaryItem(
+                          label: l10n.allocated,
+                          amount: budget.totalAllocated,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        _SummaryItem(
+                          label: l10n.spent,
+                          amount: budget.totalSpent,
+                          color: mainColor,
+                        ),
+                        _SummaryItem(
+                          label: l10n.remaining,
+                          amount: budget.totalAllocated - budget.totalSpent,
+                          color: AppColors.success,
+                        ),
+                      ],
                     ),
-                    _SummaryItem(
-                      label: l10n.spent,
-                      amount: budget.totalSpent,
-                      color: mainColor,
-                    ),
-                    _SummaryItem(
-                      label: l10n.remaining,
-                      amount: budget.totalAllocated - budget.totalSpent,
-                      color: AppColors.success,
+                    const SizedBox(height: 20),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: totalProgress,
+                        minHeight: 12,
+                        backgroundColor: mainColor.withValues(alpha: 0.1),
+                        valueColor: AlwaysStoppedAnimation(mainColor),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: totalProgress,
-                    minHeight: 12,
-                    backgroundColor: mainColor.withValues(alpha: 0.1),
-                    valueColor: AlwaysStoppedAnimation(mainColor),
-                  ),
+              ),
+              const SizedBox(height: 32),
+              Text(
+                l10n.categories,
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: budget.categories.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final category = budget.categories[index];
+                  return _CategoryItem(category: category);
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
           ),
-          const SizedBox(height: 32),
-          Text(
-            l10n.categories,
-            style: AppTextStyles.bodyLarge.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Flexible(
-            child: ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: budget.categories.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final category = budget.categories[index];
-                return _CategoryItem(category: category);
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
+        ),
       ),
     );
   }

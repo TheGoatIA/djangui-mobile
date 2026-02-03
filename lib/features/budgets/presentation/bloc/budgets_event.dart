@@ -36,20 +36,22 @@ class DeleteBudgetRequested extends BudgetsEvent {
 }
 
 class UpdateBudgetRequested extends BudgetsEvent {
-  final String id;
-  final double totalAllocated;
+  final BudgetModel budget;
 
-  const UpdateBudgetRequested({required this.id, required this.totalAllocated});
+  const UpdateBudgetRequested(this.budget);
 
   @override
-  List<Object?> get props => [id, totalAllocated];
+  List<Object?> get props => [budget];
 }
 
 class GenerateAutoBudgetRequested extends BudgetsEvent {
-  const GenerateAutoBudgetRequested();
+  final int? month;
+  final int? year;
+
+  const GenerateAutoBudgetRequested({this.month, this.year});
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [month, year];
 }
 
 class ClearAutoBudgetResponse extends BudgetsEvent {

@@ -187,9 +187,8 @@ class SyncService {
       final budget = BudgetModel.fromJson(payload);
       await _budgetRemoteDataSource.createBudget(budget);
     } else if (request.action == 'update') {
-      final id = payload['id'] as String;
-      final totalAllocated = (payload['totalAllocated'] as num).toDouble();
-      await _budgetRemoteDataSource.updateBudget(id, totalAllocated);
+      final budget = BudgetModel.fromJson(payload);
+      await _budgetRemoteDataSource.updateBudget(budget);
     } else if (request.action == 'delete') {
       final id = payload['id'] as String;
       await _budgetRemoteDataSource.deleteBudget(id);

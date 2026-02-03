@@ -18,7 +18,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class AddBudgetPage extends StatefulWidget {
-  const AddBudgetPage({super.key});
+  final BudgetModel? budget;
+  const AddBudgetPage({super.key, this.budget});
 
   @override
   State<AddBudgetPage> createState() => _AddBudgetPageState();
@@ -26,11 +27,16 @@ class AddBudgetPage extends StatefulWidget {
 
 class _CategoryRowItem {
   String? selectedCategory;
+  final TextEditingController categoryController;
   final TextEditingController amountController;
+  bool isCustom = false;
 
-  _CategoryRowItem() : amountController = TextEditingController();
+  _CategoryRowItem()
+    : categoryController = TextEditingController(),
+      amountController = TextEditingController();
 
   void dispose() {
+    categoryController.dispose();
     amountController.dispose();
   }
 }
@@ -47,7 +53,21 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
   @override
   void initState() {
     super.initState();
-    _addCategory();
+    if (widget.budget != null) {
+      _selectedDate = DateTime(
+        widget.budget!.period.year,
+        widget.budget!.period.month,
+      );
+      for (final category in widget.budget!.categories) {
+        final item = _CategoryRowItem();
+        item.selectedCategory = category.name;
+        item.categoryController.text = category.name;
+        item.amountController.text = category.allocated.toStringAsFixed(0);
+        _categoryItems.add(item);
+      }
+    } else {
+      _addCategory();
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -120,8 +140,14 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
       final now = DateTime.now();
 
       final categories = _categoryItems.map((item) {
+        final categoryName = item.isCustom
+            ? item.categoryController.text
+            : (item.selectedCategory ?? item.categoryController.text);
+
         return BudgetCategoryModel(
-          name: item.selectedCategory ?? AppCategories.categories.last,
+          name: categoryName.isEmpty
+              ? AppCategories.categories.last
+              : categoryName,
           allocated: double.parse(item.amountController.text),
           spent: 0,
           percentage: 0,
@@ -133,27 +159,62 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
         (sum, item) => sum + item.allocated,
       );
 
-      final budget = BudgetModel(
-        id: const Uuid().v4(),
-        period: BudgetPeriodModel(
-          month: _selectedDate.month,
-          year: _selectedDate.year,
-          type: 'monthly',
-        ),
-        categories: categories,
-        totalAllocated: totalAllocated,
-        totalSpent: 0,
-        status: 'active',
-        createdAt: now,
-        updatedAt: now,
-        currency:
-            context.read<AuthBloc>().state.authResponse?.user.currency ?? 'XAF',
-      );
-      context.read<BudgetsBloc>().add(AddBudgetRequested(budget));
+      if (widget.budget != null) {
+        final budget = widget.budget!.copyWith(
+          period: BudgetPeriodModel(
+            month: _selectedDate.month,
+            year: _selectedDate.year,
+            type: 'monthly',
+          ),
+          categories: categories,
+          totalAllocated: totalAllocated,
+          updatedAt: now,
+        );
+        context.read<BudgetsBloc>().add(UpdateBudgetRequested(budget));
+      } else {
+        final budget = BudgetModel(
+          id: const Uuid().v4(),
+          period: BudgetPeriodModel(
+            month: _selectedDate.month,
+            year: _selectedDate.year,
+            type: 'monthly',
+          ),
+          categories: categories,
+          totalAllocated: totalAllocated,
+          totalSpent: 0,
+          status: 'active',
+          createdAt: now,
+          updatedAt: now,
+          currency:
+              context.read<AuthBloc>().state.authResponse?.user.currency ??
+              'XAF',
+        );
+        context.read<BudgetsBloc>().add(AddBudgetRequested(budget));
+      }
     }
   }
 
-  Widget _buildCategoryDropdown(_CategoryRowItem item) {
+  Widget _buildCategoryInput(_CategoryRowItem item) {
+    if (item.isCustom) {
+      return AppTextField(
+        controller: item.categoryController,
+        label: AppLocalizations.of(context)!.categoryLabel,
+        hint: AppLocalizations.of(context)!.categoryHint,
+        suffix: IconButton(
+          icon: const Icon(Icons.list),
+          onPressed: () {
+            setState(() {
+              item.isCustom = false;
+              item.selectedCategory = null;
+            });
+          },
+        ),
+        validator: (value) => (value == null || value.isEmpty)
+            ? AppLocalizations.of(context)!.requiredField
+            : null,
+      );
+    }
+
     return BlocBuilder<BudgetsBloc, BudgetsState>(
       builder: (context, state) {
         final budgetCategoryNames = state.budgets
@@ -166,12 +227,7 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
           ...budgetCategoryNames,
         }.toList()..sort();
 
-        // S'assurer que la catégorie sélectionnée est dans la liste
-        if (item.selectedCategory != null &&
-            !allCategories.contains(item.selectedCategory)) {
-          allCategories.add(item.selectedCategory!);
-          allCategories.sort();
-        }
+        const customOption = "___CUSTOM___";
 
         return DropdownButtonFormField<String>(
           initialValue: item.selectedCategory,
@@ -180,15 +236,33 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
           hint: Text(AppLocalizations.of(context)!.categoryHint),
-          items: allCategories.map((String category) {
-            return DropdownMenuItem<String>(
-              value: category,
-              child: Text(category),
-            );
-          }).toList(),
+          items: [
+            ...allCategories.map((String category) {
+              return DropdownMenuItem<String>(
+                value: category,
+                child: Text(category),
+              );
+            }),
+            DropdownMenuItem<String>(
+              value: customOption,
+              child: Text(
+                "+ ${AppLocalizations.of(context)!.other}",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
           onChanged: (String? newValue) {
             setState(() {
-              item.selectedCategory = newValue;
+              if (newValue == customOption) {
+                item.isCustom = true;
+                item.selectedCategory = null;
+              } else {
+                item.selectedCategory = newValue;
+                item.categoryController.text = newValue ?? '';
+              }
             });
           },
           validator: (value) => (value == null || value.isEmpty)
@@ -226,9 +300,10 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
     return BlocListener<BudgetsBloc, BudgetsState>(
       listener: (context, state) {
         if (state.status == BudgetsStatus.success) {
+          final isEdit = widget.budget != null;
           getIt<AnalyticsManager>().trackEvent(
             feature: 'Budgets',
-            action: 'create_success',
+            action: isEdit ? 'update_success' : 'create_success',
             details: {
               'total_allocated': state.budgets.last.totalAllocated,
               'category_count': state.budgets.last.categories.length,
@@ -239,7 +314,11 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
           }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context)!.successBudget),
+              content: Text(
+                isEdit
+                    ? AppLocalizations.of(context)!.successBudgetUpdate
+                    : AppLocalizations.of(context)!.successBudget,
+              ),
             ),
           );
         } else if (state.status == BudgetsStatus.error) {
@@ -256,7 +335,11 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
         builder: (context) => Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
-            title: Text(AppLocalizations.of(context)!.addBudgetTitle),
+            title: Text(
+              widget.budget != null
+                  ? AppLocalizations.of(context)!.editBudgetTitle
+                  : AppLocalizations.of(context)!.addBudgetTitle,
+            ),
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -328,9 +411,9 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                                           description: AppLocalizations.of(
                                             context,
                                           )!.categoryHint,
-                                          child: _buildCategoryDropdown(item),
+                                          child: _buildCategoryInput(item),
                                         )
-                                      : _buildCategoryDropdown(item),
+                                      : _buildCategoryInput(item),
                                 ),
                                 if (_categoryItems.length > 1)
                                   IconButton(
@@ -366,7 +449,9 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                   BlocBuilder<BudgetsBloc, BudgetsState>(
                     builder: (context, state) {
                       return AppButton(
-                        text: AppLocalizations.of(context)!.createBudgetAction,
+                        text: widget.budget != null
+                            ? AppLocalizations.of(context)!.updateBudgetAction
+                            : AppLocalizations.of(context)!.createBudgetAction,
                         isLoading: state.status == BudgetsStatus.loading,
                         onPressed: () => _onSave(context),
                       );

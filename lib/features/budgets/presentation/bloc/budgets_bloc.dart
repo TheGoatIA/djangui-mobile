@@ -36,7 +36,10 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
         errorMessage: null,
       ),
     );
-    final result = await _budgetRepository.generateAutoBudget();
+    final result = await _budgetRepository.generateAutoBudget(
+      month: event.month,
+      year: event.year,
+    );
     result.fold<void>(
       (failure) => emit(
         state.copyWith(
@@ -125,10 +128,7 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
     Emitter<BudgetsState> emit,
   ) async {
     emit(state.copyWith(status: BudgetsStatus.loading));
-    final result = await _budgetRepository.updateBudget(
-      event.id,
-      event.totalAllocated,
-    );
+    final result = await _budgetRepository.updateBudget(event.budget);
     result.fold<void>(
       (failure) => emit(
         state.copyWith(
@@ -138,7 +138,7 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
       ),
       (updatedBudget) {
         final List<BudgetModel> updatedList = state.budgets.map((b) {
-          return b.id == event.id ? updatedBudget : b;
+          return b.id == event.budget.id ? updatedBudget : b;
         }).toList();
         emit(
           state.copyWith(status: BudgetsStatus.success, budgets: updatedList),

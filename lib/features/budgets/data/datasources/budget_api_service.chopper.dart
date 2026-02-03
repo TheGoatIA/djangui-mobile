@@ -72,9 +72,21 @@ final class _$BudgetApiService extends BudgetApiService {
   }
 
   @override
-  Future<Response<BaseResponse<AutoBudgetResponse>>> generateAutoBudget() {
+  Future<Response<BaseResponse<AutoBudgetResponse>>> generateAutoBudget({
+    int? month,
+    int? year,
+  }) {
     final Uri $url = Uri.parse('/premium/auto-budget');
-    final Request $request = Request('POST', $url, client.baseUrl);
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'month': month,
+      'year': year,
+    };
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
     return client.send<BaseResponse<AutoBudgetResponse>, AutoBudgetResponse>(
       $request,
     );

@@ -710,23 +710,23 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             ),
 
-            BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, authState) {
-                if (authState.authResponse?.user.isPremium ?? false) {
-                  return Column(
-                    children: [
-                      _buildSettingsTile(
-                        Icons.category_outlined,
-                        "Icône de l'application",
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => _showAppIconSelectionDialog(context),
-                      ),
-                    ],
-                  );
-                }
-                return const SizedBox();
-              },
-            ),
+            // BlocBuilder<AuthBloc, AuthState>(
+            //   builder: (context, authState) {
+            //     if (authState.authResponse?.user.isPremium ?? false) {
+            //       return Column(
+            //         children: [
+            //           _buildSettingsTile(
+            //             Icons.category_outlined,
+            //             "Icône de l'application",
+            //             trailing: const Icon(Icons.chevron_right),
+            //             onTap: () => _showAppIconSelectionDialog(context),
+            //           ),
+            //         ],
+            //       );
+            //     }
+            //     return const SizedBox();
+            //   },
+            // ),
           ],
         ),
         const SizedBox(height: 24),
@@ -1541,6 +1541,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // ... (logic)
   }
   */
+  /*
   void _showAppIconSelectionDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -1615,6 +1616,7 @@ class _ProfilePageState extends State<ProfilePage> {
       },
     );
   }
+  */
 
   String _getCoachToneName(BuildContext context, String? tone) {
     switch (tone) {
