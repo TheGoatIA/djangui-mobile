@@ -33,6 +33,9 @@ abstract class BudgetApiService extends ChopperService {
   @Delete(path: '/budgets/{id}')
   Future<Response<BaseResponse<dynamic>>> deleteBudget(@Path('id') String id);
 
-  @Post(path: '/premium/auto-budget')
-  Future<Response<BaseResponse<AutoBudgetResponse>>> generateAutoBudget();
+  @Get(path: '/premium/auto-budget')
+  Future<Response<BaseResponse<AutoBudgetResponse>>> generateAutoBudget({
+    @Query('month') int? month,
+    @Query('year') int? year,
+  });
 }

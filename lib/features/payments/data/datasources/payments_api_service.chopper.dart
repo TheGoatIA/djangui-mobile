@@ -19,27 +19,31 @@ final class _$PaymentsApiService extends PaymentsApiService {
 
   @override
   Future<Response<BaseResponse<PaymentInitResponseModel>>> initStripeCheckout(
-    Map<String, dynamic> body,
-  ) {
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/payments/checkout/stripe');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
-    return client
-        .send<BaseResponse<PaymentInitResponseModel>, PaymentInitResponseModel>(
-          $request,
-        );
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<PaymentInitResponseModel>,
+        PaymentInitResponseModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<PaymentInitResponseModel>>> initNotchPayPayment(
-    Map<String, dynamic> body,
-  ) {
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/payments/init/notchpay');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
-    return client
-        .send<BaseResponse<PaymentInitResponseModel>, PaymentInitResponseModel>(
-          $request,
-        );
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<PaymentInitResponseModel>,
+        PaymentInitResponseModel>($request);
   }
 }

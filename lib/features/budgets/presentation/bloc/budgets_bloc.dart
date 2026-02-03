@@ -36,7 +36,10 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
         errorMessage: null,
       ),
     );
-    final result = await _budgetRepository.generateAutoBudget();
+    final result = await _budgetRepository.generateAutoBudget(
+      month: event.month,
+      year: event.year,
+    );
     result.fold<void>(
       (failure) => emit(
         state.copyWith(

@@ -138,10 +138,16 @@ class BudgetRepositoryImpl implements BudgetRepository {
   }
 
   @override
-  Future<Either<Failure, AutoBudgetResponse>> generateAutoBudget() async {
+  Future<Either<Failure, AutoBudgetResponse>> generateAutoBudget({
+    int? month,
+    int? year,
+  }) async {
     if (await _networkInfo.isConnected) {
       try {
-        final result = await _remoteDataSource.generateAutoBudget();
+        final result = await _remoteDataSource.generateAutoBudget(
+          month: month,
+          year: year,
+        );
         return Right(result);
       } catch (e) {
         return Left(ServerFailure(e.toString()));

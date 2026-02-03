@@ -45,10 +45,13 @@ class UpdateBudgetRequested extends BudgetsEvent {
 }
 
 class GenerateAutoBudgetRequested extends BudgetsEvent {
-  const GenerateAutoBudgetRequested();
+  final int? month;
+  final int? year;
+
+  const GenerateAutoBudgetRequested({this.month, this.year});
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [month, year];
 }
 
 class ClearAutoBudgetResponse extends BudgetsEvent {

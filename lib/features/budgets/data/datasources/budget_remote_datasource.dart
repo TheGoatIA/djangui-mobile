@@ -9,7 +9,7 @@ abstract class BudgetRemoteDataSource {
   Future<BudgetModel> createBudget(BudgetModel budget);
   Future<BudgetModel> updateBudget(BudgetModel budget);
   Future<void> deleteBudget(String id);
-  Future<AutoBudgetResponse> generateAutoBudget();
+  Future<AutoBudgetResponse> generateAutoBudget({int? month, int? year});
 }
 
 @LazySingleton(as: BudgetRemoteDataSource)
@@ -78,8 +78,11 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
   }
 
   @override
-  Future<AutoBudgetResponse> generateAutoBudget() async {
-    final response = await _apiService.generateAutoBudget();
+  Future<AutoBudgetResponse> generateAutoBudget({int? month, int? year}) async {
+    final response = await _apiService.generateAutoBudget(
+      month: month,
+      year: year,
+    );
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
