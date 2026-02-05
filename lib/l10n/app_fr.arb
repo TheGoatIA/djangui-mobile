@@ -707,7 +707,7 @@
     "anneAnalysisTitle": "Analyse d'Anne",
     "autoBudgetSuccess": "Budgets appliqués avec succès !",
     "tutorialAnneTitle": "Génération Auto",
-    "tutorialAnneDesc": "Anne analyse vos revenus et dépenses pour vous proposer un budget optimisé pour le mois à venir.",
+    "tutorialAnneDesc": "Anne analyse vos revenus et d'épenses pour vous proposer un budget optimisé pour le mois à venir.",
     "budgetExistsTitle": "Budget déjà existant",
     "budgetExistsMessage": "Un budget pour cette période existe déjà. Voulez-vous le remplacer par l'analyse d'Anne ?",
     "replaceBudget": "Remplacer",
@@ -730,5 +730,9 @@
     "goalForcedExpenseHint": "L'épargne pour un objectif est enregistrée comme une dépense de votre portefeuille.",
     "enableSurplusDesc": "Épargne automatiquement ce qui reste de votre budget à la fin du mois.",
     "enableRoundupDesc": "Arrondit vos dépenses à l'euro supérieur et épargne la différence.",
-    "percentageIncomeDesc": "Pourcentage de chaque revenu automatiquement mis de côté."
+    "percentageIncomeDesc": "Pourcentage de chaque revenu automatiquement mis de côté.",
+    "featureDisabledTitle": "Fonctionnalité Indisponible",
+    "featureDisabledMessage": "Cette fonctionnalité est actuellement désactivée. Veuillez contacter le support ou réessayer plus tard.",
+    "featureUpdateRequiredMessage": "Cette fonctionnalité nécessite une version plus récente de Kauri. Veuillez mettre à jour votre application pour en profiter.",
+    "back": "Retour"
 }

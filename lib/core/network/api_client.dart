@@ -24,6 +24,7 @@ import 'package:kauri/features/auth/data/models/country_change_request.dart';
 import 'package:kauri/features/voice/data/models/voice_response_model.dart';
 import 'package:kauri/features/tontine/data/models/tontine_model.dart';
 import 'package:kauri/features/user_subscriptions/data/models/subscription_model.dart';
+import 'package:kauri/features/system/data/models/feature_flag_model.dart';
 import 'package:kauri/features/analytics/data/models/analytics_models.dart';
 import 'json_type_converter.dart';
 import 'interceptors.dart';
@@ -78,6 +79,7 @@ class KauriApiClient {
         NotificationModel: (json) => NotificationModel.fromJson(json),
         CountryModel: (json) => CountryModel.fromJson(json),
         CountryListResponse: (json) => CountryListResponse.fromJson(json),
+        FeatureFlagModel: (json) => FeatureFlagModel.fromJson(json),
         CountryChangeRequestModel: (json) =>
             CountryChangeRequestModel.fromJson(json),
         VoiceResponseModel: (json) => VoiceResponseModel.fromJson(json),

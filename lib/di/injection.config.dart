@@ -144,6 +144,8 @@ import 'package:kauri/features/support/domain/repositories/support_repository.da
     as _i810;
 import 'package:kauri/features/support/presentation/bloc/support_bloc.dart'
     as _i111;
+import 'package:kauri/features/system/data/datasources/config_api_service.dart'
+    as _i92;
 import 'package:kauri/features/system/data/datasources/system_api_service.dart'
     as _i33;
 import 'package:kauri/features/system/data/repositories/system_repository_impl.dart'
@@ -258,6 +260,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i33.SystemApiService>(
       () => registerModule.systemApiService,
     );
+    gh.lazySingleton<_i92.ConfigApiService>(
+      () => registerModule.configApiService,
+    );
     gh.lazySingleton<_i921.NotificationApiService>(
       () => registerModule.notificationApiService,
     );
@@ -284,9 +289,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i973.InternetConnectionChecker>(
       () => registerModule.connectionChecker,
     );
-    gh.lazySingleton<_i608.SystemRepository>(
-      () => _i143.SystemRepositoryImpl(gh<_i33.SystemApiService>()),
-    );
     gh.lazySingleton<_i899.TutorialService>(
       () => _i899.TutorialService(gh<_i460.SharedPreferences>()),
     );
@@ -301,9 +303,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i342.PaymentService>(
       () => _i342.PaymentService(gh<_i1020.PaymentApiService>()),
     );
-    gh.factory<_i376.SystemBloc>(
-      () => _i376.SystemBloc(gh<_i608.SystemRepository>()),
-    );
     gh.lazySingleton<_i836.ChallengeRemoteDataSource>(
       () => _i836.ChallengeRemoteDataSourceImpl(gh<_i84.ChallengeApiService>()),
     );
@@ -316,6 +315,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i362.GoalRemoteDataSource>(
       () => _i362.GoalRemoteDataSourceImpl(gh<_i425.GoalApiService>()),
+    );
+    gh.lazySingleton<_i608.SystemRepository>(
+      () => _i143.SystemRepositoryImpl(
+        gh<_i33.SystemApiService>(),
+        gh<_i92.ConfigApiService>(),
+      ),
     );
     gh.lazySingleton<_i991.UploadRemoteDataSource>(
       () => _i991.UploadRemoteDataSourceImpl(gh<_i242.UploadApiService>()),
@@ -429,6 +434,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
         gh<_i777.AppDatabase>(),
       ),
+    );
+    gh.factory<_i376.SystemBloc>(
+      () => _i376.SystemBloc(gh<_i608.SystemRepository>()),
     );
     gh.factory<_i96.TontineBloc>(
       () => _i96.TontineBloc(gh<_i996.TontineRepository>()),

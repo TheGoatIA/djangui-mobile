@@ -10,6 +10,8 @@ import '../bloc/investments_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 
 class AddInvestmentPage extends StatefulWidget {
   const AddInvestmentPage({super.key});
@@ -73,113 +75,141 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.newInvestment)),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppLocalizations.of(context)!.investmentDetails,
-                style: AppTextStyles.h3,
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _nameController,
-                decoration: _inputDecoration(
-                  context,
-                  AppLocalizations.of(context)!.assetNameHint,
-                ),
-                validator: (value) => value == null || value.isEmpty
-                    ? AppLocalizations.of(context)!.fieldRequired
-                    : null,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                initialValue: _selectedType,
-                decoration: _inputDecoration(
-                  context,
-                  AppLocalizations.of(context)!.assetType,
-                ),
-                items: [
-                  DropdownMenuItem(
-                    value: 'crypto',
-                    child: Text(AppLocalizations.of(context)!.cryptoCurrency),
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.featInvestments,
+        );
+
+        if (featureStatus == FeatureStatus.disabled) {
+          return FeatureDisabledWidget(
+            title: AppLocalizations.of(context)!.newInvestment,
+          );
+        }
+
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return FeatureDisabledWidget(
+            title: AppLocalizations.of(context)!.newInvestment,
+            isUpdateRequired: true,
+          );
+        }
+
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            title: Text(AppLocalizations.of(context)!.newInvestment),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.investmentDetails,
+                    style: AppTextStyles.h3,
                   ),
-                  DropdownMenuItem(
-                    value: 'stock',
-                    child: Text(AppLocalizations.of(context)!.stockMarket),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: _inputDecoration(
+                      context,
+                      AppLocalizations.of(context)!.assetNameHint,
+                    ),
+                    validator: (value) => value == null || value.isEmpty
+                        ? AppLocalizations.of(context)!.fieldRequired
+                        : null,
                   ),
-                  DropdownMenuItem(
-                    value: 'real_estate',
-                    child: Text(AppLocalizations.of(context)!.realEstate),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedType,
+                    decoration: _inputDecoration(
+                      context,
+                      AppLocalizations.of(context)!.assetType,
+                    ),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'crypto',
+                        child: Text(
+                          AppLocalizations.of(context)!.cryptoCurrency,
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'stock',
+                        child: Text(AppLocalizations.of(context)!.stockMarket),
+                      ),
+                      DropdownMenuItem(
+                        value: 'real_estate',
+                        child: Text(AppLocalizations.of(context)!.realEstate),
+                      ),
+                      DropdownMenuItem(
+                        value: 'other',
+                        child: Text(AppLocalizations.of(context)!.other),
+                      ),
+                    ],
+                    onChanged: (value) =>
+                        setState(() => _selectedType = value!),
                   ),
-                  DropdownMenuItem(
-                    value: 'other',
-                    child: Text(AppLocalizations.of(context)!.other),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _amountController,
+                    keyboardType: TextInputType.number,
+                    decoration: _inputDecoration(
+                      context,
+                      AppLocalizations.of(context)!.investedAmount,
+                      suffix:
+                          context
+                              .read<AuthBloc>()
+                              .state
+                              .authResponse
+                              ?.user
+                              .currency ??
+                          'XAF',
+                    ),
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (value) => value == null || value.isEmpty
+                        ? AppLocalizations.of(context)!.fieldRequired
+                        : null,
                   ),
-                ],
-                onChanged: (value) => setState(() => _selectedType = value!),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _amountController,
-                keyboardType: TextInputType.number,
-                decoration: _inputDecoration(
-                  context,
-                  AppLocalizations.of(context)!.investedAmount,
-                  suffix:
-                      context
-                          .read<AuthBloc>()
-                          .state
-                          .authResponse
-                          ?.user
-                          .currency ??
-                      'XAF',
-                ),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator: (value) => value == null || value.isEmpty
-                    ? AppLocalizations.of(context)!.fieldRequired
-                    : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _roiController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: _inputDecoration(
-                  context,
-                  AppLocalizations.of(context)!.estimatedROI,
-                ),
-                validator: (value) => value == null || value.isEmpty
-                    ? AppLocalizations.of(context)!.fieldRequired
-                    : null,
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _roiController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: _inputDecoration(
+                      context,
+                      AppLocalizations.of(context)!.estimatedROI,
+                    ),
+                    validator: (value) => value == null || value.isEmpty
+                        ? AppLocalizations.of(context)!.fieldRequired
+                        : null,
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _submit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Text(AppLocalizations.of(context)!.addInvestment),
                     ),
                   ),
-                  child: Text(AppLocalizations.of(context)!.addInvestment),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

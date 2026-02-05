@@ -18,6 +18,8 @@ import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../../core/utils/currency_helper.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 
 class InsightsPage extends StatelessWidget {
   const InsightsPage({super.key});
@@ -87,64 +89,73 @@ class _InsightsViewState extends State<InsightsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.insightsTitle)),
-      body: BlocBuilder<InsightsBloc, InsightsState>(
-        builder: (context, state) {
-          if (state.status == InsightsStatus.loading &&
-              state.distribution.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    final l10n = AppLocalizations.of(context)!;
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.aiInsights,
+        );
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Showcase(
-                  key: _periodKey,
-                  title: AppLocalizations.of(context)!.tutorialInsightsTitle,
-                  description: AppLocalizations.of(
-                    context,
-                  )!.tutorialInsightsDesc,
-                  child: _buildPeriodSelector(context, state.period),
-                ),
-                const SizedBox(height: 24),
-                Showcase(
-                  key: _aiReportKey,
-                  title: AppLocalizations.of(context)!.aiAnalysisTitle,
-                  description: AppLocalizations.of(
-                    context,
-                  )!.aiAnalysisPremiumRestriction,
-                  child: _buildAINarrativeCard(context),
-                ),
-                const SizedBox(height: 32),
-                _buildSectionTitle(
-                  AppLocalizations.of(context)!.spendingDistribution,
-                ),
-                const SizedBox(height: 16),
-                Showcase(
-                  key: _chartsKey,
-                  title: AppLocalizations.of(context)!.spendingDistribution,
-                  description: AppLocalizations.of(
-                    context,
-                  )!.spendingDistribution,
-                  child: _buildPieChartCard(state.distribution, context),
-                ),
-                const SizedBox(height: 32),
-                _buildSectionTitle(
-                  AppLocalizations.of(context)!.spendingTrends,
-                ),
-                const SizedBox(height: 16),
-                _buildLineChartCard(state.trends, context),
-                const SizedBox(height: 32),
-                _buildTopCategories(state.distribution, context),
-              ],
-            ),
+        if (featureStatus == FeatureStatus.disabled) {
+          return FeatureDisabledWidget(title: l10n.insightsTitle);
+        }
+
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return FeatureDisabledWidget(
+            title: l10n.insightsTitle,
+            isUpdateRequired: true,
           );
-        },
-      ),
+        }
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(title: Text(l10n.insightsTitle)),
+          body: BlocBuilder<InsightsBloc, InsightsState>(
+            builder: (context, state) {
+              if (state.status == InsightsStatus.loading &&
+                  state.distribution.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Showcase(
+                      key: _periodKey,
+                      title: l10n.tutorialInsightsTitle,
+                      description: l10n.tutorialInsightsDesc,
+                      child: _buildPeriodSelector(context, state.period),
+                    ),
+                    const SizedBox(height: 24),
+                    Showcase(
+                      key: _aiReportKey,
+                      title: l10n.aiAnalysisTitle,
+                      description: l10n.aiAnalysisPremiumRestriction,
+                      child: _buildAINarrativeCard(context),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildSectionTitle(l10n.spendingDistribution),
+                    const SizedBox(height: 16),
+                    Showcase(
+                      key: _chartsKey,
+                      title: l10n.spendingDistribution,
+                      description: l10n.spendingDistribution,
+                      child: _buildPieChartCard(state.distribution, context),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildSectionTitle(l10n.spendingTrends),
+                    const SizedBox(height: 16),
+                    _buildLineChartCard(state.trends, context),
+                    const SizedBox(height: 32),
+                    _buildTopCategories(state.distribution, context),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

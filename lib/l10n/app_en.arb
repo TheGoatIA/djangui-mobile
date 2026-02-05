@@ -730,5 +730,9 @@
     "goalForcedExpenseHint": "Saving for a goal is recorded as an expense from your wallet.",
     "enableSurplusDesc": "Automatically saves what remains of your budget at the end of the month.",
     "enableRoundupDesc": "Rounds up your expenses to the nearest currency unit and saves the difference.",
-    "percentageIncomeDesc": "Percentage of each income automatically set aside."
+    "percentageIncomeDesc": "Percentage of each income automatically set aside.",
+    "featureDisabledTitle": "Feature Unavailable",
+    "featureDisabledMessage": "This feature is currently disabled. Please contact support or check back later.",
+    "featureUpdateRequiredMessage": "This feature requires a more recent version of Kauri. Please update your application to enjoy it.",
+    "back": "Back"
 }

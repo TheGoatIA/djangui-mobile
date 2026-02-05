@@ -7,6 +7,8 @@ import '../constants/route_constants.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../di/injection.dart';
 import '../../core/services/tutorial_service.dart';
+import '../../features/system/presentation/bloc/system_bloc.dart';
+import '../../features/system/data/models/feature_flag_model.dart';
 
 /// Widget principal de structure (Scaffold) incluant une navigation persistante.
 ///
@@ -23,37 +25,59 @@ class ScaffoldWithNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        // Redirige vers la page de connexion si l'utilisateur perd son authentification.
         if (state.status == AuthStatus.unauthenticated) {
           context.go(RouteConstants.login);
         }
       },
-      child: _buildScaffold(context),
+      child: BlocBuilder<SystemBloc, SystemState>(
+        builder: (context, systemState) {
+          final destinations = _getVisibleDestinations(
+            context,
+            systemState.featureFlags,
+          );
+          return _buildScaffold(context, destinations);
+        },
+      ),
     );
   }
 
-  /// Construit la structure visuelle en fonction de la taille de l'écran.
-  Widget _buildScaffold(BuildContext context) {
-    // Mise en page pour Mobile
+  Widget _buildScaffold(
+    BuildContext context,
+    List<_DestinationInfo> destinations,
+  ) {
+    // Mobile Layout
     if (ResponsiveUtils.isMobile(context)) {
+      final currentBranchIndex = navigationShell.currentIndex;
+      // Trouve l'index dans la liste filtrée qui correspond à la branche actuelle
+      final selectedIndex = destinations.indexWhere(
+        (d) => d.branchIndex == currentBranchIndex,
+      );
+
       return Scaffold(
         body: navigationShell,
         bottomNavigationBar: NavigationBar(
-          selectedIndex: navigationShell.currentIndex,
-          onDestinationSelected: (index) => _onTap(context, index),
-          destinations: _buildDestinations(context),
+          selectedIndex: selectedIndex != -1 ? selectedIndex : 0,
+          onDestinationSelected: (index) =>
+              _onTap(context, index, destinations),
+          destinations: destinations.map((d) => d.navDestination).toList(),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         ),
       );
     }
 
-    // Mise en page pour Tablettes et Desktop avec Rail de navigation
+    // Tablet/Desktop Layout
+    final currentBranchIndex = navigationShell.currentIndex;
+    final selectedIndex = destinations.indexWhere(
+      (d) => d.branchIndex == currentBranchIndex,
+    );
+
     return Scaffold(
       body: Row(
         children: [
           NavigationRail(
-            selectedIndex: navigationShell.currentIndex,
-            onDestinationSelected: (index) => _onTap(context, index),
+            selectedIndex: selectedIndex != -1 ? selectedIndex : 0,
+            onDestinationSelected: (index) =>
+                _onTap(context, index, destinations),
             labelType: NavigationRailLabelType.all,
             backgroundColor: Theme.of(context).colorScheme.surface,
             indicatorColor: Theme.of(
@@ -80,7 +104,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
               ],
             ),
             groupAlignment: -0.9,
-            destinations: _buildRailDestinations(context),
+            destinations: destinations.map((d) => d.railDestination).toList(),
           ),
           VerticalDivider(
             thickness: 1,
@@ -94,76 +118,110 @@ class ScaffoldWithNavBar extends StatelessWidget {
   }
 
   /// Gère le changement d'onglet et déclenche les vérifications de tutoriel.
-  void _onTap(BuildContext context, int index) {
+  void _onTap(
+    BuildContext context,
+    int index,
+    List<_DestinationInfo> destinations,
+  ) {
+    final realIndex = destinations[index].branchIndex;
     navigationShell.goBranch(
-      index,
-      initialLocation: index == navigationShell.currentIndex,
+      realIndex,
+      initialLocation: realIndex == navigationShell.currentIndex,
     );
     // Force la vérification des tutoriels contextuels au changement de vue.
     getIt<TutorialService>().triggerTutorialCheck();
   }
 
-  /// Génère les destinations pour la barre de navigation mobile.
-  List<NavigationDestination> _buildDestinations(BuildContext context) {
+  /// Filtre et génère les informations de destination en fonction des flags.
+  List<_DestinationInfo> _getVisibleDestinations(
+    BuildContext context,
+    FeatureFlagModel flags,
+  ) {
     final l10n = AppLocalizations.of(context)!;
-    return [
-      NavigationDestination(
-        icon: const Icon(Icons.home_outlined),
-        selectedIcon: const Icon(Icons.home_filled),
-        label: l10n.dashboard,
+    final List<_DestinationInfo> allDestinations = [
+      _DestinationInfo(
+        branchIndex: 0,
+        navDestination: NavigationDestination(
+          icon: const Icon(Icons.home_outlined),
+          selectedIcon: const Icon(Icons.home_filled),
+          label: l10n.dashboard,
+        ),
+        railDestination: NavigationRailDestination(
+          icon: const Icon(Icons.home_outlined),
+          selectedIcon: const Icon(Icons.home_filled),
+          label: Text(l10n.dashboard),
+        ),
       ),
-      NavigationDestination(
-        icon: const Icon(Icons.emoji_events_outlined),
-        selectedIcon: const Icon(Icons.emoji_events),
-        label: l10n.challenges,
-      ),
-      NavigationDestination(
-        icon: const Icon(Icons.pie_chart_outline),
-        selectedIcon: const Icon(Icons.pie_chart),
-        label: l10n.budgets,
-      ),
-      NavigationDestination(
-        icon: const Icon(Icons.flag_outlined),
-        selectedIcon: const Icon(Icons.flag),
-        label: l10n.goals,
-      ),
-      NavigationDestination(
-        icon: const Icon(Icons.person_outline),
-        selectedIcon: const Icon(Icons.person),
-        label: l10n.profile,
+      if (flags.featChallenges.isEnabled)
+        _DestinationInfo(
+          branchIndex: 1,
+          navDestination: NavigationDestination(
+            icon: const Icon(Icons.emoji_events_outlined),
+            selectedIcon: const Icon(Icons.emoji_events),
+            label: l10n.challenges,
+          ),
+          railDestination: NavigationRailDestination(
+            icon: const Icon(Icons.emoji_events_outlined),
+            selectedIcon: const Icon(Icons.emoji_events),
+            label: Text(l10n.challenges),
+          ),
+        ),
+      if (flags.featBudgets.isEnabled)
+        _DestinationInfo(
+          branchIndex: 2,
+          navDestination: NavigationDestination(
+            icon: const Icon(Icons.pie_chart_outline),
+            selectedIcon: const Icon(Icons.pie_chart),
+            label: l10n.budgets,
+          ),
+          railDestination: NavigationRailDestination(
+            icon: const Icon(Icons.pie_chart_outline),
+            selectedIcon: const Icon(Icons.pie_chart),
+            label: Text(l10n.budgets),
+          ),
+        ),
+      if (flags.featGoals.isEnabled)
+        _DestinationInfo(
+          branchIndex: 3,
+          navDestination: NavigationDestination(
+            icon: const Icon(Icons.flag_outlined),
+            selectedIcon: const Icon(Icons.flag),
+            label: l10n.goals,
+          ),
+          railDestination: NavigationRailDestination(
+            icon: const Icon(Icons.flag_outlined),
+            selectedIcon: const Icon(Icons.flag),
+            label: Text(l10n.goals),
+          ),
+        ),
+      _DestinationInfo(
+        branchIndex: 4,
+        navDestination: NavigationDestination(
+          icon: const Icon(Icons.person_outline),
+          selectedIcon: const Icon(Icons.person),
+          label: l10n.profile,
+        ),
+        railDestination: NavigationRailDestination(
+          icon: const Icon(Icons.person_outline),
+          selectedIcon: const Icon(Icons.person),
+          label: Text(l10n.profile),
+        ),
       ),
     ];
-  }
 
-  /// Génère les destinations pour le rail de navigation desktop.
-  List<NavigationRailDestination> _buildRailDestinations(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return [
-      NavigationRailDestination(
-        icon: const Icon(Icons.home_outlined),
-        selectedIcon: const Icon(Icons.home_filled),
-        label: Text(l10n.dashboard),
-      ),
-      NavigationRailDestination(
-        icon: const Icon(Icons.emoji_events_outlined),
-        selectedIcon: const Icon(Icons.emoji_events),
-        label: Text(l10n.challenges),
-      ),
-      NavigationRailDestination(
-        icon: const Icon(Icons.pie_chart_outline),
-        selectedIcon: const Icon(Icons.pie_chart),
-        label: Text(l10n.budgets),
-      ),
-      NavigationRailDestination(
-        icon: const Icon(Icons.flag_outlined),
-        selectedIcon: const Icon(Icons.flag),
-        label: Text(l10n.goals),
-      ),
-      NavigationRailDestination(
-        icon: const Icon(Icons.person_outline),
-        selectedIcon: const Icon(Icons.person),
-        label: Text(l10n.profile),
-      ),
-    ];
+    return allDestinations;
   }
+}
+
+/// Classe interne pour stocker les infos de destination.
+class _DestinationInfo {
+  final int branchIndex;
+  final NavigationDestination navDestination;
+  final NavigationRailDestination railDestination;
+
+  _DestinationInfo({
+    required this.branchIndex,
+    required this.navDestination,
+    required this.railDestination,
+  });
 }

@@ -20,6 +20,8 @@ import 'package:kauri/core/theme/app_colors.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/utils/currency_helper.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 
 class GoalDetailPage extends StatelessWidget {
   final String goalId;
@@ -28,183 +30,204 @@ class GoalDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GoalsBloc, GoalsState>(
-      builder: (context, state) {
-        final goal = state.goals.firstWhere(
-          (g) => g.id == goalId,
-          orElse: () => GoalModel(
-            id: '',
-            name: 'Not Found',
-            targetAmount: 0,
-            currentAmount: 0,
-            deadline: DateTime.now(),
-            createdAt: DateTime.now(),
-          ),
+    final l10n = AppLocalizations.of(context)!;
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.featGoals,
         );
 
-        if (goal.id.isEmpty) {
-          return Scaffold(
-            appBar: AppBar(),
-            body: const Center(child: Text('Goal not found')),
-          );
+        if (featureStatus == FeatureStatus.disabled) {
+          return FeatureDisabledWidget(title: l10n.goals);
         }
 
-        final progress = (goal.currentAmount / goal.targetAmount).clamp(
-          0.0,
-          1.0,
-        );
-        final daysRemaining = goal.deadline.difference(DateTime.now()).inDays;
-        final l10n = AppLocalizations.of(context)!;
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return FeatureDisabledWidget(
+            title: l10n.goals,
+            isUpdateRequired: true,
+          );
+        }
+        return BlocBuilder<GoalsBloc, GoalsState>(
+          builder: (context, state) {
+            final goal = state.goals.firstWhere(
+              (g) => g.id == goalId,
+              orElse: () => GoalModel(
+                id: '',
+                name: 'Not Found',
+                targetAmount: 0,
+                currentAmount: 0,
+                deadline: DateTime.now(),
+                createdAt: DateTime.now(),
+              ),
+            );
 
-        return MultiBlocListener(
-          listeners: [
-            BlocListener<GoalsBloc, GoalsState>(
-              listenWhen: (previous, current) {
-                final prevGoal = previous.goals.firstWhere(
-                  (g) => g.id == goalId,
-                  orElse: () => goal,
-                );
-                final currGoal = current.goals.firstWhere(
-                  (g) => g.id == goalId,
-                  orElse: () => goal,
-                );
-                return (currGoal.currentAmount / currGoal.targetAmount) >=
-                        1.0 &&
-                    (prevGoal.currentAmount / prevGoal.targetAmount) < 1.0;
-              },
-              listener: (context, state) {
-                final isPremium =
-                    context
-                        .read<AuthBloc>()
-                        .state
-                        .authResponse
-                        ?.user
-                        .isPremium ??
-                    false;
-                if (isPremium) {
-                  getIt<SuccessAnimationService>().showSuccess();
-                }
-              },
-            ),
-            BlocListener<GoalsBloc, GoalsState>(
-              listenWhen: (previous, current) =>
-                  previous.status != current.status &&
-                  current.status == GoalsStatus.contributionSuccess,
-              listener: (context, state) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(l10n.repaymentSuccess),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-                // Refresh transactions and auth (balance) as the server generated an expense
-                context.read<TransactionsBloc>().add(
-                  const GetTransactionsRequested(forceRefresh: true),
-                );
-                context.read<AuthBloc>().add(AuthRefreshUserRequested());
-              },
-            ),
-          ],
-          child: Stack(
-            children: [
-              Scaffold(
-                backgroundColor: Theme.of(context).colorScheme.surface,
-                appBar: AppBar(
-                  title: Text(goal.name),
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.share),
-                      onPressed: () {
-                        getIt<AnalyticsManager>().trackEvent(
-                          feature: 'Goals',
-                          action: 'share',
-                          details: {'id': goal.id},
-                        );
-                        getIt<ShareService>().shareGoal(goal);
-                      },
-                    ),
-                    PopupMenuButton(
-                      onSelected: (value) {
-                        if (value == 'delete') {
-                          _showDeleteDialog(context, goal);
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Text(
-                            l10n.delete,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
+            if (goal.id.isEmpty) {
+              return Scaffold(
+                appBar: AppBar(),
+                body: const Center(child: Text('Goal not found')),
+              );
+            }
+
+            final progress = (goal.currentAmount / goal.targetAmount).clamp(
+              0.0,
+              1.0,
+            );
+            final daysRemaining = goal.deadline
+                .difference(DateTime.now())
+                .inDays;
+            final l10n = AppLocalizations.of(context)!;
+
+            return MultiBlocListener(
+              listeners: [
+                BlocListener<GoalsBloc, GoalsState>(
+                  listenWhen: (previous, current) {
+                    final prevGoal = previous.goals.firstWhere(
+                      (g) => g.id == goalId,
+                      orElse: () => goal,
+                    );
+                    final currGoal = current.goals.firstWhere(
+                      (g) => g.id == goalId,
+                      orElse: () => goal,
+                    );
+                    return (currGoal.currentAmount / currGoal.targetAmount) >=
+                            1.0 &&
+                        (prevGoal.currentAmount / prevGoal.targetAmount) < 1.0;
+                  },
+                  listener: (context, state) {
+                    final isPremium =
+                        context
+                            .read<AuthBloc>()
+                            .state
+                            .authResponse
+                            ?.user
+                            .isPremium ??
+                        false;
+                    if (isPremium) {
+                      getIt<SuccessAnimationService>().showSuccess();
+                    }
+                  },
+                ),
+                BlocListener<GoalsBloc, GoalsState>(
+                  listenWhen: (previous, current) =>
+                      previous.status != current.status &&
+                      current.status == GoalsStatus.contributionSuccess,
+                  listener: (context, state) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.repaymentSuccess),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
+                    // Refresh transactions and auth (balance) as the server generated an expense
+                    context.read<TransactionsBloc>().add(
+                      const GetTransactionsRequested(forceRefresh: true),
+                    );
+                    context.read<AuthBloc>().add(AuthRefreshUserRequested());
+                  },
+                ),
+              ],
+              child: Stack(
+                children: [
+                  Scaffold(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    appBar: AppBar(
+                      title: Text(goal.name),
+                      actions: [
+                        IconButton(
+                          icon: const Icon(Icons.share),
+                          onPressed: () {
+                            getIt<AnalyticsManager>().trackEvent(
+                              feature: 'Goals',
+                              action: 'share',
+                              details: {'id': goal.id},
+                            );
+                            getIt<ShareService>().shareGoal(goal);
+                          },
+                        ),
+                        PopupMenuButton(
+                          onSelected: (value) {
+                            if (value == 'delete') {
+                              _showDeleteDialog(context, goal);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Text(
+                                l10n.delete,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-                body: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(context, goal, progress, daysRemaining),
-                      const SizedBox(height: 32),
-                      _buildAmountSection(context, goal),
-                      const SizedBox(height: 32),
-                      _buildHistorySection(context, goal),
-                      const SizedBox(height: 32),
-                      _buildStrategySection(context, goal),
-                      const SizedBox(height: 32),
-                      _buildAutoSaveSection(context, goal),
-                      const SizedBox(height: 48),
-                      AppButton(
-                        text: goal.type == 'debt'
-                            ? l10n.repaymentAction
-                            : l10n.addSavingsAction,
-                        onPressed: () async {
-                          if (goal.type == 'debt') {
-                            _showRepaymentDialog(context, goal);
-                            return;
-                          }
+                    body: SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildHeader(context, goal, progress, daysRemaining),
+                          const SizedBox(height: 32),
+                          _buildAmountSection(context, goal),
+                          const SizedBox(height: 32),
+                          _buildHistorySection(context, goal),
+                          const SizedBox(height: 32),
+                          _buildStrategySection(context, goal),
+                          const SizedBox(height: 32),
+                          _buildAutoSaveSection(context, goal),
+                          const SizedBox(height: 48),
+                          AppButton(
+                            text: goal.type == 'debt'
+                                ? l10n.repaymentAction
+                                : l10n.addSavingsAction,
+                            onPressed: () async {
+                              if (goal.type == 'debt') {
+                                _showRepaymentDialog(context, goal);
+                                return;
+                              }
 
-                          // Reset status to prevent immediate pop if coming from a previous success
-                          context.read<TransactionsBloc>().add(
-                            ResetTransactionsStatus(),
-                          );
+                              // Reset status to prevent immediate pop if coming from a previous success
+                              context.read<TransactionsBloc>().add(
+                                ResetTransactionsStatus(),
+                              );
 
-                          final refresh = await context.push<bool>(
-                            '${RouteConstants.transactions}/add',
-                            extra: goal.id,
-                          );
-                          getIt<AnalyticsManager>().trackEvent(
-                            feature: 'Goals',
-                            action: 'add_savings_click',
-                            details: {'goal_id': goal.id},
-                          );
-                          if (refresh == true && context.mounted) {
-                            // Refresh everything to ensure UI is in sync
-                            context.read<TransactionsBloc>().add(
-                              const GetTransactionsRequested(
-                                forceRefresh: true,
-                              ),
-                            );
-                            context.read<BudgetsBloc>().add(
-                              const GetBudgetsRequested(forceRefresh: true),
-                            );
-                            context.read<GoalsBloc>().add(
-                              const GetGoalsRequested(forceRefresh: true),
-                            );
-                          }
-                        },
+                              final refresh = await context.push<bool>(
+                                '${RouteConstants.transactions}/add',
+                                extra: goal.id,
+                              );
+                              getIt<AnalyticsManager>().trackEvent(
+                                feature: 'Goals',
+                                action: 'add_savings_click',
+                                details: {'goal_id': goal.id},
+                              );
+                              if (refresh == true && context.mounted) {
+                                // Refresh everything to ensure UI is in sync
+                                context.read<TransactionsBloc>().add(
+                                  const GetTransactionsRequested(
+                                    forceRefresh: true,
+                                  ),
+                                );
+                                context.read<BudgetsBloc>().add(
+                                  const GetBudgetsRequested(forceRefresh: true),
+                                );
+                                context.read<GoalsBloc>().add(
+                                  const GetGoalsRequested(forceRefresh: true),
+                                );
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  getIt<SuccessAnimationService>().buildConfettiWidget(),
+                ],
               ),
-              getIt<SuccessAnimationService>().buildConfettiWidget(),
-            ],
-          ),
+            );
+          },
         );
       },
     );

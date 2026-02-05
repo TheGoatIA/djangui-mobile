@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -22,6 +25,7 @@ import '../../../gamification/presentation/widgets/level_up_dialog.dart';
 import '../../../user_subscriptions/presentation/bloc/subscription_bloc.dart';
 import '../../../user_subscriptions/presentation/widgets/next_invoices_widget.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../system/data/models/feature_flag_model.dart';
 import '../../../voice/presentation/bloc/voice_bloc.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../../../notifications/presentation/bloc/notifications_bloc.dart';
@@ -199,69 +203,74 @@ class _DashboardViewState extends State<DashboardView> {
               const GetTransactionsRequested(forceRefresh: true),
             );
           },
-          child: BlocBuilder<SettingsBloc, SettingsState>(
-            builder: (context, settingsState) {
-              final widgets = _buildDashboardWidgets(
-                context,
-                settingsState.dashboardOrder,
-              );
+          child: BlocBuilder<SystemBloc, SystemState>(
+            builder: (context, systemState) {
+              return BlocBuilder<SettingsBloc, SettingsState>(
+                builder: (context, settingsState) {
+                  final widgets = _buildDashboardWidgets(
+                    context,
+                    settingsState.dashboardOrder,
+                    systemState.featureFlags,
+                  );
 
-              if (_isEditing) {
-                return ReorderableListView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 20,
-                  ),
-                  onReorder: (oldIndex, newIndex) {
-                    if (newIndex > oldIndex) newIndex -= 1;
-                    final items = List<String>.from(
-                      settingsState.dashboardOrder,
-                    );
-                    final item = items.removeAt(oldIndex);
-                    items.insert(newIndex, item);
-                    context.read<SettingsBloc>().add(
-                      UpdateDashboardOrder(items),
-                    );
-                  },
-                  children: widgets
-                      .asMap()
-                      .entries
-                      .map(
-                        (entry) => Material(
-                          key: ValueKey(
-                            settingsState.dashboardOrder[entry.key],
-                          ),
-                          color: Colors.transparent,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Stack(
-                              children: [
-                                Opacity(opacity: 0.7, child: entry.value),
-                                const Positioned.fill(
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.drag_indicator,
-                                      size: 40,
-                                      color: Colors.white,
+                  if (_isEditing) {
+                    return ReorderableListView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 20,
+                      ),
+                      onReorder: (oldIndex, newIndex) {
+                        if (newIndex > oldIndex) newIndex -= 1;
+                        final items = List<String>.from(
+                          settingsState.dashboardOrder,
+                        );
+                        final item = items.removeAt(oldIndex);
+                        items.insert(newIndex, item);
+                        context.read<SettingsBloc>().add(
+                          UpdateDashboardOrder(items),
+                        );
+                      },
+                      children: widgets
+                          .asMap()
+                          .entries
+                          .map(
+                            (entry) => Material(
+                              key: ValueKey(
+                                settingsState.dashboardOrder[entry.key],
+                              ),
+                              color: Colors.transparent,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Stack(
+                                  children: [
+                                    Opacity(opacity: 0.7, child: entry.value),
+                                    const Positioned.fill(
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.drag_indicator,
+                                          size: 40,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                );
-              }
+                          )
+                          .toList(),
+                    );
+                  }
 
-              return SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: widgets,
-                ),
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: widgets,
+                    ),
+                  );
+                },
               );
             },
           ),
@@ -273,14 +282,19 @@ class _DashboardViewState extends State<DashboardView> {
   List<Widget> _buildDashboardWidgets(
     BuildContext context,
     List<String> order,
+    FeatureFlagModel flags,
   ) {
     final Map<String, Widget> widgetMap = {
-      'gamification': Showcase(
-        key: _gamificationKey,
-        title: AppLocalizations.of(context)!.tutorialGamificationTitle,
-        description: AppLocalizations.of(context)!.tutorialGamificationDesc,
-        child: const GamificationHeader(),
-      ),
+      'gamification': flags.featGamification.isEnabled
+          ? Showcase(
+              key: _gamificationKey,
+              title: AppLocalizations.of(context)!.tutorialGamificationTitle,
+              description: AppLocalizations.of(
+                context,
+              )!.tutorialGamificationDesc,
+              child: const GamificationHeader(),
+            )
+          : const SizedBox.shrink(),
       'balance': Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child:
@@ -296,10 +310,12 @@ class _DashboardViewState extends State<DashboardView> {
                 .fade(duration: 500.ms)
                 .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
       ),
-      'invoices': const NextInvoicesWidget()
-          .animate(delay: 100.ms)
-          .fade(duration: 500.ms)
-          .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+      'invoices': flags.featSubscriptions.isEnabled
+          ? const NextInvoicesWidget()
+                .animate(delay: 100.ms)
+                .fade(duration: 500.ms)
+                .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad)
+          : const SizedBox.shrink(),
       'quick_actions':
           Showcase(
                 key: _quickActionsKey,
@@ -307,7 +323,7 @@ class _DashboardViewState extends State<DashboardView> {
                 description: AppLocalizations.of(
                   context,
                 )!.tutorialQuickActionsDesc,
-                child: _buildQuickActions(context),
+                child: _buildQuickActions(context, flags),
               )
               .animate(delay: 200.ms)
               .fade(duration: 500.ms)
@@ -318,17 +334,26 @@ class _DashboardViewState extends State<DashboardView> {
           _buildSectionHeader(
             context,
             AppLocalizations.of(context)!.recentActivities,
-            action: TextButton.icon(
-              onPressed: () => context.push(RouteConstants.addTransaction),
-              icon: const Icon(Icons.add_circle_outline, size: 20),
-              label: Text(
-                AppLocalizations.of(context)!.add,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            action:
+                context
+                    .watch<SystemBloc>()
+                    .state
+                    .featureFlags
+                    .featManualTransactions
+                    .isEnabled
+                ? TextButton.icon(
+                    onPressed: () =>
+                        context.push(RouteConstants.addTransaction),
+                    icon: const Icon(Icons.add_circle_outline, size: 20),
+                    label: Text(
+                      AppLocalizations.of(context)!.add,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                : null,
           ).animate(delay: 300.ms).fade(),
           const SizedBox(height: 16),
           _buildRecentActivities(context)
@@ -396,18 +421,25 @@ class _DashboardViewState extends State<DashboardView> {
         ],
       ),
       actions: [
-        BlocBuilder<NotificationsBloc, NotificationsState>(
-          builder: (context, state) {
-            return Badge(
-              label: Text(state.unreadCount.toString()),
-              isLabelVisible: state.unreadCount > 0,
-              child: IconButton(
-                onPressed: () => context.push(RouteConstants.notifications),
-                icon: Icon(
-                  Icons.notifications_none_outlined,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
+        BlocBuilder<SystemBloc, SystemState>(
+          builder: (context, systemState) {
+            if (!systemState.featureFlags.featNotifications.isEnabled) {
+              return const SizedBox.shrink();
+            }
+            return BlocBuilder<NotificationsBloc, NotificationsState>(
+              builder: (context, state) {
+                return Badge(
+                  label: Text(state.unreadCount.toString()),
+                  isLabelVisible: state.unreadCount > 0,
+                  child: IconButton(
+                    onPressed: () => context.push(RouteConstants.notifications),
+                    icon: Icon(
+                      Icons.notifications_none_outlined,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                );
+              },
             );
           },
         ),
@@ -705,7 +737,7 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   /// Construit la ligne des boutons d'actions rapides.
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildQuickActions(BuildContext context, FeatureFlagModel flags) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -714,40 +746,87 @@ class _DashboardViewState extends State<DashboardView> {
           style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildActionItem(
-              Icons.add_circle_outline,
-              AppLocalizations.of(context)!.invest,
-              Theme.of(context).colorScheme.primary,
-              onTap: () => context.push('${RouteConstants.investments}/add'),
-            ),
-            _buildActionItem(
-              Icons.bar_chart_outlined,
-              AppLocalizations.of(context)!.insights,
-              Theme.of(context).colorScheme.secondary,
-              onTap: () => context.push(RouteConstants.insights),
-            ),
-            _buildActionItem(
-              Icons.groups_outlined,
-              'Tontine',
-              Theme.of(context).colorScheme.tertiary,
-              onTap: () => context.push(RouteConstants.tontines),
-            ),
-            _buildActionItem(
-              Icons.receipt_long_outlined,
-              'Factures',
-              Colors.orange,
-              onTap: () => context.push(RouteConstants.userSubscriptions),
-            ),
-            _buildActionItem(
-              Icons.smart_toy_outlined,
-              AppLocalizations.of(context)!.coach,
-              Colors.indigo,
-              onTap: () => context.push(RouteConstants.coach),
-            ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final investmentsStatus = context
+                .read<SystemBloc>()
+                .getFeatureStatus(flags.featInvestments);
+            final insightsStatus = context.read<SystemBloc>().getFeatureStatus(
+              flags.aiInsights,
+            );
+            final tontinesStatus = context.read<SystemBloc>().getFeatureStatus(
+              flags.featTontines,
+            );
+            final subscriptionsStatus = context
+                .read<SystemBloc>()
+                .getFeatureStatus(flags.featSubscriptions);
+            final coachStatus = context.read<SystemBloc>().getFeatureStatus(
+              flags.aiCoachChat,
+            );
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      if (investmentsStatus != FeatureStatus.disabled)
+                        _buildActionItem(
+                          Icons.add_circle_outline,
+                          AppLocalizations.of(context)!.invest,
+                          Theme.of(context).colorScheme.primary,
+                          isUpdateRequired:
+                              investmentsStatus == FeatureStatus.updateRequired,
+                          onTap: () =>
+                              context.push('${RouteConstants.investments}/add'),
+                        ),
+                      if (insightsStatus != FeatureStatus.disabled)
+                        _buildActionItem(
+                          Icons.bar_chart_outlined,
+                          AppLocalizations.of(context)!.insights,
+                          Theme.of(context).colorScheme.secondary,
+                          isUpdateRequired:
+                              insightsStatus == FeatureStatus.updateRequired,
+                          onTap: () => context.push(RouteConstants.insights),
+                        ),
+                      if (tontinesStatus != FeatureStatus.disabled)
+                        _buildActionItem(
+                          Icons.groups_outlined,
+                          'Tontine',
+                          Theme.of(context).colorScheme.tertiary,
+                          isUpdateRequired:
+                              tontinesStatus == FeatureStatus.updateRequired,
+                          onTap: () => context.push(RouteConstants.tontines),
+                        ),
+                      if (subscriptionsStatus != FeatureStatus.disabled)
+                        _buildActionItem(
+                          Icons.receipt_long_outlined,
+                          'Factures',
+                          Colors.orange,
+                          isUpdateRequired:
+                              subscriptionsStatus ==
+                              FeatureStatus.updateRequired,
+                          onTap: () =>
+                              context.push(RouteConstants.userSubscriptions),
+                        ),
+                      if (coachStatus != FeatureStatus.disabled)
+                        _buildActionItem(
+                          Icons.smart_toy_outlined,
+                          AppLocalizations.of(context)!.coach,
+                          Colors.indigo,
+                          isUpdateRequired:
+                              coachStatus == FeatureStatus.updateRequired,
+                          onTap: () => context.push(RouteConstants.coach),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -759,9 +838,16 @@ class _DashboardViewState extends State<DashboardView> {
     String label,
     Color color, {
     VoidCallback? onTap,
+    bool isUpdateRequired = false,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        if (isUpdateRequired) {
+          _showUpdateRequiredDialog(context);
+        } else {
+          onTap?.call();
+        }
+      },
       child: Column(
         children: [
           Container(
@@ -771,14 +857,61 @@ class _DashboardViewState extends State<DashboardView> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: AppShadows.card,
             ),
-            child: Icon(icon, color: color),
+            child: Opacity(
+              opacity: isUpdateRequired ? 0.5 : 1.0,
+              child: Icon(icon, color: color),
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             label,
             style: AppTextStyles.bodySmall.copyWith(
               fontWeight: FontWeight.w500,
+              color: isUpdateRequired ? Colors.grey : null,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _launchStore() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final String packageName = packageInfo.packageName;
+
+    // ID réel de l'App Store
+    const String appId = "6757806640";
+
+    final Uri playStoreUri = Uri.parse(
+      'https://play.google.com/store/apps/details?id=$packageName',
+    );
+    final Uri appStoreUri = Uri.parse('https://apps.apple.com/app/id$appId');
+
+    final Uri url = Platform.isAndroid ? playStoreUri : appStoreUri;
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  void _showUpdateRequiredDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.featureDisabledTitle),
+        content: Text("${l10n.featureDisabledMessage} (Version requise)"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.back),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _launchStore();
+            },
+            child: Text("Mettre à jour"),
           ),
         ],
       ),

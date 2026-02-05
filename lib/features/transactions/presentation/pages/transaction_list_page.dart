@@ -19,13 +19,34 @@ import '../../../../core/utils/currency_helper.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 
 class TransactionListPage extends StatelessWidget {
   const TransactionListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const TransactionListView();
+    final l10n = AppLocalizations.of(context)!;
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.featManualTransactions,
+        );
+
+        if (featureStatus == FeatureStatus.disabled) {
+          return FeatureDisabledWidget(title: l10n.transactions);
+        }
+
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return FeatureDisabledWidget(
+            title: l10n.transactions,
+            isUpdateRequired: true,
+          );
+        }
+        return const TransactionListView();
+      },
+    );
   }
 }
 

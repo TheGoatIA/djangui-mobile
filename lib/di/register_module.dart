@@ -19,6 +19,7 @@ import 'package:kauri/features/investments/data/datasources/investment_api_servi
 import 'package:kauri/features/subscription/data/datasources/payment_api_service.dart';
 import 'package:kauri/features/reports/data/datasources/reports_api_service.dart';
 import 'package:kauri/features/system/data/datasources/system_api_service.dart';
+import 'package:kauri/features/system/data/datasources/config_api_service.dart';
 import 'package:kauri/features/notifications/data/datasources/notification_api_service.dart';
 import 'package:kauri/features/upload/data/datasources/upload_api_service.dart';
 import 'package:kauri/features/support/data/datasources/support_api_service.dart';
@@ -85,6 +86,10 @@ abstract class RegisterModule {
   @lazySingleton
   SystemApiService get systemApiService =>
       SystemApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  ConfigApiService get configApiService =>
+      ConfigApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
   NotificationApiService get notificationApiService =>
