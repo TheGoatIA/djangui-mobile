@@ -13,6 +13,7 @@ import 'package:local_auth/local_auth.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../di/injection.dart';
 
@@ -195,6 +196,7 @@ class _LoginPageState extends State<LoginPage> {
                                                 localizedReason:
                                                     'Veuillez vous authentifier pour vous connecter',
                                               );
+
                                           if (didAuthenticate) {
                                             getIt<AnalyticsManager>()
                                                 .trackEvent(
@@ -204,6 +206,13 @@ class _LoginPageState extends State<LoginPage> {
                                                     'provider': 'biometric',
                                                   },
                                                 );
+
+                                            // Telemetry
+                                            getIt<TelemetryService>()
+                                                .recordEvent('auth.biometric', {
+                                                  'result': 'success',
+                                                });
+
                                             authBloc.add(
                                               AuthBiometricLoginRequested(),
                                             );
@@ -219,12 +228,20 @@ class _LoginPageState extends State<LoginPage> {
                                             message =
                                                 'L\'authentification biométrique n\'est pas disponible.';
                                           }
+
                                           if (!context.mounted) return;
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
                                             SnackBar(content: Text(message)),
                                           );
+
+                                          getIt<TelemetryService>()
+                                              .recordEvent('auth.biometric', {
+                                                'result': 'failure',
+                                                'reason': e.code,
+                                                'message': message,
+                                              });
                                         } catch (e) {
                                           if (!context.mounted) return;
                                           ScaffoldMessenger.of(

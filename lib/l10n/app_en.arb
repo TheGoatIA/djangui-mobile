@@ -734,5 +734,7 @@
     "featureDisabledTitle": "Feature Unavailable",
     "featureDisabledMessage": "This feature is currently disabled. Please contact support or check back later.",
     "featureUpdateRequiredMessage": "This feature requires a more recent version of Kauri. Please update your application to enjoy it.",
-    "back": "Back"
+    "back": "Back",
+    "search": "Search",
+    "addCustomCategory": "Add custom category"
 }

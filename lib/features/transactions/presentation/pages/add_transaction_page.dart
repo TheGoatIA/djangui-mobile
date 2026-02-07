@@ -24,6 +24,7 @@ import '../../../../core/services/tutorial_service.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
 
 /// Page de création d'une nouvelle transaction (Dépense ou Revenu).
 ///
@@ -39,6 +40,8 @@ class AddTransactionPage extends StatefulWidget {
 }
 
 class _AddTransactionPageState extends State<AddTransactionPage> {
+  final DateTime _enteredAt = DateTime.now();
+
   /// Clé globale pour la validation du formulaire.
   final _formKey = GlobalKey<FormState>();
 
@@ -270,6 +273,17 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         linkedGoalId: _selectedGoalId,
         currency: authState.authResponse?.user.currency ?? 'XAF',
       );
+
+      // Telemetry: Form Friction
+      final frictionDuration = DateTime.now().difference(_enteredAt).inSeconds;
+      getIt<TelemetryService>().recordEvent('ux.form.friction', {
+        'form_name': 'add_transaction',
+        'duration_seconds': frictionDuration,
+        'is_ocr_used':
+            _merchantController.text.isNotEmpty ||
+            _amountController.text.isNotEmpty, // simplified check
+      });
+
       context.read<TransactionsBloc>().add(
         AddTransactionRequested(transaction),
       );

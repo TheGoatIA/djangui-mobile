@@ -6,10 +6,13 @@ import '../../data/models/chat_message_model.dart';
 import '../../domain/repositories/coach_repository.dart';
 import 'coach_event.dart';
 import 'coach_state.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/di/injection.dart';
 
 @injectable
 class CoachBloc extends Bloc<CoachEvent, CoachState> {
   final CoachRepository _coachRepository;
+  TelemetryService get _telemetry => getIt<TelemetryService>();
 
   CoachBloc(this._coachRepository) : super(CoachState.initial()) {
     on<GetChatHistoryRequested>(_onGetChatHistoryRequested);
@@ -38,8 +41,14 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
           );
         }
       },
-      (history) =>
-          emit(state.copyWith(status: CoachStatus.success, messages: history)),
+      (history) {
+        emit(state.copyWith(status: CoachStatus.success, messages: history));
+
+        // Telemetry: AI Engagement
+        _telemetry.recordEvent('ux.ai_coach.session_load', {
+          'message_count': history.length,
+        });
+      },
     );
   }
 
@@ -63,10 +72,20 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
     );
     emit(state.copyWith(messages: updatedMessages, isSending: true));
 
+    final startTime = DateTime.now();
     final result = await _coachRepository.sendMessage(event.text);
+    final duration = DateTime.now().difference(startTime).inMilliseconds;
+
     result.fold<void>(
       (failure) {
         debugPrint('🤖 [CoachBloc] Send message failed: ${failure.message}');
+
+        // Telemetry: AI Failure
+        _telemetry.recordEvent('ux.ai_coach.error', {
+          'error': failure.message,
+          'latency_ms': duration,
+        });
+
         emit(
           state.copyWith(
             isSending: false,
@@ -77,6 +96,13 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
       },
       (ChatMessageModel aiMessage) {
         debugPrint('🤖 [CoachBloc] AI response received: ${aiMessage.text}');
+
+        // Telemetry: AI Latency & Success
+        _telemetry.recordEvent('ux.ai_coach.response', {
+          'latency_ms': duration,
+          'message_length': aiMessage.text.length,
+        });
+
         final finalMessages = List<ChatMessageModel>.from(state.messages)
           ..add(aiMessage);
         debugPrint(

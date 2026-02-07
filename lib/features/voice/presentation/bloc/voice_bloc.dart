@@ -8,6 +8,7 @@ import '../../domain/repositories/voice_repository.dart';
 import 'voice_event.dart';
 import 'voice_state.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
 import '../../../../di/injection.dart';
 
 @injectable
@@ -15,6 +16,8 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
   final VoiceRepository _voiceRepository;
   final AudioRecorder _audioRecorder = AudioRecorder();
   String? _currentPath;
+
+  TelemetryService get _telemetry => getIt<TelemetryService>();
 
   VoiceBloc(this._voiceRepository) : super(const VoiceState()) {
     on<StartRecordingRequested>(_onStartRecording);
@@ -107,7 +110,9 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
         action: 'processing_start',
       );
 
+      final startTime = DateTime.now();
       final result = await _voiceRepository.processVoice(File(path));
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
 
       result.fold(
         (failure) {
@@ -116,6 +121,12 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
             action: 'processing_error',
             details: {'error': failure.message},
           );
+
+          _telemetry.recordEvent('reliability.voice.error', {
+            'error': failure.message,
+            'latency_ms': duration,
+          });
+
           emit(
             state.copyWith(
               status: VoiceStatus.error,
@@ -130,6 +141,12 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
               action: 'processing_invalid',
               details: {'reason': response.description},
             );
+
+            _telemetry.recordEvent('reliability.voice.invalid', {
+              'reason': response.description,
+              'latency_ms': duration,
+            });
+
             emit(
               state.copyWith(
                 status: VoiceStatus.error,
@@ -142,6 +159,12 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
               action: 'processing_success',
               details: {'intent': response.type},
             );
+
+            _telemetry.recordEvent('reliability.voice.success', {
+              'intent': response.type,
+              'latency_ms': duration,
+            });
+
             emit(
               state.copyWith(
                 status: VoiceStatus.success,

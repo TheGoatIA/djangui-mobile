@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/telemetry_service.dart';
 
 class CreateTontinePage extends StatefulWidget {
   final Tontine? tontine;
@@ -21,6 +22,7 @@ class CreateTontinePage extends StatefulWidget {
 }
 
 class _CreateTontinePageState extends State<CreateTontinePage> {
+  final DateTime _enteredAt = DateTime.now();
   final _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
 
@@ -570,6 +572,15 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
       },
       'escrowDetails': _escrowAccounts,
     };
+
+    // Telemetry: Form Friction
+    final frictionDuration = DateTime.now().difference(_enteredAt).inSeconds;
+    getIt<TelemetryService>().recordEvent('ux.form.friction', {
+      'form_name': 'create_tontine',
+      'duration_seconds': frictionDuration,
+      'is_editing': _isEditing,
+    });
+
     if (_isEditing) {
       context.read<TontineBloc>().add(
         UpdateTontineRequested(widget.tontine!.id, params),

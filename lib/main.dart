@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // For PlatformDispatcher
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:kauri/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'core/services/telemetry_service.dart';
 import 'core/services/tutorial_service.dart';
 
 import 'di/injection.dart';
@@ -40,6 +42,7 @@ import 'package:showcaseview/showcaseview.dart';
 /// - Injection de dépendances (GetIt)
 /// - Services de notifications, analytique et synchronisation offline
 void main() async {
+  final startTime = DateTime.now();
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialisation de Firebase avec les options par défaut générées
@@ -59,6 +62,37 @@ void main() async {
   await getIt<AnalyticsManager>().initialize();
   getIt<SyncService>()
       .initialize(); // Démarre l'écouteur de synchronisation au réseau
+  final telemetry = getIt<TelemetryService>();
+  await telemetry.initialize();
+
+  // Telemetry: Startup Time
+  final startupDuration = DateTime.now().difference(startTime).inMilliseconds;
+  telemetry.recordEvent('app.startup', {
+    'duration_ms': startupDuration,
+    'type': 'cold_start',
+  });
+
+  // 1. Global Flutter Error Handling (Red Screen)
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+
+    // Telemetry Record
+    telemetry.recordEvent('app.error.flutter', {
+      'exception': details.exception.toString(),
+      'library': details.library ?? 'unknown',
+      'context': details.context.toString(),
+    });
+  };
+
+  // 2. Async Platform Errors
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+
+    telemetry.recordEvent('app.error.platform', {
+      'exception': error.toString(),
+    });
+    return true;
+  };
 
   runApp(const MyApp());
 }
@@ -79,10 +113,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  DateTime? _sessionStartTime;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _sessionStartTime = DateTime.now();
   }
 
   @override
@@ -93,12 +130,30 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   /// Observe les changements d'état de l'application pour gérer les sessions analytiques.
   @override
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    final telemetry = getIt<TelemetryService>();
+
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
       getIt<AnalyticsManager>().endCurrentSession();
+
+      // Telemetry: Session End
+      final duration = _sessionStartTime != null
+          ? DateTime.now().difference(_sessionStartTime!).inSeconds
+          : 0;
+
+      telemetry.recordEvent('app.session', {
+        'state': 'ended',
+        'duration_seconds': duration,
+      });
+      _sessionStartTime = null;
     } else if (state == AppLifecycleState.resumed) {
       getIt<AnalyticsManager>().startNewSession();
+      _sessionStartTime = DateTime.now();
+
+      // Telemetry: Session Start
+      telemetry.recordEvent('app.session', {'state': 'started'});
     }
   }
 

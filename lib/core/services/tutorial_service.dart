@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/di/injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:injectable/injectable.dart';
 
@@ -21,6 +23,11 @@ class TutorialService extends ChangeNotifier {
   /// Marque le tutoriel associé à la clé [key] comme terminé.
   Future<void> markTutorialAsSeen(String key) async {
     await _prefs.setBool('$_kPrefix$key', true);
+
+    // Telemetry: Tutorial Funnel
+    getIt<TelemetryService>().recordEvent('ux.tutorial.step_completed', {
+      'step_key': key,
+    });
   }
 
   /// Déclenche une notification aux écouteurs pour forcer une vérification (rebuild UI).

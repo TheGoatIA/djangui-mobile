@@ -14,6 +14,42 @@ class AppCategories {
     'Autres',
   ];
 
+  static const List<String> subscriptionCategories = [
+    'Streaming Vidéo (Netflix, Disney+, etc.)',
+    'Streaming Musical (Spotify, Deezer, etc.)',
+    'Logiciels / SaaS (Adobe, Microsoft 365, etc.)',
+    'Stockage Cloud (Google One, iCloud, etc.)',
+    'Salle de Sport / Fitness',
+    'Téléphonie / Internet',
+    'Électricité / Gaz',
+    'Assurance (Habitation, Voiture, etc.)',
+    'Presse / Magazines',
+    'Jeux Vidéo (Game Pass, PS Plus)',
+    'Livraison (Amazon Prime)',
+    'Outils de Travail (Zoom, Slack)',
+    'Apprentissage / Cours (Udemy)',
+    'Sécurité / Antivirus',
+    'Beauté / Box Mensuelles',
+    'Loyers / Logement',
+    'Transport (Pass Navigo, Uber Pass)',
+    'Gaming (Steam, Epic Games)',
+    'Dating (Tinder Gold, Badoo)',
+    'Design (Canva, Figma)',
+    'Développement (Copilot, JetBrains)',
+    'Hébergement / Domaines (OVH)',
+    'Santé / Mutuelle',
+    'Dons / Soutien (Patreon)',
+    'Finance / Trading (Bloomberg)',
+    'VPN / Vie Privée',
+    'Maison Connectée / Sécurité',
+    'Food Delivery (Uber Eats, Deliveroo)',
+    'Éducation Enfants',
+    'Outils Professionnels',
+    'Loisirs Créatifs',
+    'Bien-être (Calm, Headspace)',
+    'Services Bancaires (N26, Revolut)',
+  ];
+
   /// Fait correspondre une chaîne (ex: issue de l'IA) à une catégorie standard de l'application.
   static String mapToStandardCategory(String input) {
     if (input.isEmpty) return 'Autres';

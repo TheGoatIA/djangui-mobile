@@ -2125,4 +2125,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get back => 'Retour';
+
+  @override
+  String get search => 'Rechercher';
+
+  @override
+  String get addCustomCategory => 'Ajouter une catégorie personnalisée';
 }

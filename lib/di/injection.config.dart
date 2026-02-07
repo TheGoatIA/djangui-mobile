@@ -23,6 +23,7 @@ import 'package:kauri/core/services/payment_service.dart' as _i342;
 import 'package:kauri/core/services/share_service.dart' as _i639;
 import 'package:kauri/core/services/success_animation_service.dart' as _i3;
 import 'package:kauri/core/services/sync_service.dart' as _i75;
+import 'package:kauri/core/services/telemetry_service.dart' as _i892;
 import 'package:kauri/core/services/tutorial_service.dart' as _i899;
 import 'package:kauri/di/register_module.dart' as _i617;
 import 'package:kauri/features/analytics/data/datasources/analytics_api_service.dart'
@@ -217,6 +218,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.prefs,
       preResolve: true,
     );
+    gh.singleton<_i892.TelemetryService>(() => _i892.TelemetryService());
     gh.lazySingleton<_i40.AppIconService>(() => _i40.AppIconService());
     gh.lazySingleton<_i273.NotificationService>(
       () => _i273.NotificationService(),

@@ -734,5 +734,7 @@
     "featureDisabledTitle": "Fonctionnalité Indisponible",
     "featureDisabledMessage": "Cette fonctionnalité est actuellement désactivée. Veuillez contacter le support ou réessayer plus tard.",
     "featureUpdateRequiredMessage": "Cette fonctionnalité nécessite une version plus récente de Kauri. Veuillez mettre à jour votre application pour en profiter.",
-    "back": "Retour"
+    "back": "Retour",
+    "search": "Rechercher",
+    "addCustomCategory": "Ajouter une catégorie personnalisée"
 }

@@ -4069,6 +4069,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Retour'**
   String get back;
+
+  /// No description provided for @search.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher'**
+  String get search;
+
+  /// No description provided for @addCustomCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une catégorie personnalisée'**
+  String get addCustomCategory;
 }
 
 class _AppLocalizationsDelegate

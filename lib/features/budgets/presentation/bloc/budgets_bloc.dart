@@ -5,9 +5,14 @@ import '../../domain/repositories/budget_repository.dart';
 import 'budgets_event.dart';
 import 'budgets_state.dart';
 
+import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/di/injection.dart';
+import 'package:opentelemetry/api.dart';
+
 @injectable
 class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
   final BudgetRepository _budgetRepository;
+  TelemetryService get _telemetry => getIt<TelemetryService>();
 
   BudgetsBloc(this._budgetRepository) : super(BudgetsState.initial()) {
     on<GetBudgetsRequested>(_onGetBudgetsRequested);
@@ -80,23 +85,51 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
     AddBudgetRequested event,
     Emitter<BudgetsState> emit,
   ) async {
-    emit(state.copyWith(status: BudgetsStatus.loading));
-    final result = await _budgetRepository.createBudget(event.budget);
-    result.fold<void>(
-      (failure) => emit(
-        state.copyWith(
-          status: BudgetsStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
-      (budget) {
-        final List<BudgetModel> updatedList = List.from(state.budgets)
-          ..add(budget);
-        emit(
-          state.copyWith(status: BudgetsStatus.success, budgets: updatedList),
-        );
-      },
+    final span = _telemetry.tracer.startSpan(
+      'Budget: Create',
+      kind: SpanKind.internal,
     );
+    span.setAttribute(
+      Attribute.fromString(
+        'budget.total_allocated',
+        event.budget.totalAllocated.toString(),
+      ),
+    );
+    span.setAttribute(
+      Attribute.fromString(
+        'budget.amount',
+        event.budget.totalAllocated.toString(),
+      ),
+    );
+
+    try {
+      emit(state.copyWith(status: BudgetsStatus.loading));
+      final result = await _budgetRepository.createBudget(event.budget);
+      result.fold<void>(
+        (failure) {
+          span.setStatus(StatusCode.error, failure.message);
+          emit(
+            state.copyWith(
+              status: BudgetsStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (budget) {
+          span.setAttribute(Attribute.fromString('budget.id', budget.id));
+          final List<BudgetModel> updatedList = List.from(state.budgets)
+            ..add(budget);
+          emit(
+            state.copyWith(status: BudgetsStatus.success, budgets: updatedList),
+          );
+        },
+      );
+    } catch (e, s) {
+      span.recordException(e, stackTrace: s);
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onDeleteBudgetRequested(

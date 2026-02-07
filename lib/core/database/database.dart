@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:kauri/core/database/telemetry_executor.dart';
 
 part 'database.g.dart';
 
@@ -324,7 +325,8 @@ class AppDatabase extends _$AppDatabase {
     return LazyDatabase(() async {
       final dbFolder = await getApplicationDocumentsDirectory();
       final file = File(p.join(dbFolder.path, 'db.sqlite'));
-      return NativeDatabase(file);
+      final executor = NativeDatabase(file);
+      return TelemetryQueryExecutor(executor);
     });
   }
 }

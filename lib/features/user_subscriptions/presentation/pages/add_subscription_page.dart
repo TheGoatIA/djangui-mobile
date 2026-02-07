@@ -11,6 +11,8 @@ import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/widgets/searchable_category_selector.dart';
+import '../../../../core/constants/app_categories.dart';
 
 class AddSubscriptionPage extends StatefulWidget {
   final SubscriptionModel? subscription;
@@ -243,13 +245,15 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
                     onTap: () => _selectDate(context),
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _categoryController,
-                    decoration: InputDecoration(
-                      labelText: l10n.categoryLabel,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.category_outlined),
-                    ),
+                  SearchableCategorySelector(
+                    label: l10n.categoryLabel,
+                    initialValue: _categoryController.text,
+                    categories: AppCategories.subscriptionCategories,
+                    onCategorySelected: (category) {
+                      _categoryController.text = category;
+                    },
+                    validator: (val) =>
+                        val == null || val.isEmpty ? l10n.requiredField : null,
                   ),
                   const SizedBox(height: 16),
                   ListTile(
