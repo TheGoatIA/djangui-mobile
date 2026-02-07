@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kauri/features/auth/domain/repositories/auth_repository.dart';
 import '../../../../core/theme/app_theme_type.dart';
 import '../../../../core/services/app_icon_service.dart';
+import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
 
 part 'settings_event.dart';
@@ -16,6 +17,7 @@ part 'settings_state.dart';
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final SharedPreferences _prefs;
   final AuthRepository _authRepository;
+  LogService get _logger => getIt<LogService>();
 
   SettingsBloc(this._prefs, this._authRepository)
     : super(const SettingsState()) {
@@ -57,6 +59,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     ThemeChanged event,
     Emitter<SettingsState> emit,
   ) async {
+    _logger.info(
+      'Changement du thème: ${event.themeType.name}',
+      component: 'SettingsBloc',
+    );
     await _prefs.setInt('theme_mode', event.themeType.index);
     emit(state.copyWith(themeType: event.themeType));
   }
@@ -65,6 +71,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     LocaleChanged event,
     Emitter<SettingsState> emit,
   ) async {
+    _logger.info(
+      'Changement de la langue: ${event.locale.languageCode}',
+      component: 'SettingsBloc',
+    );
     await _prefs.setString('language_code', event.locale.languageCode);
     emit(state.copyWith(locale: event.locale));
 
@@ -74,7 +84,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         await _authRepository.updateLanguage(event.locale.languageCode);
       }
     } catch (e) {
-      debugPrint('⚠️ [SettingsBloc] Failed to sync language with backend: $e');
+      _logger.warning(
+        'Échec de la synchronisation de la langue avec le backend',
+        component: 'SettingsBloc',
+        metadata: {'error': e.toString()},
+      );
     }
   }
 
@@ -82,6 +96,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     ToggleBiometrics event,
     Emitter<SettingsState> emit,
   ) async {
+    _logger.info(
+      'Modification de la biométrie: ${event.enabled}',
+      component: 'SettingsBloc',
+    );
     await _prefs.setBool('biometrics_enabled', event.enabled);
     emit(state.copyWith(biometricsEnabled: event.enabled));
   }
@@ -98,6 +116,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     FontChanged event,
     Emitter<SettingsState> emit,
   ) async {
+    _logger.info(
+      'Changement de police: ${event.fontFamily}',
+      component: 'SettingsBloc',
+    );
     await _prefs.setString('font_family', event.fontFamily);
     emit(state.copyWith(fontFamily: event.fontFamily));
   }
@@ -106,6 +128,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     AppIconChanged event,
     Emitter<SettingsState> emit,
   ) async {
+    _logger.info(
+      'Changement d\'icône de l\'application: ${event.iconName}',
+      component: 'SettingsBloc',
+    );
     // 1. Sauvegarder la préférence locale (Source de vérité UI)
     if (event.iconName != null) {
       await _prefs.setString('app_icon', event.iconName!);

@@ -18,6 +18,7 @@ import '../../../../core/services/tutorial_service.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 /// Page listant les objectifs d'épargne de l'utilisateur.
 ///
@@ -48,6 +49,10 @@ class _GoalListViewState extends State<GoalListView> {
   @override
   void initState() {
     super.initState();
+    getIt<LogService>().info(
+      'Affichage de la liste des objectifs.',
+      component: 'GoalListPage',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -157,6 +162,10 @@ class _GoalListViewState extends State<GoalListView> {
                 // Liste des objectifs avec support du "pull-to-refresh"
                 return RefreshIndicator(
                   onRefresh: () async {
+                    getIt<LogService>().info(
+                      'Rafraîchissement de la liste des objectifs (Pull-to-refresh)',
+                      component: 'GoalListPage',
+                    );
                     context.read<GoalsBloc>().add(
                       const GetGoalsRequested(forceRefresh: true),
                     );
@@ -194,6 +203,10 @@ class _GoalListViewState extends State<GoalListView> {
             child: FloatingActionButton(
               heroTag: 'goals_fab',
               onPressed: () async {
+                getIt<LogService>().info(
+                  'Navigation vers la page d\'ajout d\'objectif depuis la liste',
+                  component: 'GoalListPage',
+                );
                 final result = await context.pushNamed<bool>('goal-add');
                 if (result == true && context.mounted) {
                   context.read<GoalsBloc>().add(
@@ -226,8 +239,13 @@ class _GoalItem extends StatelessWidget {
     final daysRemaining = goal.deadline.difference(DateTime.now()).inDays;
 
     return InkWell(
-      onTap: () =>
-          context.pushNamed('goal-details', pathParameters: {'id': goal.id}),
+      onTap: () {
+        getIt<LogService>().info(
+          'Consultation des détails de l\'objectif: ${goal.id}',
+          component: 'GoalListPage',
+        );
+        context.pushNamed('goal-details', pathParameters: {'id': goal.id});
+      },
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(20),
@@ -257,8 +275,16 @@ class _GoalItem extends StatelessWidget {
                   ),
                   onSelected: (value) {
                     if (value == 'share') {
+                      getIt<LogService>().info(
+                        'Action: Partage de l\'objectif ${goal.id}',
+                        component: 'GoalListPage',
+                      );
                       getIt<ShareService>().shareGoal(goal);
                     } else if (value == 'delete') {
+                      getIt<LogService>().info(
+                        'Action: Demande de suppression de l\'objectif ${goal.id}',
+                        component: 'GoalListPage',
+                      );
                       _showDeleteDialog(context);
                     }
                   },

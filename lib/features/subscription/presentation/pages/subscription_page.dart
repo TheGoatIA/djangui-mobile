@@ -8,6 +8,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/payment_service.dart';
+import '../../../../core/services/log_service.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/subscription/data/models/payment_model.dart';
 // import 'package:go_router/go_router.dart';
@@ -37,6 +38,10 @@ class _SubscriptionViewState extends State<SubscriptionView> {
   @override
   void initState() {
     super.initState();
+    getIt<LogService>().info(
+      'Affichage de la page d\'abonnement.',
+      component: 'SubscriptionPage',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -87,6 +92,10 @@ class _SubscriptionViewState extends State<SubscriptionView> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
+          getIt<LogService>().info(
+            'Rafraîchissement manuel de l\'état d\'abonnement',
+            component: 'SubscriptionPage',
+          );
           context.read<AuthBloc>().add(AuthRefreshUserRequested());
           await Future.delayed(const Duration(seconds: 1));
         },
@@ -189,6 +198,10 @@ class _SubscriptionViewState extends State<SubscriptionView> {
 
     if (confirmed == true) {
       if (!context.mounted) return;
+      getIt<LogService>().info(
+        'Action: Demande de downgrade (annulation abonnement)',
+        component: 'SubscriptionPage',
+      );
 
       final paymentService = getIt<PaymentService>();
       final success = await paymentService.cancelSubscription();
@@ -456,6 +469,11 @@ class _SubscriptionViewState extends State<SubscriptionView> {
     BuildContext context,
     ({double amount, String currency, String formattedPrice}) priceInfo,
   ) {
+    getIt<LogService>().info(
+      'Action: Affichage des options de paiement',
+      component: 'SubscriptionPage',
+      metadata: {'price': priceInfo.formattedPrice},
+    );
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -564,11 +582,19 @@ class _SubscriptionViewState extends State<SubscriptionView> {
 
     try {
       if (method == 'notchpay') {
+        getIt<LogService>().info(
+          'Action: Initialisation paiement via NotchPay',
+          component: 'SubscriptionPage',
+        );
         url = await paymentService.initializeNotchPay(
           priceInfo.amount,
           currency: priceInfo.currency,
         );
       } else {
+        getIt<LogService>().info(
+          'Action: Initialisation paiement via Stripe',
+          component: 'SubscriptionPage',
+        );
         url = await paymentService.createStripeCheckout(
           priceInfo.amount,
           priceInfo.currency,
@@ -582,6 +608,10 @@ class _SubscriptionViewState extends State<SubscriptionView> {
         }
       } else {
         if (!context.mounted) return;
+        getIt<LogService>().error(
+          'Erreur: Initialisation paiement échouée (URL null)',
+          component: 'SubscriptionPage',
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.paymentInitError),
@@ -590,6 +620,11 @@ class _SubscriptionViewState extends State<SubscriptionView> {
       }
     } catch (e) {
       if (!context.mounted) return;
+      getIt<LogService>().error(
+        'Erreur: Exception lors du paiement',
+        component: 'SubscriptionPage',
+        error: e,
+      );
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Erreur : $e')));

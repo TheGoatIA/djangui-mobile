@@ -10,6 +10,7 @@ import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../../../../di/injection.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/services/log_service.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
@@ -26,6 +27,10 @@ class _SecurityPageState extends State<SecurityPage> {
   @override
   void initState() {
     super.initState();
+    getIt<LogService>().info(
+      'Affichage de la page de sécurité.',
+      component: 'SecurityPage',
+    );
     _checkBiometrics();
   }
 
@@ -73,6 +78,10 @@ class _SecurityPageState extends State<SecurityPage> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(dialogContext);
+              getIt<LogService>().info(
+                'Action: Suppression de compte confirmée',
+                component: 'SecurityPage',
+              );
               context.read<AuthBloc>().add(AuthDeleteAccountRequested());
             },
             style: ElevatedButton.styleFrom(

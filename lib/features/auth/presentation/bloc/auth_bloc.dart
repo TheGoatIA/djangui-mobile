@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import '../../data/models/auth_response.dart';
 import '../../data/models/login_request.dart';
@@ -9,6 +8,7 @@ import '../../data/models/session_model.dart';
 import '../../data/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
 
+import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:opentelemetry/api.dart';
@@ -20,6 +20,7 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   TelemetryService get _telemetry => getIt<TelemetryService>();
+  LogService get _logger => getIt<LogService>();
 
   AuthBloc(this._authRepository) : super(AuthState.initial()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
@@ -100,6 +101,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthPhoneSignInRequested event,
     Emitter<AuthState> emit,
   ) async {
+    _logger.info(
+      'Tentative de connexion par téléphone...',
+      component: 'AuthBloc',
+    );
     emit(state.copyWith(status: AuthStatus.loading));
     final result = await _authRepository.signInWithPhoneNumber(
       event.verificationId,
@@ -107,13 +112,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       country: _tempCountryCode,
     );
     result.fold(
-      (failure) => emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
-      ),
+      (failure) {
+        _logger.warning(
+          'Échec de la connexion par téléphone',
+          component: 'AuthBloc',
+          metadata: {'error': failure.message},
+        );
+        emit(
+          state.copyWith(
+            status: AuthStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (response) {
+        _logger.info(
+          'Connexion par téléphone réussie',
+          component: 'AuthBloc',
+          metadata: {'user_id': response.user.id},
+        );
         _authRepository.updateDeviceInfo();
         _authRepository.logConnection();
         _tempCountryCode = null;
+        _logger.setUserId(response.user.id);
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
@@ -148,62 +169,141 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthGoogleSignInRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _authRepository.signInWithGoogle(
-      countryCode: event.countryCode,
-    );
-    result.fold(
-      (failure) => emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
-      ),
-      (response) {
-        _authRepository.updateDeviceInfo();
-        _authRepository.logConnection();
-        emit(
-          state.copyWith(
-            status: AuthStatus.authenticated,
-            authResponse: response,
-          ),
-        );
-      },
-    );
+    _logger.info('Tentative de connexion Google...', component: 'AuthBloc');
+    final span = _telemetry.tracer.startSpan('Auth: GoogleSignIn');
+    try {
+      emit(state.copyWith(status: AuthStatus.loading));
+      final result = await _authRepository.signInWithGoogle(
+        countryCode: event.countryCode,
+      );
+      result.fold(
+        (failure) {
+          _logger.warning(
+            'Échec de la connexion Google',
+            component: 'AuthBloc',
+            metadata: {'error': failure.message},
+          );
+          span.setStatus(StatusCode.error, failure.message);
+          _telemetry.recordEvent('auth.google.failure', {
+            'reason': failure.message,
+          });
+          emit(
+            state.copyWith(
+              status: AuthStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (response) {
+          _logger.info(
+            'Connexion Google réussie',
+            component: 'AuthBloc',
+            metadata: {'user_id': response.user.id},
+          );
+          span.setAttribute(Attribute.fromString('user.id', response.user.id));
+          _telemetry.recordEvent('auth.google.success', {
+            'user.id': response.user.id,
+          });
+          _authRepository.updateDeviceInfo();
+          _authRepository.logConnection();
+          emit(
+            state.copyWith(
+              status: AuthStatus.authenticated,
+              authResponse: response,
+            ),
+          );
+        },
+      );
+    } catch (e, s) {
+      _logger.error(
+        'Erreur technique lors de la connexion Google',
+        error: e,
+        component: 'AuthBloc',
+      );
+      span.recordException(e, stackTrace: s);
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onAuthAppleSignInRequested(
     AuthAppleSignInRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _authRepository.signInWithApple(
-      countryCode: event.countryCode,
-    );
-    result.fold(
-      (failure) => emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
-      ),
-      (response) {
-        _authRepository.updateDeviceInfo();
-        _authRepository.logConnection();
-        emit(
-          state.copyWith(
-            status: AuthStatus.authenticated,
-            authResponse: response,
-          ),
-        );
-      },
-    );
+    _logger.info('Tentative de connexion Apple...', component: 'AuthBloc');
+    final span = _telemetry.tracer.startSpan('Auth: AppleSignIn');
+    try {
+      emit(state.copyWith(status: AuthStatus.loading));
+      final result = await _authRepository.signInWithApple(
+        countryCode: event.countryCode,
+      );
+      result.fold(
+        (failure) {
+          _logger.warning(
+            'Échec de la connexion Apple',
+            component: 'AuthBloc',
+            metadata: {'error': failure.message},
+          );
+          span.setStatus(StatusCode.error, failure.message);
+          _telemetry.recordEvent('auth.apple.failure', {
+            'reason': failure.message,
+          });
+          emit(
+            state.copyWith(
+              status: AuthStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (response) {
+          _logger.info(
+            'Connexion Apple réussie',
+            component: 'AuthBloc',
+            metadata: {'user_id': response.user.id},
+          );
+          span.setAttribute(Attribute.fromString('user.id', response.user.id));
+          _telemetry.recordEvent('auth.apple.success', {
+            'user.id': response.user.id,
+          });
+          _authRepository.updateDeviceInfo();
+          _authRepository.logConnection();
+          emit(
+            state.copyWith(
+              status: AuthStatus.authenticated,
+              authResponse: response,
+            ),
+          );
+        },
+      );
+    } catch (e, s) {
+      _logger.error(
+        'Erreur technique lors de la connexion Apple',
+        error: e,
+        component: 'AuthBloc',
+      );
+      span.recordException(e, stackTrace: s);
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onAuthCheckRequested(
     AuthCheckRequested event,
     Emitter<AuthState> emit,
   ) async {
+    _logger.info(
+      'Vérification de l\'état d\'authentification...',
+      component: 'AuthBloc',
+    );
     emit(state.copyWith(status: AuthStatus.loading));
     final isAuthenticated = await _authRepository.isAuthenticated();
 
     if (isAuthenticated) {
-      debugPrint(
-        '🔑 [AuthBloc] User is authenticated in storage, fetching user data...',
+      _logger.info(
+        'Utilisateur authentifié en cache, récupération des données...',
+        component: 'AuthBloc',
       );
       final userResult = await _authRepository.getCurrentUser();
 
@@ -212,15 +312,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       userResult.fold(
         (failure) {
-          debugPrint(
-            '🔑 [AuthBloc] Failed to fetch local user data: ${failure.message}',
+          _logger.warning(
+            'Échec de la récupération des données utilisateur localement',
+            component: 'AuthBloc',
+            metadata: {'error': failure.message},
           );
           emit(state.copyWith(status: AuthStatus.unauthenticated));
         },
         (user) {
-          debugPrint('🔑 [AuthBloc] Session recovered for user: ${user.email}');
+          _logger.info(
+            'Session récupérée pour l\'utilisateur: ${user.email}',
+            component: 'AuthBloc',
+          );
           _authRepository.updateDeviceInfo(); // Fire and forget
           _authRepository.logConnection();
+          _logger.setUserId(user.id);
           emit(
             state.copyWith(
               status: AuthStatus.authenticated,
@@ -236,6 +342,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         },
       );
     } else {
+      _logger.info('Aucune session active trouvée.', component: 'AuthBloc');
       emit(state.copyWith(status: AuthStatus.unauthenticated));
     }
   }
@@ -262,6 +369,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             'reason': failure.message,
             'email': event.email,
           });
+          _logger.warning(
+            'Échec de connexion email/mot de passe',
+            component: 'AuthBloc',
+            metadata: {'email': event.email, 'error': failure.message},
+          );
           emit(
             state.copyWith(
               status: AuthStatus.error,
@@ -275,6 +387,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             'user.id': response.user.id,
             'email': event.email,
           });
+          _logger.info(
+            'Connexion réussie',
+            component: 'AuthBloc',
+            metadata: {'email': event.email, 'user_id': response.user.id},
+          );
           _authRepository.updateDeviceInfo();
           _authRepository.logConnection();
           emit(
@@ -322,6 +439,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         (failure) {
           span.setAttribute(Attribute.fromString('auth.status', 'failure'));
           span.recordException(failure.message);
+          _logger.error(
+            'Échec de l\'inscription',
+            component: 'AuthBloc',
+            metadata: {'email': event.email, 'error': failure.message},
+          );
           emit(
             state.copyWith(
               status: AuthStatus.error,
@@ -332,6 +454,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         (response) {
           span.setAttribute(Attribute.fromString('auth.status', 'success'));
           span.setAttribute(Attribute.fromString('user.id', response.user.id));
+          _logger.info(
+            'Nouvelle inscription réussie',
+            component: 'AuthBloc',
+            metadata: {'email': event.email, 'user_id': response.user.id},
+          );
           _authRepository.updateDeviceInfo();
           _authRepository.logConnection();
           emit(
@@ -355,10 +482,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthLogoutRequested event,
     Emitter<AuthState> emit,
   ) async {
-    debugPrint(
-      '🚪 [AuthBloc] Logout requested. Current status: ${state.status}',
+    final userId = state.authResponse?.user.id ?? 'unknown';
+    _telemetry.recordEvent('auth.logout', {'user_id': userId});
+    _logger.info(
+      'Déconnexion de l\'utilisateur',
+      component: 'AuthBloc',
+      metadata: {'user_id': userId},
     );
     await _authRepository.logout();
+    _logger.setUserId(null);
     emit(
       state.copyWith(status: AuthStatus.unauthenticated, authResponse: null),
     );
@@ -399,6 +531,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthUpdateProfileRequested event,
     Emitter<AuthState> emit,
   ) async {
+    _logger.info('Mise à jour du profil utilisateur...', component: 'AuthBloc');
     emit(state.copyWith(status: AuthStatus.loading));
     final result = await _authRepository.updateProfile(
       firstName: event.firstName,
@@ -409,20 +542,33 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       preferences: event.preferences,
     );
     result.fold(
-      (failure) => emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
-      ),
-      (user) => emit(
-        state.copyWith(
-          status: AuthStatus.authenticated,
-          authResponse:
-              state.authResponse?.copyWith(user: user) ??
-              AuthResponse(
-                tokens: Tokens(accessToken: '', refreshToken: ''),
-                user: user,
-              ),
-        ),
-      ),
+      (failure) {
+        _logger.error(
+          'Échec de la mise à jour du profil',
+          error: failure.message,
+          component: 'AuthBloc',
+        );
+        emit(
+          state.copyWith(
+            status: AuthStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (user) {
+        _logger.info('Profil mis à jour avec succès.', component: 'AuthBloc');
+        emit(
+          state.copyWith(
+            status: AuthStatus.authenticated,
+            authResponse:
+                state.authResponse?.copyWith(user: user) ??
+                AuthResponse(
+                  tokens: Tokens(accessToken: '', refreshToken: ''),
+                  user: user,
+                ),
+          ),
+        );
+      },
     );
   }
 
@@ -543,10 +689,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
     final result = await _authRepository.revokeSession(event.sessionId);
     result.fold(
-      (failure) => emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
-      ),
+      (failure) {
+        _telemetry.recordEvent('auth.session.revoke_failure', {
+          'session_id': event.sessionId,
+          'reason': failure.message,
+        });
+        emit(
+          state.copyWith(
+            status: AuthStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (_) {
+        _telemetry.recordEvent('auth.session.revoke_success', {
+          'session_id': event.sessionId,
+        });
         emit(state.copyWith(status: AuthStatus.sessionRevoked));
         add(AuthGetSessionsRequested());
       },

@@ -20,6 +20,7 @@ import 'package:kauri/features/analytics/presentation/manager/analytics_manager.
 import '../../../../core/utils/currency_helper.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 class InsightsPage extends StatelessWidget {
   const InsightsPage({super.key});
@@ -52,6 +53,10 @@ class _InsightsViewState extends State<InsightsView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
       getIt<AnalyticsManager>().trackEvent(feature: 'Insights', action: 'view');
+      getIt<LogService>().info(
+        'Affichage de la page Insights.',
+        component: 'InsightsPage',
+      );
     });
   }
 
@@ -212,6 +217,10 @@ class _InsightsViewState extends State<InsightsView> {
             feature: 'Insights',
             action: 'change_period',
             details: {'period': value},
+          );
+          getIt<LogService>().info(
+            'Action: Changement de période Insights ($value)',
+            component: 'InsightsPage',
           );
           context.read<InsightsBloc>().add(GetInsightsRequested(period: value));
         }

@@ -9,6 +9,8 @@ import '../datasources/subscription_api_service.dart';
 import '../datasources/subscription_local_datasource.dart';
 import '../models/subscription_model.dart';
 import '../../domain/repositories/subscription_repository.dart';
+import '../../../../core/services/log_service.dart';
+import '../../../../di/injection.dart';
 
 @LazySingleton(as: SubscriptionRepository)
 class SubscriptionRepositoryImpl implements SubscriptionRepository {
@@ -24,11 +26,21 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     this._db,
   );
 
+  LogService get _logger => getIt<LogService>();
+
   @override
   Future<Either<Failure, List<SubscriptionModel>>> getSubscriptions() async {
+    _logger.info(
+      'Récupération des abonnements...',
+      component: 'SubscriptionRepository',
+    );
     // Return local data immediately if available
     final localSubs = await _localDataSource.getSubscriptions();
     if (localSubs.isNotEmpty && !await _networkInfo.isConnected) {
+      _logger.info(
+        '${localSubs.length} abonnements récupérés du cache local (hors-ligne).',
+        component: 'SubscriptionRepository',
+      );
       return Right(localSubs);
     }
 
@@ -42,13 +54,30 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         if (response.isSuccessful && response.body != null) {
           final subscriptions = response.body!.data ?? [];
           await _localDataSource.saveSubscriptions(subscriptions);
+          _logger.info(
+            '${subscriptions.length} abonnements récupérés du serveur.',
+            component: 'SubscriptionRepository',
+          );
           return Right(subscriptions);
         }
         // If API fails, return local data as fallback
-        if (localSubs.isNotEmpty) return Right(localSubs);
+        if (localSubs.isNotEmpty) {
+          _logger.warning(
+            'Échec serveur (getSubscriptions), fallback sur le cache.',
+            component: 'SubscriptionRepository',
+          );
+          return Right(localSubs);
+        }
         return Left(ServerFailure(response.body?.message ?? 'Server error'));
       } catch (e) {
-        if (localSubs.isNotEmpty) return Right(localSubs);
+        if (localSubs.isNotEmpty) {
+          _logger.error(
+            'Erreur technique (getSubscriptions), fallback sur le cache.',
+            error: e,
+            component: 'SubscriptionRepository',
+          );
+          return Right(localSubs);
+        }
         return Left(ServerFailure(e.toString()));
       }
     } else {
@@ -76,6 +105,10 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   Future<Either<Failure, void>> addSubscription(
     SubscriptionModel subscription,
   ) async {
+    _logger.info(
+      'Ajout d\'un abonnement: ${subscription.name}',
+      component: 'SubscriptionRepository',
+    );
     if (await _networkInfo.isConnected) {
       try {
         final response = await _apiService.addSubscription(
@@ -84,10 +117,24 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         if (response.isSuccessful && response.body?.data != null) {
           final newSub = response.body!.data!;
           await _localDataSource.saveSubscription(newSub);
+          _logger.info(
+            'Abonnement ajouté avec succès sur le serveur.',
+            component: 'SubscriptionRepository',
+            metadata: {'id': newSub.id},
+          );
           return const Right(null);
         }
+        _logger.warning(
+          'Échec de l\'ajout de l\'abonnement sur le serveur.',
+          component: 'SubscriptionRepository',
+        );
         return Left(ServerFailure(response.body?.message ?? 'Server error'));
       } catch (e) {
+        _logger.error(
+          'Erreur technique lors de l\'ajout de l\'abonnement',
+          error: e,
+          component: 'SubscriptionRepository',
+        );
         return Left(ServerFailure(e.toString()));
       }
     } else {
@@ -97,6 +144,10 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         final subToSave = subscription.copyWith(id: tempId);
         await _localDataSource.saveSubscription(subToSave);
 
+        _logger.info(
+          'Mode hors-ligne: Abonnement ajouté à la file d\'attente.',
+          component: 'SubscriptionRepository',
+        );
         await _db
             .into(_db.syncRequests)
             .insert(
@@ -118,6 +169,10 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     String id,
     SubscriptionModel subscription,
   ) async {
+    _logger.info(
+      'Mise à jour de l\'abonnement: $id',
+      component: 'SubscriptionRepository',
+    );
     if (await _networkInfo.isConnected) {
       try {
         final response = await _apiService.updateSubscription(
@@ -126,15 +181,28 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         );
         if (response.isSuccessful) {
           await _localDataSource.saveSubscription(subscription);
+          _logger.info(
+            'Abonnement mis à jour avec succès.',
+            component: 'SubscriptionRepository',
+          );
           return const Right(null);
         }
         return Left(ServerFailure());
       } catch (e) {
+        _logger.error(
+          'Erreur technique lors de la mise à jour de l\'abonnement',
+          error: e,
+          component: 'SubscriptionRepository',
+        );
         return Left(ServerFailure(e.toString()));
       }
     } else {
       try {
         await _localDataSource.saveSubscription(subscription);
+        _logger.info(
+          'Mode hors-ligne: Mise à jour ajoutée à la file d\'attente.',
+          component: 'SubscriptionRepository',
+        );
         await _db
             .into(_db.syncRequests)
             .insert(
@@ -186,14 +254,27 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   @override
   Future<Either<Failure, List<SubscriptionSuggestion>>>
   detectSubscriptions() async {
+    _logger.info(
+      'Détection automatique d\'abonnements...',
+      component: 'SubscriptionRepository',
+    );
     try {
       final response = await _apiService.detectSubscriptions();
       if (response.isSuccessful && response.body != null) {
         final suggestions = response.body!.data ?? [];
+        _logger.info(
+          '${suggestions.length} suggestions d\'abonnements détectées.',
+          component: 'SubscriptionRepository',
+        );
         return Right(suggestions);
       }
       return Left(ServerFailure(response.body?.message ?? 'Server error'));
     } catch (e) {
+      _logger.error(
+        'Erreur lors de la détection d\'abonnements',
+        error: e,
+        component: 'SubscriptionRepository',
+      );
       return Left(ServerFailure(e.toString()));
     }
   }

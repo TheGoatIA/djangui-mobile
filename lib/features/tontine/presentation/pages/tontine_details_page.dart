@@ -19,6 +19,7 @@ import '../../../../core/services/share_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 class TontineDetailsPage extends StatefulWidget {
   final String tontineId;
@@ -52,6 +53,10 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
       feature: 'Tontine',
       action: 'view_details',
       details: {'tontine_id': widget.tontineId},
+    );
+    getIt<LogService>().info(
+      'Affichage détail tontine ${widget.tontineId}',
+      component: 'TontineDetailsPage',
     );
   }
 
@@ -726,6 +731,10 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                 feature: 'Tontine',
                 action: 'remove_member',
                 details: {'tontine_id': tontineId, 'member_id': memberId},
+              );
+              getIt<LogService>().info(
+                'Action: Retrait membre $memberId de tontine $tontineId',
+                component: 'TontineDetailsPage',
               );
               context.read<TontineBloc>().add(
                 TontineRemoveMemberRequested(

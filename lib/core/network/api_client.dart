@@ -44,7 +44,11 @@ class KauriApiClient {
     return ChopperClient(
       baseUrl: Uri.parse(baseUrl),
       client: TracingHttpClient(),
-      interceptors: [AuthInterceptor(), HttpLoggingInterceptor()],
+      interceptors: [
+        AuthInterceptor(),
+        HttpLoggingInterceptor(),
+        RemoteLoggingInterceptor(),
+      ],
       authenticator: KauriAuthenticator(),
       // Le convertisseur JsonToTypeConverter contient la table de correspondance
       // entre les réponses JSON brutes et les classes de modèles Dart.

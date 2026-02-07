@@ -8,6 +8,8 @@ import '../datasources/transaction_remote_datasource.dart';
 import '../../domain/repositories/transaction_repository.dart';
 import '../models/transaction_model.dart';
 import '../../../../core/database/database.dart';
+import '../../../../core/services/log_service.dart';
+import '../../../../di/injection.dart';
 
 @LazySingleton(as: TransactionRepository)
 class TransactionRepositoryImpl implements TransactionRepository {
@@ -23,13 +25,23 @@ class TransactionRepositoryImpl implements TransactionRepository {
     this._database,
   );
 
+  LogService get _logger => getIt<LogService>();
+
   @override
   Future<Either<Failure, List<TransactionModel>>> getTransactions({
     bool forceRefresh = false,
   }) async {
+    _logger.info(
+      'Récupération des transactions (forceRefresh: $forceRefresh)...',
+      component: 'TransactionRepository',
+    );
     if (!forceRefresh) {
       final localTransactions = await _localDataSource.getTransactions();
       if (localTransactions.isNotEmpty) {
+        _logger.info(
+          '${localTransactions.length} transactions récupérées du cache local.',
+          component: 'TransactionRepository',
+        );
         return Right(localTransactions);
       }
     }
@@ -39,15 +51,32 @@ class TransactionRepositoryImpl implements TransactionRepository {
         final remoteTransactions = await _remoteDataSource.getTransactions();
         await _localDataSource.clearTransactions();
         await _localDataSource.saveTransactions(remoteTransactions);
+        _logger.info(
+          '${remoteTransactions.length} transactions récupérées du serveur.',
+          component: 'TransactionRepository',
+        );
         return Right(remoteTransactions);
       } catch (e) {
+        _logger.error(
+          'Erreur lors de la récupération des transactions du serveur',
+          error: e,
+          component: 'TransactionRepository',
+        );
         return Left(ServerFailure(e.toString()));
       }
     } else {
       final localTransactions = await _localDataSource.getTransactions();
       if (localTransactions.isNotEmpty) {
+        _logger.info(
+          '${localTransactions.length} transactions récupérées du cache (mode hors-ligne).',
+          component: 'TransactionRepository',
+        );
         return Right(localTransactions);
       }
+      _logger.warning(
+        'Aucune transaction trouvée et pas de connexion réseau.',
+        component: 'TransactionRepository',
+      );
       return Left(NetworkFailure());
     }
   }
@@ -56,6 +85,10 @@ class TransactionRepositoryImpl implements TransactionRepository {
   Future<Either<Failure, TransactionModel>> createTransaction(
     TransactionModel transaction,
   ) async {
+    _logger.info(
+      'Création d\'une transaction: ${transaction.amount} ${transaction.currency}',
+      component: 'TransactionRepository',
+    );
     // Always save locally first (Optimistic UI)
     await _localDataSource.saveTransaction(transaction);
 
@@ -70,17 +103,26 @@ class TransactionRepositoryImpl implements TransactionRepository {
         }
         // Save the remote version
         await _localDataSource.saveTransaction(remoteTransaction);
+        _logger.info(
+          'Transaction créée avec succès sur le serveur.',
+          component: 'TransactionRepository',
+          metadata: {'id': remoteTransaction.id},
+        );
         return Right(remoteTransaction);
       } catch (e) {
-        // If server fails but we are connected, it might be a logic error.
-        // But for "offline-first" resilience, we could queue it too?
-        // Let's treat standard exceptions as reasons to queue if it looks like a network blip.
-        // For simplicity: If connected fails, return error. User can retry.
-        // ONLY Queue if explicitly OFFLINE.
+        _logger.error(
+          'Échec de la création de la transaction sur le serveur',
+          error: e,
+          component: 'TransactionRepository',
+        );
         return Left(ServerFailure(e.toString()));
       }
     } else {
       // Offline: Queue it
+      _logger.info(
+        'Mode hors-ligne: Transaction ajoutée à la file d\'attente de synchronisation.',
+        component: 'TransactionRepository',
+      );
       await _database
           .into(_database.syncRequests)
           .insert(
@@ -96,17 +138,35 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Future<Either<Failure, void>> deleteTransaction(String id) async {
+    _logger.info(
+      'Suppression de la transaction: $id',
+      component: 'TransactionRepository',
+    );
     await _localDataSource.deleteTransaction(id);
 
     if (await _networkInfo.isConnected) {
       try {
         await _remoteDataSource.deleteTransaction(id);
+        _logger.info(
+          'Transaction supprimée avec succès du serveur.',
+          component: 'TransactionRepository',
+          metadata: {'id': id},
+        );
         return const Right(null);
       } catch (e) {
+        _logger.error(
+          'Échec de la suppression de la transaction sur le serveur',
+          error: e,
+          component: 'TransactionRepository',
+        );
         return Left(ServerFailure(e.toString()));
       }
     } else {
       // Offline: Queue it
+      _logger.info(
+        'Mode hors-ligne: Suppression ajoutée à la file d\'attente de synchronisation.',
+        component: 'TransactionRepository',
+      );
       await _database
           .into(_database.syncRequests)
           .insert(

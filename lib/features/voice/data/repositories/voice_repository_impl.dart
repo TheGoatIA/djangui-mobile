@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/services/log_service.dart';
+import 'package:kauri/di/injection.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import '../../../../core/errors/failures.dart';
@@ -38,9 +40,18 @@ class VoiceRepositoryImpl implements VoiceRepository {
             return Left(ServerFailure(baseResponse.message ?? 'Unknown error'));
           }
         } else {
+          getIt<LogService>().warning(
+            'Réponse API voix invalide',
+            component: 'VoiceRepository',
+          );
           return Left(ServerFailure('API call failed or empty response'));
         }
       } catch (e) {
+        getIt<LogService>().error(
+          'Erreur processVoice',
+          component: 'VoiceRepository',
+          error: e,
+        );
         return Left(ServerFailure(e.toString()));
       }
     } else {

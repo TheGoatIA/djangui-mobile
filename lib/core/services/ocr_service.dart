@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 
@@ -31,6 +32,7 @@ class OCRService {
   final ImagePicker _picker = ImagePicker();
   final _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
   TelemetryService get _telemetry => getIt<TelemetryService>();
+  LogService get _logger => getIt<LogService>();
 
   /// Ouvre la caméra ou la galerie pour permettre à l'utilisateur de sélectionner une image.
   Future<File?> pickImage(ImageSource source) async {
@@ -58,6 +60,19 @@ class OCRService {
       'found_date': result.date != null,
       'found_category': result.category != null,
     });
+
+    _logger.info(
+      'Scan de reçu terminé',
+      component: 'OCRService',
+      metadata: {
+        'latency_ms': duration,
+        'found_amount': result.amount != null,
+        'amount': result.amount,
+        'found_description': result.description != null,
+        'description': result.description,
+        'found_date': result.date != null,
+      },
+    );
 
     return result;
   }

@@ -8,6 +8,7 @@ import 'coach_event.dart';
 import 'coach_state.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
+import 'package:kauri/core/services/log_service.dart';
 
 @injectable
 class CoachBloc extends Bloc<CoachEvent, CoachState> {
@@ -33,6 +34,11 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
     result.fold<void>(
       (failure) {
         if (state.messages.isEmpty) {
+          getIt<LogService>().error(
+            'Echec chargement historique Coach',
+            component: 'CoachBloc',
+            error: failure.message,
+          );
           emit(
             state.copyWith(
               status: CoachStatus.error,
@@ -85,6 +91,12 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
           'error': failure.message,
           'latency_ms': duration,
         });
+
+        getIt<LogService>().error(
+          'Echec envoi message Coach',
+          component: 'CoachBloc',
+          error: failure.message,
+        );
 
         emit(
           state.copyWith(

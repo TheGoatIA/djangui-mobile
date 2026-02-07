@@ -44,3 +44,5 @@ class UpdateGoalAmountRequested extends GoalsEvent {
   @override
   List<Object?> get props => [id, amount];
 }
+
+class ResetGoalsStatus extends GoalsEvent {}

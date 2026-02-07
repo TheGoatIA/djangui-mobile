@@ -18,6 +18,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 class AddBudgetPage extends StatefulWidget {
   final BudgetModel? budget;
@@ -70,6 +71,12 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
     } else {
       _addCategory();
     }
+    context.read<BudgetsBloc>().add(ResetBudgetsStatus());
+    getIt<LogService>().info(
+      'Affichage de la page de création/édition de budget.',
+      component: 'AddBudgetPage',
+      metadata: {'is_edit': widget.budget != null},
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -193,6 +200,11 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
         );
         context.read<BudgetsBloc>().add(AddBudgetRequested(budget));
       }
+    } else {
+      getIt<LogService>().warning(
+        'Validation du formulaire de budget échouée',
+        component: 'AddBudgetPage',
+      );
     }
   }
 

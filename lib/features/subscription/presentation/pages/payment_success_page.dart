@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/payment_service.dart';
+import '../../../../core/services/log_service.dart';
 
 class PaymentSuccessPage extends StatefulWidget {
   final String? ref;
@@ -26,6 +27,10 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
   @override
   void initState() {
     super.initState();
+    getIt<LogService>().info(
+      'Affichage page succès paiement (ref: ${widget.ref})',
+      component: 'PaymentSuccessPage',
+    );
     _verifyPayment();
   }
 
@@ -44,7 +49,16 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
         });
 
         if (success) {
+          getIt<LogService>().info(
+            'Paiement vérifié avec succès: ${widget.ref}',
+            component: 'PaymentSuccessPage',
+          );
           context.read<AuthBloc>().add(AuthRefreshUserRequested());
+        } else {
+          getIt<LogService>().warning(
+            'Échec vérification paiement: ${widget.ref}',
+            component: 'PaymentSuccessPage',
+          );
         }
       }
     } else {

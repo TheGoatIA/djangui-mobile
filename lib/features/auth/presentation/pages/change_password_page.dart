@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/services/log_service.dart';
+import '../../../../di/injection.dart';
 import '../bloc/auth_bloc.dart';
 
 class ChangePasswordPage extends StatefulWidget {
@@ -20,6 +22,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   bool _obscureCurrent = true;
   bool _obscureNew = true;
   bool _obscureConfirm = true;
+
+  @override
+  void initState() {
+    super.initState();
+    getIt<LogService>().info(
+      'Affichage de la page de changement de mot de passe.',
+      component: 'ChangePasswordPage',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,6 +152,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           ? null
                           : () {
                               if (_formKey.currentState!.validate()) {
+                                getIt<LogService>().info(
+                                  'Action: Demande de changement de mot de passe',
+                                  component: 'ChangePasswordPage',
+                                );
                                 context.read<AuthBloc>().add(
                                   AuthChangePasswordRequested(
                                     currentPassword:

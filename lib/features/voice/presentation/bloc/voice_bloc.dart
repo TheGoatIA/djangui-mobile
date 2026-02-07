@@ -9,6 +9,7 @@ import 'voice_event.dart';
 import 'voice_state.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/core/services/log_service.dart';
 import '../../../../di/injection.dart';
 
 @injectable
@@ -48,6 +49,10 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
         );
         emit(state.copyWith(status: VoiceStatus.recording));
       } else {
+        getIt<LogService>().warning(
+          'Permission micro refusée',
+          component: 'VoiceBloc',
+        );
         emit(
           state.copyWith(
             status: VoiceStatus.error,
@@ -78,6 +83,11 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
 
       emit(state.copyWith(status: VoiceStatus.recorded, audioPath: path));
     } catch (e) {
+      getIt<LogService>().error(
+        'Erreur arrêt enregistrement',
+        component: 'VoiceBloc',
+        error: e,
+      );
       emit(
         state.copyWith(
           status: VoiceStatus.error,
@@ -127,6 +137,11 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
             'latency_ms': duration,
           });
 
+          getIt<LogService>().error(
+            'Erreur traitement voix',
+            component: 'VoiceBloc',
+            error: failure.message,
+          );
           emit(
             state.copyWith(
               status: VoiceStatus.error,

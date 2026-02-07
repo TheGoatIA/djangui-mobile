@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../di/injection.dart';
+import 'log_service.dart';
 
 /// Service gérant les notifications push (Firebase Messaging) et locales.
 ///
@@ -42,8 +43,10 @@ class NotificationService {
 
     // Écoute des messages reçus pendant que l'application est ouverte (Foreground)
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      debugPrint(
-        '🔔 [NotificationService] Message reçu au premier plan : ${message.data}',
+      getIt<LogService>().info(
+        'Notification FCM reçue au premier plan',
+        component: 'NotificationService',
+        metadata: {'data': message.data, 'messageId': message.messageId},
       );
 
       // Traitement des notifications de données (silencieuses) pour rafraîchir l'interface
@@ -71,15 +74,19 @@ class NotificationService {
       if (token != null) {
         final authRepo = getIt<AuthRepository>();
         if (await authRepo.isAuthenticated()) {
-          debugPrint(
-            '🔔 [NotificationService] Synchronisation du jeton FCM : $token',
+          getIt<LogService>().info(
+            'Synchronisation du jeton FCM',
+            component: 'NotificationService',
+            metadata: {'token_prefix': token.substring(0, 5)},
           );
           await authRepo.updateFcmToken(token);
         }
       }
     } catch (e) {
-      debugPrint(
-        '🔔 [NotificationService] Échec de synchronisation du jeton FCM : $e',
+      getIt<LogService>().error(
+        'Échec de synchronisation du jeton FCM',
+        component: 'NotificationService',
+        error: e,
       );
     }
   }
@@ -106,5 +113,10 @@ class NotificationService {
     );
 
     await _localNotifications.show(id, title, body, details);
+    getIt<LogService>().info(
+      'Notification locale affichée',
+      component: 'NotificationService',
+      metadata: {'title': title, 'body': body},
+    );
   }
 }

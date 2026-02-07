@@ -9,6 +9,7 @@ import '../bloc/support_event.dart';
 import '../bloc/support_state.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../../di/injection.dart';
+import '../../../../core/services/log_service.dart';
 
 class CreateTicketPage extends StatefulWidget {
   const CreateTicketPage({super.key});
@@ -21,6 +22,16 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
   final _formKey = GlobalKey<FormState>();
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    getIt<LogService>().info(
+      'Affichage de la page de création de ticket.',
+      component: 'CreateTicketPage',
+    );
+  }
+
   String _selectedCategory = 'other';
 
   final List<String> _categories = ['bug', 'payment', 'account', 'other'];
@@ -59,6 +70,11 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
               feature: 'Support',
               action: 'create_success',
               details: {'category': _selectedCategory},
+            );
+            getIt<LogService>().info(
+              'Succès: Ticket créé avec succès',
+              component: 'CreateTicketPage',
+              metadata: {'category': _selectedCategory},
             );
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -143,6 +159,11 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                       ? null
                       : () {
                           if (_formKey.currentState!.validate()) {
+                            getIt<LogService>().info(
+                              'Action: Soumission nouveau ticket',
+                              component: 'CreateTicketPage',
+                              metadata: {'category': _selectedCategory},
+                            );
                             context.read<SupportBloc>().add(
                               CreateTicketRequested(
                                 subject: _subjectController.text,

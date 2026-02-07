@@ -12,6 +12,7 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/services/telemetry_service.dart';
+import 'package:kauri/core/services/log_service.dart';
 
 class CreateTontinePage extends StatefulWidget {
   final Tontine? tontine;
@@ -55,6 +56,11 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
         .authResponse
         ?.user
         .currency;
+    getIt<LogService>().info(
+      'Affichage page création/édition tontine',
+      component: 'CreateTontinePage',
+      metadata: {'isEditing': _isEditing},
+    );
     if (userCurrency != null) {
       _currency = userCurrency;
     }
@@ -588,5 +594,20 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
     } else {
       context.read<TontineBloc>().add(CreateTontineRequested(params));
     }
+
+    getIt<LogService>().info(
+      _isEditing
+          ? 'Tentative de mise à jour de tontine'
+          : 'Tentative de création de tontine',
+      component: 'CreateTontinePage',
+      page: 'CreateTontine',
+      metadata: {
+        'name': params['name'],
+        'frequency': params['frequency'],
+        'amount': params['contributionAmount'],
+        'parts': params['totalParts'],
+        'is_editing': _isEditing,
+      },
+    );
   }
 }

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kauri/core/database/database.dart';
@@ -9,6 +8,8 @@ import 'package:kauri/features/challenges/data/datasources/challenge_local_datas
 import 'package:kauri/features/challenges/data/datasources/challenge_remote_datasource.dart';
 import 'package:kauri/features/challenges/domain/repositories/challenge_repository.dart';
 import 'package:kauri/features/challenges/data/models/challenge_model.dart';
+import '../../../../core/services/log_service.dart';
+import '../../../../di/injection.dart';
 
 @LazySingleton(as: ChallengeRepository)
 class ChallengeRepositoryImpl implements ChallengeRepository {
@@ -24,56 +25,90 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
     this._database,
   );
 
+  LogService get _logger => getIt<LogService>();
+
   @override
   Future<Either<Failure, List<ChallengeModel>>> getChallenges({
     bool forceRefresh = false,
   }) async {
+    _logger.info(
+      'Récupération de la liste des défis (forceRefresh: $forceRefresh)...',
+      component: 'ChallengeRepository',
+    );
     if (!forceRefresh) {
       final localChallenges = await _localDataSource.getChallenges();
       if (localChallenges.isNotEmpty) {
+        _logger.info(
+          '${localChallenges.length} défis récupérés du cache local.',
+          component: 'ChallengeRepository',
+        );
         return Right(localChallenges);
       }
     }
 
     if (await _networkInfo.isConnected) {
       try {
-        debugPrint('🏆 [ChallengeRepository] Fetching remote challenges...');
+        _logger.info(
+          'Récupération des défis depuis le serveur...',
+          component: 'ChallengeRepository',
+        );
         final remoteChallenges = await _remoteDataSource.getChallenges();
-        debugPrint(
-          '🏆 [ChallengeRepository] Received ${remoteChallenges.length} from remote',
+        _logger.info(
+          '${remoteChallenges.length} défis reçus du serveur.',
+          component: 'ChallengeRepository',
         );
 
         try {
-          debugPrint(
-            '🏆 [ChallengeRepository] Clearing and saving to local...',
+          _logger.info(
+            'Synchronisation des défis vers le cache local...',
+            component: 'ChallengeRepository',
           );
           await _localDataSource.clearChallenges();
           await _localDataSource.saveChallenges(remoteChallenges);
-          debugPrint('🏆 [ChallengeRepository] Local storage sync successful');
-        } catch (localError) {
-          debugPrint(
-            '🏆 [ChallengeRepository] WARNING: Local storage sync failed: $localError',
+          _logger.info(
+            'Synchronisation réussie.',
+            component: 'ChallengeRepository',
           );
-          // Still return remote results even if local save fails
+        } catch (localError) {
+          _logger.warning(
+            'Échec de la synchronisation locale des défis',
+            metadata: {'error': localError.toString()},
+            component: 'ChallengeRepository',
+          );
         }
 
         return Right(remoteChallenges);
-      } catch (e, stack) {
-        debugPrint('🏆 [ChallengeRepository] ERROR in remote fetch: $e');
-        debugPrint(stack.toString());
+      } catch (e) {
+        _logger.error(
+          'Erreur lors de la récupération des défis (Serveur)',
+          error: e,
+          component: 'ChallengeRepository',
+        );
         return Left(ServerFailure(e.toString()));
       }
     } else {
       final localChallenges = await _localDataSource.getChallenges();
       if (localChallenges.isNotEmpty) {
+        _logger.info(
+          '${localChallenges.length} défis récupérés du cache (mode hors-ligne).',
+          component: 'ChallengeRepository',
+        );
         return Right(localChallenges);
       }
+      _logger.warning(
+        'Aucun défi trouvé en cache et pas de connexion réseau.',
+        component: 'ChallengeRepository',
+      );
       return Left(NetworkFailure());
     }
   }
 
   @override
   Future<Either<Failure, List<UserChallengeModel>>> getUserChallenges() async {
+    _logger.info(
+      'Récupération de mes défis en cours...',
+      component: 'ChallengeRepository',
+    );
     // Try local cache first if offline
     final localChallengesJson = await _localDataSource.getUserChallenges();
 
@@ -82,6 +117,10 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
         final localModels = localChallengesJson
             .map((e) => UserChallengeModel.fromJson(e))
             .toList();
+        _logger.info(
+          '${localModels.length} défis utilisateur récupérés du cache (hors-ligne).',
+          component: 'ChallengeRepository',
+        );
         return Right(localModels);
       }
       return Left(NetworkFailure());
@@ -90,6 +129,10 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
     // Fetch from remote and cache
     try {
       final result = await _remoteDataSource.getUserChallenges();
+      _logger.info(
+        '${result.length} défis utilisateur récupérés du serveur.',
+        component: 'ChallengeRepository',
+      );
       // Cache the result
       await _localDataSource.saveUserChallenges(
         result.map((e) => e.toJson()).toList(),
@@ -98,26 +141,50 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
     } catch (e) {
       // Fallback to cache on error
       if (localChallengesJson.isNotEmpty) {
+        _logger.error(
+          'Erreur serveur (getUserChallenges), fallback sur le cache.',
+          error: e,
+          component: 'ChallengeRepository',
+        );
         final localModels = localChallengesJson
             .map((e) => UserChallengeModel.fromJson(e))
             .toList();
         return Right(localModels);
       }
+      _logger.error(
+        'Échec de la récupération des défis utilisateur.',
+        error: e,
+        component: 'ChallengeRepository',
+      );
       return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, void>> joinChallenge(String id) async {
+    _logger.info('Inscription au défi: $id', component: 'ChallengeRepository');
     if (await _networkInfo.isConnected) {
       try {
         await _remoteDataSource.joinChallenge(id);
+        _logger.info(
+          'Inscription réussie sur le serveur.',
+          component: 'ChallengeRepository',
+        );
         return const Right(null);
       } catch (e) {
+        _logger.error(
+          'Échec de l\'inscription au défi sur le serveur',
+          error: e,
+          component: 'ChallengeRepository',
+        );
         return Left(ServerFailure(e.toString()));
       }
     } else {
       // Offline: Queue it
+      _logger.info(
+        'Mode hors-ligne: Inscription ajoutée à la file d\'attente.',
+        component: 'ChallengeRepository',
+      );
       await _database
           .into(_database.syncRequests)
           .insert(
@@ -138,6 +205,10 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
     required double amount,
     required String proofPath,
   }) async {
+    _logger.info(
+      'Validation de la semaine $weekNumber pour le défi $userChallengeId',
+      component: 'ChallengeRepository',
+    );
     if (await _networkInfo.isConnected) {
       try {
         await _remoteDataSource.validateWeek(
@@ -146,12 +217,25 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
           amount,
           proofPath,
         );
+        _logger.info(
+          'Validation réussie sur le serveur.',
+          component: 'ChallengeRepository',
+        );
         return const Right(null);
       } catch (e) {
+        _logger.error(
+          'Échec de la validation de la semaine sur le serveur',
+          error: e,
+          component: 'ChallengeRepository',
+        );
         return Left(ServerFailure(e.toString()));
       }
     } else {
       // Offline: Queue it
+      _logger.info(
+        'Mode hors-ligne: Validation ajoutée à la file d\'attente.',
+        component: 'ChallengeRepository',
+      );
       await _database
           .into(_database.syncRequests)
           .insert(

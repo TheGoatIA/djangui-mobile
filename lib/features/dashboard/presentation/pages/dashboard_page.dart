@@ -16,6 +16,7 @@ import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/utils/currency_helper.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/tutorial_service.dart';
+import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
 
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -77,6 +78,10 @@ class _DashboardViewState extends State<DashboardView> {
     super.initState();
     // Synchronisation du jeton de notification et suivi analytique
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      getIt<LogService>().info(
+        'Affichage du tableau de bord principal.',
+        component: 'DashboardPage',
+      );
       getIt<NotificationService>().syncFcmToken();
       getIt<AnalyticsManager>().trackEvent(
         feature: 'Dashboard',
@@ -366,7 +371,13 @@ class _DashboardViewState extends State<DashboardView> {
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => context.push(RouteConstants.transactions),
+                onPressed: () {
+                  getIt<LogService>().info(
+                    'Navigation vers la liste complète des transactions',
+                    component: 'DashboardPage',
+                  );
+                  context.push(RouteConstants.transactions);
+                },
                 icon: const Icon(Icons.list_alt),
                 label: Text(AppLocalizations.of(context)!.manageTransactions),
                 style: OutlinedButton.styleFrom(
@@ -432,7 +443,13 @@ class _DashboardViewState extends State<DashboardView> {
                   label: Text(state.unreadCount.toString()),
                   isLabelVisible: state.unreadCount > 0,
                   child: IconButton(
-                    onPressed: () => context.push(RouteConstants.notifications),
+                    onPressed: () {
+                      getIt<LogService>().info(
+                        'Navigation vers les notifications',
+                        component: 'DashboardPage',
+                      );
+                      context.push(RouteConstants.notifications);
+                    },
                     icon: Icon(
                       Icons.notifications_none_outlined,
                       color: Theme.of(context).colorScheme.onSurface,
@@ -445,8 +462,13 @@ class _DashboardViewState extends State<DashboardView> {
         ),
         Builder(
           builder: (context) => IconButton(
-            onPressed: () =>
-                context.read<AuthBloc>().add(AuthLogoutRequested()),
+            onPressed: () {
+              getIt<LogService>().info(
+                'Demande de déconnexion (App Bar)',
+                component: 'DashboardPage',
+              );
+              context.read<AuthBloc>().add(AuthLogoutRequested());
+            },
             icon: Icon(
               Icons.logout,
               color: Theme.of(context).colorScheme.onSurface,
@@ -629,7 +651,13 @@ class _DashboardViewState extends State<DashboardView> {
               Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () => _showEditIncomeDialog(context, amount),
+                  onTap: () {
+                    getIt<LogService>().info(
+                      'Ouverture du dialogue de mise à jour du revenu',
+                      component: 'DashboardPage',
+                    );
+                    _showEditIncomeDialog(context, amount);
+                  },
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
@@ -723,10 +751,19 @@ class _DashboardViewState extends State<DashboardView> {
             onPressed: () {
               if (formKey.currentState?.validate() ?? false) {
                 final amount = double.tryParse(controller.text) ?? 0.0;
+                getIt<LogService>().info(
+                  'Mise à jour du revenu mensuel: $amount',
+                  component: 'DashboardPage',
+                );
                 context.read<AuthBloc>().add(
                   AuthUpdateProfileRequested(monthlyIncome: amount),
                 );
                 Navigator.of(context).pop();
+              } else {
+                getIt<LogService>().warning(
+                  'Échec de validation du formulaire de revenu',
+                  component: 'DashboardPage',
+                );
               }
             },
             child: Text(AppLocalizations.of(context)!.save),

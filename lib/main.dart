@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:kauri/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'core/services/telemetry_service.dart';
+import 'core/services/log_service.dart';
 import 'core/services/tutorial_service.dart';
 
 import 'di/injection.dart';
@@ -64,6 +65,7 @@ void main() async {
       .initialize(); // Démarre l'écouteur de synchronisation au réseau
   final telemetry = getIt<TelemetryService>();
   await telemetry.initialize();
+  await telemetry.recordDatabaseSize();
 
   // Telemetry: Startup Time
   final startupDuration = DateTime.now().difference(startTime).inMilliseconds;
@@ -82,6 +84,18 @@ void main() async {
       'library': details.library ?? 'unknown',
       'context': details.context.toString(),
     });
+
+    // Graylog: Crash reporting
+    getIt<LogService>().error(
+      'Flutter Error: ${details.exception}',
+      error: details.exception,
+      stackTrace: details.stack,
+      component: 'Application',
+      metadata: {
+        'library': details.library,
+        'context': details.context.toString(),
+      },
+    );
   };
 
   // 2. Async Platform Errors
@@ -91,6 +105,14 @@ void main() async {
     telemetry.recordEvent('app.error.platform', {
       'exception': error.toString(),
     });
+
+    // Graylog: Platform crash reporting
+    getIt<LogService>().error(
+      'Platform Error: $error',
+      error: error,
+      stackTrace: stack,
+      component: 'Application',
+    );
     return true;
   };
 
@@ -138,21 +160,35 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         state == AppLifecycleState.detached) {
       getIt<AnalyticsManager>().endCurrentSession();
 
-      // Telemetry: Session End
-      final duration = _sessionStartTime != null
-          ? DateTime.now().difference(_sessionStartTime!).inSeconds
-          : 0;
+      // Telemetry: Session Duration (Prometheus Gauge)
+      if (_sessionStartTime != null) {
+        final duration = DateTime.now()
+            .difference(_sessionStartTime!)
+            .inSeconds;
+        telemetry.recordGauge(
+          'app.session.duration_seconds',
+          duration.toDouble(),
+        );
 
-      telemetry.recordEvent('app.session', {
-        'state': 'ended',
-        'duration_seconds': duration,
-      });
+        // Also keep the event for detailed trace analysis
+        telemetry.recordEvent('app.session', {
+          'state': 'ended',
+          'duration_seconds': duration,
+        });
+      }
       _sessionStartTime = null;
     } else if (state == AppLifecycleState.resumed) {
       getIt<AnalyticsManager>().startNewSession();
       _sessionStartTime = DateTime.now();
 
-      // Telemetry: Session Start
+      // Telemetry: Session Start (Prometheus Count)
+      telemetry.recordCount('app.session.total', 1);
+      telemetry.recordGauge(
+        'app.user.active',
+        1.0,
+      ); // Marks the user as active now
+
+      // Also keep the event
       telemetry.recordEvent('app.session', {'state': 'started'});
     }
   }
