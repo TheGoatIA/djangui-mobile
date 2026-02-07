@@ -13,6 +13,7 @@ import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/widgets/searchable_category_selector.dart';
 import '../../../../core/constants/app_categories.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
 
 class AddSubscriptionPage extends StatefulWidget {
   final SubscriptionModel? subscription;
@@ -23,6 +24,7 @@ class AddSubscriptionPage extends StatefulWidget {
 }
 
 class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
+  final DateTime _enteredAt = DateTime.now();
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _providerController;
@@ -311,6 +313,17 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
                             createdAt: widget.subscription?.createdAt,
                             updatedAt: widget.subscription?.updatedAt,
                           );
+
+                          // Telemetry: Form Friction
+                          final frictionDuration = DateTime.now()
+                              .difference(_enteredAt)
+                              .inSeconds;
+                          getIt<TelemetryService>()
+                              .recordEvent('ux.form.friction', {
+                                'form_name': 'add_subscription',
+                                'duration_seconds': frictionDuration,
+                                'is_editing': widget.subscription != null,
+                              });
 
                           if (widget.subscription == null) {
                             getIt<AnalyticsManager>().trackEvent(

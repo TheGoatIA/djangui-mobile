@@ -60,8 +60,27 @@ class TracingHttpClient extends http.BaseClient {
 
       if (response.statusCode >= 400) {
         span.setStatus(StatusCode.error);
+        telemetry.recordCount(
+          'http.request.error',
+          1,
+          attributes: {
+            'method': request.method,
+            'url': request.url.path,
+            'status_code': response.statusCode,
+            'error_category': response.statusCode >= 500 ? 'server' : 'client',
+          },
+        );
       } else {
         span.setStatus(StatusCode.ok);
+        telemetry.recordCount(
+          'http.request.success',
+          1,
+          attributes: {
+            'method': request.method,
+            'url': request.url.path,
+            'status_code': response.statusCode,
+          },
+        );
       }
 
       // We don't wait for the stream to complete to end the span for latency
@@ -75,6 +94,16 @@ class TracingHttpClient extends http.BaseClient {
         Attribute.fromString('error.type', e.runtimeType.toString()),
       );
       span.setAttribute(Attribute.fromString('error.message', e.toString()));
+
+      telemetry.recordCount(
+        'http.request.fault',
+        1,
+        attributes: {
+          'method': request.method,
+          'url': request.url.path,
+          'error_type': e.runtimeType.toString(),
+        },
+      );
 
       span.recordException(e, stackTrace: stack);
       span.setStatus(StatusCode.error);

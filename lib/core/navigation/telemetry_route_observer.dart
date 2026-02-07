@@ -6,8 +6,36 @@ import 'package:opentelemetry/api.dart';
 class TelemetryRouteObserver extends RouteObserver<PageRoute<dynamic>> {
   TelemetryService get _telemetry => getIt<TelemetryService>();
 
+  String? _currentRoute;
+  DateTime? _entryTime;
+
+  void _recordScreenDuration() {
+    if (_currentRoute != null && _entryTime != null) {
+      final duration = DateTime.now().difference(_entryTime!).inSeconds;
+      _telemetry.recordGauge(
+        'ux.screen_visit.duration',
+        duration.toDouble(),
+        attributes: {'screen_name': _currentRoute!},
+      );
+    }
+  }
+
   void _traceNavigation(String event, String? routeName) {
     if (routeName == null) return;
+
+    // Record duration for the screen we are leaving
+    if (event == 'push' || event == 'replace') {
+      _recordScreenDuration();
+      _currentRoute = routeName;
+      _entryTime = DateTime.now();
+
+      // Telemetry: Screen Visit (Prometheus Count)
+      _telemetry.recordCount(
+        'ux.screen_visit.total',
+        1,
+        attributes: {'screen_name': routeName},
+      );
+    }
 
     final span = _telemetry.tracer.startSpan(
       'Navigation: $routeName',
@@ -34,8 +62,17 @@ class TelemetryRouteObserver extends RouteObserver<PageRoute<dynamic>> {
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
+
+    // Leaving the current route
+    _recordScreenDuration();
+
     if (previousRoute is PageRoute && previousRoute.settings.name != null) {
+      _currentRoute = previousRoute.settings.name;
+      _entryTime = DateTime.now();
       _traceNavigation('pop_to', previousRoute.settings.name);
+    } else {
+      _currentRoute = null;
+      _entryTime = null;
     }
   }
 

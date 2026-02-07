@@ -148,50 +148,92 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthGoogleSignInRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _authRepository.signInWithGoogle(
-      countryCode: event.countryCode,
-    );
-    result.fold(
-      (failure) => emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
-      ),
-      (response) {
-        _authRepository.updateDeviceInfo();
-        _authRepository.logConnection();
-        emit(
-          state.copyWith(
-            status: AuthStatus.authenticated,
-            authResponse: response,
-          ),
-        );
-      },
-    );
+    final span = _telemetry.tracer.startSpan('Auth: GoogleSignIn');
+    try {
+      emit(state.copyWith(status: AuthStatus.loading));
+      final result = await _authRepository.signInWithGoogle(
+        countryCode: event.countryCode,
+      );
+      result.fold(
+        (failure) {
+          span.setStatus(StatusCode.error, failure.message);
+          _telemetry.recordEvent('auth.google.failure', {
+            'reason': failure.message,
+          });
+          emit(
+            state.copyWith(
+              status: AuthStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (response) {
+          span.setAttribute(Attribute.fromString('user.id', response.user.id));
+          _telemetry.recordEvent('auth.google.success', {
+            'user.id': response.user.id,
+          });
+          _authRepository.updateDeviceInfo();
+          _authRepository.logConnection();
+          emit(
+            state.copyWith(
+              status: AuthStatus.authenticated,
+              authResponse: response,
+            ),
+          );
+        },
+      );
+    } catch (e, s) {
+      span.recordException(e, stackTrace: s);
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onAuthAppleSignInRequested(
     AuthAppleSignInRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _authRepository.signInWithApple(
-      countryCode: event.countryCode,
-    );
-    result.fold(
-      (failure) => emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
-      ),
-      (response) {
-        _authRepository.updateDeviceInfo();
-        _authRepository.logConnection();
-        emit(
-          state.copyWith(
-            status: AuthStatus.authenticated,
-            authResponse: response,
-          ),
-        );
-      },
-    );
+    final span = _telemetry.tracer.startSpan('Auth: AppleSignIn');
+    try {
+      emit(state.copyWith(status: AuthStatus.loading));
+      final result = await _authRepository.signInWithApple(
+        countryCode: event.countryCode,
+      );
+      result.fold(
+        (failure) {
+          span.setStatus(StatusCode.error, failure.message);
+          _telemetry.recordEvent('auth.apple.failure', {
+            'reason': failure.message,
+          });
+          emit(
+            state.copyWith(
+              status: AuthStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (response) {
+          span.setAttribute(Attribute.fromString('user.id', response.user.id));
+          _telemetry.recordEvent('auth.apple.success', {
+            'user.id': response.user.id,
+          });
+          _authRepository.updateDeviceInfo();
+          _authRepository.logConnection();
+          emit(
+            state.copyWith(
+              status: AuthStatus.authenticated,
+              authResponse: response,
+            ),
+          );
+        },
+      );
+    } catch (e, s) {
+      span.recordException(e, stackTrace: s);
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onAuthCheckRequested(
@@ -355,9 +397,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthLogoutRequested event,
     Emitter<AuthState> emit,
   ) async {
-    debugPrint(
-      '🚪 [AuthBloc] Logout requested. Current status: ${state.status}',
-    );
+    _telemetry.recordEvent('auth.logout', {
+      'user_id': state.authResponse?.user.id ?? 'unknown',
+    });
     await _authRepository.logout();
     emit(
       state.copyWith(status: AuthStatus.unauthenticated, authResponse: null),
@@ -543,10 +585,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
     final result = await _authRepository.revokeSession(event.sessionId);
     result.fold(
-      (failure) => emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
-      ),
+      (failure) {
+        _telemetry.recordEvent('auth.session.revoke_failure', {
+          'session_id': event.sessionId,
+          'reason': failure.message,
+        });
+        emit(
+          state.copyWith(
+            status: AuthStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (_) {
+        _telemetry.recordEvent('auth.session.revoke_success', {
+          'session_id': event.sessionId,
+        });
         emit(state.copyWith(status: AuthStatus.sessionRevoked));
         add(AuthGetSessionsRequested());
       },

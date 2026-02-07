@@ -82,6 +82,9 @@ class SyncService {
       return;
     }
 
+    final telemetry = getIt<TelemetryService>();
+    final startTime = DateTime.now();
+
     _logger.i('Début de la synchronisation des requêtes en attente...');
     final requests = await _database.select(_database.syncRequests).get();
 
@@ -89,6 +92,12 @@ class SyncService {
       _logger.i('Aucune requête en attente.');
       return;
     }
+
+    // Telemetry: Sync Count
+    telemetry.recordGauge('sync.requests.count', requests.length.toDouble());
+
+    int successCount = 0;
+    int failureCount = 0;
 
     for (final request in requests) {
       try {
@@ -111,12 +120,41 @@ class SyncService {
         await (_database.delete(
           _database.syncRequests,
         )..where((t) => t.id.equals(request.id))).go();
+
+        successCount++;
+        telemetry.recordCount(
+          'sync.success',
+          1,
+          attributes: {'table': request.table, 'action': request.action},
+        );
+
         _logger.i('Requête ${request.id} synchronisée avec succès.');
       } catch (e) {
+        failureCount++;
+        telemetry.recordCount(
+          'sync.failure',
+          1,
+          attributes: {
+            'table': request.table,
+            'action': request.action,
+            'error': e.toString(),
+          },
+        );
         _logger.e('Échec de synchronisation pour la requête ${request.id}: $e');
         // En cas d'échec, elle reste en base pour être re-tentée plus tard.
       }
     }
+
+    final duration = DateTime.now().difference(startTime).inMilliseconds;
+    telemetry.recordGauge(
+      'sync.duration_ms',
+      duration.toDouble(),
+      attributes: {
+        'success_count': successCount,
+        'failure_count': failureCount,
+        'total_count': requests.length,
+      },
+    );
   }
 
   /// Traite une opération synchronisée spécifique à la table 'transactions'.

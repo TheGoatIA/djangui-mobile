@@ -118,7 +118,7 @@ dependencies:
   confetti: ^0.7.0
   speech_to_text: ^7.3.0
   flutter_dynamic_icon_plus: ^1.4.0
-  opentelemetry: ^0.18.10
+  opentelemetry: any
 
 
 dev_dependencies:
