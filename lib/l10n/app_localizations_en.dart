@@ -2102,4 +2102,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get percentageIncomeDesc =>
       'Percentage of each income automatically set aside.';
+
+  @override
+  String get featureDisabledTitle => 'Feature Unavailable';
+
+  @override
+  String get featureDisabledMessage =>
+      'This feature is currently disabled. Please contact support or check back later.';
+
+  @override
+  String get featureUpdateRequiredMessage =>
+      'This feature requires a more recent version of Kauri. Please update your application to enjoy it.';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get addCustomCategory => 'Add custom category';
 }

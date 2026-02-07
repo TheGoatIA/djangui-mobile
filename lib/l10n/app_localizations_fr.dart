@@ -2033,7 +2033,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tutorialAnneDesc =>
-      'Anne analyse vos revenus et dépenses pour vous proposer un budget optimisé pour le mois à venir.';
+      'Anne analyse vos revenus et d\'épenses pour vous proposer un budget optimisé pour le mois à venir.';
 
   @override
   String get budgetExistsTitle => 'Budget déjà existant';
@@ -2111,4 +2111,24 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get percentageIncomeDesc =>
       'Pourcentage de chaque revenu automatiquement mis de côté.';
+
+  @override
+  String get featureDisabledTitle => 'Fonctionnalité Indisponible';
+
+  @override
+  String get featureDisabledMessage =>
+      'Cette fonctionnalité est actuellement désactivée. Veuillez contacter le support ou réessayer plus tard.';
+
+  @override
+  String get featureUpdateRequiredMessage =>
+      'Cette fonctionnalité nécessite une version plus récente de Kauri. Veuillez mettre à jour votre application pour en profiter.';
+
+  @override
+  String get back => 'Retour';
+
+  @override
+  String get search => 'Rechercher';
+
+  @override
+  String get addCustomCategory => 'Ajouter une catégorie personnalisée';
 }

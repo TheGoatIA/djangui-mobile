@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../core/constants/route_constants.dart';
+import '../core/navigation/telemetry_route_observer.dart';
 import '../core/widgets/scaffold_with_navbar.dart';
 import '../core/widgets/custom_page_transition.dart';
 import '../features/auth/presentation/pages/splash_page.dart';
@@ -57,6 +58,7 @@ final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: RouteConstants.splash,
   debugLogDiagnostics: true,
+  observers: [TelemetryRouteObserver()],
   redirect: (context, state) {
     // Handle kauri scheme deep links
     if (state.uri.scheme == 'kauri') {

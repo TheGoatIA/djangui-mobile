@@ -2,12 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/repositories/challenge_repository.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/di/injection.dart';
+
 import 'challenges_event.dart';
 import 'challenges_state.dart';
 
 @injectable
 class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
   final ChallengeRepository _challengeRepository;
+  TelemetryService get _telemetry => getIt<TelemetryService>();
 
   ChallengesBloc(this._challengeRepository) : super(ChallengesState.initial()) {
     on<GetChallengesRequested>(_onGetChallengesRequested);
@@ -93,6 +97,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
       ),
       (_) {
         // Success, refresh challenges
+        _telemetry.recordEvent('challenge.joined', {'challenge.id': event.id});
         add(const GetChallengesRequested(forceRefresh: true));
         add(GetUserChallengesRequested());
       },
@@ -119,6 +124,11 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
       ),
       (_) {
         // Success
+        _telemetry.recordEvent('challenge.validated', {
+          'user_challenge.id': event.userChallengeId,
+          'week.number': event.weekNumber,
+          'amount': event.amount,
+        });
         emit(state.copyWith(status: ChallengesStatus.success));
         add(GetUserChallengesRequested());
       },

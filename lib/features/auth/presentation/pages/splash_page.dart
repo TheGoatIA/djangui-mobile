@@ -9,6 +9,7 @@ import '../../../../di/injection.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
 import '../../../system/domain/repositories/system_repository.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -59,6 +60,7 @@ class _SplashPageState extends State<SplashPage> {
     }
 
     if (!mounted) return;
+    context.read<SystemBloc>().add(GetFeatureFlagsRequested());
     setState(() {
       _versionCheckFinished = true;
     });

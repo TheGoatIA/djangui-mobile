@@ -17,6 +17,8 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/share_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 
 class TontineDetailsPage extends StatefulWidget {
   final String tontineId;
@@ -72,195 +74,229 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, authState) {
-        final currentUserId = authState.authResponse?.user.id;
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.featTontines,
+        );
 
-        return BlocConsumer<TontineBloc, TontineState>(
-          listener: (context, state) {
-            if (state.status == TontineStatus.loading &&
-                state.selectedTontine != null) {
-              if (!_isLoadingDialogShowing) {
-                _isLoadingDialogShowing = true;
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) =>
-                      const Center(child: CircularProgressIndicator()),
-                ).then((_) => _isLoadingDialogShowing = false);
-              }
-            } else if (_isLoadingDialogShowing) {
-              Navigator.of(context).pop();
-              _isLoadingDialogShowing = false;
+        if (featureStatus == FeatureStatus.disabled) {
+          return Scaffold(body: FeatureDisabledWidget(title: l10n.tontine));
+        }
 
-              if (state.status == TontineStatus.success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(l10n.operationSuccess),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-                // Reload contributions to update UI
-                if (state.selectedTontine != null) {
-                  context.read<TontineBloc>().add(
-                    TontineContributionsLoadRequested(
-                      state.selectedTontine!.id,
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return Scaffold(
+            body: FeatureDisabledWidget(
+              title: l10n.tontine,
+              isUpdateRequired: true,
+            ),
+          );
+        }
+
+        return BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, authState) {
+            final currentUserId = authState.authResponse?.user.id;
+
+            return BlocConsumer<TontineBloc, TontineState>(
+              listener: (context, state) {
+                if (state.status == TontineStatus.loading &&
+                    state.selectedTontine != null) {
+                  if (!_isLoadingDialogShowing) {
+                    _isLoadingDialogShowing = true;
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) =>
+                          const Center(child: CircularProgressIndicator()),
+                    ).then((_) => _isLoadingDialogShowing = false);
+                  }
+                } else if (_isLoadingDialogShowing) {
+                  Navigator.of(context).pop();
+                  _isLoadingDialogShowing = false;
+
+                  if (state.status == TontineStatus.success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.operationSuccess),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    // Reload contributions to update UI
+                    if (state.selectedTontine != null) {
+                      context.read<TontineBloc>().add(
+                        TontineContributionsLoadRequested(
+                          state.selectedTontine!.id,
+                        ),
+                      );
+                    }
+                  }
+                }
+
+                if (state.status == TontineStatus.error) {
+                  String message = state.errorMessage ?? l10n.genericError;
+                  if (message.contains('E11000') ||
+                      message.contains('duplicate key')) {
+                    message = l10n.alreadyContributed;
+                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(message),
+                      backgroundColor: Colors.red,
                     ),
                   );
                 }
-              }
-            }
+              },
+              builder: (context, state) {
+                if (state.status == TontineStatus.loading &&
+                    state.selectedTontine == null) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
 
-            if (state.status == TontineStatus.error) {
-              String message = state.errorMessage ?? l10n.genericError;
-              if (message.contains('E11000') ||
-                  message.contains('duplicate key')) {
-                message = l10n.alreadyContributed;
-              }
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(message), backgroundColor: Colors.red),
-              );
-            }
-          },
-          builder: (context, state) {
-            if (state.status == TontineStatus.loading &&
-                state.selectedTontine == null) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
+                final tontine = state.selectedTontine;
+                if (tontine == null) {
+                  return Scaffold(
+                    appBar: AppBar(),
+                    body: Center(child: Text(l10n.genericError)),
+                  );
+                }
 
-            final tontine = state.selectedTontine;
-            if (tontine == null) {
-              return Scaffold(
-                appBar: AppBar(),
-                body: Center(child: Text(l10n.genericError)),
-              );
-            }
+                final isCreator = tontine.creatorId == currentUserId;
+                final tabCount = isCreator ? 4 : 3;
 
-            final isCreator = tontine.creatorId == currentUserId;
-            final tabCount = isCreator ? 4 : 3;
+                if (_tabController.length != tabCount) {
+                  _tabController.removeListener(_handleTabSelection);
+                  _tabController.dispose();
+                  _tabController = TabController(length: tabCount, vsync: this);
+                  _tabController.addListener(_handleTabSelection);
+                }
 
-            if (_tabController.length != tabCount) {
-              _tabController.removeListener(_handleTabSelection);
-              _tabController.dispose();
-              _tabController = TabController(length: tabCount, vsync: this);
-              _tabController.addListener(_handleTabSelection);
-            }
-
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(tontine.name),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.share_outlined),
-                    onPressed: () => _shareInvite(tontine.inviteCode),
-                  ),
-                  if (isCreator && tontine.status.toLowerCase() == 'pending')
-                    IconButton(
-                      icon: const Icon(Icons.edit_outlined),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CreateTontinePage(tontine: tontine),
+                return Scaffold(
+                  appBar: AppBar(
+                    title: Text(tontine.name),
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.share_outlined),
+                        onPressed: () => _shareInvite(tontine.inviteCode),
+                      ),
+                      if (isCreator &&
+                          tontine.status.toLowerCase() == 'pending')
+                        IconButton(
+                          icon: const Icon(Icons.edit_outlined),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CreateTontinePage(tontine: tontine),
+                            ),
+                          ),
+                        ),
+                      if (isCreator &&
+                          tontine.status.toLowerCase() != 'completed')
+                        IconButton(
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                          ),
+                          onPressed: () =>
+                              _confirmDeleteTontine(context, tontine),
+                        ),
+                    ],
+                    bottom: PreferredSize(
+                      preferredSize: const Size.fromHeight(60),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: TabBar(
+                          controller: _tabController,
+                          isScrollable: true,
+                          tabAlignment: TabAlignment.center,
+                          indicator: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                            color: Theme.of(context).colorScheme.primary,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.3),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          labelColor: Colors.white,
+                          unselectedLabelColor: Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          dividerColor: Colors.transparent,
+                          labelPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                          ),
+                          overlayColor: WidgetStateProperty.all(
+                            Colors.transparent,
+                          ),
+                          tabs: [
+                            Tab(text: l10n.dashboard),
+                            Tab(text: l10n.members),
+                            Tab(text: l10n.chat),
+                            if (isCreator) Tab(text: l10n.validation),
+                          ],
                         ),
                       ),
                     ),
-                  if (isCreator && tontine.status.toLowerCase() != 'completed')
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: () => _confirmDeleteTontine(context, tontine),
-                    ),
-                ],
-                bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(60),
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
+                  ),
+                  body: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildOverviewTab(
                         context,
-                      ).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    child: TabBar(
-                      controller: _tabController,
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.center,
-                      indicator: BoxDecoration(
-                        borderRadius: BorderRadius.circular(25),
-                        color: Theme.of(context).colorScheme.primary,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        tontine,
+                        state.selectedTontineContributions
+                            .where((c) => c.tontineId == widget.tontineId)
+                            .toList(),
+                        state.selectedTontineMembers,
                       ),
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Theme.of(
+                      _buildMembersTab(
                         context,
-                      ).colorScheme.onSurfaceVariant,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      dividerColor: Colors.transparent,
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 20),
-                      overlayColor: WidgetStateProperty.all(Colors.transparent),
-                      tabs: [
-                        Tab(text: l10n.dashboard),
-                        Tab(text: l10n.members),
-                        Tab(text: l10n.chat),
-                        if (isCreator) Tab(text: l10n.validation),
-                      ],
-                    ),
+                        state.selectedTontineMembers,
+                        isCreator,
+                        tontine.status.toLowerCase() != 'completed',
+                        tontine.id,
+                      ),
+                      _buildChatTab(context, tontine.id),
+                      if (isCreator)
+                        _buildValidationTab(
+                          context,
+                          state.selectedTontineContributions
+                              .where((c) => c.tontineId == widget.tontineId)
+                              .toList(),
+                          state.selectedTontineMembers,
+                        ),
+                    ],
                   ),
-                ),
-              ),
-              body: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildOverviewTab(
-                    context,
-                    tontine,
-                    state.selectedTontineContributions
-                        .where((c) => c.tontineId == widget.tontineId)
-                        .toList(),
-                    state.selectedTontineMembers,
-                  ),
-                  _buildMembersTab(
-                    context,
-                    state.selectedTontineMembers,
-                    isCreator,
-                    tontine.status.toLowerCase() != 'completed',
-                    tontine.id,
-                  ),
-                  _buildChatTab(context, tontine.id),
-                  if (isCreator)
-                    _buildValidationTab(
-                      context,
-                      state.selectedTontineContributions
-                          .where((c) => c.tontineId == widget.tontineId)
-                          .toList(),
-                      state.selectedTontineMembers,
-                    ),
-                ],
-              ),
-              floatingActionButton:
-                  _currentIndex == 2 ||
-                      tontine.status.toLowerCase() == 'completed' ||
-                      tontine.status.toLowerCase().contains('suspended')
-                  ? null
-                  : FloatingActionButton.extended(
-                      onPressed: () =>
-                          _showContributionDialog(context, tontine.id),
-                      label: Text(l10n.contribute),
-                      icon: const Icon(Icons.add_a_photo_outlined),
-                    ),
+                  floatingActionButton:
+                      _currentIndex == 2 ||
+                          tontine.status.toLowerCase() == 'completed' ||
+                          tontine.status.toLowerCase().contains('suspended')
+                      ? null
+                      : FloatingActionButton.extended(
+                          onPressed: () =>
+                              _showContributionDialog(context, tontine.id),
+                          label: Text(l10n.contribute),
+                          icon: const Icon(Icons.add_a_photo_outlined),
+                        ),
+                );
+              },
             );
           },
         );

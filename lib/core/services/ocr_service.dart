@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/di/injection.dart';
 
 /// Représente les données extraites d'un reçu après analyse OCR.
 class OCRResult {
@@ -28,6 +30,7 @@ class OCRResult {
 class OCRService {
   final ImagePicker _picker = ImagePicker();
   final _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+  TelemetryService get _telemetry => getIt<TelemetryService>();
 
   /// Ouvre la caméra ou la galerie pour permettre à l'utilisateur de sélectionner une image.
   Future<File?> pickImage(ImageSource source) async {
@@ -40,10 +43,23 @@ class OCRService {
 
   /// Analyse une image de reçu et tente d'en extraire le montant, la date et le commerçant.
   Future<OCRResult> scanReceipt(File image) async {
+    final startTime = DateTime.now();
     final inputImage = InputImage.fromFile(image);
     final recognizedText = await _textRecognizer.processImage(inputImage);
 
-    return _parseReceipt(recognizedText);
+    final result = _parseReceipt(recognizedText);
+    final duration = DateTime.now().difference(startTime).inMilliseconds;
+
+    // Telemetry: OCR Reliability
+    _telemetry.recordEvent('reliability.ocr.scan', {
+      'latency_ms': duration,
+      'found_amount': result.amount != null,
+      'found_description': result.description != null,
+      'found_date': result.date != null,
+      'found_category': result.category != null,
+    });
+
+    return result;
   }
 
   /// Logique de parsing heuristique pour identifier les informations clés dans le texte brut.

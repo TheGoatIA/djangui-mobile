@@ -13,6 +13,8 @@ import 'package:local_auth/local_auth.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../di/injection.dart';
 
 /// Page de connexion de l'application.
@@ -177,96 +179,126 @@ class _LoginPageState extends State<LoginPage> {
                           const SizedBox(height: 16),
                           BlocBuilder<SettingsBloc, SettingsState>(
                             builder: (context, settingsState) {
-                              // Affiche l'option biométrique si activée dans les paramètres
-                              if (settingsState.biometricsEnabled) {
-                                return OutlinedButton(
-                                  onPressed: () async {
-                                    final localAuth = LocalAuthentication();
-                                    final authBloc = context.read<AuthBloc>();
-                                    try {
-                                      final didAuthenticate = await localAuth
-                                          .authenticate(
-                                            localizedReason:
-                                                'Veuillez vous authentifier pour vous connecter',
+                              return BlocBuilder<SystemBloc, SystemState>(
+                                builder: (context, systemState) {
+                                  final flags = systemState.featureFlags;
+                                  // Affiche l'option biométrique si activée dans les paramètres ET via feature flag
+                                  if (settingsState.biometricsEnabled &&
+                                      flags.authBiometric.isEnabled) {
+                                    return OutlinedButton(
+                                      onPressed: () async {
+                                        final localAuth = LocalAuthentication();
+                                        final authBloc = context
+                                            .read<AuthBloc>();
+                                        try {
+                                          final didAuthenticate =
+                                              await localAuth.authenticate(
+                                                localizedReason:
+                                                    'Veuillez vous authentifier pour vous connecter',
+                                              );
+
+                                          if (didAuthenticate) {
+                                            getIt<AnalyticsManager>()
+                                                .trackEvent(
+                                                  feature: 'Auth',
+                                                  action: 'login_success',
+                                                  details: {
+                                                    'provider': 'biometric',
+                                                  },
+                                                );
+
+                                            // Telemetry
+                                            getIt<TelemetryService>()
+                                                .recordEvent('auth.biometric', {
+                                                  'result': 'success',
+                                                });
+
+                                            authBloc.add(
+                                              AuthBiometricLoginRequested(),
+                                            );
+                                          }
+                                        } on PlatformException catch (e) {
+                                          String message =
+                                              'Erreur d\'authentification';
+                                          if (e.code == 'noCredentialsSet' ||
+                                              e.code == 'NotEnrolled') {
+                                            message =
+                                                'Aucune biométrie configurée sur cet appareil.';
+                                          } else if (e.code == 'NotAvailable') {
+                                            message =
+                                                'L\'authentification biométrique n\'est pas disponible.';
+                                          }
+
+                                          if (!context.mounted) return;
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(content: Text(message)),
                                           );
-                                      if (didAuthenticate) {
-                                        getIt<AnalyticsManager>().trackEvent(
-                                          feature: 'Auth',
-                                          action: 'login_success',
-                                          details: {'provider': 'biometric'},
-                                        );
-                                        authBloc.add(
-                                          AuthBiometricLoginRequested(),
-                                        );
-                                      }
-                                    } on PlatformException catch (e) {
-                                      String message =
-                                          'Erreur d\'authentification';
-                                      if (e.code == 'noCredentialsSet' ||
-                                          e.code == 'NotEnrolled') {
-                                        message =
-                                            'Aucune biométrie configurée sur cet appareil.';
-                                      } else if (e.code == 'NotAvailable') {
-                                        message =
-                                            'L\'authentification biométrique n\'est pas disponible.';
-                                      }
-                                      if (!context.mounted) return;
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(content: Text(message)),
-                                      );
-                                    } catch (e) {
-                                      if (!context.mounted) return;
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Une erreur inattendue est survenue',
+
+                                          getIt<TelemetryService>()
+                                              .recordEvent('auth.biometric', {
+                                                'result': 'failure',
+                                                'reason': e.code,
+                                                'message': message,
+                                              });
+                                        } catch (e) {
+                                          if (!context.mounted) return;
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Une erreur inattendue est survenue',
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size(
+                                          double.infinity,
+                                          56,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
                                           ),
                                         ),
-                                      );
-                                    }
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    minimumSize: const Size(
-                                      double.infinity,
-                                      56,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    side: BorderSide(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.fingerprint,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Text(
-                                        'Connexion par biométrie',
-                                        style: AppTextStyles.bodyLarge.copyWith(
+                                        side: BorderSide(
                                           color: Theme.of(
                                             context,
                                           ).colorScheme.primary,
-                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                );
-                              }
-                              return const SizedBox.shrink();
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.fingerprint,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Text(
+                                            'Connexion par biométrie',
+                                            style: AppTextStyles.bodyLarge
+                                                .copyWith(
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
+                              );
                             },
                           ),
                         ],
@@ -293,124 +325,142 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Connexion Google
-                  OutlinedButton(
-                    onPressed: () {
-                      getIt<AnalyticsManager>().trackEvent(
-                        feature: 'Auth',
-                        action: 'social_login_attempt',
-                        details: {'provider': 'google'},
-                      );
-                      context.read<AuthBloc>().add(
-                        const AuthGoogleSignInRequested(),
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 56),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.g_mobiledata,
-                          color: AppColors.info,
-                          size: 28,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          AppLocalizations.of(context)!.googleSignIn,
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Connexion Apple (iOS uniquement)
-                  if (Platform.isIOS) ...[
-                    OutlinedButton(
-                      onPressed: () {
-                        getIt<AnalyticsManager>().trackEvent(
-                          feature: 'Auth',
-                          action: 'social_login_attempt',
-                          details: {'provider': 'apple'},
-                        );
-                        context.read<AuthBloc>().add(
-                          const AuthAppleSignInRequested(),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 56),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        side: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                        foregroundColor: Theme.of(
-                          context,
-                        ).colorScheme.onSurface,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                  BlocBuilder<SystemBloc, SystemState>(
+                    builder: (context, systemState) {
+                      final flags = systemState.featureFlags;
+                      return Column(
                         children: [
-                          Icon(
-                            Icons.apple,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            size: 28,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            AppLocalizations.of(context)!.appleSignIn,
-                            style: AppTextStyles.bodyLarge.copyWith(
-                              fontWeight: FontWeight.bold,
+                          if (flags.authGoogle.isEnabled) ...[
+                            // Connexion Google
+                            OutlinedButton(
+                              onPressed: () {
+                                getIt<AnalyticsManager>().trackEvent(
+                                  feature: 'Auth',
+                                  action: 'social_login_attempt',
+                                  details: {'provider': 'google'},
+                                );
+                                context.read<AuthBloc>().add(
+                                  const AuthGoogleSignInRequested(),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 56),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                side: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.g_mobiledata,
+                                    color: AppColors.info,
+                                    size: 28,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    AppLocalizations.of(context)!.googleSignIn,
+                                    style: AppTextStyles.bodyLarge.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                            const SizedBox(height: 16),
+                          ],
 
-                  // Connexion par Téléphone
-                  OutlinedButton(
-                    onPressed: () {
-                      context.push(RouteConstants.phoneLogin);
+                          // Connexion Apple (iOS uniquement)
+                          if (Platform.isIOS && flags.authApple.isEnabled) ...[
+                            OutlinedButton(
+                              onPressed: () {
+                                getIt<AnalyticsManager>().trackEvent(
+                                  feature: 'Auth',
+                                  action: 'social_login_attempt',
+                                  details: {'provider': 'apple'},
+                                );
+                                context.read<AuthBloc>().add(
+                                  const AuthAppleSignInRequested(),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 56),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                side: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.apple,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                    size: 28,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    AppLocalizations.of(context)!.appleSignIn,
+                                    style: AppTextStyles.bodyLarge.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+
+                          // Connexion par Téléphone
+                          if (flags.authPhone.isEnabled)
+                            OutlinedButton(
+                              onPressed: () {
+                                context.push(RouteConstants.phoneLogin);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 56),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                side: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.phone_android_outlined,
+                                    color: AppColors.success.withValues(
+                                      alpha: 1.0,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    AppLocalizations.of(context)!.phoneLogin,
+                                    style: AppTextStyles.bodyLarge.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      );
                     },
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 56),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.phone_android_outlined,
-                          color: AppColors.success.withValues(alpha: 1.0),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          AppLocalizations.of(context)!.phoneLogin,
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                   const SizedBox(height: 24),
 

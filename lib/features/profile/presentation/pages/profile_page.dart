@@ -308,31 +308,50 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 24),
                       ],
                       // Section Premium / Bannière d'abonnement
-                      if (user != null && !user.isPremium) ...[
-                        Showcase(
-                          key: _premiumKey,
-                          title: AppLocalizations.of(
-                            context,
-                          )!.tutorialSubscriptionTitle,
-                          description: AppLocalizations.of(
-                            context,
-                          )!.tutorialSubscriptionDesc,
-                          child: _buildPremiumBanner(context),
-                        ),
-                        const SizedBox(height: 24),
-                      ] else if (user != null && user.isPremium) ...[
-                        Showcase(
-                          key: _premiumKey,
-                          title: AppLocalizations.of(
-                            context,
-                          )!.tutorialSubscriptionTitle,
-                          description: AppLocalizations.of(
-                            context,
-                          )!.tutorialSubscriptionDesc,
-                          child: _buildPremiumStatusCard(context, user),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
+                      BlocBuilder<SystemBloc, SystemState>(
+                        builder: (context, systemState) {
+                          if (!systemState
+                              .featureFlags
+                              .featSubscriptions
+                              .isEnabled) {
+                            return const SizedBox.shrink();
+                          }
+                          if (user != null && !user.isPremium) {
+                            return Column(
+                              children: [
+                                Showcase(
+                                  key: _premiumKey,
+                                  title: AppLocalizations.of(
+                                    context,
+                                  )!.tutorialSubscriptionTitle,
+                                  description: AppLocalizations.of(
+                                    context,
+                                  )!.tutorialSubscriptionDesc,
+                                  child: _buildPremiumBanner(context),
+                                ),
+                                const SizedBox(height: 24),
+                              ],
+                            );
+                          } else if (user != null && user.isPremium) {
+                            return Column(
+                              children: [
+                                Showcase(
+                                  key: _premiumKey,
+                                  title: AppLocalizations.of(
+                                    context,
+                                  )!.tutorialSubscriptionTitle,
+                                  description: AppLocalizations.of(
+                                    context,
+                                  )!.tutorialSubscriptionDesc,
+                                  child: _buildPremiumStatusCard(context, user),
+                                ),
+                                const SizedBox(height: 24),
+                              ],
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
                       // Section des paramètres (Réglages)
                       Showcase(
                         key: _settingsKey,
@@ -434,81 +453,101 @@ class _ProfilePageState extends State<ProfilePage> {
           context,
           title: AppLocalizations.of(context)!.sectionAccount,
           children: [
-            BlocBuilder<NotificationsBloc, NotificationsState>(
-              builder: (context, state) {
-                return _buildSettingsTile(
-                  Icons.notifications_outlined,
-                  AppLocalizations.of(context)!.notifications,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (state.unreadCount > 0)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            state.unreadCount.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+            BlocBuilder<SystemBloc, SystemState>(
+              builder: (context, systemState) {
+                if (!systemState.featureFlags.featNotifications.isEnabled) {
+                  return const SizedBox.shrink();
+                }
+                return BlocBuilder<NotificationsBloc, NotificationsState>(
+                  builder: (context, state) {
+                    return _buildSettingsTile(
+                      Icons.notifications_outlined,
+                      AppLocalizations.of(context)!.notifications,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (state.unreadCount > 0)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                state.unreadCount.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.chevron_right,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
-                        ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ],
                       ),
-                    ],
-                  ),
-                  onTap: () => context.push(RouteConstants.notifications),
+                      onTap: () => context.push(RouteConstants.notifications),
+                    );
+                  },
                 );
               },
             ),
 
-            BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                final currentFrequency =
-                    state
-                        .authResponse
-                        ?.user
-                        .preferences
-                        ?.notificationFrequency ??
-                    'medium';
+            BlocBuilder<SystemBloc, SystemState>(
+              builder: (context, systemState) {
+                if (!systemState.featureFlags.featNotifications.isEnabled) {
+                  return const SizedBox.shrink();
+                }
+                return BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    final currentFrequency =
+                        state
+                            .authResponse
+                            ?.user
+                            .preferences
+                            ?.notificationFrequency ??
+                        'medium';
 
-                return _buildSettingsTile(
-                  Icons.notification_important_outlined,
-                  AppLocalizations.of(context)!.notificationFrequency,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _getNotificationFrequencyName(
-                          context,
-                          currentFrequency,
-                        ),
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                    return _buildSettingsTile(
+                      Icons.notification_important_outlined,
+                      AppLocalizations.of(context)!.notificationFrequency,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _getNotificationFrequencyName(
+                              context,
+                              currentFrequency,
+                            ),
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.chevron_right,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      onTap: () => _showNotificationFrequencySelectionDialog(
+                        context,
+                        currentFrequency,
                       ),
-                    ],
-                  ),
-                  onTap: () => _showNotificationFrequencySelectionDialog(
-                    context,
-                    currentFrequency,
-                  ),
+                    );
+                  },
                 );
               },
             ),
@@ -519,22 +558,29 @@ class _ProfilePageState extends State<ProfilePage> {
               onTap: () => context.push(RouteConstants.security),
             ),
 
-            _buildSettingsTile(
-              Icons.phone_android_outlined,
-              AppLocalizations.of(context)!.phoneNumber,
-              trailing: BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  final phone = state.authResponse?.user.phone;
-                  return Text(
-                    phone ?? '',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  );
-                },
-              ),
-              onTap: () {
-                context.push(RouteConstants.phoneLogin, extra: true);
+            BlocBuilder<SystemBloc, SystemState>(
+              builder: (context, systemState) {
+                if (!systemState.featureFlags.authPhone.isEnabled) {
+                  return const SizedBox.shrink();
+                }
+                return _buildSettingsTile(
+                  Icons.phone_android_outlined,
+                  AppLocalizations.of(context)!.phoneNumber,
+                  trailing: BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      final phone = state.authResponse?.user.phone;
+                      return Text(
+                        phone ?? '',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      );
+                    },
+                  ),
+                  onTap: () {
+                    context.push(RouteConstants.phoneLogin, extra: true);
+                  },
+                );
               },
             ),
 

@@ -4,10 +4,14 @@ import 'tontine_event.dart';
 import 'tontine_state.dart';
 
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/di/injection.dart';
+import 'package:opentelemetry/api.dart';
 
 @injectable
 class TontineBloc extends Bloc<TontineEvent, TontineState> {
   final TontineRepository _repository;
+  TelemetryService get _telemetry => getIt<TelemetryService>();
 
   TontineBloc(this._repository) : super(const TontineState()) {
     on<TontinesLoadRequested>(_onTontinesLoadRequested);
@@ -86,95 +90,169 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     CreateTontineRequested event,
     Emitter<TontineState> emit,
   ) async {
-    emit(state.copyWith(status: TontineStatus.loading));
-    final result = await _repository.createTontine(event.params);
-    result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: TontineStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
-      (tontine) => emit(
-        state.copyWith(
-          status: TontineStatus.success,
-          tontines: [...state.tontines, tontine],
-        ),
+    final span = _telemetry.tracer.startSpan(
+      'Tontine: Create',
+      kind: SpanKind.internal,
+    );
+    span.setAttribute(
+      Attribute.fromString(
+        'tontine.name',
+        event.params['name']?.toString() ?? 'unknown',
       ),
     );
+
+    try {
+      emit(state.copyWith(status: TontineStatus.loading));
+      final result = await _repository.createTontine(event.params);
+      result.fold(
+        (failure) {
+          span.setStatus(StatusCode.error, failure.message);
+          emit(
+            state.copyWith(
+              status: TontineStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (tontine) {
+          span.setAttribute(Attribute.fromString('tontine.id', tontine.id));
+          emit(
+            state.copyWith(
+              status: TontineStatus.success,
+              tontines: [...state.tontines, tontine],
+            ),
+          );
+        },
+      );
+    } catch (e, s) {
+      span.recordException(e, stackTrace: s);
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onJoinTontineRequested(
     JoinTontineRequested event,
     Emitter<TontineState> emit,
   ) async {
-    emit(state.copyWith(status: TontineStatus.loading));
-    final result = await _repository.joinTontine(
-      event.inviteCode,
-      displayName: event.displayName,
-      parts: event.parts,
+    final span = _telemetry.tracer.startSpan(
+      'Tontine: Join',
+      kind: SpanKind.internal,
     );
-    result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: TontineStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
-      (tontine) => emit(
-        state.copyWith(
-          status: TontineStatus.success,
-          tontines: [...state.tontines, tontine],
-        ),
-      ),
+    span.setAttribute(
+      Attribute.fromString('tontine.invite_code', event.inviteCode),
     );
+
+    try {
+      emit(state.copyWith(status: TontineStatus.loading));
+      final result = await _repository.joinTontine(
+        event.inviteCode,
+        displayName: event.displayName,
+        parts: event.parts,
+      );
+      result.fold(
+        (failure) {
+          span.setStatus(StatusCode.error, failure.message);
+          emit(
+            state.copyWith(
+              status: TontineStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (tontine) {
+          span.setAttribute(Attribute.fromString('tontine.id', tontine.id));
+          emit(
+            state.copyWith(
+              status: TontineStatus.success,
+              tontines: [...state.tontines, tontine],
+            ),
+          );
+        },
+      );
+    } catch (e, s) {
+      span.recordException(e, stackTrace: s);
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onStartTontineRequested(
     StartTontineRequested event,
     Emitter<TontineState> emit,
   ) async {
-    emit(state.copyWith(status: TontineStatus.loading));
-    final result = await _repository.startTontine(event.tontineId);
-    result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: TontineStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
-      (tontine) {
-        emit(
-          state.copyWith(
-            status: TontineStatus.success,
-            selectedTontine: tontine,
-            tontines: state.tontines
-                .map((t) => t.id == tontine.id ? tontine : t)
-                .toList(),
-          ),
-        );
-      },
+    final span = _telemetry.tracer.startSpan(
+      'Tontine: Start',
+      kind: SpanKind.internal,
     );
+    span.setAttribute(Attribute.fromString('tontine.id', event.tontineId));
+
+    try {
+      emit(state.copyWith(status: TontineStatus.loading));
+      final result = await _repository.startTontine(event.tontineId);
+      result.fold(
+        (failure) {
+          span.setStatus(StatusCode.error, failure.message);
+          emit(
+            state.copyWith(
+              status: TontineStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (tontine) {
+          emit(
+            state.copyWith(
+              status: TontineStatus.success,
+              selectedTontine: tontine,
+              tontines: state.tontines
+                  .map((t) => t.id == tontine.id ? tontine : t)
+                  .toList(),
+            ),
+          );
+        },
+      );
+    } catch (e, s) {
+      span.recordException(e, stackTrace: s);
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onContributeToTontineRequested(
     ContributeToTontineRequested event,
     Emitter<TontineState> emit,
   ) async {
-    emit(state.copyWith(status: TontineStatus.loading));
-    final result = await _repository.contribute(
-      event.tontineId,
-      event.proofImage,
+    final span = _telemetry.tracer.startSpan(
+      'Tontine: Contribute',
+      kind: SpanKind.internal,
     );
-    result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: TontineStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
-      (_) => add(TontineDetailsLoadRequested(event.tontineId)),
-    );
+    span.setAttribute(Attribute.fromString('tontine.id', event.tontineId));
+
+    try {
+      emit(state.copyWith(status: TontineStatus.loading));
+      final result = await _repository.contribute(
+        event.tontineId,
+        event.proofImage,
+      );
+      result.fold((failure) {
+        span.setStatus(StatusCode.error, failure.message);
+        emit(
+          state.copyWith(
+            status: TontineStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      }, (_) => add(TontineDetailsLoadRequested(event.tontineId)));
+    } catch (e, s) {
+      span.recordException(e, stackTrace: s);
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onTontineMessagesLoadRequested(

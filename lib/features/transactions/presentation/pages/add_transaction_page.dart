@@ -21,7 +21,10 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
 
 /// Page de création d'une nouvelle transaction (Dépense ou Revenu).
 ///
@@ -37,6 +40,8 @@ class AddTransactionPage extends StatefulWidget {
 }
 
 class _AddTransactionPageState extends State<AddTransactionPage> {
+  final DateTime _enteredAt = DateTime.now();
+
   /// Clé globale pour la validation du formulaire.
   final _formKey = GlobalKey<FormState>();
 
@@ -268,6 +273,17 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         linkedGoalId: _selectedGoalId,
         currency: authState.authResponse?.user.currency ?? 'XAF',
       );
+
+      // Telemetry: Form Friction
+      final frictionDuration = DateTime.now().difference(_enteredAt).inSeconds;
+      getIt<TelemetryService>().recordEvent('ux.form.friction', {
+        'form_name': 'add_transaction',
+        'duration_seconds': frictionDuration,
+        'is_ocr_used':
+            _merchantController.text.isNotEmpty ||
+            _amountController.text.isNotEmpty, // simplified check
+      });
+
       context.read<TransactionsBloc>().add(
         AddTransactionRequested(transaction),
       );
@@ -276,319 +292,366 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<TransactionsBloc, TransactionsState>(
-      listenWhen: (previous, current) =>
-          previous.status == TransactionsStatus.loading &&
-          current.status == TransactionsStatus.success,
-      listener: (context, state) {
-        if (state.status == TransactionsStatus.success) {
-          getIt<AnalyticsManager>().trackEvent(
-            feature: 'Transactions',
-            action: 'add_success',
-            details: {
-              'amount': state.transactions.first.amount,
-              'category': state.transactions.first.category,
-              'type': state.transactions.first.type,
-            },
-          );
-          context.pop(true);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.successTransaction),
-            ),
-          );
-        } else if (state.status == TransactionsStatus.error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                state.errorMessage ??
-                    AppLocalizations.of(context)!.errorTransaction,
-              ),
-            ),
+    final l10n = AppLocalizations.of(context)!;
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.featManualTransactions,
+        );
+
+        if (featureStatus == FeatureStatus.disabled) {
+          return FeatureDisabledWidget(title: l10n.addTransactionTitle);
+        }
+
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return FeatureDisabledWidget(
+            title: l10n.addTransactionTitle,
+            isUpdateRequired: true,
           );
         }
-      },
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.addTransactionTitle),
-          actions: [
-            if (_isScanning)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Center(
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+
+        return BlocListener<TransactionsBloc, TransactionsState>(
+          listenWhen: (previous, current) =>
+              previous.status == TransactionsStatus.loading &&
+              current.status == TransactionsStatus.success,
+          listener: (context, state) {
+            if (state.status == TransactionsStatus.success) {
+              getIt<AnalyticsManager>().trackEvent(
+                feature: 'Transactions',
+                action: 'add_success',
+                details: {
+                  'amount': state.transactions.first.amount,
+                  'category': state.transactions.first.category,
+                  'type': state.transactions.first.type,
+                },
+              );
+              context.pop(true);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    AppLocalizations.of(context)!.successTransaction,
                   ),
                 ),
-              )
-            else
-              Showcase(
-                key: _scanKey,
-                title: AppLocalizations.of(context)!.tutorialOCRTitle,
-                description: AppLocalizations.of(context)!.tutorialOCRDesc,
-                child: IconButton(
-                  icon: const Icon(Icons.qr_code_scanner),
-                  onPressed: _onScanReceipt,
-                  tooltip: AppLocalizations.of(context)!.scanReceiptTooltip,
-                ),
-              ),
-          ],
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.transactionType,
-                  style: AppTextStyles.bodyMedium,
-                ),
-                const SizedBox(height: 12),
-
-                // Sélecteur de type : Dépense ou Revenu
-                Row(
-                  children: [
-                    _TypeButton(
-                      label: AppLocalizations.of(context)!.expense,
-                      isSelected: _type == 'expense',
-                      onTap: _selectedGoalId != null
-                          ? () {} // Disabled
-                          : () => setState(() => _type = 'expense'),
-                      color: AppColors.error,
-                      enabled: _selectedGoalId == null || _type == 'expense',
-                    ),
-                    const SizedBox(width: 12),
-                    _TypeButton(
-                      label: AppLocalizations.of(context)!.income,
-                      isSelected: _type == 'income',
-                      onTap: _selectedGoalId != null
-                          ? () {} // Disabled
-                          : () => setState(() => _type = 'income'),
-                      color: AppColors.success,
-                      enabled: _selectedGoalId == null,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Champ Montant
-                Showcase(
-                  key: _amountKey,
-                  title: AppLocalizations.of(
-                    context,
-                  )!.tutorialAddTransactionTitle,
-                  description: AppLocalizations.of(
-                    context,
-                  )!.tutorialAddTransactionDesc,
-                  child: AppTextField(
-                    controller: _amountController,
-                    label: AppLocalizations.of(context)!.amountLabel,
-                    hint: AppLocalizations.of(context)!.amountHint,
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return AppLocalizations.of(context)!.requiredField;
-                      }
-                      if (double.tryParse(value) == null) {
-                        return AppLocalizations.of(context)!.invalidNumber;
-                      }
-                      return null;
-                    },
-                    suffix: Text(
-                      context
-                              .read<AuthBloc>()
-                              .state
-                              .authResponse
-                              ?.user
-                              .currency ??
-                          'XAF',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+              );
+            } else if (state.status == TransactionsStatus.error) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.errorMessage ??
+                        AppLocalizations.of(context)!.errorTransaction,
                   ),
                 ),
-                const SizedBox(height: 20),
-
-                // Sélecteur de catégorie
-                BlocBuilder<BudgetsBloc, BudgetsState>(
-                  builder: (context, budgetState) {
-                    // Union des catégories standards et des catégories existantes dans les budgets
-                    final budgetCategoryNames = budgetState.budgets
-                        .expand((b) => b.categories)
-                        .map((c) => c.name)
-                        .toSet();
-
-                    final allCategories = {
-                      ...AppCategories.categories,
-                      ...budgetCategoryNames,
-                    }.toList()..sort();
-
-                    // S'assurer que la catégorie sélectionnée est dans la liste
-                    if (_selectedCategory != null &&
-                        !allCategories.contains(_selectedCategory)) {
-                      allCategories.add(_selectedCategory!);
-                      allCategories.sort();
+              );
+            }
+          },
+          child: Scaffold(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context)!.addTransactionTitle),
+              actions: [
+                BlocBuilder<SystemBloc, SystemState>(
+                  builder: (context, systemState) {
+                    if (!systemState.featureFlags.featScanUpload.isEnabled) {
+                      return const SizedBox.shrink();
                     }
-
-                    return DropdownButtonFormField<String>(
-                      initialValue: _selectedCategory,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.categoryLabel,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    if (_isScanning) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         ),
+                      );
+                    }
+                    return Showcase(
+                      key: _scanKey,
+                      title: AppLocalizations.of(context)!.tutorialOCRTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialOCRDesc,
+                      child: IconButton(
+                        icon: const Icon(Icons.qr_code_scanner),
+                        onPressed: _onScanReceipt,
+                        tooltip: AppLocalizations.of(
+                          context,
+                        )!.scanReceiptTooltip,
                       ),
-                      hint: Text(AppLocalizations.of(context)!.categoryHint),
-                      items: allCategories.map((String category) {
-                        return DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(category),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _selectedCategory = newValue;
-                        });
-                      },
-                      validator: (value) => (value == null || value.isEmpty)
-                          ? AppLocalizations.of(context)!.requiredField
-                          : null,
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                // Champs optionnels supplémentaires
-                AppTextField(
-                  controller: _subcategoryController,
-                  label: AppLocalizations.of(context)!.subcategoryLabel,
-                  hint: AppLocalizations.of(context)!.subcategoryHint,
-                ),
-                const SizedBox(height: 20),
-                AppTextField(
-                  controller: _merchantController,
-                  label: AppLocalizations.of(context)!.merchantLabel,
-                  hint: AppLocalizations.of(context)!.merchantHint,
-                ),
-                const SizedBox(height: 20),
-                AppTextField(
-                  controller: _locationController,
-                  label: AppLocalizations.of(context)!.locationLabel,
-                  hint: AppLocalizations.of(context)!.locationHint,
-                ),
-                const SizedBox(height: 20),
-
-                // Liaison optionnelle avec un objectif d'épargne
-                BlocBuilder<GoalsBloc, GoalsState>(
-                  builder: (context, state) {
-                    if (state.goals.isEmpty) return const SizedBox.shrink();
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.linkToGoalLabel,
-                          style: AppTextStyles.bodyMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _selectedGoalId,
-                              isExpanded: true,
-                              hint: Text(
-                                AppLocalizations.of(context)!.selectGoalHint,
-                              ),
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: null,
-                                  child: Text(
-                                    AppLocalizations.of(context)!.none,
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ),
-                                ...state.goals.map((goal) {
-                                  return DropdownMenuItem(
-                                    value: goal.id,
-                                    child: Text(
-                                      "${goal.emoji ?? '🎯'} ${goal.name}",
-                                    ),
-                                  );
-                                }),
-                              ],
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedGoalId = value;
-                                  if (_selectedGoalId != null) {
-                                    _type = 'expense';
-                                  }
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                        if (_selectedGoalId != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0, left: 4.0),
-                            child: Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.goalForcedExpenseHint,
-                              style: AppTextStyles.labelSmall.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        const SizedBox(height: 20),
-                      ],
-                    );
-                  },
-                ),
-
-                // Champ Description
-                AppTextField(
-                  controller: _descriptionController,
-                  label: AppLocalizations.of(context)!.descriptionLabel,
-                  hint: AppLocalizations.of(context)!.descriptionHint,
-                  validator: (value) => (value == null || value.isEmpty)
-                      ? AppLocalizations.of(context)!.requiredField
-                      : null,
-                ),
-                const SizedBox(height: 40),
-
-                // Bouton de sauvegarde final
-                BlocBuilder<TransactionsBloc, TransactionsState>(
-                  builder: (context, state) {
-                    return AppButton(
-                      text: AppLocalizations.of(context)!.saveAction,
-                      isLoading: state.status == TransactionsStatus.loading,
-                      onPressed: () => _onSave(context),
                     );
                   },
                 ),
               ],
             ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.transactionType,
+                      style: AppTextStyles.bodyMedium,
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Sélecteur de type : Dépense ou Revenu
+                    Row(
+                      children: [
+                        _TypeButton(
+                          label: AppLocalizations.of(context)!.expense,
+                          isSelected: _type == 'expense',
+                          onTap: _selectedGoalId != null
+                              ? () {} // Disabled
+                              : () => setState(() => _type = 'expense'),
+                          color: AppColors.error,
+                          enabled:
+                              _selectedGoalId == null || _type == 'expense',
+                        ),
+                        const SizedBox(width: 12),
+                        _TypeButton(
+                          label: AppLocalizations.of(context)!.income,
+                          isSelected: _type == 'income',
+                          onTap: _selectedGoalId != null
+                              ? () {} // Disabled
+                              : () => setState(() => _type = 'income'),
+                          color: AppColors.success,
+                          enabled: _selectedGoalId == null,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Champ Montant
+                    Showcase(
+                      key: _amountKey,
+                      title: AppLocalizations.of(
+                        context,
+                      )!.tutorialAddTransactionTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialAddTransactionDesc,
+                      child: AppTextField(
+                        controller: _amountController,
+                        label: AppLocalizations.of(context)!.amountLabel,
+                        hint: AppLocalizations.of(context)!.amountHint,
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return AppLocalizations.of(context)!.requiredField;
+                          }
+                          if (double.tryParse(value) == null) {
+                            return AppLocalizations.of(context)!.invalidNumber;
+                          }
+                          return null;
+                        },
+                        suffix: Text(
+                          context
+                                  .read<AuthBloc>()
+                                  .state
+                                  .authResponse
+                                  ?.user
+                                  .currency ??
+                              'XAF',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Sélecteur de catégorie
+                    BlocBuilder<BudgetsBloc, BudgetsState>(
+                      builder: (context, budgetState) {
+                        // Union des catégories standards et des catégories existantes dans les budgets
+                        final budgetCategoryNames = budgetState.budgets
+                            .expand((b) => b.categories)
+                            .map((c) => c.name)
+                            .toSet();
+
+                        final allCategories = {
+                          ...AppCategories.categories,
+                          ...budgetCategoryNames,
+                        }.toList()..sort();
+
+                        // S'assurer que la catégorie sélectionnée est dans la liste
+                        if (_selectedCategory != null &&
+                            !allCategories.contains(_selectedCategory)) {
+                          allCategories.add(_selectedCategory!);
+                          allCategories.sort();
+                        }
+
+                        return DropdownButtonFormField<String>(
+                          initialValue: _selectedCategory,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(
+                              context,
+                            )!.categoryLabel,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          hint: Text(
+                            AppLocalizations.of(context)!.categoryHint,
+                          ),
+                          items: allCategories.map((String category) {
+                            return DropdownMenuItem<String>(
+                              value: category,
+                              child: Text(category),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedCategory = newValue;
+                            });
+                          },
+                          validator: (value) => (value == null || value.isEmpty)
+                              ? AppLocalizations.of(context)!.requiredField
+                              : null,
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Champs optionnels supplémentaires
+                    AppTextField(
+                      controller: _subcategoryController,
+                      label: AppLocalizations.of(context)!.subcategoryLabel,
+                      hint: AppLocalizations.of(context)!.subcategoryHint,
+                    ),
+                    const SizedBox(height: 20),
+                    AppTextField(
+                      controller: _merchantController,
+                      label: AppLocalizations.of(context)!.merchantLabel,
+                      hint: AppLocalizations.of(context)!.merchantHint,
+                    ),
+                    const SizedBox(height: 20),
+                    AppTextField(
+                      controller: _locationController,
+                      label: AppLocalizations.of(context)!.locationLabel,
+                      hint: AppLocalizations.of(context)!.locationHint,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Liaison optionnelle avec un objectif d'épargne
+                    BlocBuilder<GoalsBloc, GoalsState>(
+                      builder: (context, state) {
+                        if (state.goals.isEmpty) return const SizedBox.shrink();
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.linkToGoalLabel,
+                              style: AppTextStyles.bodyMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surface,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: _selectedGoalId,
+                                  isExpanded: true,
+                                  hint: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.selectGoalHint,
+                                  ),
+                                  items: [
+                                    DropdownMenuItem<String>(
+                                      value: null,
+                                      child: Text(
+                                        AppLocalizations.of(context)!.none,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ),
+                                    ...state.goals.map((goal) {
+                                      return DropdownMenuItem(
+                                        value: goal.id,
+                                        child: Text(
+                                          "${goal.emoji ?? '🎯'} ${goal.name}",
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedGoalId = value;
+                                      if (_selectedGoalId != null) {
+                                        _type = 'expense';
+                                      }
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                            if (_selectedGoalId != null)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 8.0,
+                                  left: 4.0,
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.goalForcedExpenseHint,
+                                  style: AppTextStyles.labelSmall.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ),
+                            const SizedBox(height: 20),
+                          ],
+                        );
+                      },
+                    ),
+
+                    // Champ Description
+                    AppTextField(
+                      controller: _descriptionController,
+                      label: AppLocalizations.of(context)!.descriptionLabel,
+                      hint: AppLocalizations.of(context)!.descriptionHint,
+                      validator: (value) => (value == null || value.isEmpty)
+                          ? AppLocalizations.of(context)!.requiredField
+                          : null,
+                    ),
+                    const SizedBox(height: 40),
+
+                    // Bouton de sauvegarde final
+                    BlocBuilder<TransactionsBloc, TransactionsState>(
+                      builder: (context, state) {
+                        return AppButton(
+                          text: AppLocalizations.of(context)!.saveAction,
+                          isLoading: state.status == TransactionsStatus.loading,
+                          onPressed: () => _onSave(context),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

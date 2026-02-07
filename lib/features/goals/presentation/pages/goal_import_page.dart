@@ -11,6 +11,8 @@ import '../bloc/goals_state.dart';
 import '../../../../core/services/share_service.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 
 class GoalImportPage extends StatelessWidget {
   final String dataToken;
@@ -28,93 +30,124 @@ class GoalImportPage extends StatelessWidget {
       );
     }
 
-    return BlocProvider(
-      create: (context) =>
-          getIt<
-            GoalsBloc
-          >(), // Use existing bloc or new instance? New instance fine for adding.
-      child: BlocConsumer<GoalsBloc, GoalsState>(
-        listener: (context, state) {
-          if (state.status == GoalsStatus.success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  AppLocalizations.of(context)!.goalImportedSuccess,
-                ),
-              ),
-            );
-            context.go(RouteConstants.goals);
-          }
-        },
-        builder: (context, state) {
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.featGoals,
+        );
+
+        if (featureStatus == FeatureStatus.disabled) {
           return Scaffold(
             appBar: AppBar(
               title: Text(AppLocalizations.of(context)!.importGoal),
             ),
-            body: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.sharedGoal,
-                          style: AppTextStyles.labelLarge.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(goal.name, style: AppTextStyles.h2),
-                        const SizedBox(height: 16),
-                        _buildRow(
-                          context,
-                          AppLocalizations.of(context)!.targetAmount,
-                          '${goal.targetAmount.toStringAsFixed(0)} F',
-                        ),
-                        _buildRow(
-                          context,
-                          AppLocalizations.of(context)!.deadline,
-                          _formatDate(goal.deadline),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    AppLocalizations.of(context)!.addGoalToListPrompt,
-                    style: AppTextStyles.bodyLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  AppButton(
-                    text: AppLocalizations.of(context)!.acceptGoal,
-                    isLoading: state.status == GoalsStatus.loading,
-                    onPressed: () {
-                      context.read<GoalsBloc>().add(AddGoalRequested(goal));
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: () => context.go(RouteConstants.dashboard),
-                    child: Text(AppLocalizations.of(context)!.cancel),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-              ),
+            body: FeatureDisabledWidget(
+              title: AppLocalizations.of(context)!.goals,
             ),
           );
-        },
-      ),
+        }
+
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context)!.importGoal),
+            ),
+            body: FeatureDisabledWidget(
+              title: AppLocalizations.of(context)!.goals,
+              isUpdateRequired: true,
+            ),
+          );
+        }
+
+        return BlocProvider(
+          create: (context) =>
+              getIt<
+                GoalsBloc
+              >(), // Use existing bloc or new instance? New instance fine for adding.
+          child: BlocConsumer<GoalsBloc, GoalsState>(
+            listener: (context, state) {
+              if (state.status == GoalsStatus.success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      AppLocalizations.of(context)!.goalImportedSuccess,
+                    ),
+                  ),
+                );
+                context.go(RouteConstants.goals);
+              }
+            },
+            builder: (context, state) {
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text(AppLocalizations.of(context)!.importGoal),
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.sharedGoal,
+                              style: AppTextStyles.labelLarge.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(goal.name, style: AppTextStyles.h2),
+                            const SizedBox(height: 16),
+                            _buildRow(
+                              context,
+                              AppLocalizations.of(context)!.targetAmount,
+                              '${goal.targetAmount.toStringAsFixed(0)} F',
+                            ),
+                            _buildRow(
+                              context,
+                              AppLocalizations.of(context)!.deadline,
+                              _formatDate(goal.deadline),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        AppLocalizations.of(context)!.addGoalToListPrompt,
+                        style: AppTextStyles.bodyLarge,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      AppButton(
+                        text: AppLocalizations.of(context)!.acceptGoal,
+                        isLoading: state.status == GoalsStatus.loading,
+                        onPressed: () {
+                          context.read<GoalsBloc>().add(AddGoalRequested(goal));
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed: () => context.go(RouteConstants.dashboard),
+                        child: Text(AppLocalizations.of(context)!.cancel),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

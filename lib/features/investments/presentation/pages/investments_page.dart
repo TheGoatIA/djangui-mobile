@@ -16,6 +16,9 @@ import '../../../../core/utils/currency_helper.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
+
 class InvestmentsPage extends StatelessWidget {
   const InvestmentsPage({super.key});
 
@@ -87,147 +90,169 @@ class _InvestmentsViewState extends State<InvestmentsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.myInvestments),
-        actions: [
-          Showcase(
-            key: _addKey,
-            title: AppLocalizations.of(context)!.tutorialAddInvestmentTitle,
-            description: AppLocalizations.of(
-              context,
-            )!.tutorialAddInvestmentDesc,
-            child: IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () =>
-                  context.push('${RouteConstants.investments}/add'),
-            ),
-          ),
-        ],
-      ),
-      body: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, authState) {
-          final isPremium = authState.authResponse?.user.isPremium ?? false;
+    final l10n = AppLocalizations.of(context)!;
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.featInvestments,
+        );
 
-          if (!isPremium) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.lock_outline,
-                      size: 80,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      AppLocalizations.of(context)!.premiumWelcomeTitle,
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.h3,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      AppLocalizations.of(
-                        context,
-                      )!.investmentsPremiumRestriction,
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    Showcase(
-                      key: _premiumKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialSubscriptionTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialSubscriptionDesc,
-                      child: AppButton(
-                        text: AppLocalizations.of(context)!.upgradeToPremium,
-                        onPressed: () =>
-                            context.push(RouteConstants.subscription),
-                      ),
-                    ),
-                  ],
+        if (featureStatus == FeatureStatus.disabled) {
+          return FeatureDisabledWidget(title: l10n.myInvestments);
+        }
+
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return FeatureDisabledWidget(
+            title: l10n.myInvestments,
+            isUpdateRequired: true,
+          );
+        }
+
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            title: Text(l10n.myInvestments),
+            actions: [
+              Showcase(
+                key: _addKey,
+                title: l10n.tutorialAddInvestmentTitle,
+                description: l10n.tutorialAddInvestmentDesc,
+                child: IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () =>
+                      context.push('${RouteConstants.investments}/add'),
                 ),
               ),
-            );
-          }
+            ],
+          ),
+          body: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, authState) {
+              final isPremium = authState.authResponse?.user.isPremium ?? false;
 
-          return BlocBuilder<InvestmentsBloc, InvestmentsState>(
-            builder: (context, state) {
-              if (state.status == InvestmentsStatus.loading) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (state.status == InvestmentsStatus.error) {
+              if (!isPremium) {
                 return Center(
-                  child: Text(
-                    state.errorMessage ??
-                        AppLocalizations.of(context)!.errorOccurred,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.lock_outline,
+                          size: 80,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          AppLocalizations.of(context)!.premiumWelcomeTitle,
+                          textAlign: TextAlign.center,
+                          style: AppTextStyles.h3,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.investmentsPremiumRestriction,
+                          textAlign: TextAlign.center,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        Showcase(
+                          key: _premiumKey,
+                          title: AppLocalizations.of(
+                            context,
+                          )!.tutorialSubscriptionTitle,
+                          description: AppLocalizations.of(
+                            context,
+                          )!.tutorialSubscriptionDesc,
+                          child: AppButton(
+                            text: AppLocalizations.of(
+                              context,
+                            )!.upgradeToPremium,
+                            onPressed: () =>
+                                context.push(RouteConstants.subscription),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
-              } else if (state.investments.isEmpty) {
-                return _buildEmptyState(context);
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(20),
-                itemCount: state.investments.length,
-                itemBuilder: (context, index) {
-                  final investment = state.investments[index];
-                  final widget = _buildInvestmentCard(context, investment);
-
-                  final dismissible = Dismissible(
-                    key: Key(investment.id),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.error,
-                        borderRadius: BorderRadius.circular(16),
+              return BlocBuilder<InvestmentsBloc, InvestmentsState>(
+                builder: (context, state) {
+                  if (state.status == InvestmentsStatus.loading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state.status == InvestmentsStatus.error) {
+                    return Center(
+                      child: Text(
+                        state.errorMessage ??
+                            AppLocalizations.of(context)!.errorOccurred,
                       ),
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: Icon(
-                        Icons.delete,
-                        color: Theme.of(context).colorScheme.onError,
-                      ),
-                    ),
-                    confirmDismiss: (direction) async {
-                      return await _showDeleteConfirmation(context);
-                    },
-                    onDismissed: (direction) {
-                      context.read<InvestmentsBloc>().add(
-                        DeleteInvestment(investment.id),
-                      );
-                    },
-                    child: widget,
-                  );
-
-                  if (index == 0) {
-                    return Showcase(
-                      key: _listKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialInvestmentsTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialInvestmentsDesc,
-                      child: dismissible,
                     );
+                  } else if (state.investments.isEmpty) {
+                    return _buildEmptyState(context);
                   }
 
-                  return dismissible;
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(20),
+                    itemCount: state.investments.length,
+                    itemBuilder: (context, index) {
+                      final investment = state.investments[index];
+                      final widget = _buildInvestmentCard(context, investment);
+
+                      final dismissible = Dismissible(
+                        key: Key(investment.id),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.error,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          child: Icon(
+                            Icons.delete,
+                            color: Theme.of(context).colorScheme.onError,
+                          ),
+                        ),
+                        confirmDismiss: (direction) async {
+                          return await _showDeleteConfirmation(context);
+                        },
+                        onDismissed: (direction) {
+                          context.read<InvestmentsBloc>().add(
+                            DeleteInvestment(investment.id),
+                          );
+                        },
+                        child: widget,
+                      );
+
+                      if (index == 0) {
+                        return Showcase(
+                          key: _listKey,
+                          title: AppLocalizations.of(
+                            context,
+                          )!.tutorialInvestmentsTitle,
+                          description: AppLocalizations.of(
+                            context,
+                          )!.tutorialInvestmentsDesc,
+                          child: dismissible,
+                        );
+                      }
+
+                      return dismissible;
+                    },
+                  );
                 },
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 

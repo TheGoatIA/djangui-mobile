@@ -1,6 +1,8 @@
 import 'package:injectable/injectable.dart';
 import 'package:kauri/features/subscription/data/datasources/payment_api_service.dart';
 import 'package:kauri/features/subscription/data/models/payment_model.dart';
+import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/di/injection.dart';
 
 /// Service gérant les opérations de paiement et d'abonnement.
 ///
@@ -9,6 +11,7 @@ import 'package:kauri/features/subscription/data/models/payment_model.dart';
 @lazySingleton
 class PaymentService {
   final PaymentApiService _apiService;
+  TelemetryService get _telemetry => getIt<TelemetryService>();
 
   PaymentService(this._apiService);
 
@@ -66,7 +69,17 @@ class PaymentService {
 
     if (response.isSuccessful && response.body != null) {
       final data = response.body!['data'] as Map<String, dynamic>?;
-      return data?['url'] as String?;
+      final url = data?['url'] as String?;
+
+      // Telemetry: Payment Initialized
+      _telemetry.recordEvent('business.payment.init', {
+        'provider': 'notchpay',
+        'amount': amount,
+        'currency': currency ?? 'XAF',
+        'success': url != null,
+      });
+
+      return url;
     }
     return null;
   }
@@ -82,7 +95,17 @@ class PaymentService {
 
     if (response.isSuccessful && response.body != null) {
       final data = response.body!['data'] as Map<String, dynamic>?;
-      return data?['url'] as String?;
+      final url = data?['url'] as String?;
+
+      // Telemetry: Payment Initialized
+      _telemetry.recordEvent('business.payment.init', {
+        'provider': 'stripe',
+        'amount': amount,
+        'currency': currency,
+        'success': url != null,
+      });
+
+      return url;
     }
     return null;
   }
@@ -91,7 +114,15 @@ class PaymentService {
   Future<bool> verifyTransaction(String reference) async {
     try {
       final response = await _apiService.verifyTransaction(reference);
-      return response.isSuccessful;
+      final success = response.isSuccessful;
+
+      // Telemetry: Payment Verification
+      _telemetry.recordEvent('business.payment.verify', {
+        'reference': reference,
+        'success': success,
+      });
+
+      return success;
     } catch (e) {
       return false;
     }

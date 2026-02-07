@@ -22,6 +22,8 @@ import 'package:kauri/features/analytics/presentation/manager/analytics_manager.
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 
 /// Page listant les budgets mensuels de l'utilisateur.
 ///
@@ -32,7 +34,26 @@ class BudgetListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const BudgetListView();
+    final l10n = AppLocalizations.of(context)!;
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.featBudgets,
+        );
+
+        if (featureStatus == FeatureStatus.disabled) {
+          return FeatureDisabledWidget(title: l10n.myBudgets);
+        }
+
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return FeatureDisabledWidget(
+            title: l10n.myBudgets,
+            isUpdateRequired: true,
+          );
+        }
+        return const BudgetListView();
+      },
+    );
   }
 }
 
@@ -105,26 +126,33 @@ class _BudgetListViewState extends State<BudgetListView> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.myBudgets),
         actions: [
-          Showcase(
-            key: _anneKey,
-            title: AppLocalizations.of(context)!.tutorialAnneTitle,
-            description: AppLocalizations.of(context)!.tutorialAnneDesc,
-            child: TextButton.icon(
-              onPressed: () {
-                context.read<BudgetsBloc>().add(
-                  const GenerateAutoBudgetRequested(),
-                );
-                _showAnneLoader(context);
-              },
-              icon: const Icon(Icons.psychology_outlined, size: 20),
-              label: Text(
-                AppLocalizations.of(context)!.generateViaAnne,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+          BlocBuilder<SystemBloc, SystemState>(
+            builder: (context, systemState) {
+              if (!systemState.featureFlags.aiBudgetGeneration.isEnabled) {
+                return const SizedBox.shrink();
+              }
+              return Showcase(
+                key: _anneKey,
+                title: AppLocalizations.of(context)!.tutorialAnneTitle,
+                description: AppLocalizations.of(context)!.tutorialAnneDesc,
+                child: TextButton.icon(
+                  onPressed: () {
+                    context.read<BudgetsBloc>().add(
+                      const GenerateAutoBudgetRequested(),
+                    );
+                    _showAnneLoader(context);
+                  },
+                  icon: const Icon(Icons.psychology_outlined, size: 20),
+                  label: Text(
+                    AppLocalizations.of(context)!.generateViaAnne,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
           const SizedBox(width: 8),
         ],

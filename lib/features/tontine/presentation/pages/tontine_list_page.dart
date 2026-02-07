@@ -14,6 +14,8 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/tutorial_service.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 
 /// Page listant les Tontines (épargne collective) de l'utilisateur.
 ///
@@ -60,85 +62,105 @@ class _TontineListPageState extends State<TontineListPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: Text(l10n.tontine),
-        elevation: 0,
-        actions: [
-          // Guide informatif sur le fonctionnement des tontines
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            tooltip: l10n.tontineGuideTitle,
-            onPressed: () =>
-                context.pushNamed(RouteConstants.tontineGuideNamed),
-          ),
-          // Bouton pour rejoindre une tontine existante via un code
-          Showcase(
-            key: _joinKey,
-            title: l10n.tutorialJoinTontineTitle,
-            description: l10n.tutorialJoinTontineDesc,
-            child: IconButton(
-              icon: const Icon(Icons.group_add_outlined),
-              tooltip: l10n.joinTontine,
-              onPressed: () =>
-                  context.pushNamed(RouteConstants.tontineJoinNamed),
-            ),
-          ),
-        ],
-      ),
-      body: BlocBuilder<TontineBloc, TontineState>(
-        builder: (context, state) {
-          // État de chargement initial
-          if (state.status == TontineStatus.loading && state.tontines.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.featTontines,
+        );
 
-          // État vide si aucune tontine n'est rejointe
-          if (state.tontines.isEmpty) {
-            return Showcase(
-              key: _listKey,
-              title: l10n.tutorialTontineListTitle,
-              description: l10n.tutorialTontineListDesc,
-              child: _buildEmptyState(context, l10n),
-            );
-          }
+        if (featureStatus == FeatureStatus.disabled) {
+          return FeatureDisabledWidget(title: l10n.tontine);
+        }
 
-          // Liste des tontines actives avec support du rafraîchissement
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<TontineBloc>().add(TontinesLoadRequested());
-            },
-            child: Showcase(
-              key: _listKey,
-              title: l10n.tutorialTontineListTitle,
-              description: l10n.tutorialTontineListDesc,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: state.tontines.length,
-                itemBuilder: (context, index) {
-                  final tontine = state.tontines[index];
-                  return _buildTontineCard(context, tontine, l10n)
-                      .animate()
-                      .fadeIn(duration: 400.ms, delay: (index * 100).ms)
-                      .slideX(begin: 0.2, end: 0);
-                },
-              ),
-            ),
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return FeatureDisabledWidget(
+            title: l10n.tontine,
+            isUpdateRequired: true,
           );
-        },
-      ),
-      // Bouton pour créer une nouvelle tontine
-      floatingActionButton: Showcase(
-        key: _createKey,
-        title: l10n.tutorialCreateTontineButtonTitle,
-        description: l10n.tutorialCreateTontineButtonDesc,
-        child: FloatingActionButton.extended(
-          onPressed: () => _handleCreateTontine(context),
-          label: Text(l10n.createTontine),
-          icon: const Icon(Icons.add),
-        ),
-      ),
+        }
+
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            title: Text(l10n.tontine),
+            elevation: 0,
+            actions: [
+              // Guide informatif sur le fonctionnement des tontines
+              IconButton(
+                icon: const Icon(Icons.help_outline),
+                tooltip: l10n.tontineGuideTitle,
+                onPressed: () =>
+                    context.pushNamed(RouteConstants.tontineGuideNamed),
+              ),
+              // Bouton pour rejoindre une tontine existante via un code
+              Showcase(
+                key: _joinKey,
+                title: l10n.tutorialJoinTontineTitle,
+                description: l10n.tutorialJoinTontineDesc,
+                child: IconButton(
+                  icon: const Icon(Icons.group_add_outlined),
+                  tooltip: l10n.joinTontine,
+                  onPressed: () =>
+                      context.pushNamed(RouteConstants.tontineJoinNamed),
+                ),
+              ),
+            ],
+          ),
+          body: BlocBuilder<TontineBloc, TontineState>(
+            builder: (context, state) {
+              // État de chargement initial
+              if (state.status == TontineStatus.loading &&
+                  state.tontines.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              // État vide si aucune tontine n'est rejointe
+              if (state.tontines.isEmpty) {
+                return Showcase(
+                  key: _listKey,
+                  title: l10n.tutorialTontineListTitle,
+                  description: l10n.tutorialTontineListDesc,
+                  child: _buildEmptyState(context, l10n),
+                );
+              }
+
+              // Liste des tontines actives avec support du rafraîchissement
+              return RefreshIndicator(
+                onRefresh: () async {
+                  context.read<TontineBloc>().add(TontinesLoadRequested());
+                },
+                child: Showcase(
+                  key: _listKey,
+                  title: l10n.tutorialTontineListTitle,
+                  description: l10n.tutorialTontineListDesc,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: state.tontines.length,
+                    itemBuilder: (context, index) {
+                      final tontine = state.tontines[index];
+                      return _buildTontineCard(context, tontine, l10n)
+                          .animate()
+                          .fadeIn(duration: 400.ms, delay: (index * 100).ms)
+                          .slideX(begin: 0.2, end: 0);
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+          // Bouton pour créer une nouvelle tontine
+          floatingActionButton: Showcase(
+            key: _createKey,
+            title: l10n.tutorialCreateTontineButtonTitle,
+            description: l10n.tutorialCreateTontineButtonDesc,
+            child: FloatingActionButton.extended(
+              onPressed: () => _handleCreateTontine(context),
+              label: Text(l10n.createTontine),
+              icon: const Icon(Icons.add),
+            ),
+          ),
+        );
+      },
     );
   }
 

@@ -3905,7 +3905,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialAnneDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Anne analyse vos revenus et dépenses pour vous proposer un budget optimisé pour le mois à venir.'**
+  /// **'Anne analyse vos revenus et d\'épenses pour vous proposer un budget optimisé pour le mois à venir.'**
   String get tutorialAnneDesc;
 
   /// No description provided for @budgetExistsTitle.
@@ -4045,6 +4045,42 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Pourcentage de chaque revenu automatiquement mis de côté.'**
   String get percentageIncomeDesc;
+
+  /// No description provided for @featureDisabledTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonctionnalité Indisponible'**
+  String get featureDisabledTitle;
+
+  /// No description provided for @featureDisabledMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette fonctionnalité est actuellement désactivée. Veuillez contacter le support ou réessayer plus tard.'**
+  String get featureDisabledMessage;
+
+  /// No description provided for @featureUpdateRequiredMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette fonctionnalité nécessite une version plus récente de Kauri. Veuillez mettre à jour votre application pour en profiter.'**
+  String get featureUpdateRequiredMessage;
+
+  /// No description provided for @back.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get back;
+
+  /// No description provided for @search.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher'**
+  String get search;
+
+  /// No description provided for @addCustomCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une catégorie personnalisée'**
+  String get addCustomCategory;
 }
 
 class _AppLocalizationsDelegate

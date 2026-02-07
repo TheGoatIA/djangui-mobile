@@ -1,5 +1,6 @@
 import 'package:chopper/chopper.dart' hide HttpLoggingInterceptor;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kauri/core/network/tracing_http_client.dart';
 import 'package:kauri/features/ai_tools/data/models/ai_tools_model.dart';
 import 'package:kauri/features/auth/data/models/auth_response.dart';
 import 'package:kauri/features/auth/data/models/user_model.dart';
@@ -24,6 +25,7 @@ import 'package:kauri/features/auth/data/models/country_change_request.dart';
 import 'package:kauri/features/voice/data/models/voice_response_model.dart';
 import 'package:kauri/features/tontine/data/models/tontine_model.dart';
 import 'package:kauri/features/user_subscriptions/data/models/subscription_model.dart';
+import 'package:kauri/features/system/data/models/feature_flag_model.dart';
 import 'package:kauri/features/analytics/data/models/analytics_models.dart';
 import 'json_type_converter.dart';
 import 'interceptors.dart';
@@ -41,6 +43,7 @@ class KauriApiClient {
 
     return ChopperClient(
       baseUrl: Uri.parse(baseUrl),
+      client: TracingHttpClient(),
       interceptors: [AuthInterceptor(), HttpLoggingInterceptor()],
       authenticator: KauriAuthenticator(),
       // Le convertisseur JsonToTypeConverter contient la table de correspondance
@@ -78,6 +81,7 @@ class KauriApiClient {
         NotificationModel: (json) => NotificationModel.fromJson(json),
         CountryModel: (json) => CountryModel.fromJson(json),
         CountryListResponse: (json) => CountryListResponse.fromJson(json),
+        FeatureFlagModel: (json) => FeatureFlagModel.fromJson(json),
         CountryChangeRequestModel: (json) =>
             CountryChangeRequestModel.fromJson(json),
         VoiceResponseModel: (json) => VoiceResponseModel.fromJson(json),

@@ -5,9 +5,14 @@ import '../../domain/repositories/goal_repository.dart';
 import 'goals_event.dart';
 import 'goals_state.dart';
 
+import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/di/injection.dart';
+import 'package:opentelemetry/api.dart';
+
 @injectable
 class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
   final GoalRepository _goalRepository;
+  TelemetryService get _telemetry => getIt<TelemetryService>();
 
   GoalsBloc(this._goalRepository) : super(GoalsState.initial()) {
     on<GetGoalsRequested>(_onGetGoalsRequested);
@@ -40,22 +45,45 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
     AddGoalRequested event,
     Emitter<GoalsState> emit,
   ) async {
-    emit(state.copyWith(status: GoalsStatus.loading));
-    final result = await _goalRepository.createGoal(event.goal);
-    result.fold<void>(
-      (failure) => emit(
-        state.copyWith(
-          status: GoalsStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
-      (goal) {
-        final List<GoalModel> updatedList = List.from(state.goals)..add(goal);
-        emit(
-          state.copyWith(status: GoalsStatus.goalCreated, goals: updatedList),
-        );
-      },
+    final span = _telemetry.tracer.startSpan(
+      'Goal: Create',
+      kind: SpanKind.internal,
     );
+    span.setAttribute(Attribute.fromString('goal.name', event.goal.name));
+    span.setAttribute(
+      Attribute.fromString(
+        'goal.target_amount',
+        event.goal.targetAmount.toString(),
+      ),
+    );
+
+    try {
+      emit(state.copyWith(status: GoalsStatus.loading));
+      final result = await _goalRepository.createGoal(event.goal);
+      result.fold<void>(
+        (failure) {
+          span.setStatus(StatusCode.error, failure.message);
+          emit(
+            state.copyWith(
+              status: GoalsStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (goal) {
+          span.setAttribute(Attribute.fromString('goal.id', goal.id));
+          final List<GoalModel> updatedList = List.from(state.goals)..add(goal);
+          emit(
+            state.copyWith(status: GoalsStatus.goalCreated, goals: updatedList),
+          );
+        },
+      );
+    } catch (e, s) {
+      span.recordException(e, stackTrace: s);
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onDeleteGoalRequested(

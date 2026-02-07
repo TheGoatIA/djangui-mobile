@@ -16,6 +16,8 @@ import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 
 class AddBudgetPage extends StatefulWidget {
   final BudgetModel? budget;
@@ -297,172 +299,181 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<BudgetsBloc, BudgetsState>(
-      listener: (context, state) {
-        if (state.status == BudgetsStatus.success) {
-          final isEdit = widget.budget != null;
-          getIt<AnalyticsManager>().trackEvent(
-            feature: 'Budgets',
-            action: isEdit ? 'update_success' : 'create_success',
-            details: {
-              'total_allocated': state.budgets.last.totalAllocated,
-              'category_count': state.budgets.last.categories.length,
-            },
-          );
-          if (context.canPop()) {
-            context.pop(true);
-          }
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                isEdit
-                    ? AppLocalizations.of(context)!.successBudgetUpdate
-                    : AppLocalizations.of(context)!.successBudget,
-              ),
-            ),
-          );
-        } else if (state.status == BudgetsStatus.error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                state.errorMessage ?? AppLocalizations.of(context)!.errorBudget,
-              ),
-            ),
-          );
+    final l10n = AppLocalizations.of(context)!;
+    final title = widget.budget != null
+        ? l10n.editBudgetTitle
+        : l10n.addBudgetTitle;
+
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.featBudgets,
+        );
+
+        if (featureStatus == FeatureStatus.disabled) {
+          return FeatureDisabledWidget(title: title);
         }
-      },
-      child: ShowCaseWidget(
-        builder: (context) => Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          appBar: AppBar(
-            title: Text(
-              widget.budget != null
-                  ? AppLocalizations.of(context)!.editBudgetTitle
-                  : AppLocalizations.of(context)!.addBudgetTitle,
-            ),
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  InkWell(
-                    onTap: () => _selectDate(context),
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.monthAndYear,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        suffixIcon: const Icon(Icons.calendar_today),
-                      ),
-                      child: Text(
-                        '${_selectedDate.month}/${_selectedDate.year}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
+
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return FeatureDisabledWidget(title: title, isUpdateRequired: true);
+        }
+
+        return BlocListener<BudgetsBloc, BudgetsState>(
+          listener: (context, state) {
+            if (state.status == BudgetsStatus.success) {
+              final isEdit = widget.budget != null;
+              getIt<AnalyticsManager>().trackEvent(
+                feature: 'Budgets',
+                action: isEdit ? 'update_success' : 'create_success',
+                details: {
+                  'total_allocated': state.budgets.last.totalAllocated,
+                  'category_count': state.budgets.last.categories.length,
+                },
+              );
+              if (context.canPop()) {
+                context.pop(true);
+              }
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isEdit ? l10n.successBudgetUpdate : l10n.successBudget,
                   ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                ),
+              );
+            } else if (state.status == BudgetsStatus.error) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.errorMessage ?? l10n.errorBudget)),
+              );
+            }
+          },
+          child: ShowCaseWidget(
+            builder: (context) => Scaffold(
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              appBar: AppBar(
+                title: Text(
+                  widget.budget != null
+                      ? l10n.editBudgetTitle
+                      : l10n.addBudgetTitle,
+                ),
+              ),
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        AppLocalizations.of(context)!.categories,
-                        style: Theme.of(context).textTheme.titleMedium,
+                      InkWell(
+                        onTap: () => _selectDate(context),
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: l10n.monthAndYear,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            suffixIcon: const Icon(Icons.calendar_today),
+                          ),
+                          child: Text(
+                            '${_selectedDate.month}/${_selectedDate.year}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
                       ),
-                      TextButton.icon(
-                        onPressed: _addCategory,
-                        icon: const Icon(Icons.add),
-                        label: Text(AppLocalizations.of(context)!.add),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l10n.categories,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          TextButton.icon(
+                            onPressed: _addCategory,
+                            icon: const Icon(Icons.add),
+                            label: Text(l10n.add),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _categoryItems.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          final item = _categoryItems[index];
+                          return Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.outlineVariant,
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: index == 0
+                                          ? Showcase(
+                                              key: _categoryKey,
+                                              title: l10n.categoryLabel,
+                                              description: l10n.categoryHint,
+                                              child: _buildCategoryInput(item),
+                                            )
+                                          : _buildCategoryInput(item),
+                                    ),
+                                    if (_categoryItems.length > 1)
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.delete,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.error,
+                                        ),
+                                        onPressed: () => _removeCategory(index),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                index == 0
+                                    ? Showcase(
+                                        key: _amountKey,
+                                        title: l10n.tutorialAddBudgetTitle,
+                                        description: l10n.tutorialAddBudgetDesc,
+                                        child: _buildAmountField(item),
+                                      )
+                                    : _buildAmountField(item),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 40),
+                      BlocBuilder<BudgetsBloc, BudgetsState>(
+                        builder: (context, state) {
+                          return AppButton(
+                            text: widget.budget != null
+                                ? l10n.updateBudgetAction
+                                : l10n.createBudgetAction,
+                            isLoading: state.status == BudgetsStatus.loading,
+                            onPressed: () => _onSave(context),
+                          );
+                        },
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _categoryItems.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
-                    itemBuilder: (context, index) {
-                      final item = _categoryItems[index];
-                      return Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.outlineVariant,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: index == 0
-                                      ? Showcase(
-                                          key: _categoryKey,
-                                          title: AppLocalizations.of(
-                                            context,
-                                          )!.categoryLabel,
-                                          description: AppLocalizations.of(
-                                            context,
-                                          )!.categoryHint,
-                                          child: _buildCategoryInput(item),
-                                        )
-                                      : _buildCategoryInput(item),
-                                ),
-                                if (_categoryItems.length > 1)
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.delete,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.error,
-                                    ),
-                                    onPressed: () => _removeCategory(index),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            index == 0
-                                ? Showcase(
-                                    key: _amountKey,
-                                    title: AppLocalizations.of(
-                                      context,
-                                    )!.tutorialAddBudgetTitle,
-                                    description: AppLocalizations.of(
-                                      context,
-                                    )!.tutorialAddBudgetDesc,
-                                    child: _buildAmountField(item),
-                                  )
-                                : _buildAmountField(item),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 40),
-                  BlocBuilder<BudgetsBloc, BudgetsState>(
-                    builder: (context, state) {
-                      return AppButton(
-                        text: widget.budget != null
-                            ? AppLocalizations.of(context)!.updateBudgetAction
-                            : AppLocalizations.of(context)!.createBudgetAction,
-                        isLoading: state.status == BudgetsStatus.loading,
-                        onPressed: () => _onSave(context),
-                      );
-                    },
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

@@ -15,6 +15,8 @@ import 'package:kauri/core/theme/app_shadows.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:kauri/core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 
 class ChallengesPage extends StatelessWidget {
   const ChallengesPage({super.key});
@@ -85,134 +87,148 @@ class _ChallengesViewState extends State<ChallengesView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.challengesTitle),
-      ),
-      body: BlocListener<ChallengesBloc, ChallengesState>(
-        listenWhen: (previous, current) => previous.status != current.status,
-        listener: (context, state) {
-          if (state.status == ChallengesStatus.error &&
-              state.errorMessage != null &&
-              state.challenges.isNotEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
-          }
-        },
-        child: BlocBuilder<ChallengesBloc, ChallengesState>(
-          builder: (context, state) {
-            if (state.status == ChallengesStatus.loading &&
-                state.challenges.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    final l10n = AppLocalizations.of(context)!;
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.featChallenges,
+        );
 
-            if (state.status == ChallengesStatus.error &&
-                state.challenges.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                        state.errorMessage ??
-                            AppLocalizations.of(context)!.genericError,
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
+        if (featureStatus == FeatureStatus.disabled) {
+          return FeatureDisabledWidget(title: l10n.challengesTitle);
+        }
+
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return FeatureDisabledWidget(
+            title: l10n.challengesTitle,
+            isUpdateRequired: true,
+          );
+        }
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(title: Text(l10n.challengesTitle)),
+          body: BlocListener<ChallengesBloc, ChallengesState>(
+            listenWhen: (previous, current) =>
+                previous.status != current.status,
+            listener: (context, state) {
+              if (state.status == ChallengesStatus.error &&
+                  state.errorMessage != null &&
+                  state.challenges.isNotEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.errorMessage!),
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                );
+              }
+            },
+            child: BlocBuilder<ChallengesBloc, ChallengesState>(
+              builder: (context, state) {
+                if (state.status == ChallengesStatus.loading &&
+                    state.challenges.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (state.status == ChallengesStatus.error &&
+                    state.challenges.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.error,
                         ),
-                      ),
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            state.errorMessage ?? l10n.genericError,
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.read<ChallengesBloc>().add(
+                              const GetChallengesRequested(forceRefresh: true),
+                            );
+                          },
+                          child: Text(l10n.retry),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<ChallengesBloc>().add(
-                          const GetChallengesRequested(forceRefresh: true),
-                        );
-                      },
-                      child: Text(AppLocalizations.of(context)!.retry),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            if (state.challenges.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.emoji_events_outlined,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      AppLocalizations.of(context)!.noChallenges,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return RefreshIndicator(
-              onRefresh: () async {
-                context.read<ChallengesBloc>()
-                  ..add(const GetChallengesRequested(forceRefresh: true))
-                  ..add(GetUserChallengesRequested());
-              },
-              child: ListView.separated(
-                padding: const EdgeInsets.all(20),
-                itemCount: state.challenges.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final challenge = state.challenges[index];
-                  // Find if user is participating in this challenge
-                  final userChallenge = state.userChallenges
-                      .where((uc) => uc.challengeId?.id == challenge.id)
-                      .firstOrNull;
-
-                  final widget = _ChallengeCard(
-                    challenge: challenge,
-                    userChallenge: userChallenge,
                   );
+                }
 
-                  if (index == 0) {
-                    return Showcase(
-                      key: _listKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialChallengesTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialChallengesDesc,
-                      child: widget,
-                    );
-                  }
+                if (state.challenges.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.emoji_events_outlined,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.noChallenges,
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
 
-                  return widget;
-                },
-              ),
-            );
-          },
-        ),
-      ),
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    context.read<ChallengesBloc>()
+                      ..add(const GetChallengesRequested(forceRefresh: true))
+                      ..add(GetUserChallengesRequested());
+                  },
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(20),
+                    itemCount: state.challenges.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      final challenge = state.challenges[index];
+                      final userChallenge = state.userChallenges
+                          .where((uc) => uc.challengeId?.id == challenge.id)
+                          .firstOrNull;
+
+                      final widget = _ChallengeCard(
+                        challenge: challenge,
+                        userChallenge: userChallenge,
+                      );
+
+                      if (index == 0) {
+                        return Showcase(
+                          key: _listKey,
+                          title: l10n.tutorialChallengesTitle,
+                          description: l10n.tutorialChallengesDesc,
+                          child: widget,
+                        );
+                      }
+
+                      return widget;
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

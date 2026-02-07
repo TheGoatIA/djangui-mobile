@@ -9,12 +9,17 @@ import '../../data/models/session_model.dart';
 import '../../data/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
 
+import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/di/injection.dart';
+import 'package:opentelemetry/api.dart';
+
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 @lazySingleton
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
+  TelemetryService get _telemetry => getIt<TelemetryService>();
 
   AuthBloc(this._authRepository) : super(AuthState.initial()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
@@ -239,56 +244,111 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthLoginRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _authRepository.login(
-      LoginRequest(email: event.email, password: event.password),
+    final span = _telemetry.tracer.startSpan(
+      'Auth: Login',
+      kind: SpanKind.internal,
     );
-    result.fold<void>(
-      (failure) => emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
-      ),
-      (response) {
-        _authRepository.updateDeviceInfo();
-        _authRepository.logConnection();
-        emit(
-          state.copyWith(
-            status: AuthStatus.authenticated,
-            authResponse: response,
-          ),
-        );
-      },
-    );
+    span.setAttribute(Attribute.fromString('auth.email', event.email));
+
+    try {
+      emit(state.copyWith(status: AuthStatus.loading));
+      final result = await _authRepository.login(
+        LoginRequest(email: event.email, password: event.password),
+      );
+      result.fold<void>(
+        (failure) {
+          span.setStatus(StatusCode.error, failure.message);
+          _telemetry.recordEvent('auth.login.failure', {
+            'reason': failure.message,
+            'email': event.email,
+          });
+          emit(
+            state.copyWith(
+              status: AuthStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (response) {
+          span.setAttribute(Attribute.fromString('user.id', response.user.id));
+          _telemetry.recordEvent('auth.login.success', {
+            'user.id': response.user.id,
+            'email': event.email,
+          });
+          _authRepository.updateDeviceInfo();
+          _authRepository.logConnection();
+          emit(
+            state.copyWith(
+              status: AuthStatus.authenticated,
+              authResponse: response,
+            ),
+          );
+        },
+      );
+    } catch (e, s) {
+      span.recordException(e, stackTrace: s);
+      span.setStatus(StatusCode.error, e.toString());
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onAuthRegisterRequested(
     AuthRegisterRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _authRepository.register(
-      RegisterRequest(
-        email: event.email,
-        password: event.password,
-        firstName: event.firstName,
-        lastName: event.lastName,
-        country: event.country,
-      ),
+    final span = _telemetry.tracer.startSpan(
+      'Auth: Register',
+      kind: SpanKind.internal,
     );
-    result.fold<void>(
-      (failure) => emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
-      ),
-      (response) {
-        _authRepository.updateDeviceInfo();
-        _authRepository.logConnection();
-        emit(
-          state.copyWith(
-            status: AuthStatus.authenticated,
-            authResponse: response,
-          ),
-        );
-      },
+    span.setAttribute(Attribute.fromString('auth.email', event.email));
+    span.setAttribute(
+      Attribute.fromString('user.country', event.country ?? 'unknown'),
     );
+
+    try {
+      emit(state.copyWith(status: AuthStatus.loading));
+      final result = await _authRepository.register(
+        RegisterRequest(
+          email: event.email,
+          password: event.password,
+          firstName: event.firstName,
+          lastName: event.lastName,
+          country: event.country,
+        ),
+      );
+      result.fold<void>(
+        (failure) {
+          span.setAttribute(Attribute.fromString('auth.status', 'failure'));
+          span.recordException(failure.message);
+          emit(
+            state.copyWith(
+              status: AuthStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (response) {
+          span.setAttribute(Attribute.fromString('auth.status', 'success'));
+          span.setAttribute(Attribute.fromString('user.id', response.user.id));
+          _authRepository.updateDeviceInfo();
+          _authRepository.logConnection();
+          emit(
+            state.copyWith(
+              status: AuthStatus.authenticated,
+              authResponse: response,
+            ),
+          );
+        },
+      );
+    } catch (e, s) {
+      span.recordException(e, stackTrace: s);
+      span.setStatus(StatusCode.error, e.toString());
+      rethrow;
+    } finally {
+      span.end();
+    }
   }
 
   Future<void> _onAuthLogoutRequested(

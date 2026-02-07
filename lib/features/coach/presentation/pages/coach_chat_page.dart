@@ -15,6 +15,8 @@ import '../../../../core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
+import '../../../../core/widgets/feature_disabled_widget.dart';
 
 /// Page de discussion avec le Coach Kauri (IA).
 ///
@@ -104,99 +106,114 @@ class _CoachChatViewState extends State<CoachChatView> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.coachTitle),
-            Text(
-              l10n.online,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.success,
-                fontSize: 10,
-              ),
+    return BlocBuilder<SystemBloc, SystemState>(
+      builder: (context, systemState) {
+        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+          systemState.featureFlags.aiCoachChat,
+        );
+
+        if (featureStatus == FeatureStatus.disabled) {
+          return FeatureDisabledWidget(title: l10n.coachTitle);
+        }
+
+        if (featureStatus == FeatureStatus.updateRequired) {
+          return FeatureDisabledWidget(
+            title: l10n.coachTitle,
+            isUpdateRequired: true,
+          );
+        }
+
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.coachTitle),
+                Text(
+                  l10n.online,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.success,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        actions: [
-          // Bouton pour réinitialiser la conversation
-          Builder(
-            builder: (context) {
-              return IconButton(
+            actions: [
+              IconButton(
                 icon: const Icon(Icons.delete_sweep_outlined),
                 onPressed: () =>
                     context.read<CoachBloc>().add(ClearHistoryRequested()),
-              );
-            },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: BlocConsumer<CoachBloc, CoachState>(
-              listener: (context, state) {
-                _scrollToBottom();
-              },
-              builder: (context, state) {
-                // Chargement initial
-                if (state.status == CoachStatus.loading &&
-                    state.messages.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                // État vide (bienvenue)
-                if (state.messages.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.chat_bubble_outline,
-                          size: 64,
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.coachWelcomeMessage,
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(20),
-                  itemCount: state.messages.length + (state.isSending ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    // Indicateur "Le coach réfléchit..."
-                    if (index == state.messages.length) {
-                      return _buildTypingIndicator();
-                    }
-                    final message = state.messages[index];
-                    return _MessageBubble(message: message);
+          body: Column(
+            children: [
+              Expanded(
+                child: BlocConsumer<CoachBloc, CoachState>(
+                  listener: (context, state) {
+                    _scrollToBottom();
                   },
-                );
-              },
-            ),
+                  builder: (context, state) {
+                    // Chargement initial
+                    if (state.status == CoachStatus.loading &&
+                        state.messages.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    // État vide (bienvenue)
+                    if (state.messages.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.chat_bubble_outline,
+                              size: 64,
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              l10n.coachWelcomeMessage,
+                              style: AppTextStyles.bodyLarge.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(20),
+                      itemCount:
+                          state.messages.length + (state.isSending ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        // Indicateur "Le coach réfléchit..."
+                        if (index == state.messages.length) {
+                          return _buildTypingIndicator();
+                        }
+                        final message = state.messages[index];
+                        return _MessageBubble(message: message);
+                      },
+                    );
+                  },
+                ),
+              ),
+              // Zone de saisie mise en avant par le tutoriel le cas échéant
+              Showcase(
+                key: _inputKey,
+                title: l10n.coachTitle,
+                description: l10n.typeQuestionHint,
+                child: _buildInputArea(context),
+              ),
+            ],
           ),
-          // Zone de saisie mise en avant par le tutoriel le cas échéant
-          Showcase(
-            key: _inputKey,
-            title: l10n.coachTitle,
-            description: l10n.typeQuestionHint,
-            child: _buildInputArea(context),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -263,31 +280,27 @@ class _CoachChatViewState extends State<CoachChatView> {
               ),
             ),
             const SizedBox(width: 8),
-            Builder(
-              builder: (context) {
-                return CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.send,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      size: 20,
-                    ),
-                    onPressed: () {
-                      if (_messageController.text.trim().isNotEmpty) {
-                        getIt<AnalyticsManager>().trackEvent(
-                          feature: 'AI Coach',
-                          action: 'send_message',
-                        );
-                        context.read<CoachBloc>().add(
-                          SendMessageRequested(_messageController.text),
-                        );
-                        _messageController.clear();
-                      }
-                    },
-                  ),
-                );
-              },
+            CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: IconButton(
+                icon: Icon(
+                  Icons.send,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  size: 20,
+                ),
+                onPressed: () {
+                  if (_messageController.text.trim().isNotEmpty) {
+                    getIt<AnalyticsManager>().trackEvent(
+                      feature: 'AI Coach',
+                      action: 'send_message',
+                    );
+                    context.read<CoachBloc>().add(
+                      SendMessageRequested(_messageController.text),
+                    );
+                    _messageController.clear();
+                  }
+                },
+              ),
             ),
           ],
         ),

@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 import 'package:kauri/core/database/database.dart' as db;
+import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/di/injection.dart';
 import 'package:kauri/features/transactions/data/datasources/transaction_remote_datasource.dart';
 import 'package:kauri/features/transactions/data/models/transaction_model.dart';
 import 'package:kauri/features/user_subscriptions/data/datasources/subscription_api_service.dart';
@@ -50,7 +52,15 @@ class SyncService {
   void initialize() {
     // Écoute en temps réel des changements d'état (Connecté/Déconnecté)
     _connectionChecker.onStatusChange.listen((status) {
-      if (status == InternetConnectionStatus.connected) {
+      final telemetry = getIt<TelemetryService>(); // Lazy get
+      final isConnected = status == InternetConnectionStatus.connected;
+
+      // Telemetry: Network Status Change
+      telemetry.recordEvent('network.status_change', {
+        'status': isConnected ? 'connected' : 'disconnected',
+      });
+
+      if (isConnected) {
         _logger.i('Connexion rétablie. Déclenchement de la synchronisation...');
         syncPendingRequests();
       }
