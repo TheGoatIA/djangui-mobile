@@ -115,7 +115,7 @@ dependencies:
   record: ^6.2.0
   audioplayers: ^6.1.0
   crypto: ^3.0.7
-  confetti: ^0.7.0
+  confetti: ^0.8.0
   speech_to_text: ^7.3.0
   flutter_dynamic_icon_plus: ^1.4.0
   opentelemetry: ^0.18.10
