@@ -7,20 +7,30 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../di/injection.dart';
 import '../../data/models/investment_model.dart';
 import '../bloc/investments_bloc.dart';
-import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 class AddInvestmentPage extends StatefulWidget {
   const AddInvestmentPage({super.key});
 
   @override
+  @override
   State<AddInvestmentPage> createState() => _AddInvestmentPageState();
 }
 
 class _AddInvestmentPageState extends State<AddInvestmentPage> {
+  @override
+  void initState() {
+    super.initState();
+    getIt<LogService>().info(
+      'Affichage de la page d\'ajout d\'investissement.',
+      component: 'AddInvestmentPage',
+    );
+  }
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _amountController = TextEditingController();
@@ -61,10 +71,10 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
       // Wait... AddInvestmentPage is pushed onto stack. We need to pass the bloc or re-retrieve it.
       // Since InvestmentsPage creates the bloc, we might need a Global/Feature scope bloc.
       // For now, let's use getIt<InvestmentsBloc>() directly.
-      getIt<AnalyticsManager>().trackEvent(
-        feature: 'Investments',
-        action: 'add_success',
-        details: {'type': _selectedType, 'amount': amount},
+      getIt<LogService>().info(
+        'Action: Création d\'investissement',
+        component: 'AddInvestmentPage',
+        metadata: {'type': _selectedType, 'amount': amount},
       );
       getIt<InvestmentsBloc>().add(AddInvestment(investment));
       if (context.canPop()) {

@@ -7,6 +7,8 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/repositories/analytics_repository.dart';
 import 'package:kauri/features/analytics/data/models/analytics_models.dart';
+import 'package:kauri/core/services/log_service.dart';
+import 'package:kauri/di/injection.dart';
 
 @lazySingleton
 class AnalyticsManager {
@@ -56,8 +58,14 @@ class AnalyticsManager {
     );
 
     result.fold(
-      (failure) =>
-          debugPrint('❌ [Analytics] Failed to start session: $failure'),
+      (failure) {
+        debugPrint('❌ [Analytics] Failed to start session: $failure');
+        getIt<LogService>().error(
+          'Failed to start session',
+          component: 'AnalyticsManager',
+          error: failure,
+        );
+      },
       (sessionId) {
         _sessionId = sessionId;
         _prefs.setString(_kSessionKey, sessionId);
@@ -70,8 +78,14 @@ class AnalyticsManager {
     if (_sessionId != null) {
       final result = await _repository.endSession(_sessionId!);
       result.fold(
-        (failure) =>
-            debugPrint('❌ [Analytics] Failed to end session: $failure'),
+        (failure) {
+          debugPrint('❌ [Analytics] Failed to end session: $failure');
+          getIt<LogService>().error(
+            'Failed to end session',
+            component: 'AnalyticsManager',
+            error: failure,
+          );
+        },
         (_) {
           debugPrint('✅ [Analytics] Session ended: $_sessionId');
           _sessionId = null;
@@ -95,9 +109,10 @@ class AnalyticsManager {
     );
 
     final result = await _repository.trackEvent(activity);
-    result.fold(
-      (failure) => debugPrint('❌ [Analytics] Failed to track event: $failure'),
-      (_) => debugPrint('📊 [Analytics] Event tracked: $feature - $action'),
-    );
+    result.fold((failure) {
+      debugPrint('❌ [Analytics] Failed to track event: $failure');
+      // Optional: Log tracking failure to Graylog if critical, but might be noisy.
+      // getIt<LogService>().warning('Failed to track event', component: 'AnalyticsManager', error: failure);
+    }, (_) => debugPrint('📊 [Analytics] Event tracked: $feature - $action'));
   }
 }

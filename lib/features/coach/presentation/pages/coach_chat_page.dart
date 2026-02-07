@@ -17,6 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 /// Page de discussion avec le Coach Kauri (IA).
 ///
@@ -53,6 +54,10 @@ class _CoachChatViewState extends State<CoachChatView> {
     super.initState();
     // Suivi analytique de l'ouverture de la page
     getIt<AnalyticsManager>().trackEvent(feature: 'AI Coach', action: 'view');
+    getIt<LogService>().info(
+      'Affichage de la page Coach AI.',
+      component: 'CoachChatPage',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -142,8 +147,13 @@ class _CoachChatViewState extends State<CoachChatView> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.delete_sweep_outlined),
-                onPressed: () =>
-                    context.read<CoachBloc>().add(ClearHistoryRequested()),
+                onPressed: () {
+                  getIt<LogService>().info(
+                    'Action: Effacer historique Coach',
+                    component: 'CoachChatPage',
+                  );
+                  context.read<CoachBloc>().add(ClearHistoryRequested());
+                },
               ),
             ],
           ),
@@ -296,6 +306,10 @@ class _CoachChatViewState extends State<CoachChatView> {
                     );
                     context.read<CoachBloc>().add(
                       SendMessageRequested(_messageController.text),
+                    );
+                    getIt<LogService>().info(
+                      'Action: Envoi message Coach',
+                      component: 'CoachChatPage',
                     );
                     _messageController.clear();
                   }

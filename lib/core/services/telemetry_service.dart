@@ -31,7 +31,6 @@ class TelemetryService {
   Future<void> initialize() async {
     try {
       final otelUrl = dotenv.env['OTEL_EXPORTER_OTLP_ENDPOINT'];
-      final metricsUrl = dotenv.env['OTEL_EXPORTER_OTLP_METRICS_ENDPOINT'];
 
       final resource = otel_sdk.Resource([
         Attribute.fromString('service.name', 'kauri-mobile'),
@@ -44,6 +43,7 @@ class TelemetryService {
       // --- TRACES CONFIG (System) ---
       if (otelUrl != null && otelUrl.isNotEmpty) {
         final uri = Uri.parse(otelUrl);
+        // Using basic CollectorExporter which defaults to OTLP/HTTP Protobuf
         final processor = otel_sdk.BatchSpanProcessor(
           otel_sdk.CollectorExporter(uri),
         );
@@ -55,23 +55,15 @@ class TelemetryService {
 
         registerGlobalTracerProvider(provider);
         _tracer = provider.getTracer('kauri-mobile-tracer');
-        debugPrint('✅ [Telemetry] Traces initialized: $otelUrl');
-      }
 
-      // --- METRICS CONFIG (Dual Tracer approach for OTLP Metrics compatibility) ---
-      if (metricsUrl != null && metricsUrl.isNotEmpty) {
-        final uri = Uri.parse(metricsUrl);
-        final metricsProcessor = otel_sdk.BatchSpanProcessor(
-          otel_sdk.CollectorExporter(uri),
+        // CORRECTION: The Dart SDK 0.18.x only supports Traces.
+        // Sending Spans to the Metrics endpoint (which expects OTLP Metrics) causes a 400 error.
+        // We reuse the Trace provider to send "Metrics" as Spans with specific attributes.
+        _metricsTracer = provider.getTracer('kauri-mobile-metrics');
+
+        debugPrint(
+          '✅ [Telemetry] Traces & Metrics initialized (sent as Spans to): $otelUrl',
         );
-
-        final metricsProvider = otel_sdk.TracerProviderBase(
-          processors: [metricsProcessor],
-          resource: resource,
-        );
-
-        _metricsTracer = metricsProvider.getTracer('kauri-mobile-metrics');
-        debugPrint('📊 [Telemetry] Metrics initialized (sent to): $metricsUrl');
       }
     } catch (e, stack) {
       debugPrint('❌ [Telemetry] Initialization failed: $e');

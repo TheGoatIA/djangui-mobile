@@ -18,6 +18,7 @@ import 'package:kauri/features/analytics/presentation/manager/analytics_manager.
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 class AddGoalPage extends StatefulWidget {
   const AddGoalPage({super.key});
@@ -48,6 +49,11 @@ class _AddGoalPageState extends State<AddGoalPage> {
   @override
   void initState() {
     super.initState();
+    context.read<GoalsBloc>().add(ResetGoalsStatus());
+    getIt<LogService>().info(
+      'Affichage de la page de création d\'objectif.',
+      component: 'AddGoalPage',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -140,8 +146,17 @@ class _AddGoalPageState extends State<AddGoalPage> {
       );
       context.read<GoalsBloc>().add(AddGoalRequested(goal));
     } else if (_selectedDate == null) {
+      getIt<LogService>().warning(
+        'Tentative d\'ajout d\'objectif sans date limite',
+        component: 'AddGoalPage',
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.selectDateError)),
+      );
+    } else {
+      getIt<LogService>().warning(
+        'Validation du formulaire d\'objectif échouée',
+        component: 'AddGoalPage',
       );
     }
   }

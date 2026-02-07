@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/repositories/challenge_repository.dart';
+import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 
@@ -12,6 +12,7 @@ import 'challenges_state.dart';
 class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
   final ChallengeRepository _challengeRepository;
   TelemetryService get _telemetry => getIt<TelemetryService>();
+  LogService get _logger => getIt<LogService>();
 
   ChallengesBloc(this._challengeRepository) : super(ChallengesState.initial()) {
     on<GetChallengesRequested>(_onGetChallengesRequested);
@@ -25,14 +26,20 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     GetChallengesRequested event,
     Emitter<ChallengesState> emit,
   ) async {
+    _logger.info(
+      'Récupération de la liste des défis...',
+      component: 'ChallengesBloc',
+    );
     emit(state.copyWith(status: ChallengesStatus.loading));
     final result = await _challengeRepository.getChallenges(
       forceRefresh: event.forceRefresh,
     );
     result.fold<void>(
       (failure) {
-        debugPrint(
-          '🏆 [ChallengesBloc] Error fetching challenges: ${failure.message}',
+        _logger.error(
+          'Échec de la récupération des défis',
+          error: failure.message,
+          component: 'ChallengesBloc',
         );
         emit(
           state.copyWith(
@@ -42,8 +49,9 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
         );
       },
       (challenges) {
-        debugPrint(
-          '🏆 [ChallengesBloc] Fetched ${challenges.length} challenges',
+        _logger.info(
+          '${challenges.length} défis récupérés.',
+          component: 'ChallengesBloc',
         );
         emit(
           state.copyWith(
@@ -59,18 +67,30 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     GetUserChallengesRequested event,
     Emitter<ChallengesState> emit,
   ) async {
+    _logger.info(
+      'Récupération de mes défis en cours...',
+      component: 'ChallengesBloc',
+    );
     emit(state.copyWith(status: ChallengesStatus.loading));
     final result = await _challengeRepository.getUserChallenges();
     result.fold<void>(
-      (failure) => emit(
-        state.copyWith(
-          status: ChallengesStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        _logger.error(
+          'Échec de la récupération de mes défis',
+          error: failure.message,
+          component: 'ChallengesBloc',
+        );
+        emit(
+          state.copyWith(
+            status: ChallengesStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (userChallenges) {
-        debugPrint(
-          '🏆 [ChallengesBloc] Fetched ${userChallenges.length} user challenges',
+        _logger.info(
+          '${userChallenges.length} défis utilisateur récupérés.',
+          component: 'ChallengesBloc',
         );
         emit(
           state.copyWith(
@@ -86,16 +106,31 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     JoinChallengeRequested event,
     Emitter<ChallengesState> emit,
   ) async {
+    _logger.info(
+      'Tentative d\'inscription au défi: ${event.id}',
+      component: 'ChallengesBloc',
+    );
     emit(state.copyWith(status: ChallengesStatus.loading));
     final result = await _challengeRepository.joinChallenge(event.id);
     result.fold<void>(
-      (failure) => emit(
-        state.copyWith(
-          status: ChallengesStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        _logger.warning(
+          'Échec de l\'inscription au défi',
+          component: 'ChallengesBloc',
+          metadata: {'error': failure.message},
+        );
+        emit(
+          state.copyWith(
+            status: ChallengesStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (_) {
+        _logger.info(
+          'Inscription au défi réussie.',
+          component: 'ChallengesBloc',
+        );
         // Success, refresh challenges
         _telemetry.recordEvent('challenge.joined', {'challenge.id': event.id});
         add(const GetChallengesRequested(forceRefresh: true));
@@ -108,6 +143,10 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     ValidateWeekRequested event,
     Emitter<ChallengesState> emit,
   ) async {
+    _logger.info(
+      'Validation de la semaine ${event.weekNumber} pour le défi ${event.userChallengeId}',
+      component: 'ChallengesBloc',
+    );
     emit(state.copyWith(status: ChallengesStatus.loading));
     final result = await _challengeRepository.validateWeek(
       userChallengeId: event.userChallengeId,
@@ -116,13 +155,24 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
       proofPath: event.proofPath,
     );
     result.fold<void>(
-      (failure) => emit(
-        state.copyWith(
-          status: ChallengesStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        _logger.error(
+          'Échec de la validation de la semaine',
+          error: failure.message,
+          component: 'ChallengesBloc',
+        );
+        emit(
+          state.copyWith(
+            status: ChallengesStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (_) {
+        _logger.info(
+          'Semaine validée avec succès.',
+          component: 'ChallengesBloc',
+        );
         // Success
         _telemetry.recordEvent('challenge.validated', {
           'user_challenge.id': event.userChallengeId,

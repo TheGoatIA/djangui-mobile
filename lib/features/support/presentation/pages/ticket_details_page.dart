@@ -8,6 +8,8 @@ import '../bloc/support_event.dart';
 import '../bloc/support_state.dart';
 import '../../data/models/support_ticket_model.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/services/log_service.dart';
+import '../../../../di/injection.dart';
 
 class TicketDetailsPage extends StatefulWidget {
   final String ticketId;
@@ -26,6 +28,10 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
     super.initState();
     // Refresh tickets to ensure we have the latest details for this one
     context.read<SupportBloc>().add(GetTicketsRequested());
+    getIt<LogService>().info(
+      'Affichage du détail du ticket ${widget.ticketId}.',
+      component: 'TicketDetailsPage',
+    );
   }
 
   @override
@@ -102,6 +108,10 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                 isLoading: state.status == SupportStatus.loading,
                 onSend: () {
                   if (_replyController.text.isNotEmpty) {
+                    getIt<LogService>().info(
+                      'Action: Envoi d\'une réponse au ticket ${widget.ticketId}',
+                      component: 'TicketDetailsPage',
+                    );
                     context.read<SupportBloc>().add(
                       ReplyToTicketRequested(
                         ticketId: widget.ticketId,

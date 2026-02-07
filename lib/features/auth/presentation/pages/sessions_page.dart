@@ -5,6 +5,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
+import '../../../../di/injection.dart';
+import '../../../../core/services/log_service.dart';
 import '../../data/models/session_model.dart';
 
 class SessionsPage extends StatefulWidget {
@@ -18,6 +20,10 @@ class _SessionsPageState extends State<SessionsPage> {
   @override
   void initState() {
     super.initState();
+    getIt<LogService>().info(
+      'Affichage de la page des sessions.',
+      component: 'SessionsPage',
+    );
     context.read<AuthBloc>().add(AuthGetSessionsRequested());
   }
 
@@ -50,8 +56,13 @@ class _SessionsPageState extends State<SessionsPage> {
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
-              onPressed: () =>
-                  context.read<AuthBloc>().add(AuthGetSessionsRequested()),
+              onPressed: () {
+                getIt<LogService>().info(
+                  'Rafraîchissement manuel des sessions',
+                  component: 'SessionsPage',
+                );
+                context.read<AuthBloc>().add(AuthGetSessionsRequested());
+              },
             ),
           ],
         ),
@@ -308,6 +319,10 @@ class _SessionsPageState extends State<SessionsPage> {
             onPressed: () {
               Navigator.pop(context); // Close dialog
               if (session.id != null) {
+                getIt<LogService>().info(
+                  'Action: Révocation de la session ${session.id}',
+                  component: 'SessionsPage',
+                );
                 context.read<AuthBloc>().add(
                   AuthRevokeSessionRequested(session.id!),
                 );
@@ -337,6 +352,10 @@ class _SessionsPageState extends State<SessionsPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
+              getIt<LogService>().info(
+                'Action: Révocation de toutes les sessions',
+                component: 'SessionsPage',
+              );
               context.read<AuthBloc>().add(AuthRevokeAllSessionsRequested());
             },
             style: TextButton.styleFrom(

@@ -17,6 +17,7 @@ import 'package:kauri/core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 class ChallengesPage extends StatelessWidget {
   const ChallengesPage({super.key});
@@ -46,6 +47,10 @@ class _ChallengesViewState extends State<ChallengesView> {
   void initState() {
     super.initState();
     getIt<AnalyticsManager>().trackEvent(feature: 'Challenges', action: 'view');
+    getIt<LogService>().info(
+      'Affichage de la page Challenges.',
+      component: 'ChallengesPage',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -191,6 +196,10 @@ class _ChallengesViewState extends State<ChallengesView> {
 
                 return RefreshIndicator(
                   onRefresh: () async {
+                    getIt<LogService>().info(
+                      'Action: Rafraîchissement manuel Challenges',
+                      component: 'ChallengesPage',
+                    );
                     context.read<ChallengesBloc>()
                       ..add(const GetChallengesRequested(forceRefresh: true))
                       ..add(GetUserChallengesRequested());
@@ -240,6 +249,10 @@ class _ChallengeCard extends StatelessWidget {
   const _ChallengeCard({required this.challenge, this.userChallenge});
 
   void _showChallengeDetails(BuildContext context) {
+    getIt<LogService>().info(
+      'Action: Affichage détail challenge ${challenge.id}',
+      component: 'ChallengesPage',
+    );
     final challengesBloc = context.read<ChallengesBloc>();
     showModalBottomSheet(
       context: context,

@@ -21,6 +21,8 @@ import '../models/session_model.dart';
 import '../models/country_change_request.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:kauri/core/services/log_service.dart';
+import '../../../../di/injection.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -42,6 +44,8 @@ class AuthRepositoryImpl implements AuthRepository {
     this._localDataSource,
     this._networkInfo,
   );
+
+  LogService get _logger => getIt<LogService>();
 
   @override
   Future<Either<Failure, void>> verifyPhoneNumber(
@@ -102,8 +106,18 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       await _localDataSource.saveUser(response.user);
       await _localDataSource.saveLoginProvider('phone');
+      _logger.info(
+        'Authentification réussie par téléphone',
+        component: 'AuthRepository',
+        metadata: {'userId': response.user.id},
+      );
       return Right(response);
     } catch (e) {
+      _logger.error(
+        'Échec de la connexion par téléphone',
+        error: e,
+        component: 'AuthRepository',
+      );
       return Left(AuthFailure(e.toString()));
     }
   }
@@ -209,8 +223,18 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       await _localDataSource.saveUser(response.user);
       await _localDataSource.saveLoginProvider('google');
+      _logger.info(
+        'Authentification réussie par Google',
+        component: 'AuthRepository',
+        metadata: {'userId': response.user.id},
+      );
       return Right(response);
     } catch (e) {
+      _logger.error(
+        'Échec de la connexion par Google',
+        error: e,
+        component: 'AuthRepository',
+      );
       return Left(AuthFailure(e.toString()));
     }
   }
@@ -265,8 +289,18 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       await _localDataSource.saveUser(response.user);
       await _localDataSource.saveLoginProvider('apple');
+      _logger.info(
+        'Authentification réussie par Apple',
+        component: 'AuthRepository',
+        metadata: {'userId': response.user.id},
+      );
       return Right(response);
     } catch (e) {
+      _logger.error(
+        'Échec de la connexion par Apple',
+        error: e,
+        component: 'AuthRepository',
+      );
       return Left(AuthFailure(e.toString()));
     }
   }

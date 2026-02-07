@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../../core/services/log_service.dart';
 
 /// Page listant les tickets de support technique créés par l'utilisateur.
 ///
@@ -31,6 +32,10 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
     super.initState();
     // Chargement initial des tickets
     context.read<SupportBloc>().add(GetTicketsRequested());
+    getIt<LogService>().info(
+      'Affichage de la page des tickets de support.',
+      component: 'SupportTicketsPage',
+    );
     getIt<AnalyticsManager>().trackEvent(
       feature: 'Support',
       action: 'view_tickets',
@@ -47,8 +52,13 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
           // Bouton de rafraîchissement manuel
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () =>
-                context.read<SupportBloc>().add(GetTicketsRequested()),
+            onPressed: () {
+              getIt<LogService>().info(
+                'Rafraîchissement manuel des tickets',
+                component: 'SupportTicketsPage',
+              );
+              context.read<SupportBloc>().add(GetTicketsRequested());
+            },
           ),
         ],
       ),
@@ -71,8 +81,13 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () =>
-                        context.read<SupportBloc>().add(GetTicketsRequested()),
+                    onPressed: () {
+                      getIt<LogService>().info(
+                        'Action: Réessai chargement des tickets',
+                        component: 'SupportTicketsPage',
+                      );
+                      context.read<SupportBloc>().add(GetTicketsRequested());
+                    },
                     child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
@@ -108,6 +123,10 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
           // Liste des tickets avec support du "pull-to-refresh"
           return RefreshIndicator(
             onRefresh: () async {
+              getIt<LogService>().info(
+                'Rafraîchissement manuel des tickets (pull-to-refresh)',
+                component: 'SupportTicketsPage',
+              );
               context.read<SupportBloc>().add(GetTicketsRequested());
             },
             child: ListView.separated(
@@ -124,7 +143,13 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
       ),
       // Bouton pour créer une nouvelle demande de support
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(RouteConstants.createTicket),
+        onPressed: () {
+          getIt<LogService>().info(
+            'Navigation vers la création de ticket',
+            component: 'SupportTicketsPage',
+          );
+          context.push(RouteConstants.createTicket);
+        },
         label: Text(AppLocalizations.of(context)!.createTicket),
         icon: const Icon(Icons.add),
       ),
@@ -146,8 +171,13 @@ class _TicketCard extends StatelessWidget {
     );
 
     return InkWell(
-      onTap: () =>
-          context.push('${RouteConstants.supportTickets}/${ticket.id}'),
+      onTap: () {
+        getIt<LogService>().info(
+          'Navigation vers le détail du ticket ${ticket.id}',
+          component: 'SupportTicketsPage',
+        );
+        context.push('${RouteConstants.supportTickets}/${ticket.id}');
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),

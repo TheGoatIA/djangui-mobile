@@ -16,6 +16,7 @@ import '../../../../di/injection.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 /// Page listant les Tontines (épargne collective) de l'utilisateur.
 ///
@@ -39,6 +40,10 @@ class _TontineListPageState extends State<TontineListPage> {
     super.initState();
     // Chargement initial des tontines de l'utilisateur
     context.read<TontineBloc>().add(TontinesLoadRequested());
+    getIt<LogService>().info(
+      'Affichage de la liste des tontines.',
+      component: 'TontineListPage',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -127,6 +132,10 @@ class _TontineListPageState extends State<TontineListPage> {
               // Liste des tontines actives avec support du rafraîchissement
               return RefreshIndicator(
                 onRefresh: () async {
+                  getIt<LogService>().info(
+                    'Action: Rafraîchissement manuel liste tontines',
+                    component: 'TontineListPage',
+                  );
                   context.read<TontineBloc>().add(TontinesLoadRequested());
                 },
                 child: Showcase(

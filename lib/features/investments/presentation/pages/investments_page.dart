@@ -15,6 +15,7 @@ import '../../../../core/utils/currency_helper.dart';
 
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
+import '../../../../core/services/log_service.dart';
 
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
@@ -47,6 +48,10 @@ class _InvestmentsViewState extends State<InvestmentsView> {
   @override
   void initState() {
     super.initState();
+    getIt<LogService>().info(
+      'Affichage de la page des investissements.',
+      component: 'InvestmentsPage',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -224,6 +229,10 @@ class _InvestmentsViewState extends State<InvestmentsView> {
                           return await _showDeleteConfirmation(context);
                         },
                         onDismissed: (direction) {
+                          getIt<LogService>().info(
+                            'Action: Suppression investissement ${investment.id}',
+                            component: 'InvestmentsPage',
+                          );
                           context.read<InvestmentsBloc>().add(
                             DeleteInvestment(investment.id),
                           );

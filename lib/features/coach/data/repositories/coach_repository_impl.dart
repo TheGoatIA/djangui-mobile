@@ -7,6 +7,8 @@ import '../datasources/coach_local_datasource.dart';
 import '../datasources/coach_remote_datasource.dart';
 import '../../domain/repositories/coach_repository.dart';
 import '../models/chat_message_model.dart';
+import '../../../../core/services/log_service.dart';
+import '../../../../di/injection.dart';
 
 @LazySingleton(as: CoachRepository)
 class CoachRepositoryImpl implements CoachRepository {
@@ -20,27 +22,54 @@ class CoachRepositoryImpl implements CoachRepository {
     this._networkInfo,
   );
 
+  LogService get _logger => getIt<LogService>();
+
   @override
   Future<Either<Failure, List<ChatMessageModel>>> getChatHistory() async {
+    _logger.info(
+      'Récupération de l\'historique du chat avec Anne...',
+      component: 'CoachRepository',
+    );
     try {
       // Return local history first if available
       final localHistory = await _localDataSource.getChatHistory();
 
       if (await _networkInfo.isConnected) {
+        _logger.info(
+          'Mise à jour de l\'historique depuis le serveur...',
+          component: 'CoachRepository',
+        );
         // Fetch from remote to update local cache
         final remoteHistory = await _remoteDataSource.getChatHistory();
         // Save remote history (insertOnConflictUpdate) to merge with local
         await _localDataSource.saveMessages(remoteHistory);
         // Fetch again to get the merged/latest list
         final updatedHistory = await _localDataSource.getChatHistory();
+        _logger.info(
+          '${updatedHistory.length} messages dans l\'historique (Synchronisé).',
+          component: 'CoachRepository',
+        );
         return Right(updatedHistory);
       } else {
+        _logger.info(
+          '${localHistory.length} messages dans l\'historique (Hors-ligne).',
+          component: 'CoachRepository',
+        );
         return Right(localHistory);
       }
     } catch (e) {
+      _logger.error(
+        'Erreur lors de la récupération de l\'historique du chat',
+        error: e,
+        component: 'CoachRepository',
+      );
       // If error occurs while fetching remote, return local history if available
       final localHistory = await _localDataSource.getChatHistory();
       if (localHistory.isNotEmpty) {
+        _logger.warning(
+          'Fallback sur l\'historique local suite à une erreur serveur.',
+          component: 'CoachRepository',
+        );
         return Right(localHistory);
       }
       return Left(ServerFailure(e.toString()));
@@ -49,6 +78,10 @@ class CoachRepositoryImpl implements CoachRepository {
 
   @override
   Future<Either<Failure, ChatMessageModel>> sendMessage(String text) async {
+    _logger.info(
+      'Envoi d\'un message à l\'assistant Anne.',
+      component: 'CoachRepository',
+    );
     // Save user message locally first
     final userMessage = ChatMessageModel(
       id: const Uuid().v4(),
@@ -62,21 +95,47 @@ class CoachRepositoryImpl implements CoachRepository {
       try {
         final aiMessage = await _remoteDataSource.sendMessage(text);
         await _localDataSource.saveMessage(aiMessage);
+        _logger.info(
+          'Réponse de Anne reçue avec succès.',
+          component: 'CoachRepository',
+        );
         return Right(aiMessage);
       } catch (e) {
+        _logger.error(
+          'Échec de l\'envoi du message au serveur AI',
+          error: e,
+          component: 'CoachRepository',
+        );
         return Left(ServerFailure(e.toString()));
       }
     } else {
+      _logger.warning(
+        'Impossible de discuter avec Anne hors-ligne.',
+        component: 'CoachRepository',
+      );
       return Left(NetworkFailure());
     }
   }
 
   @override
   Future<Either<Failure, void>> clearHistory() async {
+    _logger.info(
+      'Suppression de l\'historique du chat.',
+      component: 'CoachRepository',
+    );
     try {
       await _localDataSource.clearHistory();
+      _logger.info(
+        'Historique supprimé avec succès.',
+        component: 'CoachRepository',
+      );
       return const Right(null);
     } catch (e) {
+      _logger.error(
+        'Erreur lors de la suppression de l\'historique',
+        error: e,
+        component: 'CoachRepository',
+      );
       return Left(CacheFailure());
     }
   }

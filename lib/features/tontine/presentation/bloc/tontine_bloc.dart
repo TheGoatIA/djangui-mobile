@@ -4,6 +4,7 @@ import 'tontine_event.dart';
 import 'tontine_state.dart';
 
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:opentelemetry/api.dart';
@@ -12,6 +13,7 @@ import 'package:opentelemetry/api.dart';
 class TontineBloc extends Bloc<TontineEvent, TontineState> {
   final TontineRepository _repository;
   TelemetryService get _telemetry => getIt<TelemetryService>();
+  LogService get _logger => getIt<LogService>();
 
   TontineBloc(this._repository) : super(const TontineState()) {
     on<TontinesLoadRequested>(_onTontinesLoadRequested);
@@ -35,18 +37,33 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     TontinesLoadRequested event,
     Emitter<TontineState> emit,
   ) async {
+    _logger.info(
+      'Récupération de la liste des tontines...',
+      component: 'TontineBloc',
+    );
     emit(state.copyWith(status: TontineStatus.loading));
     final result = await _repository.getTontines();
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: TontineStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
-      (tontines) => emit(
-        state.copyWith(status: TontineStatus.success, tontines: tontines),
-      ),
+      (failure) {
+        _logger.error(
+          'Échec de la récupération des tontines',
+          error: failure.message,
+          component: 'TontineBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TontineStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (tontines) {
+        _logger.info(
+          '${tontines.length} tontines récupérées.',
+          component: 'TontineBloc',
+        );
+        emit(state.copyWith(status: TontineStatus.success, tontines: tontines));
+      },
     );
   }
 
@@ -54,33 +71,61 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     TontineDetailsLoadRequested event,
     Emitter<TontineState> emit,
   ) async {
+    _logger.info(
+      'Récupération des détails de la tontine: ${event.tontineId}',
+      component: 'TontineBloc',
+    );
     emit(state.copyWith(status: TontineStatus.loading));
     final detailsResult = await _repository.getTontineDetails(event.tontineId);
     final membersResult = await _repository.getTontineMembers(event.tontineId);
 
     detailsResult.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: TontineStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        _logger.error(
+          'Échec de la récupération des détails de la tontine',
+          error: failure.message,
+          component: 'TontineBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TontineStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (tontine) {
+        _logger.info(
+          'Détails de la tontine récupérés.',
+          component: 'TontineBloc',
+        );
         membersResult.fold(
-          (failure) => emit(
-            state.copyWith(
-              status: TontineStatus.success,
-              selectedTontine: tontine,
-              errorMessage: failure.message,
-            ),
-          ),
-          (members) => emit(
-            state.copyWith(
-              status: TontineStatus.success,
-              selectedTontine: tontine,
-              selectedTontineMembers: members,
-            ),
-          ),
+          (failure) {
+            _logger.warning(
+              'Échec de la récupération des membres de la tontine',
+              component: 'TontineBloc',
+              metadata: {'error': failure.message},
+            );
+            emit(
+              state.copyWith(
+                status: TontineStatus.success,
+                selectedTontine: tontine,
+                errorMessage: failure.message,
+              ),
+            );
+          },
+          (members) {
+            _logger.info(
+              '${members.length} membres récupérés.',
+              component: 'TontineBloc',
+            );
+            emit(
+              state.copyWith(
+                status: TontineStatus.success,
+                selectedTontine: tontine,
+                selectedTontineMembers: members,
+              ),
+            );
+          },
         );
       },
     );
@@ -102,10 +147,20 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     );
 
     try {
+      _logger.info(
+        'Tentative de création d\'une tontine...',
+        component: 'TontineBloc',
+        metadata: event.params,
+      );
       emit(state.copyWith(status: TontineStatus.loading));
       final result = await _repository.createTontine(event.params);
       result.fold(
         (failure) {
+          _logger.warning(
+            'Échec de la création de la tontine',
+            component: 'TontineBloc',
+            metadata: {'error': failure.message},
+          );
           span.setStatus(StatusCode.error, failure.message);
           emit(
             state.copyWith(
@@ -115,6 +170,11 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
           );
         },
         (tontine) {
+          _logger.info(
+            'Tontine créée avec succès.',
+            component: 'TontineBloc',
+            metadata: {'id': tontine.id},
+          );
           span.setAttribute(Attribute.fromString('tontine.id', tontine.id));
           emit(
             state.copyWith(
@@ -145,6 +205,11 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     );
 
     try {
+      _logger.info(
+        'Tentative de rejoindre une tontine...',
+        component: 'TontineBloc',
+        metadata: {'invite_code': event.inviteCode},
+      );
       emit(state.copyWith(status: TontineStatus.loading));
       final result = await _repository.joinTontine(
         event.inviteCode,
@@ -153,6 +218,11 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
       );
       result.fold(
         (failure) {
+          _logger.warning(
+            'Échec pour rejoindre la tontine',
+            component: 'TontineBloc',
+            metadata: {'error': failure.message},
+          );
           span.setStatus(StatusCode.error, failure.message);
           emit(
             state.copyWith(
@@ -162,6 +232,11 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
           );
         },
         (tontine) {
+          _logger.info(
+            'Tontine rejointe avec succès.',
+            component: 'TontineBloc',
+            metadata: {'id': tontine.id},
+          );
           span.setAttribute(Attribute.fromString('tontine.id', tontine.id));
           emit(
             state.copyWith(
@@ -190,10 +265,19 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     span.setAttribute(Attribute.fromString('tontine.id', event.tontineId));
 
     try {
+      _logger.info(
+        'Demarrage de la tontine: ${event.tontineId}',
+        component: 'TontineBloc',
+      );
       emit(state.copyWith(status: TontineStatus.loading));
       final result = await _repository.startTontine(event.tontineId);
       result.fold(
         (failure) {
+          _logger.error(
+            'Échec du démarrage de la tontine',
+            error: failure.message,
+            component: 'TontineBloc',
+          );
           span.setStatus(StatusCode.error, failure.message);
           emit(
             state.copyWith(
@@ -203,6 +287,10 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
           );
         },
         (tontine) {
+          _logger.info(
+            'Tontine démarrée avec succès.',
+            component: 'TontineBloc',
+          );
           emit(
             state.copyWith(
               status: TontineStatus.success,
@@ -233,20 +321,38 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     span.setAttribute(Attribute.fromString('tontine.id', event.tontineId));
 
     try {
+      _logger.info(
+        'Envoi d\'une contribution pour la tontine: ${event.tontineId}',
+        component: 'TontineBloc',
+      );
       emit(state.copyWith(status: TontineStatus.loading));
       final result = await _repository.contribute(
         event.tontineId,
         event.proofImage,
       );
-      result.fold((failure) {
-        span.setStatus(StatusCode.error, failure.message);
-        emit(
-          state.copyWith(
-            status: TontineStatus.error,
-            errorMessage: failure.message,
-          ),
-        );
-      }, (_) => add(TontineDetailsLoadRequested(event.tontineId)));
+      result.fold(
+        (failure) {
+          _logger.error(
+            'Échec de l\'envoi de la contribution',
+            error: failure.message,
+            component: 'TontineBloc',
+          );
+          span.setStatus(StatusCode.error, failure.message);
+          emit(
+            state.copyWith(
+              status: TontineStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (_) {
+          _logger.info(
+            'Contribution envoyée avec succès.',
+            component: 'TontineBloc',
+          );
+          add(TontineDetailsLoadRequested(event.tontineId));
+        },
+      );
     } catch (e, s) {
       span.recordException(e, stackTrace: s);
       rethrow;
@@ -306,13 +412,24 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
       event.status,
     );
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: TontineStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        _logger.error(
+          'Échec de la validation de la contribution',
+          error: failure.message,
+          component: 'TontineBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TontineStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (contribution) {
+        _logger.info(
+          'Contribution validée avec succès (Status: ${event.status}).',
+          component: 'TontineBloc',
+        );
         final updatedContributions = state.selectedTontineContributions.map((
           c,
         ) {
@@ -335,19 +452,31 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     TontineRemoveMemberRequested event,
     Emitter<TontineState> emit,
   ) async {
+    _logger.info(
+      'Tentative de suppression du membre: ${event.memberId} de la tontine ${event.tontineId}',
+      component: 'TontineBloc',
+    );
     emit(state.copyWith(status: TontineStatus.loading));
     final result = await _repository.removeMember(
       event.tontineId,
       event.memberId,
     );
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: TontineStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        _logger.error(
+          'Échec de la suppression du membre',
+          error: failure.message,
+          component: 'TontineBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TontineStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (_) {
+        _logger.info('Membre supprimé avec succès.', component: 'TontineBloc');
         // Just reload members if successful
         add(TontineDetailsLoadRequested(event.tontineId));
       },
@@ -358,16 +487,31 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     DeleteTontineRequested event,
     Emitter<TontineState> emit,
   ) async {
+    _logger.info(
+      'Suppression de la tontine: ${event.tontineId}',
+      component: 'TontineBloc',
+    );
     emit(state.copyWith(status: TontineStatus.loading));
     final result = await _repository.deleteTontine(event.tontineId);
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: TontineStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        _logger.error(
+          'Échec de la suppression de la tontine',
+          error: failure.message,
+          component: 'TontineBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TontineStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (_) {
+        _logger.info(
+          'Tontine supprimée avec succès.',
+          component: 'TontineBloc',
+        );
         emit(
           state.copyWith(
             status: TontineStatus.success,
@@ -385,19 +529,35 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     UpdateTontineRequested event,
     Emitter<TontineState> emit,
   ) async {
+    _logger.info(
+      'Mise à jour de la tontine: ${event.tontineId}',
+      component: 'TontineBloc',
+      metadata: event.params,
+    );
     emit(state.copyWith(status: TontineStatus.loading));
     final result = await _repository.updateTontine(
       event.tontineId,
       event.params,
     );
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: TontineStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        _logger.error(
+          'Échec de la mise à jour de la tontine',
+          error: failure.message,
+          component: 'TontineBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TontineStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (updatedTontine) {
+        _logger.info(
+          'Tontine mise à jour avec succès.',
+          component: 'TontineBloc',
+        );
         final updatedTontines = state.tontines.map((t) {
           return t.id == updatedTontine.id ? updatedTontine : t;
         }).toList();

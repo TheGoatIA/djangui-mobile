@@ -30,6 +30,7 @@ import '../../../notifications/presentation/bloc/notifications_bloc.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:showcaseview/showcaseview.dart';
 // import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../../core/services/log_service.dart';
 
 /// Page de profil de l'utilisateur regroupant ses informations et les paramètres de l'application.
 ///
@@ -57,6 +58,10 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    getIt<LogService>().info(
+      'Affichage de la page de profil.',
+      component: 'ProfilePage',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -99,6 +104,10 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
     if (image != null) {
+      getIt<LogService>().info(
+        'Action: Tentative de changement d\'avatar',
+        component: 'ProfilePage',
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -112,6 +121,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
         result.fold(
           (failure) {
+            getIt<LogService>().warning(
+              'Echec: Mise à jour avatar échouée. Erreur: ${failure.message}',
+              component: 'ProfilePage',
+            );
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -122,6 +135,10 @@ class _ProfilePageState extends State<ProfilePage> {
             }
           },
           (response) {
+            getIt<LogService>().info(
+              'Succès: Avatar mis à jour',
+              component: 'ProfilePage',
+            );
             if (mounted) {
               // Rafraîchit les données utilisateur pour afficher le nouvel avatar
               context.read<AuthBloc>().add(AuthRefreshUserRequested());
@@ -207,6 +224,10 @@ class _ProfilePageState extends State<ProfilePage> {
           ElevatedButton(
             onPressed: () {
               if (formKey.currentState!.validate()) {
+                getIt<LogService>().info(
+                  'Action: Mise à jour du profil demandée',
+                  component: 'ProfilePage',
+                );
                 context.read<AuthBloc>().add(
                   AuthUpdateProfileRequested(
                     firstName: firstNameController.text,
@@ -277,6 +298,10 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               RefreshIndicator(
                 onRefresh: () async {
+                  getIt<LogService>().info(
+                    'Rafraîchissement manuel du profil',
+                    component: 'ProfilePage',
+                  );
                   context.read<AuthBloc>().add(AuthRefreshUserRequested());
                   await Future.delayed(const Duration(seconds: 1));
                 },
@@ -578,6 +603,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     },
                   ),
                   onTap: () {
+                    getIt<LogService>().info(
+                      'Navigation vers la connexion par téléphone',
+                      component: 'ProfilePage',
+                    );
                     context.push(RouteConstants.phoneLogin, extra: true);
                   },
                 );
@@ -946,6 +975,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(dialogContext);
+                    getIt<LogService>().info(
+                      'Action: Déconnexion utilisateur',
+                      component: 'ProfilePage',
+                    );
                     context.read<AuthBloc>().add(AuthLogoutRequested());
                   },
                   child: Text(

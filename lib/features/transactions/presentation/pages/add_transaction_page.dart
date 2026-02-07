@@ -25,6 +25,7 @@ import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/core/services/log_service.dart';
 
 /// Page de création d'une nouvelle transaction (Dépense ou Revenu).
 ///
@@ -76,6 +77,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       _type = 'expense';
     }
     context.read<TransactionsBloc>().add(ResetTransactionsStatus());
+    getIt<LogService>().info(
+      'Affichage de la page d\'ajout de transaction.',
+      component: 'AddTransactionPage',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -162,7 +167,17 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       ),
     );
 
-    if (source == null) return;
+    if (source == null) {
+      getIt<LogService>().info(
+        'Annulation de la sélection de source OCR.',
+        component: 'AddTransactionPage',
+      );
+      return;
+    }
+    getIt<LogService>().info(
+      'Début du scan OCR via ${source.name}',
+      component: 'AddTransactionPage',
+    );
 
     final image = await ocrService.pickImage(source);
     if (image == null) return;
@@ -204,6 +219,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         }
         _isScanning = false;
       });
+      getIt<LogService>().info(
+        'Scan OCR réussi.',
+        component: 'AddTransactionPage',
+        metadata: {'amount': result.amount, 'category': result.category},
+      );
 
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
@@ -237,6 +257,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       }
     } catch (e) {
       setState(() => _isScanning = false);
+      getIt<LogService>().error(
+        'Erreur technique lors du scan OCR',
+        error: e,
+        component: 'AddTransactionPage',
+        page: 'AddTransaction',
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -286,6 +312,26 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
       context.read<TransactionsBloc>().add(
         AddTransactionRequested(transaction),
+      );
+
+      getIt<LogService>().info(
+        'Tentative d\'ajout d\'une transaction',
+        component: 'AddTransactionPage',
+        page: 'AddTransaction',
+        metadata: {
+          'amount': transaction.amount,
+          'type': transaction.type,
+          'category': transaction.category,
+          'is_ocr':
+              _merchantController.text.isNotEmpty ||
+              _amountController.text.isNotEmpty,
+        },
+      );
+    } else {
+      getIt<LogService>().warning(
+        'Validation du formulaire de transaction échouée',
+        component: 'AddTransactionPage',
+        page: 'AddTransaction',
       );
     }
   }

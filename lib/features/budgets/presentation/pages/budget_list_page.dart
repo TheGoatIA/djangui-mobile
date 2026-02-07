@@ -24,6 +24,7 @@ import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 /// Page listant les budgets mensuels de l'utilisateur.
 ///
@@ -75,6 +76,10 @@ class _BudgetListViewState extends State<BudgetListView> {
   @override
   void initState() {
     super.initState();
+    getIt<LogService>().info(
+      'Affichage de la liste des budgets.',
+      component: 'BudgetListPage',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
       getIt<AnalyticsManager>().trackEvent(
@@ -137,6 +142,10 @@ class _BudgetListViewState extends State<BudgetListView> {
                 description: AppLocalizations.of(context)!.tutorialAnneDesc,
                 child: TextButton.icon(
                   onPressed: () {
+                    getIt<LogService>().info(
+                      'Action: Demande de génération automatique via Anne',
+                      component: 'BudgetListPage',
+                    );
                     context.read<BudgetsBloc>().add(
                       const GenerateAutoBudgetRequested(),
                     );
@@ -220,6 +229,10 @@ class _BudgetListViewState extends State<BudgetListView> {
             // Liste des budgets avec support du "pull-to-refresh"
             return RefreshIndicator(
               onRefresh: () async {
+                getIt<LogService>().info(
+                  'Rafraîchissement de la liste des budgets (Pull-to-refresh)',
+                  component: 'BudgetListPage',
+                );
                 context.read<BudgetsBloc>().add(
                   const GetBudgetsRequested(forceRefresh: true),
                 );
@@ -260,6 +273,10 @@ class _BudgetListViewState extends State<BudgetListView> {
         child: FloatingActionButton(
           heroTag: 'budgets_fab',
           onPressed: () async {
+            getIt<LogService>().info(
+              'Navigation vers la page d\'ajout de budget depuis la liste',
+              component: 'BudgetListPage',
+            );
             final refresh = await context.push<bool>(
               '${RouteConstants.budgets}/add',
             );
@@ -536,6 +553,10 @@ class _BudgetItem extends StatelessWidget {
 
     return InkWell(
       onTap: () {
+        getIt<LogService>().info(
+          'Consultation des détails du budget (Sheet): ${budget.id}',
+          component: 'BudgetListPage',
+        );
         // Affiche les détails du budget dans un "bottom sheet"
         showModalBottomSheet(
           context: context,

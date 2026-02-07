@@ -4,6 +4,8 @@ import 'package:kauri/features/system/data/models/public_settings_model.dart';
 import 'package:kauri/features/system/data/models/country_model.dart';
 import 'package:kauri/features/system/data/models/feature_flag_model.dart';
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/services/log_service.dart';
+import 'package:kauri/di/injection.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/network/api_response_extensions.dart';
 import '../../data/datasources/system_api_service.dart';
@@ -30,6 +32,11 @@ class SystemRepositoryImpl implements SystemRepository {
     } else {
       // In case of error (network, server), we assume no update is needed to not block user
       // Or we could throw an exception if we want to handle it upstream
+      getIt<LogService>().error(
+        'Echec checkVersion',
+        component: 'SystemRepository',
+        error: response.errorMessage,
+      );
       throw Exception(response.errorMessage);
     }
   }

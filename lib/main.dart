@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:kauri/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'core/services/telemetry_service.dart';
+import 'core/services/log_service.dart';
 import 'core/services/tutorial_service.dart';
 
 import 'di/injection.dart';
@@ -83,6 +84,18 @@ void main() async {
       'library': details.library ?? 'unknown',
       'context': details.context.toString(),
     });
+
+    // Graylog: Crash reporting
+    getIt<LogService>().error(
+      'Flutter Error: ${details.exception}',
+      error: details.exception,
+      stackTrace: details.stack,
+      component: 'Application',
+      metadata: {
+        'library': details.library,
+        'context': details.context.toString(),
+      },
+    );
   };
 
   // 2. Async Platform Errors
@@ -92,6 +105,14 @@ void main() async {
     telemetry.recordEvent('app.error.platform', {
       'exception': error.toString(),
     });
+
+    // Graylog: Platform crash reporting
+    getIt<LogService>().error(
+      'Platform Error: $error',
+      error: error,
+      stackTrace: stack,
+      component: 'Application',
+    );
     return true;
   };
 

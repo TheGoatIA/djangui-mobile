@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:chopper/chopper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kauri/core/services/log_service.dart';
 import '../../di/injection.dart';
 
 /// Intercepteur chargé d'ajouter automatiquement le jeton d'authentification aux requêtes sortantes.
@@ -64,6 +65,66 @@ class HttpLoggingInterceptor
       if (response.error != null) {
         debugPrint('❌ Erreur : ${response.error}');
       }
+    }
+    return response;
+  }
+}
+
+/// Intercepteur qui envoie les métadonnées des requêtes HTTP vers Graylog.
+class RemoteLoggingInterceptor
+    implements RequestInterceptor, ResponseInterceptor {
+  @override
+  FutureOr<Request> onRequest(Request request) async {
+    // Éviter de logger l'envoi des logs eux-mêmes pour éviter une boucle infinie
+    if (request.url.toString().contains('/system/telemetry/logs')) {
+      return request;
+    }
+
+    getIt<LogService>().info(
+      '🌐 API Request: ${request.method} ${request.url.path}',
+      component: 'Network',
+      metadata: {
+        'method': request.method,
+        'url': request.url.toString(),
+        'has_body': request.body != null,
+      },
+    );
+    return request;
+  }
+
+  @override
+  FutureOr<Response> onResponse(Response response) async {
+    if (response.base.request?.url.toString().contains(
+          '/system/telemetry/logs',
+        ) ??
+        false) {
+      return response;
+    }
+
+    final isError = response.statusCode >= 400;
+    final message =
+        '📥 API Response: ${response.statusCode} ${response.base.request?.url.path}';
+
+    if (isError) {
+      getIt<LogService>().error(
+        message,
+        component: 'Network',
+        metadata: {
+          'status_code': response.statusCode,
+          'url': response.base.request?.url.toString(),
+          'error': response.error?.toString(),
+          'body': response.bodyString,
+        },
+      );
+    } else {
+      getIt<LogService>().info(
+        message,
+        component: 'Network',
+        metadata: {
+          'status_code': response.statusCode,
+          'url': response.base.request?.url.toString(),
+        },
+      );
     }
     return response;
   }

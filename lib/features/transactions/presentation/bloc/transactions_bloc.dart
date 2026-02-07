@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import '../../data/models/transaction_model.dart';
 import '../../domain/repositories/transaction_repository.dart';
 
+import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:opentelemetry/api.dart';
@@ -15,6 +16,7 @@ part 'transactions_state.dart';
 class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
   final TransactionRepository _transactionRepository;
   TelemetryService get _telemetry => getIt<TelemetryService>();
+  LogService get _logger => getIt<LogService>();
 
   TransactionsBloc(this._transactionRepository)
     : super(TransactionsState.initial()) {
@@ -35,23 +37,40 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     GetTransactionsRequested event,
     Emitter<TransactionsState> emit,
   ) async {
+    _logger.info(
+      'Récupération de la liste des transactions...',
+      component: 'TransactionsBloc',
+    );
     emit(state.copyWith(status: TransactionsStatus.loading));
     final result = await _transactionRepository.getTransactions(
       forceRefresh: event.forceRefresh,
     );
     result.fold<void>(
-      (failure) => emit(
-        state.copyWith(
-          status: TransactionsStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
-      (transactions) => emit(
-        state.copyWith(
-          status: TransactionsStatus.success,
-          transactions: transactions,
-        ),
-      ),
+      (failure) {
+        _logger.error(
+          'Échec de la récupération des transactions',
+          error: failure.message,
+          component: 'TransactionsBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TransactionsStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (transactions) {
+        _logger.info(
+          '${transactions.length} transactions récupérées.',
+          component: 'TransactionsBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TransactionsStatus.success,
+            transactions: transactions,
+          ),
+        );
+      },
     );
   }
 
@@ -77,12 +96,26 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     );
 
     try {
+      _logger.info(
+        'Tentative d\'ajout d\'une transaction...',
+        component: 'TransactionsBloc',
+        metadata: {
+          'amount': event.transaction.amount,
+          'category': event.transaction.category,
+          'type': event.transaction.type.toString(),
+        },
+      );
       emit(state.copyWith(status: TransactionsStatus.loading));
       final result = await _transactionRepository.createTransaction(
         event.transaction,
       );
       result.fold<void>(
         (failure) {
+          _logger.warning(
+            'Échec de l\'ajout de la transaction',
+            component: 'TransactionsBloc',
+            metadata: {'error': failure.message},
+          );
           span.setStatus(StatusCode.error, failure.message);
           emit(
             state.copyWith(
@@ -92,6 +125,11 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
           );
         },
         (transaction) {
+          _logger.info(
+            'Transaction ajoutée avec succès.',
+            component: 'TransactionsBloc',
+            metadata: {'id': transaction.id},
+          );
           span.setAttribute(
             Attribute.fromString('transaction.id', transaction.id),
           );
@@ -126,16 +164,31 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     DeleteTransactionRequested event,
     Emitter<TransactionsState> emit,
   ) async {
+    _logger.info(
+      'Suppression de la transaction: ${event.id}',
+      component: 'TransactionsBloc',
+    );
     emit(state.copyWith(status: TransactionsStatus.loading));
     final result = await _transactionRepository.deleteTransaction(event.id);
     result.fold<void>(
-      (failure) => emit(
-        state.copyWith(
-          status: TransactionsStatus.error,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        _logger.error(
+          'Échec de la suppression de la transaction',
+          error: failure.message,
+          component: 'TransactionsBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TransactionsStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
       (_) {
+        _logger.info(
+          'Transaction supprimée avec succès.',
+          component: 'TransactionsBloc',
+        );
         final List<TransactionModel> updatedList = state.transactions
             .where((t) => t.id != event.id)
             .toList();

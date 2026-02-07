@@ -6,6 +6,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/notifications_bloc.dart';
 import '../../data/models/notification_model.dart';
 import '../widgets/notification_item.dart';
+import 'package:kauri/core/services/log_service.dart';
+import 'package:kauri/di/injection.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -20,6 +22,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   void initState() {
     super.initState();
+    getIt<LogService>().info(
+      'Affichage de la page de notifications.',
+      component: 'NotificationsPage',
+    );
     timeago.setLocaleMessages('fr', FrMessages());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NotificationsBloc>().add(
@@ -49,6 +55,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 icon: const Icon(Icons.done_all),
                 tooltip: AppLocalizations.of(context)!.markAllAsRead,
                 onPressed: () {
+                  getIt<LogService>().info(
+                    'Action: Marquer toutes les notifications comme lues',
+                    component: 'NotificationsPage',
+                  );
                   context.read<NotificationsBloc>().add(
                     MarkAllNotificationsAsReadRequested(),
                   );
@@ -120,6 +130,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
           return RefreshIndicator(
             onRefresh: () async {
+              getIt<LogService>().info(
+                'Rafraîchissement manuel des notifications',
+                component: 'NotificationsPage',
+              );
               context.read<NotificationsBloc>().add(
                 const FetchNotificationsRequested(refresh: true),
               );
@@ -147,6 +161,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   notification: notification,
                   onTap: () {
                     if (!notification.isRead) {
+                      getIt<LogService>().info(
+                        'Action: Lecture de la notification ${notification.id}',
+                        component: 'NotificationsPage',
+                      );
                       context.read<NotificationsBloc>().add(
                         MarkNotificationAsReadRequested(notification.id),
                       );
@@ -154,6 +172,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     _showNotificationDetail(context, notification);
                   },
                   onDelete: () {
+                    getIt<LogService>().info(
+                      'Action: Suppression de la notification ${notification.id}',
+                      component: 'NotificationsPage',
+                    );
                     context.read<NotificationsBloc>().add(
                       DeleteNotificationRequested(notification.id),
                     );

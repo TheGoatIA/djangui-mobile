@@ -60,3 +60,5 @@ class ClearAutoBudgetResponse extends BudgetsEvent {
   @override
   List<Object?> get props => [];
 }
+
+class ResetBudgetsStatus extends BudgetsEvent {}

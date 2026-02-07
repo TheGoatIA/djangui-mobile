@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 import 'package:kauri/core/database/database.dart' as db;
+import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:kauri/features/transactions/data/datasources/transaction_remote_datasource.dart';
@@ -83,7 +84,13 @@ class SyncService {
     }
 
     final telemetry = getIt<TelemetryService>();
+    final logger = getIt<LogService>();
     final startTime = DateTime.now();
+
+    logger.info(
+      'Début de la synchronisation des données locales',
+      component: 'SyncService',
+    );
 
     _logger.i('Début de la synchronisation des requêtes en attente...');
     final requests = await _database.select(_database.syncRequests).get();
@@ -128,6 +135,16 @@ class SyncService {
           attributes: {'table': request.table, 'action': request.action},
         );
 
+        logger.info(
+          'Synchronisation réussie pour ${request.table}',
+          component: 'SyncService',
+          metadata: {
+            'table': request.table,
+            'action': request.action,
+            'id': request.id,
+          },
+        );
+
         _logger.i('Requête ${request.id} synchronisée avec succès.');
       } catch (e) {
         failureCount++;
@@ -137,6 +154,16 @@ class SyncService {
           attributes: {
             'table': request.table,
             'action': request.action,
+            'error': e.toString(),
+          },
+        );
+        logger.error(
+          'Échec de synchronisation pour ${request.table}',
+          component: 'SyncService',
+          metadata: {
+            'table': request.table,
+            'action': request.action,
+            'id': request.id,
             'error': e.toString(),
           },
         );

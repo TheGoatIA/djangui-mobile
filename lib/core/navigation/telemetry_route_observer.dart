@@ -1,10 +1,12 @@
 import 'package:flutter/widgets.dart';
+import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:opentelemetry/api.dart';
 
 class TelemetryRouteObserver extends RouteObserver<PageRoute<dynamic>> {
   TelemetryService get _telemetry => getIt<TelemetryService>();
+  LogService get _logger => getIt<LogService>();
 
   String? _currentRoute;
   DateTime? _entryTime;
@@ -34,6 +36,14 @@ class TelemetryRouteObserver extends RouteObserver<PageRoute<dynamic>> {
         'ux.screen_visit.total',
         1,
         attributes: {'screen_name': routeName},
+      );
+
+      // Graylog: Navigation tracking
+      _logger.info(
+        'Visite de l\'écran: $routeName',
+        component: 'Navigation',
+        page: routeName,
+        metadata: {'event': event},
       );
     }
 

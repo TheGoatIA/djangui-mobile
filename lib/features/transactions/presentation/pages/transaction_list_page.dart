@@ -21,6 +21,7 @@ import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 class TransactionListPage extends StatelessWidget {
   const TransactionListPage({super.key});
@@ -64,6 +65,10 @@ class _TransactionListViewState extends State<TransactionListView> {
   @override
   void initState() {
     super.initState();
+    getIt<LogService>().info(
+      'Affichage de la liste des transactions.',
+      component: 'TransactionListPage',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -106,9 +111,15 @@ class _TransactionListViewState extends State<TransactionListView> {
         title: Text(AppLocalizations.of(context)!.transactions),
         actions: [
           IconButton(
-            onPressed: () => context.read<TransactionsBloc>().add(
-              const GetTransactionsRequested(forceRefresh: true),
-            ),
+            onPressed: () {
+              getIt<LogService>().info(
+                'Rafraîchissement manuel de la liste des transactions (Bouton)',
+                component: 'TransactionListPage',
+              );
+              context.read<TransactionsBloc>().add(
+                const GetTransactionsRequested(forceRefresh: true),
+              );
+            },
             icon: const Icon(Icons.refresh),
           ),
         ],
@@ -161,6 +172,10 @@ class _TransactionListViewState extends State<TransactionListView> {
 
           return RefreshIndicator(
             onRefresh: () async {
+              getIt<LogService>().info(
+                'Rafraîchissement de la liste des transactions (Pull-to-refresh)',
+                component: 'TransactionListPage',
+              );
               context.read<TransactionsBloc>().add(
                 const GetTransactionsRequested(forceRefresh: true),
               );
@@ -199,6 +214,10 @@ class _TransactionListViewState extends State<TransactionListView> {
         child: FloatingActionButton(
           heroTag: 'transactions_fab',
           onPressed: () async {
+            getIt<LogService>().info(
+              'Navigation vers la page d\'ajout de transaction depuis la liste',
+              component: 'TransactionListPage',
+            );
             final refresh = await context.push<bool>(
               '${RouteConstants.transactions}/add',
             );
@@ -237,11 +256,17 @@ class _TransactionItem extends StatelessWidget {
     final icon = isIncome ? Icons.arrow_downward : Icons.arrow_upward;
 
     return InkWell(
-      onTap: () => context.pushNamed(
-        RouteConstants.transactionDetails,
-        pathParameters: {'id': transaction.id},
-        extra: transaction,
-      ),
+      onTap: () {
+        getIt<LogService>().info(
+          'Consultation des détails de la transaction: ${transaction.id}',
+          component: 'TransactionListPage',
+        );
+        context.pushNamed(
+          RouteConstants.transactionDetails,
+          pathParameters: {'id': transaction.id},
+          extra: transaction,
+        );
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),

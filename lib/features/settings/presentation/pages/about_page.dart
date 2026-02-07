@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/services/log_service.dart';
+import '../../../../di/injection.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    getIt<LogService>().info(
+      'Affichage de la page À propos.',
+      component: 'AboutPage',
+    );
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.aboutKauri)),

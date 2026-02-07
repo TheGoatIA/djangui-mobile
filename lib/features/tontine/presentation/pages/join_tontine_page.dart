@@ -10,6 +10,7 @@ import 'package:kauri/features/analytics/presentation/manager/analytics_manager.
 import '../../../../di/injection.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/services/log_service.dart';
 
 class JoinTontinePage extends StatefulWidget {
   const JoinTontinePage({super.key});
@@ -28,9 +29,17 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
     super.initState();
     // Pre-fill code if coming from deep link
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      getIt<LogService>().info(
+        'Affichage page rejoindre tontine',
+        component: 'JoinTontinePage',
+      );
       final code = GoRouterState.of(context).uri.queryParameters['code'];
       if (code != null) {
         _codeController.text = code;
+        getIt<LogService>().info(
+          'Code tontine pré-rempli: $code',
+          component: 'JoinTontinePage',
+        );
       }
     });
   }
@@ -145,6 +154,10 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
                                     1;
 
                                 if (code.isNotEmpty && name.isNotEmpty) {
+                                  getIt<LogService>().info(
+                                    'Action: Tentative de rejoindre tontine $code',
+                                    component: 'JoinTontinePage',
+                                  );
                                   context.read<TontineBloc>().add(
                                     JoinTontineRequested(
                                       inviteCode: code,

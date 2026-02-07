@@ -3,6 +3,7 @@ import 'package:kauri/features/subscription/data/datasources/payment_api_service
 import 'package:kauri/features/subscription/data/models/payment_model.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
+import 'package:kauri/core/services/log_service.dart';
 
 /// Service gérant les opérations de paiement et d'abonnement.
 ///
@@ -29,6 +30,11 @@ class PaymentService {
       }
       return [];
     } catch (e) {
+      getIt<LogService>().error(
+        'Erreur récupération historique paiements',
+        component: 'PaymentService',
+        error: e,
+      );
       return [];
     }
   }
@@ -81,6 +87,11 @@ class PaymentService {
 
       return url;
     }
+    getIt<LogService>().warning(
+      'Échec initialisation NotchPay',
+      component: 'PaymentService',
+      metadata: {'amount': amount, 'response': response.body},
+    );
     return null;
   }
 
@@ -107,6 +118,11 @@ class PaymentService {
 
       return url;
     }
+    getIt<LogService>().warning(
+      'Échec initialisation Stripe',
+      component: 'PaymentService',
+      metadata: {'amount': amount, 'response': response.body},
+    );
     return null;
   }
 
@@ -124,6 +140,12 @@ class PaymentService {
 
       return success;
     } catch (e) {
+      getIt<LogService>().error(
+        'Erreur vérification transaction',
+        component: 'PaymentService',
+        error: e,
+        metadata: {'reference': reference},
+      );
       return false;
     }
   }
@@ -134,6 +156,11 @@ class PaymentService {
       final response = await _apiService.cancelSubscription();
       return response.isSuccessful;
     } catch (e) {
+      getIt<LogService>().error(
+        'Erreur annulation abonnement',
+        component: 'PaymentService',
+        error: e,
+      );
       return false;
     }
   }
