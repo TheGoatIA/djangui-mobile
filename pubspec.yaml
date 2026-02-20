@@ -45,12 +45,12 @@ dependencies:
   injectable: ^2.7.1+4
 
   # Networking
-  chopper: ^7.4.0
+  chopper: ^8.5.0
   http: ^1.6.0
   http_parser: ^4.1.2
 
   # Database & Local Storage
-  drift: ^2.21.0
+  drift: ^2.31.0
   drift_flutter: ^0.2.7
   flutter_secure_storage: ^10.0.0
   shared_preferences: ^2.5.4
@@ -91,7 +91,7 @@ dependencies:
 
   # Icons
   cupertino_icons: ^1.0.8
-  json_annotation: ^4.9.0
+  json_annotation: ^4.11.0
   internet_connection_checker: ^3.0.1
   flutter_local_notifications: ^18.0.1
   google_fonts: ^8.0.1
@@ -126,11 +126,11 @@ dev_dependencies:
     sdk: flutter
 
   # Code Generation
-  build_runner: ^2.4.13
-  injectable_generator: ^2.6.2
-  chopper_generator: ^7.4.0
-  drift_dev: ^2.21.2
-  json_serializable: ^6.8.0
+  build_runner: ^2.11.1
+  injectable_generator: ^2.11.1
+  chopper_generator: ^8.6.0
+  drift_dev: ^2.31.0
+  json_serializable: ^6.13.0
 
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.13.1
