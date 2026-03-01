@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class TontineGuidePage extends StatelessWidget {
   const TontineGuidePage({super.key});
@@ -85,6 +86,14 @@ class TontineGuidePage extends StatelessWidget {
             l10n.guideTrustScoreTitle,
             l10n.guideTrustScoreDesc,
             theme.colorScheme.tertiary,
+          ),
+          const SizedBox(height: 16),
+          _buildInfoCard(
+            context,
+            Icons.shield_outlined,
+            l10n.guideFinancialSafetyTitle,
+            l10n.guideFinancialSafetyDesc,
+            AppColors.success,
           ),
           const SizedBox(height: 40),
         ],

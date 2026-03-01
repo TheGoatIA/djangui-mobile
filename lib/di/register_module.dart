@@ -27,6 +27,8 @@ import 'package:kauri/features/voice/data/datasources/voice_api_service.dart';
 import 'package:kauri/features/tontine/data/datasources/tontine_api_service.dart';
 import 'package:kauri/features/user_subscriptions/data/datasources/subscription_api_service.dart';
 import 'package:kauri/features/analytics/data/datasources/analytics_api_service.dart';
+import 'package:kauri/features/payments/data/datasources/fintech_api_service.dart';
+import 'package:kauri/features/payments/data/datasources/payments_api_service.dart';
 import 'package:kauri/di/injection.dart';
 
 @module
@@ -118,6 +120,14 @@ abstract class RegisterModule {
   @lazySingleton
   AnalyticsApiService get analyticsApiService =>
       AnalyticsApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  FintechApiService get fintechApiService =>
+      FintechApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
+  PaymentsApiService get paymentsApiService =>
+      PaymentsApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
   AppDatabase get database => AppDatabase();

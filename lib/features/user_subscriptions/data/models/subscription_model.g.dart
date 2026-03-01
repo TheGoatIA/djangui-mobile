@@ -57,21 +57,21 @@ Map<String, dynamic> _$SubscriptionModelToJson(SubscriptionModel instance) {
 }
 
 SubscriptionSuggestion _$SubscriptionSuggestionFromJson(
-  Map<String, dynamic> json,
-) => SubscriptionSuggestion(
-  name: json['name'] as String,
-  amount: (json['amount'] as num).toDouble(),
-  frequency: json['frequency'] as String,
-  confidence: (json['confidence'] as num).toDouble(),
-  detectedFrom: json['detectedFrom'] as String?,
-);
+        Map<String, dynamic> json) =>
+    SubscriptionSuggestion(
+      name: json['name'] as String,
+      amount: (json['amount'] as num).toDouble(),
+      frequency: json['frequency'] as String,
+      confidence: (json['confidence'] as num).toDouble(),
+      detectedFrom: json['detectedFrom'] as String?,
+    );
 
 Map<String, dynamic> _$SubscriptionSuggestionToJson(
-  SubscriptionSuggestion instance,
-) => <String, dynamic>{
-  'name': instance.name,
-  'amount': instance.amount,
-  'frequency': instance.frequency,
-  'confidence': instance.confidence,
-  'detectedFrom': instance.detectedFrom,
-};
+        SubscriptionSuggestion instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'amount': instance.amount,
+      'frequency': instance.frequency,
+      'confidence': instance.confidence,
+      'detectedFrom': instance.detectedFrom,
+    };

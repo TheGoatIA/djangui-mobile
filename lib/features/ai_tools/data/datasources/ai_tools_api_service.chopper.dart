@@ -19,11 +19,13 @@ final class _$AiToolsApiService extends AiToolsApiService {
 
   @override
   Future<Response<BaseResponse<OcrScanResponseModel>>> scanReceipt(
-    String receiptPath,
-  ) {
+      String receiptPath) {
     final Uri $url = Uri.parse('/v1/ocr/scan');
     final List<PartValue> $parts = <PartValue>[
-      PartValueFile<String>('receipt', receiptPath),
+      PartValueFile<String>(
+        'receipt',
+        receiptPath,
+      )
     ];
     final Request $request = Request(
       'POST',
@@ -32,35 +34,37 @@ final class _$AiToolsApiService extends AiToolsApiService {
       parts: $parts,
       multipart: true,
     );
-    return client
-        .send<BaseResponse<OcrScanResponseModel>, OcrScanResponseModel>(
-          $request,
-        );
+    return client.send<BaseResponse<OcrScanResponseModel>,
+        OcrScanResponseModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<SmsParseResponseModel>>> parseSms(
-    Map<String, dynamic> body,
-  ) {
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/v1/sms/parse');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
-    return client
-        .send<BaseResponse<SmsParseResponseModel>, SmsParseResponseModel>(
-          $request,
-        );
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<SmsParseResponseModel>,
+        SmsParseResponseModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<BulkSmsParseResponseModel>>> bulkParseSms(
-    Map<String, dynamic> body,
-  ) {
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/v1/sms/bulk-parse');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
-    return client.send<
-      BaseResponse<BulkSmsParseResponseModel>,
-      BulkSmsParseResponseModel
-    >($request);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<BulkSmsParseResponseModel>,
+        BulkSmsParseResponseModel>($request);
   }
 }

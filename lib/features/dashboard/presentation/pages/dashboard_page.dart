@@ -32,6 +32,9 @@ import '../bloc/dashboard_bloc.dart';
 import '../../../notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:kauri/features/settings/presentation/bloc/settings_bloc.dart';
+import '../../../payments/presentation/bloc/fintech_bloc.dart';
+import '../../../payments/presentation/bloc/fintech_state.dart';
+import '../../../payments/presentation/bloc/fintech_event.dart';
 
 /// Page d'accueil (Tableau de bord) de l'application.
 ///
@@ -300,21 +303,44 @@ class _DashboardViewState extends State<DashboardView> {
               child: const GamificationHeader(),
             )
           : const SizedBox.shrink(),
-      'balance': Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child:
-            Showcase(
-                  key: _balanceKey,
-                  title: AppLocalizations.of(context)!.tutorialBalanceCardTitle,
-                  description: AppLocalizations.of(
-                    context,
-                  )!.tutorialBalanceCardDesc,
-                  child: _buildBalanceCard(context),
-                )
-                .animate()
-                .fade(duration: 500.ms)
-                .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
-      ),
+      'balance':
+          BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, authState) {
+                  final isCameroon =
+                      authState.authResponse?.user.country == 'CM';
+                  if (!isCameroon) return const SizedBox.shrink();
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Showcase(
+                      key: _balanceKey,
+                      title: AppLocalizations.of(
+                        context,
+                      )!.tutorialBalanceCardTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialBalanceCardDesc,
+                      child: GestureDetector(
+                        onTap: () async {
+                          await context.push(RouteConstants.wallet);
+                          if (context.mounted) {
+                            context.read<FintechBloc>().add(
+                              FetchWalletBalance(),
+                            );
+                            context.read<DashboardBloc>().add(
+                              GetDashboardDataRequested(),
+                            );
+                          }
+                        },
+                        child: _buildBalanceCard(context),
+                      ),
+                    ),
+                  );
+                },
+              )
+              .animate()
+              .fade(duration: 500.ms)
+              .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
       'invoices': flags.featSubscriptions.isEnabled
           ? const NextInvoicesWidget()
                 .animate(delay: 100.ms)
@@ -534,9 +560,10 @@ class _DashboardViewState extends State<DashboardView> {
             ),
           ),
           const SizedBox(height: 8),
-          BlocBuilder<DashboardBloc, DashboardState>(
+          BlocBuilder<FintechBloc, FintechState>(
             builder: (context, state) {
-              final balance = state.report?.walletBalance ?? 0;
+              final balance = state.balance;
+
               final userCurrency = context
                   .read<AuthBloc>()
                   .state
@@ -560,7 +587,7 @@ class _DashboardViewState extends State<DashboardView> {
 
               return Text(
                 CurrencyHelper.formatAmount(
-                  balance.toDouble(),
+                  balance,
                   currencyCode: userCurrency,
                   currencySymbol: currencySymbol,
                 ),

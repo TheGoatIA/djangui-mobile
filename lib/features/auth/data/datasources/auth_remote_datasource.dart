@@ -42,6 +42,13 @@ abstract class AuthRemoteDataSource {
   Future<void> logConnection(ConnectionRequest request);
   Future<CountryChangeRequestModel> requestCountryChange(String countryCode);
   Future<void> updateLanguage(String languageCode);
+  Future<Map<String, dynamic>> submitKYC({
+    required String documentType,
+    required String documentNumber,
+    required String fullName,
+    required String documentImageUrl,
+    required String selfieImageUrl,
+  });
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -352,6 +359,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'language': languageCode,
     });
     if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> submitKYC({
+    required String documentType,
+    required String documentNumber,
+    required String fullName,
+    required String documentImageUrl,
+    required String selfieImageUrl,
+  }) async {
+    final response = await _apiService.submitKYC({
+      'documentType': documentType,
+      'documentNumber': documentNumber,
+      'fullName': fullName,
+      'documentImageUrl': documentImageUrl,
+      'selfieImageUrl': selfieImageUrl,
+    });
+
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
+    } else {
       throw Exception(response.errorMessage);
     }
   }

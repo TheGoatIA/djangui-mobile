@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kauri/core/network/tracing_http_client.dart';
 import 'package:kauri/features/ai_tools/data/models/ai_tools_model.dart';
 import 'package:kauri/features/auth/data/models/auth_response.dart';
+import 'package:kauri/features/auth/data/datasources/auth_api_service.dart';
 import 'package:kauri/features/auth/data/models/user_model.dart';
 import 'package:kauri/features/auth/data/models/badge_model.dart';
 import 'package:kauri/features/budgets/data/models/budget_model.dart';
@@ -12,6 +13,9 @@ import 'package:kauri/features/goals/data/models/goal_model.dart';
 import 'package:kauri/features/insights/data/models/insight_model.dart';
 import 'package:kauri/features/investments/data/models/investment_model.dart';
 import 'package:kauri/features/payments/data/models/payment_model.dart';
+import 'package:kauri/features/payments/data/models/fintech_models.dart';
+import 'package:kauri/features/payments/data/datasources/fintech_api_service.dart';
+import 'package:kauri/features/premium/data/datasources/premium_api_service.dart';
 import 'package:kauri/features/reports/data/models/reports_model.dart';
 import 'package:kauri/features/transactions/data/models/transaction_model.dart';
 import 'package:kauri/features/upload/data/models/upload_model.dart';
@@ -98,7 +102,16 @@ class KauriApiClient {
         SubscriptionSuggestion: (json) => SubscriptionSuggestion.fromJson(json),
         SessionStartResponse: (json) => SessionStartResponse.fromJson(json),
         AutoBudgetResponse: (json) => AutoBudgetResponse.fromJson(json),
+        FintechTransactionModel: (json) =>
+            FintechTransactionModel.fromJson(json),
+        FintechTransactionsResponseModel: (json) =>
+            FintechTransactionsResponseModel.fromJson(json),
       }),
+      services: [
+        AuthApiService.create(),
+        FintechApiService.create(),
+        PremiumApiService.create(),
+      ],
       // Convertisseur d'erreur spécifique pour les retours 4xx/5xx ayant une structure JSON.
       errorConverter: JsonToTypeConverter({
         AuthResponse: (json) => AuthResponse.fromJson(json),

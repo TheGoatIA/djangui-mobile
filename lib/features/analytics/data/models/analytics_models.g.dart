@@ -7,12 +7,12 @@ part of 'analytics_models.dart';
 // **************************************************************************
 
 UserActivity _$UserActivityFromJson(Map<String, dynamic> json) => UserActivity(
-  feature: json['feature'] as String,
-  action: json['action'] as String,
-  details: json['details'] as Map<String, dynamic>?,
-  platform: json['platform'] as String?,
-  appVersion: json['appVersion'] as String?,
-);
+      feature: json['feature'] as String,
+      action: json['action'] as String,
+      details: json['details'] as Map<String, dynamic>?,
+      platform: json['platform'] as String?,
+      appVersion: json['appVersion'] as String?,
+    );
 
 Map<String, dynamic> _$UserActivityToJson(UserActivity instance) =>
     <String, dynamic>{
@@ -24,18 +24,18 @@ Map<String, dynamic> _$UserActivityToJson(UserActivity instance) =>
     };
 
 SessionLog _$SessionLogFromJson(Map<String, dynamic> json) => SessionLog(
-  deviceId: json['deviceId'] as String?,
-  platform: json['platform'] as String?,
-  appVersion: json['appVersion'] as String?,
-  startTime: json['startTime'] == null
-      ? null
-      : DateTime.parse(json['startTime'] as String),
-  endTime: json['endTime'] == null
-      ? null
-      : DateTime.parse(json['endTime'] as String),
-  durationSeconds: (json['durationSeconds'] as num?)?.toDouble(),
-  isActive: json['isActive'] as bool?,
-);
+      deviceId: json['deviceId'] as String?,
+      platform: json['platform'] as String?,
+      appVersion: json['appVersion'] as String?,
+      startTime: json['startTime'] == null
+          ? null
+          : DateTime.parse(json['startTime'] as String),
+      endTime: json['endTime'] == null
+          ? null
+          : DateTime.parse(json['endTime'] as String),
+      durationSeconds: (json['durationSeconds'] as num?)?.toDouble(),
+      isActive: json['isActive'] as bool?,
+    );
 
 Map<String, dynamic> _$SessionLogToJson(SessionLog instance) =>
     <String, dynamic>{
@@ -49,9 +49,13 @@ Map<String, dynamic> _$SessionLogToJson(SessionLog instance) =>
     };
 
 SessionStartResponse _$SessionStartResponseFromJson(
-  Map<String, dynamic> json,
-) => SessionStartResponse(sessionId: json['sessionId'] as String);
+        Map<String, dynamic> json) =>
+    SessionStartResponse(
+      sessionId: json['sessionId'] as String,
+    );
 
 Map<String, dynamic> _$SessionStartResponseToJson(
-  SessionStartResponse instance,
-) => <String, dynamic>{'sessionId': instance.sessionId};
+        SessionStartResponse instance) =>
+    <String, dynamic>{
+      'sessionId': instance.sessionId,
+    };

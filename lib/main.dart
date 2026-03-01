@@ -33,6 +33,9 @@ import 'features/tontine/presentation/bloc/tontine_bloc.dart';
 import 'features/tontine/presentation/bloc/tontine_event.dart';
 import 'features/user_subscriptions/presentation/bloc/subscription_bloc.dart';
 import 'features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:kauri/features/payments/presentation/bloc/fintech_bloc.dart';
+import 'package:kauri/features/payments/presentation/bloc/fintech_event.dart';
+import 'package:kauri/features/payments/presentation/bloc/payment_bloc.dart';
 import 'features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:showcaseview/showcaseview.dart';
 
@@ -238,6 +241,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           create: (context) =>
               getIt<NotificationsBloc>()..add(FetchUnreadCountRequested()),
         ),
+        BlocProvider(
+          create: (context) => getIt<FintechBloc>()..add(FetchWalletBalance()),
+        ),
+        BlocProvider(create: (context) => getIt<PaymentBloc>()),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {

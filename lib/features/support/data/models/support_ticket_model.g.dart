@@ -15,9 +15,8 @@ SupportTicketModel _$SupportTicketModelFromJson(Map<String, dynamic> json) =>
       category: json['category'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       replies: (json['responses'] as List<dynamic>?)
-          ?.map(
-            (e) => SupportTicketReplyModel.fromJson(e as Map<String, dynamic>),
-          )
+          ?.map((e) =>
+              SupportTicketReplyModel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
@@ -33,17 +32,17 @@ Map<String, dynamic> _$SupportTicketModelToJson(SupportTicketModel instance) =>
     };
 
 SupportTicketReplyModel _$SupportTicketReplyModelFromJson(
-  Map<String, dynamic> json,
-) => SupportTicketReplyModel(
-  message: json['message'] as String,
-  sender: json['sender'] as String,
-  createdAt: DateTime.parse(json['createdAt'] as String),
-);
+        Map<String, dynamic> json) =>
+    SupportTicketReplyModel(
+      message: json['message'] as String,
+      sender: json['sender'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
 
 Map<String, dynamic> _$SupportTicketReplyModelToJson(
-  SupportTicketReplyModel instance,
-) => <String, dynamic>{
-  'message': instance.message,
-  'sender': instance.sender,
-  'createdAt': instance.createdAt.toIso8601String(),
-};
+        SupportTicketReplyModel instance) =>
+    <String, dynamic>{
+      'message': instance.message,
+      'sender': instance.sender,
+      'createdAt': instance.createdAt.toIso8601String(),
+    };

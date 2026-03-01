@@ -20,6 +20,7 @@ class Tontine extends Equatable {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final bool? autoRenew;
+  final DateTime? deadline;
   final bool? rulesAcceptedByAll;
   final TurnSummary? turnSummary;
 
@@ -43,6 +44,7 @@ class Tontine extends Equatable {
     this.createdAt,
     this.updatedAt,
     this.autoRenew,
+    this.deadline,
     this.rulesAcceptedByAll,
     this.turnSummary,
   });
@@ -68,6 +70,7 @@ class Tontine extends Equatable {
     createdAt,
     updatedAt,
     autoRenew,
+    deadline,
     rulesAcceptedByAll,
     turnSummary,
   ];
@@ -81,7 +84,8 @@ class TontineMember extends Equatable {
   final int parts;
   final double trustScore;
   final bool hasPaidSocialFund;
-  final String? payoutDetails;
+  final bool autoDebitEnabled;
+  final Map<String, dynamic>? payoutDetails;
 
   const TontineMember({
     required this.id,
@@ -91,6 +95,7 @@ class TontineMember extends Equatable {
     required this.parts,
     required this.trustScore,
     required this.hasPaidSocialFund,
+    this.autoDebitEnabled = false,
     this.payoutDetails,
   });
 
@@ -103,6 +108,7 @@ class TontineMember extends Equatable {
     parts,
     trustScore,
     hasPaidSocialFund,
+    autoDebitEnabled,
     payoutDetails,
   ];
 }
@@ -168,12 +174,14 @@ class TurnSummary extends Equatable {
   final double expectedAmount;
   final int contributorsCount;
   final int totalMembers;
+  final DateTime? deadline;
 
   const TurnSummary({
     required this.collectedAmount,
     required this.expectedAmount,
     required this.contributorsCount,
     required this.totalMembers,
+    this.deadline,
   });
 
   @override
@@ -182,5 +190,6 @@ class TurnSummary extends Equatable {
     expectedAmount,
     contributorsCount,
     totalMembers,
+    deadline,
   ];
 }

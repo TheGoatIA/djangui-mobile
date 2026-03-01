@@ -446,6 +446,12 @@ abstract class AppLocalizations {
   /// **'Une erreur est survenue'**
   String get genericError;
 
+  /// No description provided for @loading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement...'**
+  String get loading;
+
   /// No description provided for @retry.
   ///
   /// In fr, this message translates to:
@@ -1949,7 +1955,7 @@ abstract class AppLocalizations {
   /// No description provided for @strategy_roundup_desc.
   ///
   /// In fr, this message translates to:
-  /// **'Épargnez automatiquement la différence en arrondissant vos dÃ©penses.'**
+  /// **'Épargnez automatiquement la différence en arrondissant vos dépenses.'**
   String get strategy_roundup_desc;
 
   /// No description provided for @strategy_pay_yourself_first.
@@ -2323,12 +2329,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Visa, Mastercard... ({price})'**
   String bankCardPlatforms(Object price);
-
-  /// No description provided for @invalidAmount.
-  ///
-  /// In fr, this message translates to:
-  /// **'Montant invalide'**
-  String get invalidAmount;
 
   /// No description provided for @french.
   ///
@@ -2792,18 +2792,6 @@ abstract class AppLocalizations {
   /// **'Veuillez indiquer votre nom pour personnaliser votre expérience.'**
   String get completeProfileSubtitle;
 
-  /// No description provided for @tutorialIncomeTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Revenu Mensuel'**
-  String get tutorialIncomeTitle;
-
-  /// No description provided for @tutorialIncomeDesc.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ajoutez votre revenu pour obtenir des conseils budgétaires personnalisés.'**
-  String get tutorialIncomeDesc;
-
   /// No description provided for @updateIncomeTitle.
   ///
   /// In fr, this message translates to:
@@ -3221,13 +3209,13 @@ abstract class AppLocalizations {
   /// No description provided for @whatIsTontineTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Le Concept Kauri'**
+  /// **'Le Concept Kauri (Argent Réel)'**
   String get whatIsTontineTitle;
 
   /// No description provided for @whatIsTontineDesc.
   ///
   /// In fr, this message translates to:
-  /// **'La tontine est un levier financier puissant. Sur Kauri, nous automatisons la collecte et la redistribution pour une sécurité totale.'**
+  /// **'La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun 🇨🇲 et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.'**
   String get whatIsTontineDesc;
 
   /// No description provided for @tontineLifecycleTitle.
@@ -3251,13 +3239,13 @@ abstract class AppLocalizations {
   /// No description provided for @guideActiveTitle.
   ///
   /// In fr, this message translates to:
-  /// **'2. Action (Active)'**
+  /// **'2. Action & Cotisation'**
   String get guideActiveTitle;
 
   /// No description provided for @guideActiveDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Le cycle a démarré. À chaque tour, les membres cotisent. L\'argent collecté est versé au bénéficiaire désigné par le mode de rotation.'**
+  /// **'Le cycle a démarré. À chaque tour, cotisez via votre Wallet. L\'argent collecté est versé au bénéficiaire de manière transparente et sécurisée.'**
   String get guideActiveDesc;
 
   /// No description provided for @guideCompletedTitle.
@@ -3287,13 +3275,13 @@ abstract class AppLocalizations {
   /// No description provided for @guideValidationTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Transparence & Validation'**
+  /// **'IA & Factures'**
   String get guideValidationTitle;
 
   /// No description provided for @guideValidationDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Fini les disputes ! Notre IA analyse vos reçus de paiement en quelques secondes pour valider vos cotisations.'**
+  /// **'Envoyez une capture de votre reçu NotchPay/Mobile Money dans le chat. Notre IA valide la preuve en temps réel pour confirmer votre tour.'**
   String get guideValidationDesc;
 
   /// No description provided for @guideSocialFundTitle.
@@ -3331,6 +3319,42 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'C\'est votre réputation financière. Payez à temps pour augmenter votre score et débloquer des avantages dans les futures tontines.'**
   String get guideTrustScoreDesc;
+
+  /// No description provided for @guideFinancialSafetyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sécurité Financière & KYC'**
+  String get guideFinancialSafetyTitle;
+
+  /// No description provided for @guideFinancialSafetyDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La vérification d\'identité est obligatoire pour les flux réels. Les fonds sont cantonnés sur des comptes sécurisés pour garantir le paiement de chaque gagnant.'**
+  String get guideFinancialSafetyDesc;
+
+  /// No description provided for @biWeekly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bimensuelle'**
+  String get biWeekly;
+
+  /// No description provided for @payoutDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails de versement'**
+  String get payoutDetails;
+
+  /// No description provided for @payoutDetailsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro Mobile Money ou RIB'**
+  String get payoutDetailsHint;
+
+  /// No description provided for @tontineRestrictionCM.
+  ///
+  /// In fr, this message translates to:
+  /// **'La création et l\'adhésion aux tontines sont réservées aux utilisateurs au Cameroun 🇨🇲.'**
+  String get tontineRestrictionCM;
 
   /// No description provided for @tontineStarted.
   ///
@@ -3691,6 +3715,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Lancez une nouvelle tontine et invitez vos amis.'**
   String get tutorialCreateTontineButtonDesc;
+
+  /// No description provided for @tutorialIncomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu Mensuel'**
+  String get tutorialIncomeTitle;
+
+  /// No description provided for @tutorialIncomeDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Définissez votre revenu mensuel estimé pour permettre à Kauri de calculer votre capacité d\'épargne.'**
+  String get tutorialIncomeDesc;
 
   /// No description provided for @verifyYourEmail.
   ///
@@ -4064,6 +4100,18 @@ abstract class AppLocalizations {
   /// **'Cette fonctionnalité nécessite une version plus récente de Kauri. Veuillez mettre à jour votre application pour en profiter.'**
   String get featureUpdateRequiredMessage;
 
+  /// No description provided for @fintechOnlyCameroon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun 🇨🇲.'**
+  String get fintechOnlyCameroon;
+
+  /// No description provided for @featureRestrictedCountry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette fonctionnalité n\'est pas disponible dans votre pays.'**
+  String get featureRestrictedCountry;
+
   /// No description provided for @back.
   ///
   /// In fr, this message translates to:
@@ -4081,6 +4129,372 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Ajouter une catégorie personnalisée'**
   String get addCustomCategory;
+
+  /// No description provided for @kycStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut KYC'**
+  String get kycStatus;
+
+  /// No description provided for @kycVerified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifié'**
+  String get kycVerified;
+
+  /// No description provided for @kycPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get kycPending;
+
+  /// No description provided for @kycPendingDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos documents sont en cours d\'analyse par notre équipe.'**
+  String get kycPendingDesc;
+
+  /// No description provided for @kycRejected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejeté'**
+  String get kycRejected;
+
+  /// No description provided for @kycNotSubmitted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non soumis'**
+  String get kycNotSubmitted;
+
+  /// No description provided for @kycAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier mon identité'**
+  String get kycAction;
+
+  /// No description provided for @autoBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget Automatisé IA'**
+  String get autoBudgetTitle;
+
+  /// No description provided for @autoBudgetDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Laissez Kauri optimiser vos limites en fonction de vos revenus.'**
+  String get autoBudgetDesc;
+
+  /// No description provided for @premiumReportTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rapport Financier Premium'**
+  String get premiumReportTitle;
+
+  /// No description provided for @premiumReportDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse approfondie de votre santé financière ce mois-ci.'**
+  String get premiumReportDesc;
+
+  /// No description provided for @challengeTypeSaving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne'**
+  String get challengeTypeSaving;
+
+  /// No description provided for @challengeTypeSpending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduction de dépenses'**
+  String get challengeTypeSpending;
+
+  /// No description provided for @challengeTypeHabit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Habitude'**
+  String get challengeTypeHabit;
+
+  /// No description provided for @challengeSkipAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer la semaine'**
+  String get challengeSkipAction;
+
+  /// No description provided for @challengePostponeAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reporter'**
+  String get challengePostponeAction;
+
+  /// No description provided for @challengeSkipsRemaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} sauts restants'**
+  String challengeSkipsRemaining(int count);
+
+  /// No description provided for @trustScore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trust Score'**
+  String get trustScore;
+
+  /// No description provided for @trustScoreDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre réputation financière Kauri.'**
+  String get trustScoreDesc;
+
+  /// No description provided for @xpEarned.
+  ///
+  /// In fr, this message translates to:
+  /// **'+{points} XP'**
+  String xpEarned(int points);
+
+  /// No description provided for @challengeSkipConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment passer cette semaine ?'**
+  String get challengeSkipConfirm;
+
+  /// No description provided for @challengePostponeConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous reporter la deadline de 48h ?'**
+  String get challengePostponeConfirm;
+
+  /// No description provided for @challengeProofRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez ajouter une preuve d\'image'**
+  String get challengeProofRequired;
+
+  /// No description provided for @transactionProof.
+  ///
+  /// In fr, this message translates to:
+  /// **'Preuve de transaction'**
+  String get transactionProof;
+
+  /// No description provided for @photo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo'**
+  String get photo;
+
+  /// No description provided for @gallery.
+  ///
+  /// In fr, this message translates to:
+  /// **'Galerie'**
+  String get gallery;
+
+  /// No description provided for @walletTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon Portefeuille'**
+  String get walletTitle;
+
+  /// No description provided for @recentTransactions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transactions récentes'**
+  String get recentTransactions;
+
+  /// No description provided for @availableBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde disponible'**
+  String get availableBalance;
+
+  /// No description provided for @incomes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrées'**
+  String get incomes;
+
+  /// No description provided for @outcomes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sorties'**
+  String get outcomes;
+
+  /// No description provided for @recharge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recharger'**
+  String get recharge;
+
+  /// No description provided for @withdraw.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer'**
+  String get withdraw;
+
+  /// No description provided for @noTransactions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune transaction pour le moment'**
+  String get noTransactions;
+
+  /// No description provided for @autoDebit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Auto-Débit'**
+  String get autoDebit;
+
+  /// No description provided for @rotateTurn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer la Rotation'**
+  String get rotateTurn;
+
+  /// No description provided for @deadlineLabelTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échéance'**
+  String get deadlineLabelTontine;
+
+  /// No description provided for @confirmRotateTurn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment lancer la rotation du tour ?'**
+  String get confirmRotateTurn;
+
+  /// No description provided for @kycTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification d\'identité'**
+  String get kycTitle;
+
+  /// No description provided for @kycStepTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape cruciale pour Kauri'**
+  String get kycStepTitle;
+
+  /// No description provided for @kycStepDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour des raisons de sécurité et de conformité financière, nous devons vérifier votre identité.'**
+  String get kycStepDesc;
+
+  /// No description provided for @kycFullNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom complet (tel que sur le document)'**
+  String get kycFullNameLabel;
+
+  /// No description provided for @kycDocTypeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de document'**
+  String get kycDocTypeLabel;
+
+  /// No description provided for @kycDocNumberLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro du document'**
+  String get kycDocNumberLabel;
+
+  /// No description provided for @kycDocPhotoLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo du document'**
+  String get kycDocPhotoLabel;
+
+  /// No description provided for @kycSelfieLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Selfie'**
+  String get kycSelfieLabel;
+
+  /// No description provided for @kycSubmitAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soumettre pour vérification'**
+  String get kycSubmitAction;
+
+  /// No description provided for @kycUploadClick.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cliquez pour uploader'**
+  String get kycUploadClick;
+
+  /// No description provided for @kycMissingPhotos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez fournir les deux photos'**
+  String get kycMissingPhotos;
+
+  /// No description provided for @required.
+  ///
+  /// In fr, this message translates to:
+  /// **'Requis'**
+  String get required;
+
+  /// No description provided for @rechargeMethod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Méthode de recharge'**
+  String get rechargeMethod;
+
+  /// No description provided for @notchpayLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mobile Money (Local)'**
+  String get notchpayLabel;
+
+  /// No description provided for @stripeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carte Bancaire (International)'**
+  String get stripeLabel;
+
+  /// No description provided for @withdrawOperator.
+  ///
+  /// In fr, this message translates to:
+  /// **'Opérateur'**
+  String get withdrawOperator;
+
+  /// No description provided for @phoneNumberLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de téléphone'**
+  String get phoneNumberLabel;
+
+  /// No description provided for @phoneNumberHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'6XXXXXXXX'**
+  String get phoneNumberHint;
+
+  /// No description provided for @confirmAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get confirmAction;
+
+  /// No description provided for @invalidAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant invalide'**
+  String get invalidAmount;
+
+  /// No description provided for @insufficientBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde insuffisant'**
+  String get insufficientBalance;
+
+  /// No description provided for @rechargeSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recharge initiée ! Redirection...'**
+  String get rechargeSuccess;
+
+  /// No description provided for @withdrawSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de retrait soumise avec succès'**
+  String get withdrawSuccess;
 }
 
 class _AppLocalizationsDelegate

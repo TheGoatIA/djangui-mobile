@@ -2,8 +2,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/repositories/tontine_repository.dart';
 import 'tontine_event.dart';
 import 'tontine_state.dart';
+import '../../domain/entities/tontine_entities.dart';
 
 import 'package:injectable/injectable.dart';
+import 'package:kauri/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
@@ -31,6 +33,8 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     on<TontineRemoveMemberRequested>(_onTontineRemoveMemberRequested);
     on<DeleteTontineRequested>(_onDeleteTontineRequested);
     on<UpdateTontineRequested>(_onUpdateTontineRequested);
+    on<RotateTurnRequested>(_onRotateTurnRequested);
+    on<ToggleAutoDebitRequested>(_onToggleAutoDebitRequested);
   }
 
   Future<void> _onTontinesLoadRequested(
@@ -215,6 +219,7 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
         event.inviteCode,
         displayName: event.displayName,
         parts: event.parts,
+        payoutDetails: event.payoutDetails,
       );
       result.fold(
         (failure) {
@@ -566,6 +571,119 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
             status: TontineStatus.success,
             tontines: updatedTontines,
             selectedTontine: updatedTontine,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onRotateTurnRequested(
+    RotateTurnRequested event,
+    Emitter<TontineState> emit,
+  ) async {
+    _logger.info(
+      'Rotation du tour pour la tontine: ${event.tontineId}',
+      component: 'TontineBloc',
+    );
+    emit(state.copyWith(status: TontineStatus.loading));
+    final result = await _repository.rotateTurn(event.tontineId);
+    result.fold(
+      (failure) {
+        _logger.error(
+          'Échec de la rotation du tour',
+          error: failure.message,
+          component: 'TontineBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TontineStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (updatedTontine) {
+        _logger.info('Rotation du tour réussie.', component: 'TontineBloc');
+        emit(
+          state.copyWith(
+            status: TontineStatus.success,
+            selectedTontine: updatedTontine,
+          ),
+        );
+        add(TontineDetailsLoadRequested(updatedTontine.id));
+      },
+    );
+  }
+
+  Future<void> _onToggleAutoDebitRequested(
+    ToggleAutoDebitRequested event,
+    Emitter<TontineState> emit,
+  ) async {
+    if (state.selectedTontine == null) return;
+
+    _logger.info(
+      'Bascule auto-débit (${event.enabled}) pour la tontine: ${event.tontineId}',
+      component: 'TontineBloc',
+    );
+
+    // We need the member ID of the current user in this tontine
+    final currentUser = getIt<AuthBloc>().state.authResponse?.user;
+    if (currentUser == null) return;
+
+    final member = state.selectedTontineMembers
+        .whereType<TontineMember>()
+        .firstWhere(
+          (m) => m.userId == currentUser.id,
+          orElse: () => const TontineMember(
+            id: '',
+            tontineId: '',
+            userId: '',
+            displayName: '',
+            parts: 0,
+            trustScore: 0,
+            hasPaidSocialFund: false,
+          ),
+        );
+
+    if (member.id.isEmpty) {
+      emit(
+        state.copyWith(
+          status: TontineStatus.error,
+          errorMessage: 'Membre non trouvé dans cette tontine',
+        ),
+      );
+      return;
+    }
+
+    emit(state.copyWith(status: TontineStatus.loading));
+    final result = await _repository.toggleAutoDebit(
+      tontineId: event.tontineId,
+      memberId: member.id,
+      enabled: event.enabled,
+    );
+
+    result.fold(
+      (failure) {
+        _logger.error(
+          'Échec de la bascule auto-débit',
+          error: failure.message,
+          component: 'TontineBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TontineStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (updatedMember) {
+        _logger.info('Bascule auto-débit réussie.', component: 'TontineBloc');
+        final updatedMembers = state.selectedTontineMembers.map((m) {
+          return m.id == updatedMember.id ? updatedMember : m;
+        }).toList();
+        emit(
+          state.copyWith(
+            status: TontineStatus.success,
+            selectedTontineMembers: updatedMembers,
           ),
         );
       },

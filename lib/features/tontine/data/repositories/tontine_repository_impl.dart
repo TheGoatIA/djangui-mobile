@@ -233,6 +233,7 @@ class TontineRepositoryImpl implements TontineRepository {
     String inviteCode, {
     required String displayName,
     required int parts,
+    required Map<String, dynamic> payoutDetails,
   }) async {
     _logger.info(
       'Tentative de rejoindre une tontine (Code: $inviteCode)',
@@ -244,6 +245,7 @@ class TontineRepositoryImpl implements TontineRepository {
           'inviteCode': inviteCode,
           'displayName': displayName,
           'parts': parts,
+          'payoutDetails': payoutDetails,
         });
         if (response.isSuccessful && response.body?.data != null) {
           final member = response.body!.data!;
@@ -651,6 +653,52 @@ class TontineRepositoryImpl implements TontineRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, Tontine>> rotateTurn(String id) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final response = await _apiService.rotateTurn(id);
+        if (response.isSuccessful && response.body?.data != null) {
+          final model = response.body!.data!;
+          await _localDataSource.saveTontine(model);
+          return Right(_mapModelToEntity(model));
+        }
+        return Left(ServerFailure(_getErrorMessage(response.error)));
+      } catch (e) {
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, TontineMember>> toggleAutoDebit({
+    required String tontineId,
+    required String memberId,
+    required bool enabled,
+  }) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final response = await _apiService.toggleAutoDebit(
+          tontineId,
+          memberId,
+          {'enabled': enabled},
+        );
+        if (response.isSuccessful && response.body?.data != null) {
+          final model = response.body!.data!;
+          // Logic to update local member if needed
+          return Right(_mapMemberModelToEntity(model));
+        }
+        return Left(ServerFailure(_getErrorMessage(response.error)));
+      } catch (e) {
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
   Tontine _mapModelToEntity(TontineModel model) {
     return Tontine(
       id: model.id,
@@ -672,6 +720,7 @@ class TontineRepositoryImpl implements TontineRepository {
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
       autoRenew: model.autoRenew,
+      deadline: model.deadline,
       rulesAcceptedByAll: model.rulesAcceptedByAll,
       turnSummary: model.turnSummary != null
           ? TurnSummary(
@@ -693,6 +742,7 @@ class TontineRepositoryImpl implements TontineRepository {
       parts: model.parts,
       trustScore: model.trustScore,
       hasPaidSocialFund: model.hasPaidSocialFund,
+      autoDebitEnabled: model.autoDebitEnabled,
       payoutDetails: model.payoutDetails,
     );
   }

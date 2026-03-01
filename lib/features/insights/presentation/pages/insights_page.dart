@@ -149,6 +149,22 @@ class _InsightsViewState extends State<InsightsView> {
                       child: _buildPieChartCard(state.distribution, context),
                     ),
                     const SizedBox(height: 32),
+                    if (context
+                            .read<AuthBloc>()
+                            .state
+                            .authResponse
+                            ?.user
+                            .isPremium ??
+                        false) ...[
+                      _buildSectionTitle("Auto-Budget (IA Premium)"),
+                      const SizedBox(height: 16),
+                      _buildAutoBudgetCard(context),
+                      const SizedBox(height: 32),
+                      _buildSectionTitle("Rapport Premium"),
+                      const SizedBox(height: 16),
+                      _buildPremiumReportCard(context),
+                      const SizedBox(height: 32),
+                    ],
                     _buildSectionTitle(l10n.spendingTrends),
                     const SizedBox(height: 16),
                     _buildLineChartCard(state.trends, context),
@@ -682,6 +698,77 @@ class _InsightsViewState extends State<InsightsView> {
         style: baseStyle.copyWith(
           color: Theme.of(context).colorScheme.onSurface,
         ),
+      ),
+    );
+  }
+
+  Widget _buildAutoBudgetCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.primaryContainer.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.auto_fix_high,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Budget Recommandé",
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            "Basé sur vos habitudes, Kauri suggère la répartition 50/30/20 adaptée à vos revenus actuels.",
+            style: AppTextStyles.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPremiumReportCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.indigo.shade400, Colors.indigo.shade700],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: AppShadows.card,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.auto_awesome, color: Colors.white, size: 30),
+          const SizedBox(height: 12),
+          Text(
+            "Votre Rapport de Février est prêt !",
+            style: AppTextStyles.h3.copyWith(color: Colors.white),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Découvrez vos accomplissements et vos axes d'amélioration ce mois-ci.",
+            style: TextStyle(color: Colors.white70, fontSize: 13),
+          ),
+        ],
       ),
     );
   }

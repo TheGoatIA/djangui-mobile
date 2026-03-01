@@ -20,47 +20,60 @@ final class _$ReportsApiService extends ReportsApiService {
   @override
   Future<Response<BaseResponse<DashboardReportModel>>> getDashboardReport() {
     final Uri $url = Uri.parse('/reports/dashboard');
-    final Request $request = Request('GET', $url, client.baseUrl);
-    return client
-        .send<BaseResponse<DashboardReportModel>, DashboardReportModel>(
-          $request,
-        );
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseResponse<DashboardReportModel>,
+        DashboardReportModel>($request);
   }
 
   @override
   Future<Response<BaseListResponse<SpendingAnalysisModel>>>
-  getSpendingAnalysis() {
+      getSpendingAnalysis() {
     final Uri $url = Uri.parse('/reports/analysis');
-    final Request $request = Request('GET', $url, client.baseUrl);
-    return client
-        .send<BaseListResponse<SpendingAnalysisModel>, SpendingAnalysisModel>(
-          $request,
-        );
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseListResponse<SpendingAnalysisModel>,
+        SpendingAnalysisModel>($request);
   }
 
   @override
   Future<Response<BaseListResponse<SavingsTrendModel>>> getSavingsTrend() {
     final Uri $url = Uri.parse('/reports/trends');
-    final Request $request = Request('GET', $url, client.baseUrl);
-    return client.send<BaseListResponse<SavingsTrendModel>, SavingsTrendModel>(
-      $request,
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
     );
+    return client
+        .send<BaseListResponse<SavingsTrendModel>, SavingsTrendModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<NarrativeReportModel>>> getNarrativeReport() {
     final Uri $url = Uri.parse('/reports/narrative');
-    final Request $request = Request('GET', $url, client.baseUrl);
-    return client
-        .send<BaseResponse<NarrativeReportModel>, NarrativeReportModel>(
-          $request,
-        );
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseResponse<NarrativeReportModel>,
+        NarrativeReportModel>($request);
   }
 
   @override
   Future<Response<dynamic>> exportCsv() {
     final Uri $url = Uri.parse('/reports/export/csv');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
     return client.send<dynamic, dynamic>($request);
   }
 }

@@ -19,25 +19,37 @@ final class _$TontineApiService extends TontineApiService {
 
   @override
   Future<Response<BaseResponse<TontineModel>>> createTontine(
-    Map<String, dynamic> body,
-  ) {
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/tontines');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<BaseResponse<TontineModel>, TontineModel>($request);
   }
 
   @override
   Future<Response<BaseListResponse<TontineModel>>> getTontines() {
     final Uri $url = Uri.parse('/tontines');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
     return client.send<BaseListResponse<TontineModel>, TontineModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<TontineModel>>> getTontineDetails(String id) {
     final Uri $url = Uri.parse('/tontines/${id}');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
     return client.send<BaseResponse<TontineModel>, TontineModel>($request);
   }
 
@@ -60,32 +72,40 @@ final class _$TontineApiService extends TontineApiService {
   @override
   Future<Response<BaseResponse<dynamic>>> deleteTontine(String id) {
     final Uri $url = Uri.parse('/tontines/${id}');
-    final Request $request = Request('DELETE', $url, client.baseUrl);
+    final Request $request = Request(
+      'DELETE',
+      $url,
+      client.baseUrl,
+    );
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
   @override
   Future<Response<BaseResponse<TontineMemberModel>>> joinTontine(
-    Map<String, dynamic> body,
-  ) {
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/tontines/join');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
-    return client.send<BaseResponse<TontineMemberModel>, TontineMemberModel>(
-      $request,
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
     );
+    return client
+        .send<BaseResponse<TontineMemberModel>, TontineMemberModel>($request);
   }
 
   @override
   Future<Response<BaseListResponse<TontineMemberModel>>> getTontineMembers(
-    String id,
-  ) {
+      String id) {
     final Uri $url = Uri.parse('/tontines/${id}/members');
-    final Request $request = Request('GET', $url, client.baseUrl);
-    return client
-        .send<BaseListResponse<TontineMemberModel>, TontineMemberModel>(
-          $request,
-        );
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseListResponse<TontineMemberModel>,
+        TontineMemberModel>($request);
   }
 
   @override
@@ -95,8 +115,14 @@ final class _$TontineApiService extends TontineApiService {
   }) {
     final Uri $url = Uri.parse('/tontines/contribute');
     final List<PartValue> $parts = <PartValue>[
-      PartValue<String>('tontineId', tontineId),
-      PartValueFile<MultipartFile>('receipt', proofImage),
+      PartValue<String>(
+        'tontineId',
+        tontineId,
+      ),
+      PartValueFile<MultipartFile>(
+        'receipt',
+        proofImage,
+      ),
     ];
     final Request $request = Request(
       'POST',
@@ -105,22 +131,21 @@ final class _$TontineApiService extends TontineApiService {
       parts: $parts,
       multipart: true,
     );
-    return client
-        .send<BaseResponse<TontineContributionModel>, TontineContributionModel>(
-          $request,
-        );
+    return client.send<BaseResponse<TontineContributionModel>,
+        TontineContributionModel>($request);
   }
 
   @override
   Future<Response<BaseListResponse<TontineMessageModel>>> getTontineMessages(
-    String id,
-  ) {
+      String id) {
     final Uri $url = Uri.parse('/tontines/${id}/messages');
-    final Request $request = Request('GET', $url, client.baseUrl);
-    return client
-        .send<BaseListResponse<TontineMessageModel>, TontineMessageModel>(
-          $request,
-        );
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseListResponse<TontineMessageModel>,
+        TontineMessageModel>($request);
   }
 
   @override
@@ -130,22 +155,27 @@ final class _$TontineApiService extends TontineApiService {
   ) {
     final Uri $url = Uri.parse('/tontines/${id}/messages');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
-    return client.send<BaseResponse<TontineMessageModel>, TontineMessageModel>(
-      $request,
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
     );
+    return client
+        .send<BaseResponse<TontineMessageModel>, TontineMessageModel>($request);
   }
 
   @override
   Future<Response<BaseListResponse<TontineContributionModel>>> getContributions(
-    String id,
-  ) {
+      String id) {
     final Uri $url = Uri.parse('/tontines/${id}/contributions');
-    final Request $request = Request('GET', $url, client.baseUrl);
-    return client.send<
-      BaseListResponse<TontineContributionModel>,
-      TontineContributionModel
-    >($request);
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseListResponse<TontineContributionModel>,
+        TontineContributionModel>($request);
   }
 
   @override
@@ -155,24 +185,35 @@ final class _$TontineApiService extends TontineApiService {
   ) {
     final Uri $url = Uri.parse('/tontines/contributions/${id}/validate');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
-    return client
-        .send<BaseResponse<TontineContributionModel>, TontineContributionModel>(
-          $request,
-        );
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<BaseResponse<TontineContributionModel>,
+        TontineContributionModel>($request);
   }
 
   @override
   Future<Response<List<int>>> exportTontine(String id) {
     final Uri $url = Uri.parse('/tontines/${id}/export');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
     return client.send<List<int>, int>($request);
   }
 
   @override
   Future<Response<BaseResponse<TontineModel>>> startTontine(String id) {
     final Uri $url = Uri.parse('/tontines/${id}/start');
-    final Request $request = Request('POST', $url, client.baseUrl);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+    );
     return client.send<BaseResponse<TontineModel>, TontineModel>($request);
   }
 
@@ -182,7 +223,41 @@ final class _$TontineApiService extends TontineApiService {
     String memberId,
   ) {
     final Uri $url = Uri.parse('/tontines/${id}/members/${memberId}');
-    final Request $request = Request('DELETE', $url, client.baseUrl);
+    final Request $request = Request(
+      'DELETE',
+      $url,
+      client.baseUrl,
+    );
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineModel>>> rotateTurn(String id) {
+    final Uri $url = Uri.parse('/tontines/${id}/rotation/next');
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseResponse<TontineModel>, TontineModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineMemberModel>>> toggleAutoDebit(
+    String id,
+    String memberId,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url =
+        Uri.parse('/tontines/${id}/members/${memberId}/auto-debit/toggle');
+    final $body = body;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client
+        .send<BaseResponse<TontineMemberModel>, TontineMemberModel>($request);
   }
 }

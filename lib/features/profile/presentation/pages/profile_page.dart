@@ -637,6 +637,49 @@ class _ProfilePageState extends State<ProfilePage> {
                 _showCountrySelectionDialog(context, country ?? 'CM');
               },
             ),
+
+            _buildSettingsTile(
+              Icons.verified_user_outlined,
+              "Vérification d'identité (KYC)",
+              trailing: BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, state) {
+                  final kycLevel = state.authResponse?.user.kycLevel ?? 'none';
+                  Color statusColor = Colors.orange;
+                  String statusText = "Non vérifié";
+
+                  if (kycLevel == 'verified') {
+                    statusColor = Colors.green;
+                    statusText = "Vérifié";
+                  } else if (kycLevel == 'pending') {
+                    statusColor = Colors.blue;
+                    statusText = "En attente";
+                  } else if (kycLevel == 'rejected') {
+                    statusColor = Colors.red;
+                    statusText = "Rejeté";
+                  }
+
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      statusText,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              onTap: () => context.push(RouteConstants.kycSubmission),
+            ),
           ],
         ),
         const SizedBox(height: 24),

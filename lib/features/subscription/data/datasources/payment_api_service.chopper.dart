@@ -19,42 +19,62 @@ final class _$PaymentApiService extends PaymentApiService {
 
   @override
   Future<Response<Map<String, dynamic>>> initializeNotchPay(
-    Map<String, dynamic> body,
-  ) {
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/payments/init/notchpay');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
 
   @override
   Future<Response<Map<String, dynamic>>> createStripeCheckout(
-    Map<String, dynamic> body,
-  ) {
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/payments/checkout/stripe');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
 
   @override
   Future<Response<Map<String, dynamic>>> verifyTransaction(String reference) {
     final Uri $url = Uri.parse('/payments/verify/${reference}');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
 
   @override
   Future<Response<Map<String, dynamic>>> getPaymentHistory() {
     final Uri $url = Uri.parse('/payments');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
 
   @override
   Future<Response<Map<String, dynamic>>> cancelSubscription() {
     final Uri $url = Uri.parse('/payments/cancel-subscription');
-    final Request $request = Request('POST', $url, client.baseUrl);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+    );
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
 }

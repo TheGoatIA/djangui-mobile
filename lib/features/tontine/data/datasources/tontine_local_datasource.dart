@@ -82,7 +82,9 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
             parts: row.parts,
             trustScore: row.trustScore,
             hasPaidSocialFund: row.hasPaidSocialFund,
-            payoutDetails: row.payoutDetails,
+            payoutDetails: row.payoutDetails != null
+                ? json.decode(row.payoutDetails!) as Map<String, dynamic>
+                : null,
           ),
         )
         .toList();
@@ -105,7 +107,9 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
             parts: Value(m.parts),
             trustScore: Value(m.trustScore),
             hasPaidSocialFund: Value(m.hasPaidSocialFund),
-            payoutDetails: Value(m.payoutDetails),
+            payoutDetails: Value(
+              m.payoutDetails != null ? json.encode(m.payoutDetails) : null,
+            ),
           ),
         ),
         mode: InsertMode.insertOrReplace,

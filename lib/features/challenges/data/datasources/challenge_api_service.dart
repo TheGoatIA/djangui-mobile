@@ -28,10 +28,18 @@ abstract class ChallengeApiService extends ChopperService {
     @Part('userChallengeId') String userChallengeId,
     @Part('weekNumber') int weekNumber,
     @Part('amount') double amount,
-    @PartFile('proof') MultipartFile proof,
+    @PartFile('proof') MultipartFile? proof,
   );
   @Delete(path: '${ApiConstants.challenges}/{id}')
   Future<Response<BaseResponse<dynamic>>> unjoinChallenge(
+    @Path('id') String id,
+  );
+
+  @Post(path: '${ApiConstants.challenges}/skip/{id}')
+  Future<Response<BaseResponse<dynamic>>> skipWeek(@Path('id') String id);
+
+  @Post(path: '${ApiConstants.challenges}/postpone/{id}')
+  Future<Response<BaseResponse<dynamic>>> postponeDeadline(
     @Path('id') String id,
   );
 }

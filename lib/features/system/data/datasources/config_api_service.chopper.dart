@@ -20,9 +20,12 @@ final class _$ConfigApiService extends ConfigApiService {
   @override
   Future<Response<BaseResponse<FeatureFlagModel>>> getFeatureFlags() {
     final Uri $url = Uri.parse('/config/features');
-    final Request $request = Request('GET', $url, client.baseUrl);
-    return client.send<BaseResponse<FeatureFlagModel>, FeatureFlagModel>(
-      $request,
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
     );
+    return client
+        .send<BaseResponse<FeatureFlagModel>, FeatureFlagModel>($request);
   }
 }

@@ -18,4 +18,9 @@ abstract class PaymentsApiService extends ChopperService {
   Future<Response<BaseResponse<PaymentInitResponseModel>>> initNotchPayPayment(
     @Body() Map<String, dynamic> body,
   );
+
+  @Get(path: '/verify/{reference}')
+  Future<Response<BaseResponse<Map<String, dynamic>>>> verifyPayment(
+    @Path('reference') String reference,
+  );
 }
