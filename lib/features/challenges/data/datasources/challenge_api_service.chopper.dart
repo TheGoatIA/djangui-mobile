@@ -20,40 +20,32 @@ final class _$ChallengeApiService extends ChallengeApiService {
   @override
   Future<Response<BaseListResponse<ChallengeModel>>> getChallenges() {
     final Uri $url = Uri.parse('/challenges');
-    final Request $request = Request(
-      'GET',
-      $url,
-      client.baseUrl,
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client.send<BaseListResponse<ChallengeModel>, ChallengeModel>(
+      $request,
     );
-    return client
-        .send<BaseListResponse<ChallengeModel>, ChallengeModel>($request);
   }
 
   @override
   Future<Response<BaseListResponse<UserChallengeModel>>> getUserChallenges() {
     final Uri $url = Uri.parse('/challenges/my-challenges');
-    final Request $request = Request(
-      'GET',
-      $url,
-      client.baseUrl,
-    );
-    return client.send<BaseListResponse<UserChallengeModel>,
-        UserChallengeModel>($request);
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client
+        .send<BaseListResponse<UserChallengeModel>, UserChallengeModel>(
+          $request,
+        );
   }
 
   @override
   Future<Response<BaseResponse<UserChallengeModel>>> joinChallenge(
-      Map<String, dynamic> body) {
+    Map<String, dynamic> body,
+  ) {
     final Uri $url = Uri.parse('/challenges/join');
     final $body = body;
-    final Request $request = Request(
-      'POST',
-      $url,
-      client.baseUrl,
-      body: $body,
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<UserChallengeModel>, UserChallengeModel>(
+      $request,
     );
-    return client
-        .send<BaseResponse<UserChallengeModel>, UserChallengeModel>($request);
   }
 
   @override
@@ -65,22 +57,10 @@ final class _$ChallengeApiService extends ChallengeApiService {
   ) {
     final Uri $url = Uri.parse('/challenges/validate-week');
     final List<PartValue> $parts = <PartValue>[
-      PartValue<String>(
-        'userChallengeId',
-        userChallengeId,
-      ),
-      PartValue<int>(
-        'weekNumber',
-        weekNumber,
-      ),
-      PartValue<double>(
-        'amount',
-        amount,
-      ),
-      PartValueFile<MultipartFile?>(
-        'proof',
-        proof,
-      ),
+      PartValue<String>('userChallengeId', userChallengeId),
+      PartValue<int>('weekNumber', weekNumber),
+      PartValue<double>('amount', amount),
+      PartValueFile<MultipartFile?>('proof', proof),
     ];
     final Request $request = Request(
       'POST',
@@ -89,40 +69,29 @@ final class _$ChallengeApiService extends ChallengeApiService {
       parts: $parts,
       multipart: true,
     );
-    return client
-        .send<BaseResponse<UserChallengeModel>, UserChallengeModel>($request);
+    return client.send<BaseResponse<UserChallengeModel>, UserChallengeModel>(
+      $request,
+    );
   }
 
   @override
   Future<Response<BaseResponse<dynamic>>> unjoinChallenge(String id) {
     final Uri $url = Uri.parse('/challenges/${id}');
-    final Request $request = Request(
-      'DELETE',
-      $url,
-      client.baseUrl,
-    );
+    final Request $request = Request('DELETE', $url, client.baseUrl);
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
   @override
   Future<Response<BaseResponse<dynamic>>> skipWeek(String id) {
     final Uri $url = Uri.parse('/challenges/skip/${id}');
-    final Request $request = Request(
-      'POST',
-      $url,
-      client.baseUrl,
-    );
+    final Request $request = Request('POST', $url, client.baseUrl);
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
   @override
   Future<Response<BaseResponse<dynamic>>> postponeDeadline(String id) {
     final Uri $url = Uri.parse('/challenges/postpone/${id}');
-    final Request $request = Request(
-      'POST',
-      $url,
-      client.baseUrl,
-    );
+    final Request $request = Request('POST', $url, client.baseUrl);
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 }

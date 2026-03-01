@@ -13,8 +13,5 @@ UploadResponseModel _$UploadResponseModelFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$UploadResponseModelToJson(
-        UploadResponseModel instance) =>
-    <String, dynamic>{
-      'avatarUrl': instance.avatarUrl,
-      'url': instance.url,
-    };
+  UploadResponseModel instance,
+) => <String, dynamic>{'avatarUrl': instance.avatarUrl, 'url': instance.url};

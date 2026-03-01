@@ -9,7 +9,8 @@ part of 'device_info_request.dart';
 DeviceInfoRequest _$DeviceInfoRequestFromJson(Map<String, dynamic> json) =>
     DeviceInfoRequest(
       deviceInfo: DeviceInfoDetails.fromJson(
-          json['deviceInfo'] as Map<String, dynamic>),
+        json['deviceInfo'] as Map<String, dynamic>,
+      ),
       appVersion: json['appVersion'] as String,
     );
 
