@@ -29,6 +29,7 @@ import 'features/budgets/presentation/bloc/budgets_bloc.dart';
 import 'features/budgets/presentation/bloc/budgets_event.dart';
 import 'features/challenges/presentation/bloc/challenges_bloc.dart';
 import 'features/challenges/presentation/bloc/challenges_event.dart';
+import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'features/support/presentation/bloc/support_bloc.dart';
 import 'features/system/presentation/bloc/system_bloc.dart';
 import 'features/tontine/presentation/bloc/tontine_bloc.dart';
@@ -244,6 +245,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     } else if (state == AppLifecycleState.resumed) {
       getIt<AnalyticsManager>().startNewSession();
       _sessionStartTime = DateTime.now();
+
+      // Refresh financial data when returning to the app (e.g., after a payment)
+      if (mounted) {
+        context.read<FintechBloc>().add(FetchWalletBalance());
+        context.read<DashboardBloc>().add(GetDashboardDataRequested());
+      }
 
       // Telemetry: Session Start (Prometheus Count)
       telemetry.recordCount('app.session.total', 1);
