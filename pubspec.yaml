@@ -119,6 +119,8 @@ dependencies:
   speech_to_text: ^7.3.0
   flutter_dynamic_icon_plus: ^1.4.0
   opentelemetry: any
+  freerasp: ^7.5.0
+  sqlcipher_flutter_libs: ^0.7.0+eol
 
 
 dev_dependencies:

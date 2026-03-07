@@ -13,6 +13,15 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
     on<FetchWalletTransactions>(_onFetchWalletTransactions);
     on<RequestWithdrawal>(_onRequestWithdrawal);
     on<DownloadReceipt>(_onDownloadReceipt);
+    on<ClearFintechData>(_onClearFintechData);
+  }
+
+  Future<void> _onClearFintechData(
+    ClearFintechData event,
+    Emitter<FintechState> emit,
+  ) async {
+    // Reset to default initial state
+    emit(const FintechState());
   }
 
   Future<void> _onFetchWalletBalance(

@@ -263,9 +263,11 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       // 1. Sign in to Firebase with Apple credentials
-      final AuthCredential credential = OAuthProvider(
-        'apple.com',
-      ).credential(idToken: identityToken, rawNonce: rawNonce);
+      final AuthCredential credential = OAuthProvider('apple.com').credential(
+        idToken: identityToken,
+        accessToken: appleCredential.authorizationCode,
+        rawNonce: rawNonce,
+      );
 
       final UserCredential userCredential = await FirebaseAuth.instance
           .signInWithCredential(credential);
@@ -784,7 +786,7 @@ class AuthRepositoryImpl implements AuthRepository {
   /// credential request.
   String _generateNonce([int length = 32]) {
     const charset =
-        '01234567843363pulq350psuapeh5ed1ckmhaqd6flnniABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     final random = Random.secure();
     return List.generate(
       length,

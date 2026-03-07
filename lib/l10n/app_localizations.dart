@@ -3458,6 +3458,12 @@ abstract class AppLocalizations {
   /// **'Mes Abonnements'**
   String get mySubscriptions;
 
+  /// No description provided for @subscriptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnements'**
+  String get subscriptions;
+
   /// No description provided for @detectSubscriptions.
   ///
   /// In fr, this message translates to:
@@ -3533,7 +3539,7 @@ abstract class AppLocalizations {
   /// No description provided for @nextInvoices.
   ///
   /// In fr, this message translates to:
-  /// **'Prochaines Factures'**
+  /// **'Prochains Abonnements'**
   String get nextInvoices;
 
   /// No description provided for @today.

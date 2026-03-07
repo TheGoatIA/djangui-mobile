@@ -1800,6 +1800,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mySubscriptions => 'Mes Abonnements';
 
   @override
+  String get subscriptions => 'Abonnements';
+
+  @override
   String get detectSubscriptions => 'Détecter les abonnements';
 
   @override
@@ -1836,7 +1839,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get subscriptionNameHint => 'ex: Netflix, Spotify...';
 
   @override
-  String get nextInvoices => 'Prochaines Factures';
+  String get nextInvoices => 'Prochains Abonnements';
 
   @override
   String get today => 'Aujourd\'hui';

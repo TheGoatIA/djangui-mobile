@@ -853,6 +853,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  freerasp:
+    dependency: "direct main"
+    description:
+      name: freerasp
+      sha256: c781c73edc65b4580c461baafde6d35c03fb91c9cec38510c6e618ee56e9a80b
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.5.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -1930,6 +1938,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
+  sqlcipher_flutter_libs:
+    dependency: "direct main"
+    description:
+      name: sqlcipher_flutter_libs
+      sha256: "38d62d659d2fb8739bf25a42c9a350d1fdd6c29a5a61f13a946778ec75d27929"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.0+eol"
   sqlite3:
     dependency: transitive
     description:

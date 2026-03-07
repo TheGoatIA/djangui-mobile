@@ -255,7 +255,15 @@ final appRouter = GoRouter(
         GoRoute(
           path: 'add',
           pageBuilder: (context, state) {
-            final goalId = state.extra as String?;
+            String? goalId;
+            final extraParam = state.extra;
+
+            if (extraParam is String) {
+              goalId = extraParam;
+            } else if (extraParam is Map<String, dynamic>) {
+              goalId = extraParam['goalId'] as String?;
+            }
+
             return buildPageWithDefaultTransition(
               context: context,
               state: state,

@@ -22,9 +22,10 @@ class AuthInterceptor implements RequestInterceptor {
       '/auth/firebase',
     ];
 
-    final bool isExcluded = excludedPaths.any(
-      (path) => request.url.toString().contains(path),
-    );
+    final bool isExcluded = excludedPaths.any((path) {
+      final uri = Uri.parse(request.url.toString());
+      return uri.path.endsWith(path);
+    });
 
     if (isExcluded) return request;
 

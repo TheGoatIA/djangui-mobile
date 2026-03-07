@@ -859,7 +859,7 @@ class _DashboardViewState extends State<DashboardView> {
                       if (tontinesStatus != FeatureStatus.disabled)
                         _buildActionItem(
                           Icons.groups_outlined,
-                          'Tontine',
+                          AppLocalizations.of(context)!.tontine,
                           Theme.of(context).colorScheme.tertiary,
                           isUpdateRequired:
                               tontinesStatus == FeatureStatus.updateRequired,
@@ -868,7 +868,7 @@ class _DashboardViewState extends State<DashboardView> {
                       if (subscriptionsStatus != FeatureStatus.disabled)
                         _buildActionItem(
                           Icons.receipt_long_outlined,
-                          'Factures',
+                          AppLocalizations.of(context)!.subscriptions,
                           Colors.orange,
                           isUpdateRequired:
                               subscriptionsStatus ==

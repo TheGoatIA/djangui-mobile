@@ -11,6 +11,8 @@ class FetchWalletBalance extends FintechEvent {}
 
 class FetchWalletTransactions extends FintechEvent {}
 
+class ClearFintechData extends FintechEvent {}
+
 class RequestWithdrawal extends FintechEvent {
   final double amount;
   final String phoneNumber;

@@ -619,6 +619,7 @@
     "accountName": "Nom du compte",
     "noAccountsAdded": "Aucun compte ajouté",
     "mySubscriptions": "Mes Abonnements",
+    "subscriptions": "Abonnements",
     "detectSubscriptions": "Détecter les abonnements",
     "noSubscriptionsFound": "Aucun abonnement trouvé",
     "addSubscription": "Ajouter un abonnement",
@@ -631,7 +632,7 @@
     "remindMeSubtitle": "Recevoir une notification 48h avant",
     "subscriptionNameLabel": "Nom de l'abonnement",
     "subscriptionNameHint": "ex: Netflix, Spotify...",
-    "nextInvoices": "Prochaines Factures",
+    "nextInvoices": "Prochains Abonnements",
     "today": "Aujourd'hui",
     "inDays": "Dans {count} jours",
     "@inDays": {

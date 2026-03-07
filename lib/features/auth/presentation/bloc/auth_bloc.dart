@@ -315,8 +315,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final String? accessToken = await _authRepository.getAccessToken();
       final String? refreshToken = await _authRepository.getRefreshToken();
 
-      userResult.fold(
-        (failure) {
+      await userResult.fold(
+        (failure) async {
           _logger.warning(
             'Échec de la récupération des données utilisateur localement',
             component: 'AuthBloc',
@@ -324,11 +324,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           );
           emit(state.copyWith(status: AuthStatus.unauthenticated));
         },
-        (user) {
+        (user) async {
           _logger.info(
             'Session récupérée pour l\'utilisateur: ${user.email}',
             component: 'AuthBloc',
           );
+
+          // Vérification sécurité: L'email est-il vérifié pour une connexion classique ?
+          final loginProvider = await _authRepository.getLoginProvider();
+          if (loginProvider == 'password' && !user.isEmailVerified) {
+            _logger.warning(
+              'Session trouvée mais email non vérifié.',
+              component: 'AuthBloc',
+            );
+            // Optionally clear tokens or push to a 'pending verification' state
+            // For now, we remain unauthenticated to force them to login and see the pending screen again
+            emit(state.copyWith(status: AuthStatus.unauthenticated));
+            return;
+          }
+
           _authRepository.updateDeviceInfo(); // Fire and forget
           _authRepository.logConnection();
           _logger.setUserId(user.id);

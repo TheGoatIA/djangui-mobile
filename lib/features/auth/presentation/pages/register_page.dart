@@ -289,13 +289,19 @@ class _RegisterPageState extends State<RegisterPage> {
                             '📝 [RegisterPage] Pays sélectionné : $_selectedCountry',
                           );
                           if (_formKey.currentState!.validate()) {
+                            final countryToSubmit =
+                                (_selectedCountry == null ||
+                                    _selectedCountry!.isEmpty)
+                                ? 'CM'
+                                : _selectedCountry;
+
                             context.read<AuthBloc>().add(
                               AuthRegisterRequested(
                                 email: _emailController.text,
                                 password: _passwordController.text,
                                 firstName: _firstNameController.text,
                                 lastName: _lastNameController.text,
-                                country: _selectedCountry,
+                                country: countryToSubmit,
                               ),
                             );
                           }
