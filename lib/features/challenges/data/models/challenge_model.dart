@@ -15,6 +15,7 @@ class ChallengeModel extends Equatable {
   final int durationDays;
   final int rewardPoints;
   final String? icon;
+  final bool? requiresProof; // Nouveau : Preuve photo requise
 
   static String _idFromJson(dynamic id) {
     if (id is Map) return id['\$oid'] ?? id['_id'] ?? id['id'] ?? '';
@@ -31,6 +32,7 @@ class ChallengeModel extends Equatable {
     required this.durationDays,
     required this.rewardPoints,
     this.icon,
+    this.requiresProof = false,
   });
 
   factory ChallengeModel.fromJson(Map<String, dynamic> json) {
@@ -47,9 +49,9 @@ class ChallengeModel extends Equatable {
     type,
     difficulty,
     targetAmount,
-    durationDays,
     rewardPoints,
     icon,
+    requiresProof,
   ];
 }
 
@@ -63,7 +65,8 @@ class UserChallengeModel extends Equatable {
 
   @_ChallengeIdConverter()
   final ChallengeModel? challengeId;
-  final Map<String, dynamic>? flexibility;
+  final ChallengeFlexibilityModel?
+  flexibility; // Mis à jour pour utiliser un modèle
   final List<ChallengeWeekModel>? weeks;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -141,6 +144,61 @@ class ChallengeWeekModel extends Equatable {
     savedAmount,
     status,
   ];
+}
+
+@JsonSerializable()
+class ChallengeFlexibilityModel extends Equatable {
+  final int skipsUsed;
+  final int maxSkips;
+  final int postponementsUsed;
+  final DateTime? nextDeadline;
+
+  const ChallengeFlexibilityModel({
+    this.skipsUsed = 0,
+    this.maxSkips = 3,
+    this.postponementsUsed = 0,
+    this.nextDeadline,
+  });
+
+  factory ChallengeFlexibilityModel.fromJson(Map<String, dynamic> json) =>
+      _$ChallengeFlexibilityModelFromJson(json);
+  Map<String, dynamic> toJson() => _$ChallengeFlexibilityModelToJson(this);
+
+  @override
+  List<Object?> get props => [
+    skipsUsed,
+    maxSkips,
+    postponementsUsed,
+    nextDeadline,
+  ];
+}
+
+@JsonSerializable()
+class ChallengeProofModel extends Equatable {
+  @JsonKey(name: '_id', fromJson: _idFromJson)
+  final String id;
+  final String imageUrl;
+  final String status; // pending, approved, rejected
+  final DateTime createdAt;
+
+  static String _idFromJson(dynamic id) {
+    if (id is Map) return id['\$oid'] ?? id['_id'] ?? id['id'] ?? '';
+    return id?.toString() ?? '';
+  }
+
+  const ChallengeProofModel({
+    required this.id,
+    required this.imageUrl,
+    required this.status,
+    required this.createdAt,
+  });
+
+  factory ChallengeProofModel.fromJson(Map<String, dynamic> json) =>
+      _$ChallengeProofModelFromJson(json);
+  Map<String, dynamic> toJson() => _$ChallengeProofModelToJson(this);
+
+  @override
+  List<Object?> get props => [id, imageUrl, status, createdAt];
 }
 
 class _ChallengeIdConverter implements JsonConverter<ChallengeModel?, dynamic> {

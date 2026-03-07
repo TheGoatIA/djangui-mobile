@@ -263,15 +263,54 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        if (!isCompleted) ...[
-                          _WeeklyTargetCard(
-                            weekNumber: pendingWeek?.weekNumber ?? 0,
-                            amount: pendingWeek?.targetAmount ?? 0,
-                            isReady: isWeekReadyToValidate,
-                            nextInDays: daysUntilNextWeek,
+                        _WeeklyTargetCard(
+                          weekNumber: pendingWeek?.weekNumber ?? 0,
+                          amount: pendingWeek?.targetAmount ?? 0,
+                          isReady: isWeekReadyToValidate,
+                          nextInDays: daysUntilNextWeek,
+                        ),
+                        const SizedBox(height: 16),
+                        if (widget.userChallenge?.flexibility != null &&
+                            !isCompleted)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed:
+                                      (widget
+                                              .userChallenge!
+                                              .flexibility!
+                                              .skipsUsed <
+                                          widget
+                                              .userChallenge!
+                                              .flexibility!
+                                              .maxSkips)
+                                      ? () => _showSkipConfirmation(context)
+                                      : null,
+                                  icon: const Icon(Icons.fast_forward),
+                                  label: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.challengeSkipAction,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () =>
+                                      _showPostponeConfirmation(context),
+                                  icon: const Icon(Icons.hourglass_empty),
+                                  label: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.challengePostponeAction,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 24),
-                        ],
+                        const SizedBox(height: 24),
                       ],
                       SizedBox(
                         width: double.infinity,
@@ -290,9 +329,7 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                                 JoinChallengeRequested(widget.challenge.id),
                               );
                               Navigator.pop(context);
-                            } else if (widget.challenge.type == 'saving' &&
-                                !isCompleted &&
-                                isWeekReadyToValidate) {
+                            } else if (!isCompleted && isWeekReadyToValidate) {
                               _showValidationDialog(
                                 context,
                                 widget.userChallenge!,
@@ -448,12 +485,80 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
     final l10n = AppLocalizations.of(context)!;
     switch (type.toLowerCase()) {
       case 'saving':
-        return l10n.savingType;
+        return l10n.challengeTypeSaving;
+      case 'spending_cut':
       case 'spending':
-        return l10n.spendingType;
+        return l10n.challengeTypeSpending;
+      case 'habit':
+        return l10n.challengeTypeHabit;
       default:
         return type;
     }
+  }
+
+  void _showSkipConfirmation(BuildContext context) {
+    final bloc = context.read<ChallengesBloc>();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.challengeSkipAction),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppLocalizations.of(context)!.challengeSkipConfirm),
+            const SizedBox(height: 8),
+            Text(
+              AppLocalizations.of(context)!.challengeSkipsRemaining(
+                widget.userChallenge!.flexibility!.maxSkips -
+                    widget.userChallenge!.flexibility!.skipsUsed,
+              ),
+              style: AppTextStyles.labelSmall.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              bloc.add(SkipWeekRequested(widget.userChallenge!.id));
+              Navigator.pop(context);
+            },
+            child: Text(AppLocalizations.of(context)!.confirm),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPostponeConfirmation(BuildContext context) {
+    final bloc = context.read<ChallengesBloc>();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.challengePostponeAction),
+        content: Text(AppLocalizations.of(context)!.challengePostponeConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              bloc.add(PostponeDeadlineRequested(widget.userChallenge!.id));
+              Navigator.pop(context);
+            },
+            child: Text(AppLocalizations.of(context)!.confirm),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showValidationDialog(
@@ -556,7 +661,7 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
             ),
             const SizedBox(height: 24),
             Text(
-              "Preuve de transaction",
+              AppLocalizations.of(context)!.transactionProof,
               style: AppTextStyles.bodySmall.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -610,7 +715,7 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                                 setDialogState(() {});
                               },
                               icon: const Icon(Icons.camera_alt_outlined),
-                              label: const Text("Photo"),
+                              label: Text(AppLocalizations.of(context)!.photo),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -621,7 +726,9 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                                 setDialogState(() {});
                               },
                               icon: const Icon(Icons.image_outlined),
-                              label: const Text("Galerie"),
+                              label: Text(
+                                AppLocalizations.of(context)!.gallery,
+                              ),
                             ),
                           ),
                         ],
@@ -641,10 +748,13 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
             onPressed: () {
               final double? amount = double.tryParse(controller.text);
               if (amount != null && amount > 0) {
-                if (_selectedImage == null) {
+                if ((widget.challenge.requiresProof ?? false) &&
+                    _selectedImage == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Veuillez ajouter une preuve d'image"),
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.of(context)!.challengeProofRequired,
+                      ),
                     ),
                   );
                   return;
@@ -660,7 +770,7 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                         userChallengeId: widget.userChallenge!.id,
                         weekNumber: pendingWeek.weekNumber,
                         amount: amount,
-                        proofPath: _selectedImage!.path,
+                        proofPath: _selectedImage?.path,
                       ),
                     );
                     getIt<AnalyticsManager>().trackEvent(

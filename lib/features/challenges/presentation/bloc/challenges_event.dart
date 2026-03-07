@@ -31,13 +31,13 @@ class ValidateWeekRequested extends ChallengesEvent {
   final String userChallengeId;
   final int weekNumber;
   final double amount;
-  final String proofPath;
+  final String? proofPath;
 
   const ValidateWeekRequested({
     required this.userChallengeId,
     required this.weekNumber,
     required this.amount,
-    required this.proofPath,
+    this.proofPath,
   });
 
   @override
@@ -48,6 +48,24 @@ class UnjoinChallengeRequested extends ChallengesEvent {
   final String userChallengeId;
 
   const UnjoinChallengeRequested(this.userChallengeId);
+
+  @override
+  List<Object?> get props => [userChallengeId];
+}
+
+class SkipWeekRequested extends ChallengesEvent {
+  final String userChallengeId;
+
+  const SkipWeekRequested(this.userChallengeId);
+
+  @override
+  List<Object?> get props => [userChallengeId];
+}
+
+class PostponeDeadlineRequested extends ChallengesEvent {
+  final String userChallengeId;
+
+  const PostponeDeadlineRequested(this.userChallengeId);
 
   @override
   List<Object?> get props => [userChallengeId];

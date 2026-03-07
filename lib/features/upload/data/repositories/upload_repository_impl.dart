@@ -44,4 +44,20 @@ class UploadRepositoryImpl implements UploadRepository {
       return Left(NetworkFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, UploadResponseModel>> uploadDocument(
+    String filePath,
+  ) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final result = await _remoteDataSource.uploadDocument(filePath);
+        return Right(result);
+      } catch (e) {
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
 }

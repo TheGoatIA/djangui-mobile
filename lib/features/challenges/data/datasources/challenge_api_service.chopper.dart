@@ -53,14 +53,14 @@ final class _$ChallengeApiService extends ChallengeApiService {
     String userChallengeId,
     int weekNumber,
     double amount,
-    MultipartFile proof,
+    MultipartFile? proof,
   ) {
     final Uri $url = Uri.parse('/challenges/validate-week');
     final List<PartValue> $parts = <PartValue>[
       PartValue<String>('userChallengeId', userChallengeId),
       PartValue<int>('weekNumber', weekNumber),
       PartValue<double>('amount', amount),
-      PartValueFile<MultipartFile>('proof', proof),
+      PartValueFile<MultipartFile?>('proof', proof),
     ];
     final Request $request = Request(
       'POST',
@@ -78,6 +78,20 @@ final class _$ChallengeApiService extends ChallengeApiService {
   Future<Response<BaseResponse<dynamic>>> unjoinChallenge(String id) {
     final Uri $url = Uri.parse('/challenges/${id}');
     final Request $request = Request('DELETE', $url, client.baseUrl);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> skipWeek(String id) {
+    final Uri $url = Uri.parse('/challenges/skip/${id}');
+    final Request $request = Request('POST', $url, client.baseUrl);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> postponeDeadline(String id) {
+    final Uri $url = Uri.parse('/challenges/postpone/${id}');
+    final Request $request = Request('POST', $url, client.baseUrl);
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 }

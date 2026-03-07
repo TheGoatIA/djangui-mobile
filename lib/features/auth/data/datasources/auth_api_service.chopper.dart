@@ -26,6 +26,19 @@ final class _$AuthApiService extends AuthApiService {
   }
 
   @override
+  Future<Response<BaseResponse<Map<String, dynamic>>>> submitKYC(
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/fintech/kyc/submit');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client
+        .send<BaseResponse<Map<String, dynamic>>, Map<String, dynamic>>(
+          $request,
+        );
+  }
+
+  @override
   Future<Response<AuthResponse>> firebaseLogin(Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/auth/firebase');
     final $body = body;

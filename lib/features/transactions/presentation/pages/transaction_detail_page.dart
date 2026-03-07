@@ -62,13 +62,14 @@ class TransactionDetailPage extends StatelessWidget {
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 actions: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      color: AppColors.error,
+                  if (transaction.source == 'cash')
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: AppColors.error,
+                      ),
+                      onPressed: () => _showDeleteConfirmation(context),
                     ),
-                    onPressed: () => _showDeleteConfirmation(context),
-                  ),
                   const SizedBox(width: 8),
                 ],
               ),

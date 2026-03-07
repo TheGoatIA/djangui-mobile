@@ -41,7 +41,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
   final List<Map<String, String>> _escrowAccounts = [];
 
   String _frequency = 'monthly';
-  String _currency = 'XAF'; // Ddéfaut
+  String _currency = 'XAF';
   String _rotationMode = 'fixed';
   String _validationMode = 'ia_only';
 
@@ -82,8 +82,6 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
       _rotationMode = tontine.rotationMode;
       _validationMode = tontine.validationMode;
       _startDate = tontine.startDate ?? _startDate;
-      // La devise est déjà dans la tontine si on édite, mais ici on prend celle de l'utilisateur par défaut pour la création
-      // Si on voulait supporter le changement de devise pour une tontine existante, il faudrait le gérer ici
       if (tontine.escrowDetails != null) {
         for (var account in tontine.escrowDetails!) {
           _escrowAccounts.add({
@@ -100,6 +98,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
     return BlocBuilder<SystemBloc, SystemState>(
       builder: (context, systemState) {
@@ -141,324 +140,371 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
               );
             }
           },
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text(_isEditing ? l10n.edit : l10n.createTontine),
-            ),
-            body: Form(
-              key: _formKey,
-              child: Stepper(
-                type: StepperType.vertical,
-                currentStep: _currentStep,
-                onStepContinue: () {
-                  if (_currentStep < 3) {
-                    if (_formKey.currentState!.validate()) {
-                      setState(() => _currentStep++);
-                    }
-                  } else {
-                    _submit();
-                  }
-                },
-                onStepCancel: () {
-                  if (_currentStep > 0) {
-                    setState(() => _currentStep--);
-                  } else {
-                    context.pop();
-                  }
-                },
-                steps: [
-                  Step(
-                    title: Text(l10n.basicInfo),
-                    isActive: _currentStep >= 0,
-                    content: Column(
-                      children: [
-                        TextFormField(
-                          controller: _nameController,
-                          decoration: InputDecoration(
-                            labelText: l10n.tontineName,
-                          ),
-                          validator: (v) =>
-                              v!.isEmpty ? l10n.requiredField : null,
-                        ),
-                        const SizedBox(height: 16),
-                        ListTile(
-                          title: Text(l10n.startDate),
-                          subtitle: Text(
-                            "${_startDate.day}/${_startDate.month}/${_startDate.year}",
-                          ),
-                          trailing: const Icon(Icons.calendar_today),
-                          onTap: () async {
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: _startDate,
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime.now().add(
-                                const Duration(days: 365),
-                              ),
-                            );
-                            if (picked != null) {
-                              setState(() => _startDate = picked);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _amountController,
-                                decoration: InputDecoration(
-                                  labelText: l10n.contributionAmount,
-                                  suffixText: _currency,
-                                ),
-                                keyboardType: TextInputType.number,
-                                validator: (v) =>
-                                    v!.isEmpty ? l10n.requiredField : null,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                initialValue: _frequency,
-                                decoration: InputDecoration(
-                                  labelText: l10n.frequency,
-                                ),
-                                items: [
-                                  DropdownMenuItem(
-                                    value: 'daily',
-                                    child: Text(l10n.daily),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'weekly',
-                                    child: Text(l10n.weekly),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'monthly',
-                                    child: Text(l10n.monthly),
-                                  ),
-                                ],
-                                onChanged: (v) =>
-                                    setState(() => _frequency = v!),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Step(
-                    title: Text(l10n.rules),
-                    isActive: _currentStep >= 1,
-                    content: Column(
-                      children: [
-                        TextFormField(
-                          controller: _partsController,
-                          decoration: InputDecoration(
-                            labelText: l10n.totalParts,
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (v) {
-                            if (v == null || v.isEmpty) {
-                              return l10n.requiredField;
-                            }
-                            final parts = int.tryParse(v);
-                            if (parts == null || parts <= 0) {
-                              return l10n.invalidAmountError;
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        DropdownButtonFormField<String>(
-                          initialValue: _rotationMode,
-                          decoration: InputDecoration(
-                            labelText: l10n.rotationMode,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: 'fixed',
-                              child: Text(l10n.manualRotation),
-                            ),
-                            DropdownMenuItem(
-                              value: 'random',
-                              child: Text(l10n.randomRotation),
-                            ),
-                            DropdownMenuItem(
-                              value: 'auction',
-                              child: Text(l10n.trustScoreRotation),
-                            ),
-                          ],
-                          onChanged: (v) => setState(() => _rotationMode = v!),
-                        ),
-                        const SizedBox(height: 16),
-                        DropdownButtonFormField<String>(
-                          initialValue: _validationMode,
-                          decoration: InputDecoration(
-                            labelText: l10n.validationMode,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: 'ia_only',
-                              child: Text(l10n.aiOnlyValidation),
-                            ),
-                            DropdownMenuItem(
-                              value: 'ia_plus_manual',
-                              child: Text(l10n.creatorOnlyValidation),
-                            ),
-                          ],
-                          onChanged: (v) =>
-                              setState(() => _validationMode = v!),
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          l10n.socialFund,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        SwitchListTile(
-                          title: Text(l10n.enableSocialFund),
-                          value: _isSocialFundEnabled,
-                          onChanged: (v) =>
-                              setState(() => _isSocialFundEnabled = v),
-                        ),
-                        if (_isSocialFundEnabled)
-                          TextFormField(
-                            controller: _socialFundAmountController,
-                            decoration: InputDecoration(
-                              labelText: l10n.amount,
-                              suffixText: _currency,
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
+          child: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, authState) {
+              final userCountry = authState.authResponse?.user.country;
+              final isCameroon = userCountry == 'CM';
 
-                        const SizedBox(height: 24),
-                        Text(
-                          l10n.sanctions,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _lateFeeController,
-                                decoration: InputDecoration(
-                                  labelText: l10n.lateFee,
-                                  suffixText: _currency,
-                                ),
-                                keyboardType: TextInputType.number,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _absenceFeeController,
-                                decoration: InputDecoration(
-                                  labelText: l10n.absenceFee,
-                                  suffixText: _currency,
-                                ),
-                                keyboardType: TextInputType.number,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _gracePeriodController,
-                          decoration: InputDecoration(
-                            labelText: l10n.gracePeriod,
+              if (!isCameroon) {
+                return Scaffold(
+                  appBar: AppBar(
+                    title: Text(_isEditing ? l10n.edit : l10n.createTontine),
+                  ),
+                  body: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.public_off,
+                            size: 64,
+                            color: Colors.grey,
                           ),
-                          keyboardType: TextInputType.number,
-                        ),
-                      ],
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.tontineRestrictionCM,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.titleMedium,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  Step(
-                    title: Text(l10n.paymentAccounts),
-                    isActive: _currentStep >= 2,
-                    content: Column(
-                      children: [
-                        if (_escrowAccounts.isEmpty)
-                          Text(l10n.noAccountsAdded)
-                        else
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: _escrowAccounts.length,
-                            itemBuilder: (context, index) {
-                              final account = _escrowAccounts[index];
-                              return ListTile(
-                                leading: Icon(
-                                  account['type'] == 'mobile_money'
-                                      ? Icons.phone_android
-                                      : Icons.account_balance,
-                                ),
-                                title: Text(account['provider']!),
-                                subtitle: Text(
-                                  "${account['accountNumber']} - ${account['accountName']}",
-                                ),
-                                trailing: IconButton(
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
-                                  ),
-                                  onPressed: () => setState(
-                                    () => _escrowAccounts.removeAt(index),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: _showAddAccountDialog,
-                          icon: const Icon(Icons.add),
-                          label: Text(l10n.addAccount),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Step(
-                    title: Text(l10n.summary),
-                    isActive: _currentStep >= 3,
-                    content: BlocBuilder<TontineBloc, TontineState>(
-                      builder: (context, state) {
-                        if (state.status == TontineStatus.loading) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
+                );
+              }
+
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text(_isEditing ? l10n.edit : l10n.createTontine),
+                ),
+                body: Form(
+                  key: _formKey,
+                  child: Stepper(
+                    type: StepperType.vertical,
+                    currentStep: _currentStep,
+                    onStepContinue: () {
+                      if (_currentStep < 3) {
+                        if (_formKey.currentState!.validate()) {
+                          setState(() => _currentStep++);
                         }
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      } else {
+                        _submit();
+                      }
+                    },
+                    onStepCancel: () {
+                      if (_currentStep > 0) {
+                        setState(() => _currentStep--);
+                      } else {
+                        context.pop();
+                      }
+                    },
+                    steps: [
+                      Step(
+                        title: Text(l10n.basicInfo),
+                        isActive: _currentStep >= 0,
+                        content: Column(
                           children: [
-                            _buildSummaryItem(
-                              l10n.tontineName,
-                              _nameController.text,
+                            TextFormField(
+                              controller: _nameController,
+                              decoration: InputDecoration(
+                                labelText: l10n.tontineName,
+                              ),
+                              validator: (v) =>
+                                  v!.isEmpty ? l10n.requiredField : null,
                             ),
-                            _buildSummaryItem(
-                              l10n.startDate,
-                              "${_startDate.day}/${_startDate.month}/${_startDate.year}",
+                            const SizedBox(height: 16),
+                            ListTile(
+                              title: Text(l10n.startDate),
+                              subtitle: Text(
+                                "${_startDate.day}/${_startDate.month}/${_startDate.year}",
+                              ),
+                              trailing: const Icon(Icons.calendar_today),
+                              onTap: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: _startDate,
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime.now().add(
+                                    const Duration(days: 365),
+                                  ),
+                                );
+                                if (picked != null) {
+                                  setState(() => _startDate = picked);
+                                }
+                              },
                             ),
-                            _buildSummaryItem(
-                              l10n.amount,
-                              '${_amountController.text} $_currency',
-                            ),
-                            _buildSummaryItem(l10n.frequency, _frequency),
-                            _buildSummaryItem(l10n.rotationMode, _rotationMode),
-                            _buildSummaryItem(
-                              l10n.validationMode,
-                              _validationMode,
-                            ),
-                            _buildSummaryItem(
-                              l10n.paymentAccounts,
-                              '${_escrowAccounts.length}',
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _amountController,
+                                    decoration: InputDecoration(
+                                      labelText: l10n.contributionAmount,
+                                      suffixText: _currency,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    validator: (v) =>
+                                        v!.isEmpty ? l10n.requiredField : null,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: _frequency,
+                                    decoration: InputDecoration(
+                                      labelText: l10n.frequency,
+                                    ),
+                                    items: [
+                                      DropdownMenuItem(
+                                        value: 'daily',
+                                        child: Text(l10n.daily),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'weekly',
+                                        child: Text(l10n.weekly),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'bi_weekly',
+                                        child: Text(l10n.biWeekly),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'monthly',
+                                        child: Text(l10n.monthly),
+                                      ),
+                                    ],
+                                    onChanged: (v) =>
+                                        setState(() => _frequency = v!),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                      Step(
+                        title: Text(l10n.rules),
+                        isActive: _currentStep >= 1,
+                        content: Column(
+                          children: [
+                            TextFormField(
+                              controller: _partsController,
+                              decoration: InputDecoration(
+                                labelText: l10n.totalParts,
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (v) {
+                                if (v == null || v.isEmpty) {
+                                  return l10n.requiredField;
+                                }
+                                final parts = int.tryParse(v);
+                                if (parts == null || parts <= 0) {
+                                  return l10n.invalidAmountError;
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            DropdownButtonFormField<String>(
+                              initialValue: _rotationMode,
+                              decoration: InputDecoration(
+                                labelText: l10n.rotationMode,
+                              ),
+                              items: [
+                                DropdownMenuItem(
+                                  value: 'fixed',
+                                  child: Text(l10n.manualRotation),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'random',
+                                  child: Text(l10n.randomRotation),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'auction',
+                                  child: Text(l10n.trustScoreRotation),
+                                ),
+                              ],
+                              onChanged: (v) =>
+                                  setState(() => _rotationMode = v!),
+                            ),
+                            const SizedBox(height: 16),
+                            DropdownButtonFormField<String>(
+                              initialValue: _validationMode,
+                              decoration: InputDecoration(
+                                labelText: l10n.validationMode,
+                              ),
+                              items: [
+                                DropdownMenuItem(
+                                  value: 'ia_only',
+                                  child: Text(l10n.aiOnlyValidation),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'ia_plus_manual',
+                                  child: Text(l10n.creatorOnlyValidation),
+                                ),
+                              ],
+                              onChanged: (v) =>
+                                  setState(() => _validationMode = v!),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              l10n.socialFund,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SwitchListTile(
+                              title: Text(l10n.enableSocialFund),
+                              value: _isSocialFundEnabled,
+                              onChanged: (v) =>
+                                  setState(() => _isSocialFundEnabled = v),
+                            ),
+                            if (_isSocialFundEnabled)
+                              TextFormField(
+                                controller: _socialFundAmountController,
+                                decoration: InputDecoration(
+                                  labelText: l10n.amount,
+                                  suffixText: _currency,
+                                ),
+                                keyboardType: TextInputType.number,
+                              ),
+                            const SizedBox(height: 24),
+                            Text(
+                              l10n.sanctions,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _lateFeeController,
+                                    decoration: InputDecoration(
+                                      labelText: l10n.lateFee,
+                                      suffixText: _currency,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _absenceFeeController,
+                                    decoration: InputDecoration(
+                                      labelText: l10n.absenceFee,
+                                      suffixText: _currency,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _gracePeriodController,
+                              decoration: InputDecoration(
+                                labelText: l10n.gracePeriod,
+                              ),
+                              keyboardType: TextInputType.number,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Step(
+                        title: Text(l10n.paymentAccounts),
+                        isActive: _currentStep >= 2,
+                        content: Column(
+                          children: [
+                            if (_escrowAccounts.isEmpty)
+                              Text(l10n.noAccountsAdded)
+                            else
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: _escrowAccounts.length,
+                                itemBuilder: (context, index) {
+                                  final account = _escrowAccounts[index];
+                                  return ListTile(
+                                    leading: Icon(
+                                      account['type'] == 'mobile_money'
+                                          ? Icons.phone_android
+                                          : Icons.account_balance,
+                                    ),
+                                    title: Text(account['provider']!),
+                                    subtitle: Text(
+                                      "${account['accountNumber']} - ${account['accountName']}",
+                                    ),
+                                    trailing: IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () => setState(
+                                        () => _escrowAccounts.removeAt(index),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            const SizedBox(height: 16),
+                            ElevatedButton.icon(
+                              onPressed: _showAddAccountDialog,
+                              icon: const Icon(Icons.add),
+                              label: Text(l10n.addAccount),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Step(
+                        title: Text(l10n.summary),
+                        isActive: _currentStep >= 3,
+                        content: BlocBuilder<TontineBloc, TontineState>(
+                          builder: (context, state) {
+                            if (state.status == TontineStatus.loading) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSummaryItem(
+                                  l10n.tontineName,
+                                  _nameController.text,
+                                ),
+                                _buildSummaryItem(
+                                  l10n.startDate,
+                                  "${_startDate.day}/${_startDate.month}/${_startDate.year}",
+                                ),
+                                _buildSummaryItem(
+                                  l10n.amount,
+                                  '${_amountController.text} $_currency',
+                                ),
+                                _buildSummaryItem(l10n.frequency, _frequency),
+                                _buildSummaryItem(
+                                  l10n.rotationMode,
+                                  _rotationMode,
+                                ),
+                                _buildSummaryItem(
+                                  l10n.validationMode,
+                                  _validationMode,
+                                ),
+                                _buildSummaryItem(
+                                  l10n.paymentAccounts,
+                                  '${_escrowAccounts.length}',
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         );
       },
@@ -579,7 +625,6 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
       'escrowDetails': _escrowAccounts,
     };
 
-    // Telemetry: Form Friction
     final frictionDuration = DateTime.now().difference(_enteredAt).inSeconds;
     getIt<TelemetryService>().recordEvent('ux.form.friction', {
       'form_name': 'create_tontine',

@@ -42,4 +42,16 @@ final class _$PaymentsApiService extends PaymentsApiService {
           $request,
         );
   }
+
+  @override
+  Future<Response<BaseResponse<Map<String, dynamic>>>> verifyPayment(
+    String reference,
+  ) {
+    final Uri $url = Uri.parse('/payments/verify/${reference}');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client
+        .send<BaseResponse<Map<String, dynamic>>, Map<String, dynamic>>(
+          $request,
+        );
+  }
 }

@@ -41,7 +41,9 @@ class CoachRepositoryImpl implements CoachRepository {
         );
         // Fetch from remote to update local cache
         final remoteHistory = await _remoteDataSource.getChatHistory();
-        // Save remote history (insertOnConflictUpdate) to merge with local
+        // Clear local history before saving remote to prevent duplicates
+        // (Local UUIDs do not match server _ids)
+        await _localDataSource.clearHistory();
         await _localDataSource.saveMessages(remoteHistory);
         // Fetch again to get the merged/latest list
         final updatedHistory = await _localDataSource.getChatHistory();

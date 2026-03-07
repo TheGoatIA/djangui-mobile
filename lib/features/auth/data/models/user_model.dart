@@ -19,6 +19,8 @@ class UserModel {
   final bool isPremium;
   final String role; // user, admin
   final String status; // active, inactive, suspended
+  final String kycLevel; // verified, pending, rejected
+  final int aiAttackCount;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? lastLogin;
@@ -49,6 +51,8 @@ class UserModel {
     this.isPremium = false,
     this.role = 'user',
     this.status = 'active',
+    this.kycLevel = 'pending',
+    this.aiAttackCount = 0,
     this.createdAt,
     this.updatedAt,
     this.lastLogin,

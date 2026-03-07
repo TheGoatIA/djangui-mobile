@@ -127,4 +127,13 @@ class RouteConstants {
 
   /// Formulaire d'ajout manuel d'un abonnement.
   static const String addUserSubscription = '/user-subscriptions/add';
+
+  /// Écran du portefeuille Fintech (Argent réel).
+  static const String wallet = '/wallet';
+
+  /// Écran de suspension de compte (Sécurité IA).
+  static const String accountSuspended = '/account-suspended';
+
+  /// Écran de soumission KYC (Vérification d'identité).
+  static const String kycSubmission = '/kyc-submission';
 }

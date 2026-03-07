@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // For PlatformDispatcher
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:freerasp/freerasp.dart';
 import 'package:kauri/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'core/services/telemetry_service.dart';
@@ -33,6 +35,9 @@ import 'features/tontine/presentation/bloc/tontine_bloc.dart';
 import 'features/tontine/presentation/bloc/tontine_event.dart';
 import 'features/user_subscriptions/presentation/bloc/subscription_bloc.dart';
 import 'features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:kauri/features/payments/presentation/bloc/fintech_bloc.dart';
+import 'package:kauri/features/payments/presentation/bloc/fintech_event.dart';
+import 'package:kauri/features/payments/presentation/bloc/payment_bloc.dart';
 import 'features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:showcaseview/showcaseview.dart';
 
@@ -116,7 +121,66 @@ void main() async {
     return true;
   };
 
+  // 3. Initialize Security (RASP for Root/Jailbreak detection)
+  _initSecurity();
+
   runApp(const MyApp());
+}
+
+/// Initialise FreeRASP pour la protection contre le Root, Jailbreak, et reverse engineering.
+void _initSecurity() {
+  final config = TalsecConfig(
+    androidConfig: AndroidConfig(
+      packageName: 'cm.tbg.kauri',
+      signingCertHashes: [
+        'KP80SjUrE0o/lnpaTdCsOx08tU6FiqYs1wzpYAmq7kI=',
+        '3E+Ve5dRvcI0bBFPyES/rAWihY26wtv+GA+n1kde27g=',
+        'N20fULlCwExrbzhjXOh7WoLcg6r748TTfm2PFCMKUBk=',
+        'muX3GfLwAWSuz6plV7sgYwKlaB1kK3pGqavGKdc4/uM=',
+      ],
+      supportedStores: [],
+    ),
+    iosConfig: IOSConfig(
+      bundleIds: ['cm.tbg.kauri'],
+      teamId: '738JXF4C4C', // Replace with actual Apple Team ID
+    ),
+    watcherMail: 'me@borisgauty.com',
+    isProd: kReleaseMode,
+  );
+
+  final callback = ThreatCallback(
+    onAppIntegrity: () => _handleThreat('App Integrity Compromised'),
+    onObfuscationIssues: () => _handleThreat('Obfuscation Issues'),
+    onDebug: () => _handleThreat('Debugging Detected'),
+    onDeviceBinding: () => _handleThreat('Device Binding Failed'),
+    onDeviceID: () => _handleThreat('Device ID Spoofing'),
+    onHooks: () => _handleThreat('Hooks Detected'),
+    onPrivilegedAccess: () => _handleThreat('Root/Jailbreak Detected'),
+    onSecureHardwareNotAvailable: () =>
+        _handleThreat('Secure Hardware Not Available'),
+    onSimulator: () => _handleThreat('Simulator/Emulator Detected'),
+    onUnofficialStore: () => _handleThreat('Unofficial Store Install'),
+  );
+
+  Talsec.instance.attachListener(callback);
+  try {
+    Talsec.instance.start(config);
+  } catch (e) {
+    getIt<LogService>().error(
+      'FreeRASP initialization failed',
+      error: e,
+      component: 'Security',
+    );
+  }
+}
+
+void _handleThreat(String threat) {
+  final logger = getIt<LogService>();
+  logger.warning('SECURITY THREAT DETECTED: $threat', component: 'Security');
+  if (kReleaseMode) {
+    // In production, force close the app to protect financial data
+    exit(0);
+  }
 }
 
 /// Widget racine de l'application.
@@ -238,30 +302,50 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           create: (context) =>
               getIt<NotificationsBloc>()..add(FetchUnreadCountRequested()),
         ),
+        BlocProvider(
+          create: (context) => getIt<FintechBloc>()..add(FetchWalletBalance()),
+        ),
+        BlocProvider(create: (context) => getIt<PaymentBloc>()),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
           return BlocListener<AuthBloc, AuthState>(
             // Actualise les données si le pays de l'utilisateur change (devise, frais, etc.)
+            // OU si l'utilisateur se déconnecte pour vider le cache en mémoire
             listenWhen: (previous, current) {
               final prevCountry = previous.authResponse?.user.country;
               final currCountry = current.authResponse?.user.country;
-              return prevCountry != currCountry && currCountry != null;
+              final isCountryChanged =
+                  prevCountry != currCountry && currCountry != null;
+              final isLoggedOut =
+                  previous.status == AuthStatus.authenticated &&
+                  current.status == AuthStatus.unauthenticated;
+              return isCountryChanged || isLoggedOut;
             },
             listener: (context, authState) {
-              context.read<TransactionsBloc>().add(
-                const GetTransactionsRequested(forceRefresh: true),
-              );
-              context.read<GoalsBloc>().add(
-                const GetGoalsRequested(forceRefresh: true),
-              );
-              context.read<BudgetsBloc>().add(
-                const GetBudgetsRequested(forceRefresh: true),
-              );
-              context.read<ChallengesBloc>().add(
-                const GetChallengesRequested(forceRefresh: true),
-              );
-              context.read<ChallengesBloc>().add(GetUserChallengesRequested());
+              if (authState.status == AuthStatus.unauthenticated) {
+                // Vider les données utilisateur en mémoire lors de la déconnexion
+                context.read<FintechBloc>().add(ClearFintechData());
+                // Ideallement, chaque bloc de données devrait avoir un event 'ClearData' ou on relance Fetch sans compte
+              } else {
+                // Rafraîchir les données pour le nouveau compte / pays
+                context.read<TransactionsBloc>().add(
+                  const GetTransactionsRequested(forceRefresh: true),
+                );
+                context.read<GoalsBloc>().add(
+                  const GetGoalsRequested(forceRefresh: true),
+                );
+                context.read<BudgetsBloc>().add(
+                  const GetBudgetsRequested(forceRefresh: true),
+                );
+                context.read<ChallengesBloc>().add(
+                  const GetChallengesRequested(forceRefresh: true),
+                );
+                context.read<ChallengesBloc>().add(
+                  GetUserChallengesRequested(),
+                );
+                context.read<FintechBloc>().add(FetchWalletBalance());
+              }
             },
             child: ChangeNotifierProvider.value(
               value: getIt<TutorialService>(),

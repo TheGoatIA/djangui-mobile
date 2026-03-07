@@ -189,6 +189,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get genericError => 'Une erreur est survenue';
 
   @override
+  String get loading => 'Chargement...';
+
+  @override
   String get retry => 'Réessayer';
 
   @override
@@ -973,7 +976,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get strategy_roundup_desc =>
-      'Épargnez automatiquement la différence en arrondissant vos dÃ©penses.';
+      'Épargnez automatiquement la différence en arrondissant vos dépenses.';
 
   @override
   String get strategy_pay_yourself_first => 'Se Payer en Premier';
@@ -1180,9 +1183,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String bankCardPlatforms(Object price) {
     return 'Visa, Mastercard... ($price)';
   }
-
-  @override
-  String get invalidAmount => 'Montant invalide';
 
   @override
   String get french => 'Français';
@@ -1444,13 +1444,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Veuillez indiquer votre nom pour personnaliser votre expérience.';
 
   @override
-  String get tutorialIncomeTitle => 'Revenu Mensuel';
-
-  @override
-  String get tutorialIncomeDesc =>
-      'Ajoutez votre revenu pour obtenir des conseils budgétaires personnalisés.';
-
-  @override
   String get updateIncomeTitle => 'Mettre à jour le revenu';
 
   @override
@@ -1670,11 +1663,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Découvrez comment optimiser votre épargne communautaire.';
 
   @override
-  String get whatIsTontineTitle => 'Le Concept Kauri';
+  String get whatIsTontineTitle => 'Le Concept Kauri (Argent Réel)';
 
   @override
   String get whatIsTontineDesc =>
-      'La tontine est un levier financier puissant. Sur Kauri, nous automatisons la collecte et la redistribution pour une sécurité totale.';
+      'La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun 🇨🇲 et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.';
 
   @override
   String get tontineLifecycleTitle => 'Comprendre les Statuts';
@@ -1687,11 +1680,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'La tontine est créée mais pas encore lancée. Invitez vos amis via le code. Le créateur peut encore modifier les règles (montant, fréquence, etc.).';
 
   @override
-  String get guideActiveTitle => '2. Action (Active)';
+  String get guideActiveTitle => '2. Action & Cotisation';
 
   @override
   String get guideActiveDesc =>
-      'Le cycle a démarré. À chaque tour, les membres cotisent. L\'argent collecté est versé au bénéficiaire désigné par le mode de rotation.';
+      'Le cycle a démarré. À chaque tour, cotisez via votre Wallet. L\'argent collecté est versé au bénéficiaire de manière transparente et sécurisée.';
 
   @override
   String get guideCompletedTitle => '3. Archive (Completed)';
@@ -1708,11 +1701,11 @@ class AppLocalizationsFr extends AppLocalizations {
       '• Fixe : L\'ordre est prédéfini.\n• Aléatoire : La chance décide du gagnant.\n• Enchères/Score : Les membres les plus rigoureux ou ayant besoin de fonds sont prioritaires.';
 
   @override
-  String get guideValidationTitle => 'Transparence & Validation';
+  String get guideValidationTitle => 'IA & Factures';
 
   @override
   String get guideValidationDesc =>
-      'Fini les disputes ! Notre IA analyse vos reçus de paiement en quelques secondes pour valider vos cotisations.';
+      'Envoyez une capture de votre reçu NotchPay/Mobile Money dans le chat. Notre IA valide la preuve en temps réel pour confirmer votre tour.';
 
   @override
   String get guideSocialFundTitle => 'Solidarité : Fonds Social';
@@ -1734,6 +1727,26 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get guideTrustScoreDesc =>
       'C\'est votre réputation financière. Payez à temps pour augmenter votre score et débloquer des avantages dans les futures tontines.';
+
+  @override
+  String get guideFinancialSafetyTitle => 'Sécurité Financière & KYC';
+
+  @override
+  String get guideFinancialSafetyDesc =>
+      'La vérification d\'identité est obligatoire pour les flux réels. Les fonds sont cantonnés sur des comptes sécurisés pour garantir le paiement de chaque gagnant.';
+
+  @override
+  String get biWeekly => 'Bimensuelle';
+
+  @override
+  String get payoutDetails => 'Détails de versement';
+
+  @override
+  String get payoutDetailsHint => 'Numéro Mobile Money ou RIB';
+
+  @override
+  String get tontineRestrictionCM =>
+      'La création et l\'adhésion aux tontines sont réservées aux utilisateurs au Cameroun 🇨🇲.';
 
   @override
   String get tontineStarted => 'Tontine démarrée avec succès';
@@ -1787,6 +1800,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mySubscriptions => 'Mes Abonnements';
 
   @override
+  String get subscriptions => 'Abonnements';
+
+  @override
   String get detectSubscriptions => 'Détecter les abonnements';
 
   @override
@@ -1823,7 +1839,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get subscriptionNameHint => 'ex: Netflix, Spotify...';
 
   @override
-  String get nextInvoices => 'Prochaines Factures';
+  String get nextInvoices => 'Prochains Abonnements';
 
   @override
   String get today => 'Aujourd\'hui';
@@ -1924,6 +1940,13 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get tutorialCreateTontineButtonDesc =>
       'Lancez une nouvelle tontine et invitez vos amis.';
+
+  @override
+  String get tutorialIncomeTitle => 'Revenu Mensuel';
+
+  @override
+  String get tutorialIncomeDesc =>
+      'Définissez votre revenu mensuel estimé pour permettre à Kauri de calculer votre capacité d\'épargne.';
 
   @override
   String get verifyYourEmail => 'Vérifiez votre E-mail';
@@ -2124,6 +2147,14 @@ class AppLocalizationsFr extends AppLocalizations {
       'Cette fonctionnalité nécessite une version plus récente de Kauri. Veuillez mettre à jour votre application pour en profiter.';
 
   @override
+  String get fintechOnlyCameroon =>
+      'Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun 🇨🇲.';
+
+  @override
+  String get featureRestrictedCountry =>
+      'Cette fonctionnalité n\'est pas disponible dans votre pays.';
+
+  @override
   String get back => 'Retour';
 
   @override
@@ -2131,4 +2162,198 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addCustomCategory => 'Ajouter une catégorie personnalisée';
+
+  @override
+  String get kycStatus => 'Statut KYC';
+
+  @override
+  String get kycVerified => 'Vérifié';
+
+  @override
+  String get kycPending => 'En attente';
+
+  @override
+  String get kycPendingDesc =>
+      'Vos documents sont en cours d\'analyse par notre équipe.';
+
+  @override
+  String get kycRejected => 'Rejeté';
+
+  @override
+  String get kycNotSubmitted => 'Non soumis';
+
+  @override
+  String get kycAction => 'Vérifier mon identité';
+
+  @override
+  String get autoBudgetTitle => 'Budget Automatisé IA';
+
+  @override
+  String get autoBudgetDesc =>
+      'Laissez Kauri optimiser vos limites en fonction de vos revenus.';
+
+  @override
+  String get premiumReportTitle => 'Rapport Financier Premium';
+
+  @override
+  String get premiumReportDesc =>
+      'Analyse approfondie de votre santé financière ce mois-ci.';
+
+  @override
+  String get challengeTypeSaving => 'Épargne';
+
+  @override
+  String get challengeTypeSpending => 'Réduction de dépenses';
+
+  @override
+  String get challengeTypeHabit => 'Habitude';
+
+  @override
+  String get challengeSkipAction => 'Passer la semaine';
+
+  @override
+  String get challengePostponeAction => 'Reporter';
+
+  @override
+  String challengeSkipsRemaining(int count) {
+    return '$count sauts restants';
+  }
+
+  @override
+  String get trustScore => 'Trust Score';
+
+  @override
+  String get trustScoreDesc => 'Votre réputation financière Kauri.';
+
+  @override
+  String xpEarned(int points) {
+    return '+$points XP';
+  }
+
+  @override
+  String get challengeSkipConfirm =>
+      'Voulez-vous vraiment passer cette semaine ?';
+
+  @override
+  String get challengePostponeConfirm =>
+      'Voulez-vous reporter la deadline de 48h ?';
+
+  @override
+  String get challengeProofRequired => 'Veuillez ajouter une preuve d\'image';
+
+  @override
+  String get transactionProof => 'Preuve de transaction';
+
+  @override
+  String get photo => 'Photo';
+
+  @override
+  String get gallery => 'Galerie';
+
+  @override
+  String get walletTitle => 'Mon Portefeuille';
+
+  @override
+  String get recentTransactions => 'Transactions récentes';
+
+  @override
+  String get availableBalance => 'Solde disponible';
+
+  @override
+  String get incomes => 'Entrées';
+
+  @override
+  String get outcomes => 'Sorties';
+
+  @override
+  String get recharge => 'Recharger';
+
+  @override
+  String get withdraw => 'Retirer';
+
+  @override
+  String get noTransactions => 'Aucune transaction pour le moment';
+
+  @override
+  String get autoDebit => 'Auto-Débit';
+
+  @override
+  String get rotateTurn => 'Lancer la Rotation';
+
+  @override
+  String get deadlineLabelTontine => 'Échéance';
+
+  @override
+  String get confirmRotateTurn =>
+      'Voulez-vous vraiment lancer la rotation du tour ?';
+
+  @override
+  String get kycTitle => 'Vérification d\'identité';
+
+  @override
+  String get kycStepTitle => 'Étape cruciale pour Kauri';
+
+  @override
+  String get kycStepDesc =>
+      'Pour des raisons de sécurité et de conformité financière, nous devons vérifier votre identité.';
+
+  @override
+  String get kycFullNameLabel => 'Nom complet (tel que sur le document)';
+
+  @override
+  String get kycDocTypeLabel => 'Type de document';
+
+  @override
+  String get kycDocNumberLabel => 'Numéro du document';
+
+  @override
+  String get kycDocPhotoLabel => 'Photo du document';
+
+  @override
+  String get kycSelfieLabel => 'Votre Selfie';
+
+  @override
+  String get kycSubmitAction => 'Soumettre pour vérification';
+
+  @override
+  String get kycUploadClick => 'Cliquez pour uploader';
+
+  @override
+  String get kycMissingPhotos => 'Veuillez fournir les deux photos';
+
+  @override
+  String get required => 'Requis';
+
+  @override
+  String get rechargeMethod => 'Méthode de recharge';
+
+  @override
+  String get notchpayLabel => 'Mobile Money (Local)';
+
+  @override
+  String get stripeLabel => 'Carte Bancaire (International)';
+
+  @override
+  String get withdrawOperator => 'Opérateur';
+
+  @override
+  String get phoneNumberLabel => 'Numéro de téléphone';
+
+  @override
+  String get phoneNumberHint => '6XXXXXXXX';
+
+  @override
+  String get confirmAction => 'Confirmer';
+
+  @override
+  String get invalidAmount => 'Montant invalide';
+
+  @override
+  String get insufficientBalance => 'Solde insuffisant';
+
+  @override
+  String get rechargeSuccess => 'Recharge initiée ! Redirection...';
+
+  @override
+  String get withdrawSuccess => 'Demande de retrait soumise avec succès';
 }

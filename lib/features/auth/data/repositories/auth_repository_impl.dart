@@ -263,9 +263,11 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       // 1. Sign in to Firebase with Apple credentials
-      final AuthCredential credential = OAuthProvider(
-        'apple.com',
-      ).credential(idToken: identityToken, rawNonce: rawNonce);
+      final AuthCredential credential = OAuthProvider('apple.com').credential(
+        idToken: identityToken,
+        accessToken: appleCredential.authorizationCode,
+        rawNonce: rawNonce,
+      );
 
       final UserCredential userCredential = await FirebaseAuth.instance
           .signInWithCredential(credential);
@@ -756,11 +758,35 @@ class AuthRepositoryImpl implements AuthRepository {
     await _localDataSource.saveBiometricToken(token);
   }
 
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> submitKYC({
+    required String documentType,
+    required String documentNumber,
+    required String fullName,
+    required String documentImageUrl,
+    required String selfieImageUrl,
+  }) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+
+    try {
+      final data = await _remoteDataSource.submitKYC(
+        documentType: documentType,
+        documentNumber: documentNumber,
+        fullName: fullName,
+        documentImageUrl: documentImageUrl,
+        selfieImageUrl: selfieImageUrl,
+      );
+      return Right(data);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
   /// Generates a cryptographically secure random nonce, to be included in a
   /// credential request.
   String _generateNonce([int length = 32]) {
     const charset =
-        '01234567843363pulq350psuapeh5ed1ckmhaqd6flnniABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     final random = Random.secure();
     return List.generate(
       length,

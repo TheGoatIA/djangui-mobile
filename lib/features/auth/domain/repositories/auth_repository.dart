@@ -132,4 +132,13 @@ abstract class AuthRepository {
 
   /// Sauvegarde le jeton spécifique à l'authentification biométrique.
   Future<void> saveBiometricToken(String token);
+
+  /// Soumet les documents KYC pour validation.
+  Future<Either<Failure, Map<String, dynamic>>> submitKYC({
+    required String documentType,
+    required String documentNumber,
+    required String fullName,
+    required String documentImageUrl,
+    required String selfieImageUrl,
+  });
 }

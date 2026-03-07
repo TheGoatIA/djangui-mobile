@@ -83,6 +83,17 @@ class KauriAuthenticator extends Authenticator {
       );
       return null;
     }
+
+    // Traitement pour les suspensions (403 Forbidden - Security Policy)
+    if (response.statusCode == 403) {
+      logger.e(
+        '🔐 [Authenticator] 403 Forbidden détecté sur $requestUrl. Suspension probable.',
+      );
+      // On peut ajouter un événement spécifique au bloc pour afficher une popup bloquante
+      getIt<AuthBloc>().add(AuthAccountSuspended());
+      return null;
+    }
+
     return null;
   }
 }

@@ -7,6 +7,7 @@ import '../../data/models/register_request.dart';
 import '../../data/models/session_model.dart';
 import '../../data/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../../upload/domain/repositories/upload_repository.dart';
 
 import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
@@ -19,10 +20,12 @@ part 'auth_state.dart';
 @lazySingleton
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
+  final UploadRepository _uploadRepository;
   TelemetryService get _telemetry => getIt<TelemetryService>();
   LogService get _logger => getIt<LogService>();
 
-  AuthBloc(this._authRepository) : super(AuthState.initial()) {
+  AuthBloc(this._authRepository, this._uploadRepository)
+    : super(AuthState.initial()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthLoginRequested>(_onAuthLoginRequested);
     on<AuthRegisterRequested>(_onAuthRegisterRequested);
@@ -51,6 +54,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthSetupBiometricsSocialRequested>(
       _onAuthSetupBiometricsSocialRequested,
     );
+    on<AuthAccountSuspended>(_onAuthAccountSuspended);
+    on<AuthSubmitKYCRequested>(_onAuthSubmitKYCRequested);
   }
 
   String? _verificationId;
@@ -310,8 +315,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final String? accessToken = await _authRepository.getAccessToken();
       final String? refreshToken = await _authRepository.getRefreshToken();
 
-      userResult.fold(
-        (failure) {
+      await userResult.fold(
+        (failure) async {
           _logger.warning(
             'Échec de la récupération des données utilisateur localement',
             component: 'AuthBloc',
@@ -319,11 +324,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           );
           emit(state.copyWith(status: AuthStatus.unauthenticated));
         },
-        (user) {
+        (user) async {
           _logger.info(
             'Session récupérée pour l\'utilisateur: ${user.email}',
             component: 'AuthBloc',
           );
+
+          // Vérification sécurité: L'email est-il vérifié pour une connexion classique ?
+          final loginProvider = await _authRepository.getLoginProvider();
+          if (loginProvider == 'password' && !user.isEmailVerified) {
+            _logger.warning(
+              'Session trouvée mais email non vérifié.',
+              component: 'AuthBloc',
+            );
+            // Optionally clear tokens or push to a 'pending verification' state
+            // For now, we remain unauthenticated to force them to login and see the pending screen again
+            emit(state.copyWith(status: AuthStatus.unauthenticated));
+            return;
+          }
+
           _authRepository.updateDeviceInfo(); // Fire and forget
           _authRepository.logConnection();
           _logger.setUserId(user.id);
@@ -789,6 +808,87 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           status: AuthStatus.error,
           errorMessage: 'Could not find a valid session to enable biometrics.',
         ),
+      );
+    }
+  }
+
+  void _onAuthAccountSuspended(
+    AuthAccountSuspended event,
+    Emitter<AuthState> emit,
+  ) {
+    _logger.warning('Compte suspendu détecté.', component: 'AuthBloc');
+    emit(
+      state.copyWith(
+        status: AuthStatus.accountSuspended,
+        errorMessage:
+            'Votre compte a été suspendu par notre système de sécurité. Veuillez contacter le support.',
+      ),
+    );
+  }
+
+  Future<void> _onAuthSubmitKYCRequested(
+    AuthSubmitKYCRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    _logger.info('Début de la soumission KYC...', component: 'AuthBloc');
+    emit(state.copyWith(status: AuthStatus.loading));
+
+    try {
+      // 1. Upload du document
+      final docResult = await _uploadRepository.uploadAvatar(event.docFilePath);
+      final docUrl = docResult.fold(
+        (failure) => throw Exception(
+          'Échec de l\'upload du document: ${failure.message}',
+        ),
+        (response) => response.finalUrl,
+      );
+
+      // 2. Upload du selfie
+      final selfieResult = await _uploadRepository.uploadAvatar(
+        event.selfieFilePath,
+      );
+      final selfieUrl = selfieResult.fold(
+        (failure) =>
+            throw Exception('Échec de l\'upload du selfie: ${failure.message}'),
+        (response) => response.finalUrl,
+      );
+
+      // 3. Soumission finale au backend Auth/Fintech
+      final result = await _authRepository.submitKYC(
+        fullName: event.fullName,
+        documentType: event.documentType.toLowerCase().replaceAll(' ', '_'),
+        documentNumber: event.documentNumber,
+        documentImageUrl: docUrl,
+        selfieImageUrl: selfieUrl,
+      );
+
+      result.fold(
+        (failure) {
+          _logger.warning(
+            'Échec de la soumission KYC',
+            component: 'AuthBloc',
+            metadata: {'error': failure.message},
+          );
+          emit(
+            state.copyWith(
+              status: AuthStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (_) {
+          _logger.info('KYC soumis avec succès', component: 'AuthBloc');
+          add(AuthRefreshUserRequested());
+        },
+      );
+    } catch (e) {
+      _logger.error(
+        'Erreur lors du processus KYC',
+        error: e,
+        component: 'AuthBloc',
+      );
+      emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
       );
     }
   }

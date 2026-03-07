@@ -20,6 +20,8 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     on<JoinChallengeRequested>(_onJoinChallengeRequested);
     on<ValidateWeekRequested>(_onValidateWeekRequested);
     on<UnjoinChallengeRequested>(_onUnjoinChallengeRequested);
+    on<SkipWeekRequested>(_onSkipWeekRequested);
+    on<PostponeDeadlineRequested>(_onPostponeDeadlineRequested);
   }
 
   Future<void> _onGetChallengesRequested(
@@ -203,6 +205,58 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
       (_) {
         // Success, refresh challenges
         add(const GetChallengesRequested(forceRefresh: true));
+        add(GetUserChallengesRequested());
+      },
+    );
+  }
+
+  Future<void> _onSkipWeekRequested(
+    SkipWeekRequested event,
+    Emitter<ChallengesState> emit,
+  ) async {
+    _logger.info(
+      'Action: Saut de semaine demandé',
+      component: 'ChallengesBloc',
+    );
+    emit(state.copyWith(status: ChallengesStatus.loading));
+    final result = await _challengeRepository.skipWeek(event.userChallengeId);
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: ChallengesStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) {
+        _telemetry.recordEvent('challenge.skip', {'id': event.userChallengeId});
+        add(GetUserChallengesRequested());
+      },
+    );
+  }
+
+  Future<void> _onPostponeDeadlineRequested(
+    PostponeDeadlineRequested event,
+    Emitter<ChallengesState> emit,
+  ) async {
+    _logger.info(
+      'Action: Report de deadline demandé',
+      component: 'ChallengesBloc',
+    );
+    emit(state.copyWith(status: ChallengesStatus.loading));
+    final result = await _challengeRepository.postponeDeadline(
+      event.userChallengeId,
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: ChallengesStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) {
+        _telemetry.recordEvent('challenge.postpone', {
+          'id': event.userChallengeId,
+        });
         add(GetUserChallengesRequested());
       },
     );

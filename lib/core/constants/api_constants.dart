@@ -150,6 +150,29 @@ class ApiConstants {
   /// Gestion des tickets de support technique.
   static const String supportTickets = '/support/tickets';
 
+  // --- Fintech & KYC ---
+  /// Soumission des documents KYC.
+  static const String kycSubmit = '/fintech/kyc/submit';
+
+  /// Récupération du solde du portefeuille.
+  static const String walletBalance = '/fintech/wallet/balance';
+
+  /// Historique des transactions du portefeuille.
+  static const String walletTransactions = '/fintech/wallet/transactions';
+
+  /// Demande de retrait (Payout).
+  static const String withdraw = '/fintech/payout/withdraw';
+
+  // --- IA Coach & Premium ---
+  /// Poser une question au coach IA.
+  static const String coachAsk = '/coach/ask';
+
+  /// Récupération du budget automatique (Premium).
+  static const String premiumAutoBudget = '/premium/auto-budget';
+
+  /// Récupération du rapport narratif (Premium).
+  static const String premiumReport = '/premium/report';
+
   // --- Tontines ---
   /// Gestion des groupes de tontine.
   static const String tontines = '/tontines';
@@ -159,6 +182,12 @@ class ApiConstants {
 
   /// Soumettre une cotisation à une tontine.
   static const String tontinesContribute = '/tontines/contribute';
+
+  /// Liste des membres d'une tontine.
+  static const String tontineMembers = '/tontines/{id}/members';
+
+  /// Liste des messages d'une tontine.
+  static const String tontineMessages = '/tontines/{id}/messages';
 
   /// Liste des cotisations pour une tontine spécifique.
   static const String tontineContributions = '/tontines/{id}/contributions';

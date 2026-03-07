@@ -34,6 +34,9 @@ TontineModel _$TontineModelFromJson(Map<String, dynamic> json) => TontineModel(
       ? null
       : DateTime.parse(json['updatedAt'] as String),
   autoRenew: json['autoRenew'] as bool?,
+  deadline: json['deadline'] == null
+      ? null
+      : DateTime.parse(json['deadline'] as String),
   rulesAcceptedByAll: json['rulesAcceptedByAll'] as bool?,
   turnSummary: json['turnSummary'] == null
       ? null
@@ -61,6 +64,7 @@ Map<String, dynamic> _$TontineModelToJson(TontineModel instance) =>
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'autoRenew': instance.autoRenew,
+      'deadline': instance.deadline?.toIso8601String(),
       'rulesAcceptedByAll': instance.rulesAcceptedByAll,
       'turnSummary': instance.turnSummary,
     };
@@ -74,7 +78,8 @@ TontineMemberModel _$TontineMemberModelFromJson(Map<String, dynamic> json) =>
       parts: (json['parts'] as num).toInt(),
       trustScore: (json['trustScore'] as num).toDouble(),
       hasPaidSocialFund: json['hasPaidSocialFund'] as bool,
-      payoutDetails: json['payoutDetails'] as String?,
+      autoDebitEnabled: json['autoDebitEnabled'] as bool? ?? false,
+      payoutDetails: json['payoutDetails'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$TontineMemberModelToJson(TontineMemberModel instance) =>
@@ -86,6 +91,7 @@ Map<String, dynamic> _$TontineMemberModelToJson(TontineMemberModel instance) =>
       'parts': instance.parts,
       'trustScore': instance.trustScore,
       'hasPaidSocialFund': instance.hasPaidSocialFund,
+      'autoDebitEnabled': instance.autoDebitEnabled,
       'payoutDetails': instance.payoutDetails,
     };
 

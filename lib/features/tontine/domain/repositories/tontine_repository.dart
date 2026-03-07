@@ -16,6 +16,7 @@ abstract class TontineRepository {
     String inviteCode, {
     required String displayName,
     required int parts,
+    required Map<String, dynamic> payoutDetails,
   });
   Future<Either<Failure, Tontine>> startTontine(String id);
   Future<Either<Failure, List<TontineMember>>> getTontineMembers(String id);
@@ -40,6 +41,12 @@ abstract class TontineRepository {
     String id,
     String status,
   );
+  Future<Either<Failure, Tontine>> rotateTurn(String id);
+  Future<Either<Failure, TontineMember>> toggleAutoDebit({
+    required String tontineId,
+    required String memberId,
+    required bool enabled,
+  });
   Future<Either<Failure, List<int>>> exportTontine(String id);
   Future<Either<Failure, Unit>> removeMember(String id, String memberId);
 }

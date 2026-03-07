@@ -17,6 +17,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart'
 import 'package:kauri/core/database/database.dart' as _i777;
 import 'package:kauri/core/network/network_info.dart' as _i935;
 import 'package:kauri/core/services/app_icon_service.dart' as _i40;
+import 'package:kauri/core/services/log_service.dart' as _i169;
 import 'package:kauri/core/services/notification_service.dart' as _i273;
 import 'package:kauri/core/services/ocr_service.dart' as _i950;
 import 'package:kauri/core/services/payment_service.dart' as _i342;
@@ -127,6 +128,30 @@ import 'package:kauri/features/notifications/domain/repositories/notification_re
     as _i224;
 import 'package:kauri/features/notifications/presentation/bloc/notifications_bloc.dart'
     as _i786;
+import 'package:kauri/features/payments/data/datasources/fintech_api_service.dart'
+    as _i904;
+import 'package:kauri/features/payments/data/datasources/payments_api_service.dart'
+    as _i724;
+import 'package:kauri/features/payments/data/repositories/fintech_repository_impl.dart'
+    as _i128;
+import 'package:kauri/features/payments/data/repositories/payment_repository_impl.dart'
+    as _i535;
+import 'package:kauri/features/payments/domain/repositories/fintech_repository.dart'
+    as _i958;
+import 'package:kauri/features/payments/domain/repositories/payment_repository.dart'
+    as _i593;
+import 'package:kauri/features/payments/presentation/bloc/fintech_bloc.dart'
+    as _i697;
+import 'package:kauri/features/payments/presentation/bloc/payment_bloc.dart'
+    as _i725;
+import 'package:kauri/features/premium/data/datasources/premium_api_service.dart'
+    as _i520;
+import 'package:kauri/features/premium/data/repositories/premium_repository_impl.dart'
+    as _i702;
+import 'package:kauri/features/premium/domain/repositories/premium_repository.dart'
+    as _i283;
+import 'package:kauri/features/premium/presentation/bloc/premium_bloc.dart'
+    as _i325;
 import 'package:kauri/features/reports/data/datasources/reports_api_service.dart'
     as _i158;
 import 'package:kauri/features/reports/data/repositories/reports_repository_impl.dart'
@@ -220,6 +245,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i892.TelemetryService>(() => _i892.TelemetryService());
     gh.lazySingleton<_i40.AppIconService>(() => _i40.AppIconService());
+    gh.lazySingleton<_i169.LogService>(() => _i169.LogService());
     gh.lazySingleton<_i273.NotificationService>(
       () => _i273.NotificationService(),
     );
@@ -286,6 +312,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i769.AnalyticsApiService>(
       () => registerModule.analyticsApiService,
     );
+    gh.lazySingleton<_i904.FintechApiService>(
+      () => registerModule.fintechApiService,
+    );
+    gh.lazySingleton<_i724.PaymentsApiService>(
+      () => registerModule.paymentsApiService,
+    );
     gh.lazySingleton<_i777.AppDatabase>(() => registerModule.database);
     gh.lazySingleton<_i974.Logger>(() => registerModule.logger);
     gh.lazySingleton<_i973.InternetConnectionChecker>(
@@ -304,6 +336,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i342.PaymentService>(
       () => _i342.PaymentService(gh<_i1020.PaymentApiService>()),
+    );
+    gh.lazySingleton<_i283.PremiumRepository>(
+      () => _i702.PremiumRepositoryImpl(gh<_i520.PremiumApiService>()),
     );
     gh.lazySingleton<_i836.ChallengeRemoteDataSource>(
       () => _i836.ChallengeRemoteDataSourceImpl(gh<_i84.ChallengeApiService>()),
@@ -324,8 +359,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i92.ConfigApiService>(),
       ),
     );
-    gh.lazySingleton<_i991.UploadRemoteDataSource>(
-      () => _i991.UploadRemoteDataSourceImpl(gh<_i242.UploadApiService>()),
+    gh.factory<_i325.PremiumBloc>(
+      () => _i325.PremiumBloc(gh<_i283.PremiumRepository>()),
     );
     gh.lazySingleton<_i612.GoalLocalDataSource>(
       () => _i612.GoalLocalDataSourceImpl(gh<_i777.AppDatabase>()),
@@ -358,6 +393,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i571.InvestmentRepositoryImpl(
         gh<_i777.AppDatabase>(),
         gh<_i565.InvestmentApiService>(),
+      ),
+    );
+    gh.lazySingleton<_i958.FintechRepository>(
+      () => _i128.FintechRepositoryImpl(
+        gh<_i904.FintechApiService>(),
+        gh<_i935.NetworkInfo>(),
       ),
     );
     gh.lazySingleton<_i777.AuthRemoteDataSource>(
@@ -413,6 +454,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
+    gh.lazySingleton<_i991.UploadRemoteDataSource>(
+      () => _i991.UploadRemoteDataSourceImpl(gh<_i240.AuthLocalDataSource>()),
+    );
     gh.factory<_i686.InvestmentsBloc>(
       () => _i686.InvestmentsBloc(gh<_i71.InvestmentRepository>()),
     );
@@ -426,6 +470,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i307.CoachRepositoryImpl(
         gh<_i617.CoachRemoteDataSource>(),
         gh<_i580.CoachLocalDataSource>(),
+        gh<_i935.NetworkInfo>(),
+      ),
+    );
+    gh.lazySingleton<_i593.PaymentRepository>(
+      () => _i535.PaymentRepositoryImpl(
+        gh<_i724.PaymentsApiService>(),
         gh<_i935.NetworkInfo>(),
       ),
     );
@@ -474,6 +524,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i111.SupportBloc>(
       () => _i111.SupportBloc(gh<_i810.SupportRepository>()),
     );
+    gh.factory<_i697.FintechBloc>(
+      () => _i697.FintechBloc(gh<_i958.FintechRepository>()),
+    );
     gh.lazySingleton<_i1035.AnalyticsManager>(
       () => _i1035.AnalyticsManager(
         gh<_i924.AnalyticsRepository>(),
@@ -501,6 +554,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i506.ChallengesBloc>(
       () => _i506.ChallengesBloc(gh<_i375.ChallengeRepository>()),
     );
+    gh.factory<_i725.PaymentBloc>(
+      () => _i725.PaymentBloc(gh<_i593.PaymentRepository>()),
+    );
     gh.factory<_i673.SubscriptionBloc>(
       () => _i673.SubscriptionBloc(gh<_i105.SubscriptionRepository>()),
     );
@@ -523,11 +579,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i434.BudgetsBloc>(
       () => _i434.BudgetsBloc(gh<_i116.BudgetRepository>()),
     );
+    gh.lazySingleton<_i714.AuthBloc>(
+      () => _i714.AuthBloc(
+        gh<_i344.AuthRepository>(),
+        gh<_i105.UploadRepository>(),
+      ),
+    );
     gh.factory<_i786.NotificationsBloc>(
       () => _i786.NotificationsBloc(gh<_i224.NotificationRepository>()),
-    );
-    gh.lazySingleton<_i714.AuthBloc>(
-      () => _i714.AuthBloc(gh<_i344.AuthRepository>()),
     );
     gh.lazySingleton<_i75.SyncService>(
       () => _i75.SyncService(

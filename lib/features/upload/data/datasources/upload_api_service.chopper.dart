@@ -39,11 +39,31 @@ final class _$UploadApiService extends UploadApiService {
 
   @override
   Future<Response<BaseResponse<UploadResponseModel>>> uploadAvatar(
-    MultipartFile file,
+    String filePath,
   ) {
     final Uri $url = Uri.parse('/upload/avatar');
     final List<PartValue> $parts = <PartValue>[
-      PartValueFile<MultipartFile>('avatar', file),
+      PartValueFile<String>('avatar', filePath),
+    ];
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      parts: $parts,
+      multipart: true,
+    );
+    return client.send<BaseResponse<UploadResponseModel>, UploadResponseModel>(
+      $request,
+    );
+  }
+
+  @override
+  Future<Response<BaseResponse<UploadResponseModel>>> uploadDocument(
+    String filePath,
+  ) {
+    final Uri $url = Uri.parse('/upload/document');
+    final List<PartValue> $parts = <PartValue>[
+      PartValueFile<String>('document', filePath),
     ];
     final Request $request = Request(
       'POST',

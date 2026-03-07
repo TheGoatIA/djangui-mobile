@@ -15,6 +15,11 @@ abstract class AuthApiService extends ChopperService {
   @Post(path: ApiConstants.login)
   Future<Response<BaseResponse<AuthResponse>>> login(@Body() LoginRequest body);
 
+  @Post(path: ApiConstants.kycSubmit)
+  Future<Response<BaseResponse<Map<String, dynamic>>>> submitKYC(
+    @Body() Map<String, dynamic> body,
+  );
+
   @Post(path: ApiConstants.firebaseAuth)
   Future<Response<AuthResponse>> firebaseLogin(
     @Body() Map<String, dynamic> body,
@@ -106,6 +111,6 @@ abstract class AuthApiService extends ChopperService {
     @Body() Map<String, dynamic> body,
   );
 
-  static AuthApiService create(ChopperClient client) =>
+  static AuthApiService create([ChopperClient? client]) =>
       _$AuthApiService(client);
 }

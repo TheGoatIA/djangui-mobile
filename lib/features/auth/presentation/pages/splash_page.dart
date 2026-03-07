@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -172,9 +174,21 @@ class _SplashPageState extends State<SplashPage> {
               child: Text(AppLocalizations.of(context)!.cancel),
             ),
           TextButton(
-            onPressed: () {
-              // Launch URL
-              // launchUrl(Uri.parse(url ?? '...'));
+            onPressed: () async {
+              String targetUrl = url ?? '';
+              if (targetUrl.isEmpty) {
+                // Fallback to store URLs if API doesn't provide a specific URL
+                if (Platform.isIOS) {
+                  targetUrl = 'https://apps.apple.com/app/id6757806640';
+                } else {
+                  targetUrl =
+                      'https://play.google.com/store/apps/details?id=cm.tbg.kauri';
+                }
+              }
+              final uri = Uri.parse(targetUrl);
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              }
             },
             child: Text(AppLocalizations.of(context)!.updateNow),
           ),

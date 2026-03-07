@@ -30,14 +30,16 @@ class JoinTontineRequested extends TontineEvent {
   final String inviteCode;
   final String displayName;
   final int parts;
+  final Map<String, dynamic> payoutDetails;
   const JoinTontineRequested({
     required this.inviteCode,
     required this.displayName,
     required this.parts,
+    required this.payoutDetails,
   });
 
   @override
-  List<Object?> get props => [inviteCode, displayName, parts];
+  List<Object?> get props => [inviteCode, displayName, parts, payoutDetails];
 }
 
 class StartTontineRequested extends TontineEvent {
@@ -127,4 +129,24 @@ class UpdateTontineRequested extends TontineEvent {
 
   @override
   List<Object?> get props => [tontineId, params];
+}
+
+class RotateTurnRequested extends TontineEvent {
+  final String tontineId;
+  const RotateTurnRequested(this.tontineId);
+
+  @override
+  List<Object?> get props => [tontineId];
+}
+
+class ToggleAutoDebitRequested extends TontineEvent {
+  final String tontineId;
+  final bool enabled;
+  const ToggleAutoDebitRequested({
+    required this.tontineId,
+    required this.enabled,
+  });
+
+  @override
+  List<Object?> get props => [tontineId, enabled];
 }

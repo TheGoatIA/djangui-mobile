@@ -1,5 +1,4 @@
 import 'package:chopper/chopper.dart';
-import 'package:http/http.dart' show MultipartFile;
 import '../models/upload_model.dart';
 import '../../../../core/network/models/base_response.dart';
 
@@ -19,6 +18,12 @@ abstract class UploadApiService extends ChopperService {
   @Post(path: '/avatar')
   @Multipart()
   Future<Response<BaseResponse<UploadResponseModel>>> uploadAvatar(
-    @PartFile('avatar') MultipartFile file,
+    @PartFile('avatar') String filePath,
+  );
+
+  @Post(path: '/document')
+  @Multipart()
+  Future<Response<BaseResponse<UploadResponseModel>>> uploadDocument(
+    @PartFile('document') String filePath,
   );
 }

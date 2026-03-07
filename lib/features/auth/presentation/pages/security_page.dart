@@ -23,6 +23,8 @@ class _SecurityPageState extends State<SecurityPage> {
   final LocalAuthentication auth = LocalAuthentication();
   bool _canCheckBiometrics = false;
   List<BiometricType>? _availableBiometrics;
+  bool _isPasswordProvider = false;
+  bool _isLoadingProvider = true;
 
   @override
   void initState() {
@@ -32,6 +34,17 @@ class _SecurityPageState extends State<SecurityPage> {
       component: 'SecurityPage',
     );
     _checkBiometrics();
+    _checkLoginProvider();
+  }
+
+  Future<void> _checkLoginProvider() async {
+    final provider = await getIt<AuthRepository>().getLoginProvider();
+    if (mounted) {
+      setState(() {
+        _isPasswordProvider = provider == 'password' || provider == null;
+        _isLoadingProvider = false;
+      });
+    }
   }
 
   Future<void> _checkBiometrics() async {
@@ -129,12 +142,14 @@ class _SecurityPageState extends State<SecurityPage> {
             children: [
               _buildSectionTitle(l10n.securitySettings),
               const SizedBox(height: 12),
-              _buildSecurityTile(
-                icon: Icons.lock_outline,
-                title: l10n.changePassword,
-                onTap: () => context.push(RouteConstants.changePassword),
-              ),
-              const Divider(height: 1, color: Colors.transparent),
+              if (!_isLoadingProvider && _isPasswordProvider) ...[
+                _buildSecurityTile(
+                  icon: Icons.lock_outline,
+                  title: l10n.changePassword,
+                  onTap: () => context.push(RouteConstants.changePassword),
+                ),
+                const Divider(height: 1, color: Colors.transparent),
+              ],
               _buildSecurityTile(
                 icon: Icons.devices_outlined,
                 title: l10n.activeSessions,

@@ -61,11 +61,12 @@ class AuthUpdateProfileRequested extends AuthEvent {
     lastName,
     country,
     avatar,
-    avatar,
     monthlyIncome,
     preferences,
   ];
 }
+
+class AuthAccountSuspended extends AuthEvent {}
 
 class AuthLogoutRequested extends AuthEvent {}
 
@@ -160,6 +161,31 @@ class AuthChangePasswordRequested extends AuthEvent {
 }
 
 class AuthDeleteAccountRequested extends AuthEvent {}
+
+class AuthSubmitKYCRequested extends AuthEvent {
+  final String fullName;
+  final String documentType;
+  final String documentNumber;
+  final String docFilePath;
+  final String selfieFilePath;
+
+  const AuthSubmitKYCRequested({
+    required this.fullName,
+    required this.documentType,
+    required this.documentNumber,
+    required this.docFilePath,
+    required this.selfieFilePath,
+  });
+
+  @override
+  List<Object?> get props => [
+    fullName,
+    documentType,
+    documentNumber,
+    docFilePath,
+    selfieFilePath,
+  ];
+}
 
 class AuthGetSessionsRequested extends AuthEvent {}
 

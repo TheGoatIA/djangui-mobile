@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/constants/route_constants.dart';
+import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../core/navigation/telemetry_route_observer.dart';
 import '../core/widgets/scaffold_with_navbar.dart';
 import '../core/widgets/custom_page_transition.dart';
@@ -49,6 +51,9 @@ import '../features/tontine/presentation/pages/tontine_guide_page.dart';
 import '../features/user_subscriptions/presentation/pages/subscription_list_page.dart';
 import '../features/user_subscriptions/presentation/pages/add_subscription_page.dart';
 import '../features/user_subscriptions/data/models/subscription_model.dart';
+import '../features/payments/presentation/pages/wallet/wallet_dashboard_page.dart';
+import '../features/auth/presentation/pages/account_suspended_page.dart';
+import '../features/auth/presentation/pages/kyc/kyc_submission_page.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
@@ -81,6 +86,17 @@ final appRouter = GoRouter(
         return '${RouteConstants.shareGoal}?${state.uri.query}';
       }
     }
+    // Geographic Restriction: Only Cameroon (CM) for financial services
+    final authState = context.read<AuthBloc>().state;
+    final user = authState.authResponse?.user;
+    final isFintechRoute =
+        state.uri.path == RouteConstants.wallet ||
+        state.uri.path == RouteConstants.kycSubmission;
+
+    if (isFintechRoute && user != null && user.country != 'CM') {
+      return RouteConstants.dashboard; // Redirect to dashboard if not in CM
+    }
+
     return null;
   },
   routes: [
@@ -239,7 +255,15 @@ final appRouter = GoRouter(
         GoRoute(
           path: 'add',
           pageBuilder: (context, state) {
-            final goalId = state.extra as String?;
+            String? goalId;
+            final extraParam = state.extra;
+
+            if (extraParam is String) {
+              goalId = extraParam;
+            } else if (extraParam is Map<String, dynamic>) {
+              goalId = extraParam['goalId'] as String?;
+            }
+
             return buildPageWithDefaultTransition(
               context: context,
               state: state,
@@ -465,6 +489,30 @@ final appRouter = GoRouter(
           },
         ),
       ],
+    ),
+    GoRoute(
+      path: RouteConstants.wallet,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const WalletDashboardPage(),
+      ),
+    ),
+    GoRoute(
+      path: RouteConstants.accountSuspended,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const AccountSuspendedPage(),
+      ),
+    ),
+    GoRoute(
+      path: RouteConstants.kycSubmission,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const KYCSubmissionPage(),
+      ),
     ),
   ],
 );

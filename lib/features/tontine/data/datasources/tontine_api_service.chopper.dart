@@ -185,4 +185,27 @@ final class _$TontineApiService extends TontineApiService {
     final Request $request = Request('DELETE', $url, client.baseUrl);
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
+
+  @override
+  Future<Response<BaseResponse<TontineModel>>> rotateTurn(String id) {
+    final Uri $url = Uri.parse('/tontines/${id}/rotation/next');
+    final Request $request = Request('POST', $url, client.baseUrl);
+    return client.send<BaseResponse<TontineModel>, TontineModel>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineMemberModel>>> toggleAutoDebit(
+    String id,
+    String memberId,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse(
+      '/tontines/${id}/members/${memberId}/auto-debit/toggle',
+    );
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<TontineMemberModel>, TontineMemberModel>(
+      $request,
+    );
+  }
 }

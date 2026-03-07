@@ -25,6 +25,7 @@ class TontineModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final bool? autoRenew;
+  final DateTime? deadline;
   final bool? rulesAcceptedByAll;
   final TurnSummaryModel? turnSummary;
 
@@ -48,6 +49,7 @@ class TontineModel {
     this.createdAt,
     this.updatedAt,
     this.autoRenew,
+    this.deadline,
     this.rulesAcceptedByAll,
     this.turnSummary,
   });
@@ -68,7 +70,8 @@ class TontineMemberModel {
   final int parts;
   final double trustScore;
   final bool hasPaidSocialFund;
-  final String? payoutDetails;
+  final bool autoDebitEnabled;
+  final Map<String, dynamic>? payoutDetails;
 
   TontineMemberModel({
     required this.id,
@@ -78,6 +81,7 @@ class TontineMemberModel {
     required this.parts,
     required this.trustScore,
     required this.hasPaidSocialFund,
+    this.autoDebitEnabled = false,
     this.payoutDetails,
   });
 

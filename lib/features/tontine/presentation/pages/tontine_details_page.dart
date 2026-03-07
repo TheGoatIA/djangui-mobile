@@ -275,8 +275,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                         context,
                         state.selectedTontineMembers,
                         isCreator,
-                        tontine.status.toLowerCase() != 'completed',
-                        tontine.id,
+                        tontine,
                       ),
                       _buildChatTab(context, tontine.id),
                       if (isCreator)
@@ -333,6 +332,21 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
               label: Text(l10n.startTontine),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.all(16),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+          if (isCreator &&
+              !isPending &&
+              tontine.status.toLowerCase() == 'active') ...[
+            ElevatedButton.icon(
+              onPressed: () => _confirmRotateTurn(context, tontine.id),
+              icon: const Icon(Icons.autorenew),
+              label: Text(l10n.rotateTurn),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.all(16),
               ),
@@ -454,6 +468,16 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                         fontSize: 32,
                       ),
                     ),
+                    if (tontine.turnSummary?.deadline != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '${l10n.deadlineLabelTontine}: ${DateFormat.yMd('fr').format(tontine.turnSummary!.deadline!)}',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: colorScheme.onPrimary.withValues(alpha: 0.8),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
                 Container(
@@ -575,9 +599,10 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     BuildContext context,
     List<dynamic> members,
     bool isCreator,
-    bool canRemove,
-    String tontineId,
+    Tontine tontine,
   ) {
+    final tontineId = tontine.id;
+    final canRemove = tontine.status.toLowerCase() != 'completed';
     final l10n = AppLocalizations.of(context)!;
     if (members.isEmpty) {
       return Center(
@@ -650,6 +675,29 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (member.userId ==
+                        context.read<AuthBloc>().state.authResponse?.user.id &&
+                    tontine.status.toLowerCase() != 'completed')
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.autoDebit,
+                        style: AppTextStyles.bodySmall.copyWith(fontSize: 10),
+                      ),
+                      Switch(
+                        value: member.autoDebitEnabled,
+                        onChanged: (value) {
+                          context.read<TontineBloc>().add(
+                            ToggleAutoDebitRequested(
+                              tontineId: tontineId,
+                              enabled: value,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -1173,5 +1221,30 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
       return '$baseUrl/$normalizedPath';
     }
     return '$baseUrl$normalizedPath';
+  }
+
+  void _confirmRotateTurn(BuildContext context, String tontineId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Lancer la Rotation'),
+        content: const Text(
+          'Êtes-vous sûr de vouloir lancer la rotation du tour ? Cela clôturera le tour actuel et passera au bénéficiaire suivant.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<TontineBloc>().add(RotateTurnRequested(tontineId));
+            },
+            child: const Text('Confirmer'),
+          ),
+        ],
+      ),
+    );
   }
 }

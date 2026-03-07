@@ -203,7 +203,7 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
     required String userChallengeId,
     required int weekNumber,
     required double amount,
-    required String proofPath,
+    String? proofPath,
   }) async {
     _logger.info(
       'Validation de la semaine $weekNumber pour le défi $userChallengeId',
@@ -272,6 +272,62 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
               table: 'challenges',
               action: 'unjoin',
               payload: jsonEncode({'id': id}),
+            ),
+          );
+      return const Right(null);
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> skipWeek(String userChallengeId) async {
+    _logger.info(
+      'Saut de semaine: $userChallengeId',
+      component: 'ChallengeRepository',
+    );
+    if (await _networkInfo.isConnected) {
+      try {
+        await _remoteDataSource.skipWeek(userChallengeId);
+        return const Right(null);
+      } catch (e) {
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      // Offline: Queue it
+      await _database
+          .into(_database.syncRequests)
+          .insert(
+            SyncRequestsCompanion.insert(
+              table: 'challenges',
+              action: 'skip_week',
+              payload: jsonEncode({'userChallengeId': userChallengeId}),
+            ),
+          );
+      return const Right(null);
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> postponeDeadline(String userChallengeId) async {
+    _logger.info(
+      'Report de deadline: $userChallengeId',
+      component: 'ChallengeRepository',
+    );
+    if (await _networkInfo.isConnected) {
+      try {
+        await _remoteDataSource.postponeDeadline(userChallengeId);
+        return const Right(null);
+      } catch (e) {
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      // Offline: Queue it
+      await _database
+          .into(_database.syncRequests)
+          .insert(
+            SyncRequestsCompanion.insert(
+              table: 'challenges',
+              action: 'postpone_deadline',
+              payload: jsonEncode({'userChallengeId': userChallengeId}),
             ),
           );
       return const Right(null);

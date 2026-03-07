@@ -1,8 +1,13 @@
 import 'dart:io';
+import 'dart:math';
+import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kauri/core/services/log_service.dart';
+import 'package:kauri/di/injection.dart';
 import 'package:kauri/core/database/telemetry_executor.dart';
 
 part 'database.g.dart';
@@ -325,7 +330,54 @@ class AppDatabase extends _$AppDatabase {
     return LazyDatabase(() async {
       final dbFolder = await getApplicationDocumentsDirectory();
       final file = File(p.join(dbFolder.path, 'db.sqlite'));
-      final executor = NativeDatabase(file);
+
+      // Retrieve or generate DB encryption key
+      final storage = const FlutterSecureStorage();
+      String? dbKey = await storage.read(key: 'db_encryption_key');
+
+      if (dbKey == null) {
+        // If there's no key but a database already exists, it means it's the old
+        // unencrypted version. We must delete it to prevent SQLCipher crash
+        // and allow fresh (but encrypted) re-creation. Since all data is synced with the server,
+        // it's safe to wipe the local cache.
+        if (file.existsSync()) {
+          try {
+            await file.delete();
+            // Also attempt to delete the -shm and -wal files if SQLite created them
+            final walFile = File('${file.path}-wal');
+            final shmFile = File('${file.path}-shm');
+            final journalFile = File('${file.path}-journal');
+            if (walFile.existsSync()) await walFile.delete();
+            if (shmFile.existsSync()) await shmFile.delete();
+            if (journalFile.existsSync()) await journalFile.delete();
+            getIt<LogService>().warning(
+              'Old unencrypted database was deleted for security migration.',
+              component: 'Database',
+            );
+          } catch (e) {
+            getIt<LogService>().error(
+              'Failed to delete old unencrypted database',
+              error: e,
+              component: 'Database',
+            );
+          }
+        }
+
+        // Generate a random key
+        final random = Random.secure();
+        final bytes = List<int>.generate(32, (i) => random.nextInt(256));
+        dbKey = base64UrlEncode(bytes);
+        await storage.write(key: 'db_encryption_key', value: dbKey);
+      }
+
+      final executor = NativeDatabase(
+        file,
+        setup: (db) {
+          // Verify that the sqlite3 library uses SQLCipher
+          // (Requires sqlcipher_flutter_libs instead of sqlite3_flutter_libs)
+          db.execute("PRAGMA key = '$dbKey';");
+        },
+      );
       return TelemetryQueryExecutor(executor);
     });
   }
