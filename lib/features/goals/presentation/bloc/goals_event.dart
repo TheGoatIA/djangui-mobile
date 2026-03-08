@@ -38,8 +38,23 @@ class DeleteGoalRequested extends GoalsEvent {
 class UpdateGoalAmountRequested extends GoalsEvent {
   final String id;
   final double amount;
+  final String? note;
 
-  const UpdateGoalAmountRequested({required this.id, required this.amount});
+  const UpdateGoalAmountRequested({
+    required this.id,
+    required this.amount,
+    this.note,
+  });
+
+  @override
+  List<Object?> get props => [id, amount, note];
+}
+
+class RedeemGoalRequested extends GoalsEvent {
+  final String id;
+  final double? amount;
+
+  const RedeemGoalRequested({required this.id, this.amount});
 
   @override
   List<Object?> get props => [id, amount];

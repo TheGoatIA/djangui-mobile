@@ -22,6 +22,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     on<UnjoinChallengeRequested>(_onUnjoinChallengeRequested);
     on<SkipWeekRequested>(_onSkipWeekRequested);
     on<PostponeDeadlineRequested>(_onPostponeDeadlineRequested);
+    on<RedeemChallengeRequested>(_onRedeemChallengeRequested);
   }
 
   Future<void> _onGetChallengesRequested(
@@ -154,7 +155,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
       userChallengeId: event.userChallengeId,
       weekNumber: event.weekNumber,
       amount: event.amount,
-      proofPath: event.proofPath,
+      note: event.note,
     );
     result.fold<void>(
       (failure) {
@@ -219,7 +220,10 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
       component: 'ChallengesBloc',
     );
     emit(state.copyWith(status: ChallengesStatus.loading));
-    final result = await _challengeRepository.skipWeek(event.userChallengeId);
+    final result = await _challengeRepository.skipWeek(
+      event.userChallengeId,
+      event.weekNumber,
+    );
     result.fold(
       (failure) => emit(
         state.copyWith(
@@ -245,6 +249,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     emit(state.copyWith(status: ChallengesStatus.loading));
     final result = await _challengeRepository.postponeDeadline(
       event.userChallengeId,
+      event.weekNumber,
     );
     result.fold(
       (failure) => emit(
@@ -257,6 +262,42 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
         _telemetry.recordEvent('challenge.postpone', {
           'id': event.userChallengeId,
         });
+        add(GetUserChallengesRequested());
+      },
+    );
+  }
+
+  Future<void> _onRedeemChallengeRequested(
+    RedeemChallengeRequested event,
+    Emitter<ChallengesState> emit,
+  ) async {
+    _logger.info(
+      'Récupération des fonds du défi: ${event.userChallengeId}',
+      component: 'ChallengesBloc',
+    );
+    emit(state.copyWith(status: ChallengesStatus.loading));
+    final result = await _challengeRepository.redeemChallenge(
+      event.userChallengeId,
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: ChallengesStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (redeemModel) {
+        _logger.info(
+          'Fonds récupérés avec succès. Montant: ${redeemModel.redeemedAmount}',
+          component: 'ChallengesBloc',
+        );
+        _telemetry.recordEvent('challenge.redeem', {
+          'id': event.userChallengeId,
+          'amount': redeemModel.redeemedAmount,
+        });
+        emit(state.copyWith(status: ChallengesStatus.success));
+
+        // Refresh challenges
         add(GetUserChallengesRequested());
       },
     );

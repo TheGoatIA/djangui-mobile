@@ -1,9 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:kauri/features/challenges/data/datasources/challenge_api_service.dart';
 import 'package:kauri/features/challenges/data/models/challenge_model.dart';
-import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
-import 'package:path/path.dart' as path;
 import '../../../../core/network/api_response_extensions.dart';
 
 abstract class ChallengeRemoteDataSource {
@@ -14,11 +11,12 @@ abstract class ChallengeRemoteDataSource {
     String userChallengeId,
     int weekNumber,
     double amount,
-    String? proofPath,
+    String? note,
   );
   Future<void> unjoinChallenge(String id);
-  Future<void> skipWeek(String userChallengeId);
-  Future<void> postponeDeadline(String userChallengeId);
+  Future<void> skipWeek(String userChallengeId, int weekNumber);
+  Future<void> postponeDeadline(String userChallengeId, int weekNumber);
+  Future<ChallengeRedeemModel> redeemChallenge(String id);
 }
 
 @LazySingleton(as: ChallengeRemoteDataSource)
@@ -62,34 +60,14 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
     String userChallengeId,
     int weekNumber,
     double amount,
-    String? proofPath,
+    String? note,
   ) async {
-    http.MultipartFile? multipartFile;
+    final response = await _apiService.validateWeek(userChallengeId, {
+      'weekNumber': weekNumber,
+      'amount': amount,
+      'note': note ?? "",
+    });
 
-    if (proofPath != null) {
-      final extension = path.extension(proofPath).toLowerCase();
-      String mimeType = 'image/jpeg';
-      if (extension == '.png') {
-        mimeType = 'image/png';
-      } else if (extension == '.webp') {
-        mimeType = 'image/webp';
-      } else if (extension == '.pdf') {
-        mimeType = 'application/pdf';
-      }
-
-      multipartFile = await http.MultipartFile.fromPath(
-        'proof',
-        proofPath,
-        contentType: MediaType.parse(mimeType),
-      );
-    }
-
-    final response = await _apiService.validateWeek(
-      userChallengeId,
-      weekNumber,
-      amount,
-      multipartFile,
-    );
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
     } else {
@@ -106,17 +84,31 @@ class ChallengeRemoteDataSourceImpl implements ChallengeRemoteDataSource {
   }
 
   @override
-  Future<void> skipWeek(String userChallengeId) async {
-    final response = await _apiService.skipWeek(userChallengeId);
+  Future<void> skipWeek(String userChallengeId, int weekNumber) async {
+    final response = await _apiService.skipWeek(userChallengeId, {
+      'weekNumber': weekNumber,
+    });
     if (!response.isSuccessful) {
       throw Exception(response.errorMessage);
     }
   }
 
   @override
-  Future<void> postponeDeadline(String userChallengeId) async {
-    final response = await _apiService.postponeDeadline(userChallengeId);
+  Future<void> postponeDeadline(String userChallengeId, int weekNumber) async {
+    final response = await _apiService.postponeDeadline(userChallengeId, {
+      'weekNumber': weekNumber,
+    });
     if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<ChallengeRedeemModel> redeemChallenge(String id) async {
+    final response = await _apiService.redeemChallenge(id);
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
+    } else {
       throw Exception(response.errorMessage);
     }
   }

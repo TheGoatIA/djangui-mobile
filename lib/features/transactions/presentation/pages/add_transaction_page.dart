@@ -15,8 +15,6 @@ import '../../../../core/services/ocr_service.dart';
 import '../../../budgets/presentation/bloc/budgets_bloc.dart';
 import '../../../budgets/presentation/bloc/budgets_state.dart';
 import '../../../../core/constants/app_categories.dart';
-import '../../../goals/presentation/bloc/goals_bloc.dart';
-import '../../../goals/presentation/bloc/goals_state.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -59,9 +57,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   /// Type de transaction : 'expense' (dépense) ou 'income' (revenu).
   String _type = 'expense';
 
-  /// Identifiant de l'objectif lié.
-  String? _selectedGoalId;
-
   /// État du processus de scan par OCR.
   bool _isScanning = false;
 
@@ -72,10 +67,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   @override
   void initState() {
     super.initState();
-    _selectedGoalId = widget.initialGoalId;
-    if (_selectedGoalId != null) {
-      _type = 'expense';
-    }
+    _amountController.text = ''; // Ensure clean start
+    _type = 'expense';
     context.read<TransactionsBloc>().add(ResetTransactionsStatus());
     getIt<LogService>().info(
       'Affichage de la page d\'ajout de transaction.',
@@ -296,7 +289,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             ? _locationController.text
             : null,
         date: DateTime.now(),
-        linkedGoalId: _selectedGoalId,
+        source: 'manual',
         currency: authState.authResponse?.user.currency ?? 'XAF',
       );
 
@@ -449,22 +442,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         _TypeButton(
                           label: AppLocalizations.of(context)!.expense,
                           isSelected: _type == 'expense',
-                          onTap: _selectedGoalId != null
-                              ? () {} // Disabled
-                              : () => setState(() => _type = 'expense'),
+                          onTap: () => setState(() => _type = 'expense'),
                           color: AppColors.error,
-                          enabled:
-                              _selectedGoalId == null || _type == 'expense',
                         ),
                         const SizedBox(width: 12),
                         _TypeButton(
                           label: AppLocalizations.of(context)!.income,
                           isSelected: _type == 'income',
-                          onTap: _selectedGoalId != null
-                              ? () {} // Disabled
-                              : () => setState(() => _type = 'income'),
+                          onTap: () => setState(() => _type = 'income'),
                           color: AppColors.success,
-                          enabled: _selectedGoalId == null,
                         ),
                       ],
                     ),
@@ -582,93 +568,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Liaison optionnelle avec un objectif d'épargne
-                    BlocBuilder<GoalsBloc, GoalsState>(
-                      builder: (context, state) {
-                        if (state.goals.isEmpty) return const SizedBox.shrink();
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              AppLocalizations.of(context)!.linkToGoalLabel,
-                              style: AppTextStyles.bodyMedium,
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surface,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Theme.of(context).colorScheme.outline,
-                                ),
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  value: _selectedGoalId,
-                                  isExpanded: true,
-                                  hint: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.selectGoalHint,
-                                  ),
-                                  items: [
-                                    DropdownMenuItem<String>(
-                                      value: null,
-                                      child: Text(
-                                        AppLocalizations.of(context)!.none,
-                                        style: TextStyle(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ),
-                                    ...state.goals.map((goal) {
-                                      return DropdownMenuItem(
-                                        value: goal.id,
-                                        child: Text(
-                                          "${goal.emoji ?? '🎯'} ${goal.name}",
-                                        ),
-                                      );
-                                    }),
-                                  ],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedGoalId = value;
-                                      if (_selectedGoalId != null) {
-                                        _type = 'expense';
-                                      }
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                            if (_selectedGoalId != null)
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 8.0,
-                                  left: 4.0,
-                                ),
-                                child: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.goalForcedExpenseHint,
-                                  style: AppTextStyles.labelSmall.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                              ),
-                            const SizedBox(height: 20),
-                          ],
-                        );
-                      },
-                    ),
+                    const SizedBox(height: 20),
 
                     // Champ Description
                     AppTextField(
@@ -708,43 +608,36 @@ class _TypeButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final Color color;
-  final bool enabled;
 
   const _TypeButton({
     required this.label,
     required this.isSelected,
     required this.onTap,
     required this.color,
-    this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: GestureDetector(
-        onTap: enabled ? onTap : null,
-        child: Opacity(
-          opacity: enabled ? 1.0 : 0.5,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            decoration: BoxDecoration(
-              color: isSelected ? color : Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected
-                    ? color
-                    : Theme.of(context).colorScheme.outline,
-              ),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: isSelected ? color : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? color : Theme.of(context).colorScheme.outline,
             ),
-            child: Center(
-              child: Text(
-                label,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isSelected
-                      ? Colors.white
-                      : Theme.of(context).colorScheme.onSurface,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
           ),

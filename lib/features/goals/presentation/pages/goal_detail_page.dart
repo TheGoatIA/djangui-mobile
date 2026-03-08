@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../core/constants/route_constants.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../di/injection.dart';
@@ -11,9 +9,6 @@ import '../bloc/goals_bloc.dart';
 import '../bloc/goals_event.dart';
 import '../bloc/goals_state.dart';
 import '../../data/models/goal_model.dart';
-import '../../../budgets/presentation/bloc/budgets_bloc.dart';
-import '../../../budgets/presentation/bloc/budgets_event.dart';
-import '../../../transactions/presentation/bloc/transactions_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:kauri/core/services/success_animation_service.dart';
 import 'package:kauri/core/theme/app_colors.dart';
@@ -22,6 +17,8 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/utils/currency_helper.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../payments/presentation/bloc/fintech_bloc.dart';
+import '../../../payments/presentation/bloc/fintech_event.dart';
 
 class GoalDetailPage extends StatelessWidget {
   final String goalId;
@@ -110,19 +107,27 @@ class GoalDetailPage extends StatelessWidget {
                 BlocListener<GoalsBloc, GoalsState>(
                   listenWhen: (previous, current) =>
                       previous.status != current.status &&
-                      current.status == GoalsStatus.contributionSuccess,
+                      current.status == GoalsStatus.redeemSuccess,
                   listener: (context, state) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(l10n.repaymentSuccess),
+                        content: Text(l10n.redeemSuccess),
                         backgroundColor: AppColors.success,
                       ),
                     );
-                    // Refresh transactions and auth (balance) as the server generated an expense
-                    context.read<TransactionsBloc>().add(
-                      const GetTransactionsRequested(forceRefresh: true),
-                    );
+                    // Refresh auth (balance) and wallet as money was recovered
                     context.read<AuthBloc>().add(AuthRefreshUserRequested());
+                    context.read<FintechBloc>().add(FetchWalletBalance());
+                  },
+                ),
+                BlocListener<GoalsBloc, GoalsState>(
+                  listenWhen: (previous, current) =>
+                      previous.status != current.status &&
+                      current.status == GoalsStatus.contributionSuccess,
+                  listener: (context, state) {
+                    // Refresh balance on contribution success
+                    context.read<AuthBloc>().add(AuthRefreshUserRequested());
+                    context.read<FintechBloc>().add(FetchWalletBalance());
                   },
                 ),
               ],
@@ -183,42 +188,17 @@ class GoalDetailPage extends StatelessWidget {
                             text: goal.type == 'debt'
                                 ? l10n.repaymentAction
                                 : l10n.addSavingsAction,
-                            onPressed: () async {
-                              if (goal.type == 'debt') {
-                                _showRepaymentDialog(context, goal);
-                                return;
-                              }
-
-                              // Reset status to prevent immediate pop if coming from a previous success
-                              context.read<TransactionsBloc>().add(
-                                ResetTransactionsStatus(),
-                              );
-
-                              final refresh = await context.push<bool>(
-                                '${RouteConstants.transactions}/add',
-                                extra: goal.id,
-                              );
-                              getIt<AnalyticsManager>().trackEvent(
-                                feature: 'Goals',
-                                action: 'add_savings_click',
-                                details: {'goal_id': goal.id},
-                              );
-                              if (refresh == true && context.mounted) {
-                                // Refresh everything to ensure UI is in sync
-                                context.read<TransactionsBloc>().add(
-                                  const GetTransactionsRequested(
-                                    forceRefresh: true,
-                                  ),
-                                );
-                                context.read<BudgetsBloc>().add(
-                                  const GetBudgetsRequested(forceRefresh: true),
-                                );
-                                context.read<GoalsBloc>().add(
-                                  const GetGoalsRequested(forceRefresh: true),
-                                );
-                              }
-                            },
+                            onPressed: () =>
+                                _showContributionDialog(context, goal),
                           ),
+                          if (goal.currentAmount > 0) ...[
+                            const SizedBox(height: 12),
+                            AppButton(
+                              text: l10n.redeemAction,
+                              color: AppColors.secondary,
+                              onPressed: () => _showRedeemDialog(context, goal),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -785,7 +765,105 @@ class GoalDetailPage extends StatelessWidget {
     );
   }
 
-  void _showRepaymentDialog(BuildContext context, GoalModel goal) {
+  void _showRedeemDialog(BuildContext context, GoalModel goal) {
+    final amountController = TextEditingController(
+      text: goal.currentAmount.toStringAsFixed(0),
+    );
+    final l10n = AppLocalizations.of(context)!;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.redeemDialogTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.redeemAmountHint, style: AppTextStyles.bodySmall),
+            const SizedBox(height: 16),
+            if (DateTime.now().isBefore(goal.deadline)) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppColors.error.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: AppColors.error,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l10n.earlyRedemptionWarning(
+                          goal.deadline.toLocal().toString().split(' ')[0],
+                        ),
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+            AppTextField(
+              controller: amountController,
+              label: l10n.amountLabel,
+              hint: l10n.redeemAmountLabel,
+              keyboardType: TextInputType.number,
+              suffix: Text(goal.currency),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.redeemAvailableAmount(
+                CurrencyHelper.formatAmount(
+                  goal.currentAmount,
+                  currencyCode: goal.currency,
+                ),
+              ),
+              style: AppTextStyles.labelSmall.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.cancel),
+          ),
+          AppButton(
+            text: l10n.redeemConfirmAction,
+            onPressed: () {
+              final amount = double.tryParse(amountController.text);
+              if (amount != null &&
+                  amount > 0 &&
+                  amount <= goal.currentAmount) {
+                context.read<GoalsBloc>().add(
+                  RedeemGoalRequested(id: goal.id, amount: amount),
+                );
+                Navigator.pop(dialogContext);
+              } else if (amount != null && amount > goal.currentAmount) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.redeemAmountExceedsError)),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showContributionDialog(BuildContext context, GoalModel goal) {
     final amountController = TextEditingController();
     final noteController = TextEditingController();
     final l10n = AppLocalizations.of(context)!;
@@ -793,14 +871,18 @@ class GoalDetailPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.repaymentDialogTitle),
+        title: Text(
+          goal.type == 'debt' ? l10n.repaymentDialogTitle : l10n.addGoalTitle,
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             AppTextField(
               controller: amountController,
               label: l10n.amountLabel,
-              hint: l10n.repaymentAmountHint,
+              hint: goal.type == 'debt'
+                  ? l10n.repaymentAmountHint
+                  : l10n.amountHint,
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
@@ -808,6 +890,16 @@ class GoalDetailPage extends StatelessWidget {
               controller: noteController,
               label: l10n.noteLabel,
               hint: l10n.noteHint,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              goal.type == 'debt'
+                  ? "Note : Cette action débitera votre solde Kauri immédiatement."
+                  : l10n.goalForcedExpenseHint,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: AppColors.error,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ],
         ),
@@ -822,7 +914,13 @@ class GoalDetailPage extends StatelessWidget {
               final amount = double.tryParse(amountController.text);
               if (amount != null && amount > 0) {
                 context.read<GoalsBloc>().add(
-                  UpdateGoalAmountRequested(id: goal.id, amount: amount),
+                  UpdateGoalAmountRequested(
+                    id: goal.id,
+                    amount: amount,
+                    note: noteController.text.isNotEmpty
+                        ? noteController.text
+                        : null,
+                  ),
                 );
                 Navigator.pop(context);
               }
@@ -854,7 +952,7 @@ class GoalDetailPage extends StatelessWidget {
               );
               context.read<GoalsBloc>().add(DeleteGoalRequested(goal.id));
               Navigator.pop(dialogContext); // Dialog
-              context.pop(); // Page
+              Navigator.pop(context); // Page
             },
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,

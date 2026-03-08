@@ -633,6 +633,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get delete => 'Delete';
 
   @override
+  String get deleteTransaction => 'Delete Transaction';
+
+  @override
+  String get deleteConfirmation =>
+      'Are you sure you want to delete this transaction?';
+
+  @override
+  String get manualTransactionBadge => 'Manual';
+
+  @override
+  String get manualTransactionInfo =>
+      'This transaction is manual and does not affect your real balance.';
+
+  @override
   String get smsPermissionRequired =>
       'SMS permission required for this feature';
 
@@ -995,6 +1009,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addSavingsAction => 'Add Savings';
+
+  @override
+  String get redeemAction => 'Redeem Money';
+
+  @override
+  String get redeemSuccess => 'Funds redeemed successfully';
+
+  @override
+  String get redeemDialogTitle => 'Redeem Funds';
+
+  @override
+  String get redeemAmountHint =>
+      'How much would you like to transfer back to your wallet?';
+
+  @override
+  String get redeemAmountLabel => 'Enter amount';
+
+  @override
+  String redeemAvailableAmount(String amount) {
+    return 'Available: $amount';
+  }
+
+  @override
+  String get redeemConfirmAction => 'Confirm Redemption';
+
+  @override
+  String get redeemAmountExceedsError => 'Amount exceeds current savings.';
+
+  @override
+  String earlyRedemptionWarning(String date) {
+    return 'Warning: an early withdrawal (before $date) will result in a 0.5% penalty on the amount withdrawn for lack of discipline. Are you sure?';
+  }
+
+  @override
+  String get earlyRedemptionTitle => 'Early Withdrawal';
 
   @override
   String get currentAmountLabel => 'Saved';
@@ -2060,13 +2109,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get replaceBudget => 'Replace';
 
   @override
-  String get deleteTransaction => 'Delete Transaction';
-
-  @override
-  String get deleteConfirmation =>
-      'Are you sure you want to delete this transaction?';
-
-  @override
   String get success => 'Success';
 
   @override
@@ -2259,6 +2301,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withdraw => 'Withdraw';
+
+  @override
+  String get transferLimitInfo =>
+      'This limit includes all your outgoing transfers for the current month.';
+
+  @override
+  String get tutorialWalletTitle => 'Your Wallet';
+
+  @override
+  String get tutorialWalletDesc =>
+      'Click here to access your wallet details, make deposits, or withdrawals.';
+
+  @override
+  String get realMoneyWelcomeTitle => 'Real Money Management';
+
+  @override
+  String get realMoneySlide1Title => 'Real Money is here on Kauri!';
+
+  @override
+  String get realMoneySlide1Desc =>
+      'Kauri is leveling up! You can now manage your real money directly from the app.';
+
+  @override
+  String get realMoneySlide2Title => 'Wallet';
+
+  @override
+  String get realMoneySlide2Desc =>
+      'Easy and secure deposits and withdrawals using Mobile Money.';
+
+  @override
+  String get realMoneySlide3Title => 'Goals';
+
+  @override
+  String get realMoneySlide3Desc =>
+      'Your savings are now real and secure. No more simulating your finances!';
+
+  @override
+  String get realMoneySlide4Title => 'Tontines';
+
+  @override
+  String get realMoneySlide4Desc =>
+      'Automate your deductions and payouts for your tontines hassle-free.';
+
+  @override
+  String get gotItButton => 'Got it!';
+
+  @override
+  String get nextButton => 'Next';
 
   @override
   String get noTransactions => 'No transactions for now';

@@ -90,7 +90,7 @@ abstract class TontineApiService extends ChopperService {
     @Path('id') String id,
   );
 
-  @Post(path: '/{id}/members/{memberId}/auto-debit/toggle')
+  @Patch(path: '/{id}/members/{memberId}/auto-debit/toggle')
   Future<Response<BaseResponse<TontineMemberModel>>> toggleAutoDebit(
     @Path('id') String id,
     @Path('memberId') String memberId,

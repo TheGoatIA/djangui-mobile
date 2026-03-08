@@ -677,9 +677,24 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
       },
       (updatedMember) {
         _logger.info('Bascule auto-débit réussie.', component: 'TontineBloc');
+
+        // Force l'état local car le backend pourrait renvoyer l'état précédent ou omettre le champ
+        final forcedMember = TontineMember(
+          id: updatedMember.id,
+          tontineId: updatedMember.tontineId,
+          userId: updatedMember.userId,
+          displayName: updatedMember.displayName,
+          parts: updatedMember.parts,
+          trustScore: updatedMember.trustScore,
+          hasPaidSocialFund: updatedMember.hasPaidSocialFund,
+          autoDebitEnabled: event.enabled,
+          payoutDetails: updatedMember.payoutDetails,
+        );
+
         final updatedMembers = state.selectedTontineMembers.map((m) {
-          return m.id == updatedMember.id ? updatedMember : m;
+          return m.id == forcedMember.id ? forcedMember : m;
         }).toList();
+
         emit(
           state.copyWith(
             status: TontineStatus.success,

@@ -15,12 +15,20 @@ abstract class ChallengeRepository {
     required String userChallengeId,
     required int weekNumber,
     required double amount,
-    String? proofPath,
+    String? note,
   });
 
   Future<Either<Failure, void>> unjoinChallenge(String id);
 
-  Future<Either<Failure, void>> skipWeek(String userChallengeId);
+  Future<Either<Failure, void>> skipWeek(
+    String userChallengeId,
+    int weekNumber,
+  );
 
-  Future<Either<Failure, void>> postponeDeadline(String userChallengeId);
+  Future<Either<Failure, void>> postponeDeadline(
+    String userChallengeId,
+    int weekNumber,
+  );
+
+  Future<Either<Failure, ChallengeRedeemModel>> redeemChallenge(String id);
 }

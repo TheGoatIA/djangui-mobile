@@ -20,20 +20,26 @@ final class _$SupportApiService extends SupportApiService {
   @override
   Future<Response<BaseListResponse<SupportTicketModel>>> getTickets() {
     final Uri $url = Uri.parse('/support/tickets');
-    final Request $request = Request('GET', $url, client.baseUrl);
-    return client
-        .send<BaseListResponse<SupportTicketModel>, SupportTicketModel>(
-          $request,
-        );
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+    );
+    return client.send<BaseListResponse<SupportTicketModel>,
+        SupportTicketModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<dynamic>>> createTicket(
-    Map<String, dynamic> body,
-  ) {
+      Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/support/tickets');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
@@ -44,7 +50,12 @@ final class _$SupportApiService extends SupportApiService {
   ) {
     final Uri $url = Uri.parse('/support/tickets/${id}/reply');
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 }

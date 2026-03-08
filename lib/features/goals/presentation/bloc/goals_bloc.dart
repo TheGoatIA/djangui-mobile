@@ -21,6 +21,7 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
     on<AddGoalRequested>(_onAddGoalRequested);
     on<DeleteGoalRequested>(_onDeleteGoalRequested);
     on<UpdateGoalAmountRequested>(_onUpdateGoalAmountRequested);
+    on<RedeemGoalRequested>(_onRedeemGoalRequested);
     on<ResetGoalsStatus>(_onResetGoalsStatus);
   }
 
@@ -171,6 +172,7 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
     final result = await _goalRepository.updateGoalAmount(
       event.id,
       event.amount,
+      note: event.note,
     );
     result.fold<void>(
       (failure) {
@@ -199,6 +201,45 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
             status: GoalsStatus.contributionSuccess,
             goals: updatedList,
           ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onRedeemGoalRequested(
+    RedeemGoalRequested event,
+    Emitter<GoalsState> emit,
+  ) async {
+    _logger.info(
+      'Rachat de l\'objectif: ${event.id}',
+      component: 'GoalsBloc',
+      metadata: {'amount': event.amount},
+    );
+    emit(state.copyWith(status: GoalsStatus.loading));
+    final result = await _goalRepository.redeemGoal(event.id, event.amount);
+    result.fold<void>(
+      (failure) {
+        _logger.error(
+          'Échec du rachat de l\'objectif',
+          error: failure.message,
+          component: 'GoalsBloc',
+        );
+        emit(
+          state.copyWith(
+            status: GoalsStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (updatedGoal) {
+        _logger.info('Rachat enregistré avec succès.', component: 'GoalsBloc');
+        final List<GoalModel> updatedList = state.goals
+            .map((g) => g.id == updatedGoal.id ? updatedGoal : g)
+            .toList();
+
+        // Specific status for redemption to show a different message
+        emit(
+          state.copyWith(status: GoalsStatus.redeemSuccess, goals: updatedList),
         );
       },
     );

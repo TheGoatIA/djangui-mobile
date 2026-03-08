@@ -7,12 +7,12 @@ part of 'payment_model.dart';
 // **************************************************************************
 
 PaymentModel _$PaymentModelFromJson(Map<String, dynamic> json) => PaymentModel(
-  amount: (json['amount'] as num).toDouble(),
-  currency: json['currency'] as String,
-  status: json['status'] as String,
-  type: json['type'] as String,
-  createdAt: DateTime.parse(json['createdAt'] as String),
-);
+      amount: (json['amount'] as num).toDouble(),
+      currency: json['currency'] as String,
+      status: json['status'] as String,
+      type: json['type'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
 
 Map<String, dynamic> _$PaymentModelToJson(PaymentModel instance) =>
     <String, dynamic>{

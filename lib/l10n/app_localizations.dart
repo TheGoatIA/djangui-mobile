@@ -1310,6 +1310,30 @@ abstract class AppLocalizations {
   /// **'Supprimer'**
   String get delete;
 
+  /// No description provided for @deleteTransaction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la transaction'**
+  String get deleteTransaction;
+
+  /// No description provided for @deleteConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment supprimer cette transaction ?'**
+  String get deleteConfirmation;
+
+  /// No description provided for @manualTransactionBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Manuel'**
+  String get manualTransactionBadge;
+
+  /// No description provided for @manualTransactionInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette transaction est manuelle et n\'affecte pas votre solde réel.'**
+  String get manualTransactionInfo;
+
   /// No description provided for @smsPermissionRequired.
   ///
   /// In fr, this message translates to:
@@ -1999,6 +2023,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Ajouter Épargne'**
   String get addSavingsAction;
+
+  /// No description provided for @redeemAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupérer l\'argent'**
+  String get redeemAction;
+
+  /// No description provided for @redeemSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds récupérés avec succès'**
+  String get redeemSuccess;
+
+  /// No description provided for @redeemDialogTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupérer des fonds'**
+  String get redeemDialogTitle;
+
+  /// No description provided for @redeemAmountHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien souhaitez-vous reverser dans votre portefeuille ?'**
+  String get redeemAmountHint;
+
+  /// No description provided for @redeemAmountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez le montant'**
+  String get redeemAmountLabel;
+
+  /// No description provided for @redeemAvailableAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible : {amount}'**
+  String redeemAvailableAmount(String amount);
+
+  /// No description provided for @redeemConfirmAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le rachat'**
+  String get redeemConfirmAction;
+
+  /// No description provided for @redeemAmountExceedsError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant dépasse l\'épargne actuelle.'**
+  String get redeemAmountExceedsError;
+
+  /// No description provided for @earlyRedemptionWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attention: un retrait anticipé (avant le {date}) entraînera une pénalité de 0,5% sur le montant retiré pour indiscipline. Êtes-vous sûr ?'**
+  String earlyRedemptionWarning(String date);
+
+  /// No description provided for @earlyRedemptionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait Anticipé'**
+  String get earlyRedemptionTitle;
 
   /// No description provided for @currentAmountLabel.
   ///
@@ -3968,18 +4052,6 @@ abstract class AppLocalizations {
   /// **'Remplacer'**
   String get replaceBudget;
 
-  /// No description provided for @deleteTransaction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Supprimer la transaction'**
-  String get deleteTransaction;
-
-  /// No description provided for @deleteConfirmation.
-  ///
-  /// In fr, this message translates to:
-  /// **'Êtes-vous sûr de vouloir supprimer cette transaction ?'**
-  String get deleteConfirmation;
-
   /// No description provided for @success.
   ///
   /// In fr, this message translates to:
@@ -4333,6 +4405,90 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Retirer'**
   String get withdraw;
+
+  /// No description provided for @transferLimitInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette limite inclut tous vos transferts sortants pour le mois en cours.'**
+  String get transferLimitInfo;
+
+  /// No description provided for @tutorialWalletTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Portefeuille'**
+  String get tutorialWalletTitle;
+
+  /// No description provided for @tutorialWalletDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cliquez ici pour accéder aux détails de votre portefeuille, effectuer des dépôts ou des retraits.'**
+  String get tutorialWalletDesc;
+
+  /// No description provided for @realMoneyWelcomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion de l\'Argent Réel'**
+  String get realMoneyWelcomeTitle;
+
+  /// No description provided for @realMoneySlide1Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'Argent Réel arrive sur Kauri !'**
+  String get realMoneySlide1Title;
+
+  /// No description provided for @realMoneySlide1Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Kauri passe au niveau supérieur ! Vous pouvez désormais gérer votre vrai argent directement depuis l\'application.'**
+  String get realMoneySlide1Desc;
+
+  /// No description provided for @realMoneySlide2Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Portefeuille'**
+  String get realMoneySlide2Title;
+
+  /// No description provided for @realMoneySlide2Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépôts et retraits facilités via Mobile Money en toute sécurité.'**
+  String get realMoneySlide2Desc;
+
+  /// No description provided for @realMoneySlide3Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectifs'**
+  String get realMoneySlide3Title;
+
+  /// No description provided for @realMoneySlide3Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos épargnes sont désormais réelles et sécurisées. Plus besoin de simuler vos finances !'**
+  String get realMoneySlide3Desc;
+
+  /// No description provided for @realMoneySlide4Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tontines'**
+  String get realMoneySlide4Title;
+
+  /// No description provided for @realMoneySlide4Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Automatisez vos prélèvements et paiements pour vos tontines sans tracas.'**
+  String get realMoneySlide4Desc;
+
+  /// No description provided for @gotItButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai compris !'**
+  String get gotItButton;
+
+  /// No description provided for @nextButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get nextButton;
 
   /// No description provided for @noTransactions.
   ///

@@ -13,6 +13,7 @@ class FintechTransactionModel extends Equatable {
   final String status; // 'pending', 'completed', 'failed'
   final DateTime createdAt;
   final String? reference;
+  final String? paymentMethod;
 
   const FintechTransactionModel({
     required this.id,
@@ -22,7 +23,14 @@ class FintechTransactionModel extends Equatable {
     required this.status,
     required this.createdAt,
     this.reference,
+    this.paymentMethod,
   });
+
+  bool get isRealWalletTransaction {
+    return paymentMethod == 'wallet' ||
+        paymentMethod == 'notchpay' ||
+        paymentMethod == 'stripe';
+  }
 
   factory FintechTransactionModel.fromJson(Map<String, dynamic> json) =>
       _$FintechTransactionModelFromJson(json);
@@ -37,6 +45,7 @@ class FintechTransactionModel extends Equatable {
     status,
     createdAt,
     reference,
+    paymentMethod,
   ];
 }
 
@@ -55,4 +64,24 @@ class FintechTransactionsResponseModel extends Equatable {
 
   @override
   List<Object?> get props => [transactions];
+}
+
+@JsonSerializable()
+class InvoiceResponseModel extends Equatable {
+  final String pdfUrl;
+  final String invoiceNumber;
+  final DateTime? createdAt;
+
+  const InvoiceResponseModel({
+    required this.pdfUrl,
+    required this.invoiceNumber,
+    this.createdAt,
+  });
+
+  factory InvoiceResponseModel.fromJson(Map<String, dynamic> json) =>
+      _$InvoiceResponseModelFromJson(json);
+  Map<String, dynamic> toJson() => _$InvoiceResponseModelToJson(this);
+
+  @override
+  List<Object?> get props => [pdfUrl, invoiceNumber, createdAt];
 }

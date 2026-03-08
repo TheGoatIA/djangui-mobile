@@ -15,6 +15,11 @@ import '../../../goals/presentation/bloc/goals_bloc.dart';
 import '../../../goals/presentation/bloc/goals_event.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/utils/currency_helper.dart';
+import '../../../payments/presentation/bloc/fintech_bloc.dart';
+import '../../../payments/presentation/bloc/fintech_event.dart';
+import '../../../payments/presentation/bloc/fintech_state.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/utils/toast_utils.dart';
 
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
@@ -170,39 +175,64 @@ class _TransactionListViewState extends State<TransactionListView> {
             );
           }
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              getIt<LogService>().info(
-                'Rafraîchissement de la liste des transactions (Pull-to-refresh)',
-                component: 'TransactionListPage',
-              );
-              context.read<TransactionsBloc>().add(
-                const GetTransactionsRequested(forceRefresh: true),
-              );
-            },
-            child: ListView.separated(
-              padding: const EdgeInsets.all(20),
-              itemCount: state.transactions.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final transaction = state.transactions[index];
-                final widget = _TransactionItem(transaction: transaction);
-
-                if (index == 0) {
-                  return Showcase(
-                    key: _listKey,
-                    title: AppLocalizations.of(
+          return MultiBlocListener(
+            listeners: [
+              BlocListener<FintechBloc, FintechState>(
+                listenWhen: (previous, current) {
+                  return previous.status != current.status &&
+                      (current.status == FintechStatus.receiptReady ||
+                          current.status == FintechStatus.receiptError);
+                },
+                listener: (context, fintechState) {
+                  if (fintechState.status == FintechStatus.receiptReady &&
+                      fintechState.message != null) {
+                    _handlePaymentRedirection(fintechState.message!);
+                  } else if (fintechState.status ==
+                      FintechStatus.receiptError) {
+                    ToastUtils.showError(
                       context,
-                    )!.tutorialTransactionsTitle,
-                    description: AppLocalizations.of(
-                      context,
-                    )!.tutorialTransactionsDesc,
-                    child: widget,
-                  );
-                }
-
-                return widget;
+                      fintechState.message ??
+                          AppLocalizations.of(context)!.genericError,
+                    );
+                  }
+                },
+              ),
+            ],
+            child: RefreshIndicator(
+              onRefresh: () async {
+                getIt<LogService>().info(
+                  'Rafraîchissement de la liste des transactions (Pull-to-refresh)',
+                  component: 'TransactionListPage',
+                );
+                context.read<TransactionsBloc>().add(
+                  const GetTransactionsRequested(forceRefresh: true),
+                );
               },
+              child: ListView.separated(
+                padding: const EdgeInsets.all(20),
+                itemCount: state.transactions.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final transaction = state.transactions[index];
+                  final widget = _TransactionItem(transaction: transaction);
+
+                  if (index == 0) {
+                    return Showcase(
+                      key: _listKey,
+                      title: AppLocalizations.of(
+                        context,
+                      )!.tutorialTransactionsTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialTransactionsDesc,
+                      child: widget,
+                    );
+                  }
+
+                  return widget;
+                },
+              ),
             ),
           );
         },
@@ -242,6 +272,20 @@ class _TransactionListViewState extends State<TransactionListView> {
       ),
     );
   }
+
+  void _handlePaymentRedirection(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ToastUtils.showError(
+          context,
+          AppLocalizations.of(context)!.genericError,
+        );
+      }
+    }
+  }
 }
 
 class _TransactionItem extends StatelessWidget {
@@ -252,8 +296,11 @@ class _TransactionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isIncome = transaction.type == 'income';
+    final isManual = transaction.isManualBudgetEntry;
+    final isReal = transaction.isRealWalletTransaction;
     final color = isIncome ? AppColors.success : AppColors.error;
     final icon = isIncome ? Icons.arrow_downward : Icons.arrow_upward;
+    final l10n = AppLocalizations.of(context)!;
 
     return InkWell(
       onTap: () {
@@ -271,8 +318,16 @@ class _TransactionItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: isManual
+              ? Theme.of(context).colorScheme.surfaceBright
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
+          border: isManual
+              ? Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  width: 1,
+                )
+              : null,
           boxShadow: AppShadows.card,
         ),
         child: Row(
@@ -296,11 +351,39 @@ class _TransactionItem extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    transaction.category,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        transaction.category,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      if (isManual) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            l10n.manualTransactionBadge,
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
@@ -323,6 +406,34 @@ class _TransactionItem extends StatelessWidget {
                 ),
               ],
             ),
+            if (isReal) ...[
+              const SizedBox(width: 8),
+              BlocBuilder<FintechBloc, FintechState>(
+                builder: (context, fintechState) {
+                  if (fintechState.downloadingReceiptId == transaction.id) {
+                    return const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    );
+                  }
+                  return IconButton(
+                    onPressed: () {
+                      context.read<FintechBloc>().add(
+                        DownloadReceipt(transactionId: transaction.id),
+                      );
+                    },
+                    icon: const Icon(Icons.download_rounded, size: 20),
+                    color: Theme.of(context).colorScheme.primary,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  );
+                },
+              ),
+            ],
           ],
         ),
       ),

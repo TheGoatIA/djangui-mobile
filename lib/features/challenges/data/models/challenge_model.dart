@@ -201,6 +201,33 @@ class ChallengeProofModel extends Equatable {
   List<Object?> get props => [id, imageUrl, status, createdAt];
 }
 
+@JsonSerializable()
+class ChallengeRedeemModel extends Equatable {
+  final double redeemedAmount;
+  final UserChallengeModel userChallenge;
+
+  const ChallengeRedeemModel({
+    required this.redeemedAmount,
+    required this.userChallenge,
+  });
+
+  factory ChallengeRedeemModel.fromJson(Map<String, dynamic> json) {
+    return ChallengeRedeemModel(
+      redeemedAmount: (json['redeemedAmount'] as num).toDouble(),
+      userChallenge: UserChallengeModel.fromJson(
+        json['userChallenge'] as Map<String, dynamic>,
+      ),
+    );
+  }
+  Map<String, dynamic> toJson() => {
+    'redeemedAmount': redeemedAmount,
+    'userChallenge': userChallenge.toJson(),
+  };
+
+  @override
+  List<Object?> get props => [redeemedAmount, userChallenge];
+}
+
 class _ChallengeIdConverter implements JsonConverter<ChallengeModel?, dynamic> {
   const _ChallengeIdConverter();
 

@@ -32,6 +32,10 @@ TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
       receipt: json['receipt'] as String?,
       linkedGoalId: json['linkedGoalId'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
+      paymentMethod: json['paymentMethod'] as String?,
+      fees: (json['fees'] as num?)?.toDouble(),
+      externalReference: json['externalReference'] as String?,
+      receiptUrl: json['receiptUrl'] as String?,
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -69,6 +73,10 @@ Map<String, dynamic> _$TransactionModelToJson(TransactionModel instance) {
   writeNotNull('receipt', instance.receipt);
   writeNotNull('linkedGoalId', instance.linkedGoalId);
   writeNotNull('metadata', instance.metadata);
+  writeNotNull('paymentMethod', instance.paymentMethod);
+  writeNotNull('fees', instance.fees);
+  writeNotNull('externalReference', instance.externalReference);
+  writeNotNull('receiptUrl', instance.receiptUrl);
   writeNotNull('createdAt', instance.createdAt?.toIso8601String());
   writeNotNull('updatedAt', instance.updatedAt?.toIso8601String());
   return val;

@@ -8,11 +8,11 @@ import 'package:kauri/features/challenges/presentation/bloc/challenges_event.dar
 import 'package:kauri/features/challenges/data/models/challenge_model.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:kauri/di/injection.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:kauri/features/challenges/presentation/bloc/challenges_state.dart';
-import 'dart:io';
 import 'package:kauri/core/utils/currency_helper.dart';
 import 'package:kauri/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:kauri/features/payments/presentation/bloc/fintech_bloc.dart';
+import 'package:kauri/features/payments/presentation/bloc/fintech_event.dart';
 
 class ChallengeDetailSheet extends StatefulWidget {
   final ChallengeModel challenge;
@@ -29,32 +29,15 @@ class ChallengeDetailSheet extends StatefulWidget {
 }
 
 class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
-  XFile? _selectedImage;
-  final ImagePicker _picker = ImagePicker();
-
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
-      );
-      if (image != null) {
-        setState(() {
-          _selectedImage = image;
-        });
-      }
-    } catch (e) {
-      debugPrint('📸 [ChallengeDetailSheet] Error picking image: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final bool isJoined = widget.userChallenge != null;
     final bool isCompleted = widget.userChallenge?.status == 'completed';
-    final double progress = widget.userChallenge?.progress ?? 0.0;
+    final double rawProgress = widget.userChallenge?.progress ?? 0.0;
+    // Normalize progress to 0.0-1.0 range (some backends send 0-100)
+    final double progress = rawProgress > 1.0
+        ? rawProgress / 100.0
+        : rawProgress;
 
     // Find if there's a pending week to validate
     final pendingWeek = widget.userChallenge?.weeks
@@ -98,6 +81,10 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
             ),
           );
         } else if (state.status == ChallengesStatus.success) {
+          // Refresh both balance and transactions after success
+          final fintechBloc = context.read<FintechBloc>();
+          fintechBloc.add(FetchWalletBalance());
+          fintechBloc.add(FetchWalletTransactions());
           Navigator.of(context).pop(); // Close sheet on success
         }
       },
@@ -123,15 +110,26 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(
-                        child: Container(
-                          width: 40,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.outlineVariant,
-                            borderRadius: BorderRadius.circular(2),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.close),
+                            tooltip: AppLocalizations.of(context)!.close,
                           ),
-                        ),
+                          Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outlineVariant,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(width: 48), // Balancing the IconButton
+                        ],
                       ),
                       const SizedBox(height: 24),
                       Row(
@@ -311,6 +309,77 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                             ],
                           ),
                         const SizedBox(height: 24),
+                        Text(
+                          "Historique des contributions",
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (widget.userChallenge?.weeks != null)
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 200),
+                            child: Scrollbar(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: widget.userChallenge!.weeks!
+                                      .where(
+                                        (w) =>
+                                            w.status == 'completed' ||
+                                            w.status == 'skipped' ||
+                                            w.status == 'validated',
+                                      )
+                                      .map(
+                                        (w) => Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 8.0,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                w.status == 'completed' ||
+                                                        w.status == 'validated'
+                                                    ? Icons.check_circle
+                                                    : Icons.fast_forward,
+                                                color:
+                                                    w.status == 'completed' ||
+                                                        w.status == 'validated'
+                                                    ? AppColors.success
+                                                    : AppColors.info,
+                                                size: 20,
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Text(
+                                                "Semaine ${w.weekNumber}",
+                                                style: AppTextStyles.bodyMedium,
+                                              ),
+                                              const Spacer(),
+                                              Text(
+                                                CurrencyHelper.formatAmount(
+                                                  w.savedAmount,
+                                                  currencyCode: context
+                                                      .read<AuthBloc>()
+                                                      .state
+                                                      .authResponse
+                                                      ?.user
+                                                      .currency,
+                                                ),
+                                                style: AppTextStyles.bodyMedium
+                                                    .copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 24),
                       ],
                       SizedBox(
                         width: double.infinity,
@@ -329,6 +398,14 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                                 JoinChallengeRequested(widget.challenge.id),
                               );
                               Navigator.pop(context);
+                            } else if (isCompleted &&
+                                widget.userChallenge?.status != 'redeemed') {
+                              context.read<ChallengesBloc>().add(
+                                RedeemChallengeRequested(
+                                  widget.userChallenge!.id,
+                                ),
+                              );
+                              Navigator.pop(context);
                             } else if (!isCompleted && isWeekReadyToValidate) {
                               _showValidationDialog(
                                 context,
@@ -339,7 +416,12 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isJoined
                                 ? (isCompleted
-                                      ? AppColors.success
+                                      ? (widget.userChallenge?.status ==
+                                                'redeemed'
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.outline
+                                            : AppColors.success)
                                       : (isWeekReadyToValidate
                                             ? Theme.of(
                                                 context,
@@ -364,9 +446,10 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                           child: Text(
                             isJoined
                                 ? (isCompleted
-                                      ? AppLocalizations.of(
-                                          context,
-                                        )!.completed.toUpperCase()
+                                      ? (widget.userChallenge?.status ==
+                                                'redeemed'
+                                            ? "DÉJÀ RÉCUPÉRÉ"
+                                            : "RETIRER LES FONDS")
                                       : AppLocalizations.of(
                                           context,
                                         )!.validateWeek.toUpperCase())
@@ -527,7 +610,18 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
           ),
           ElevatedButton(
             onPressed: () {
-              bloc.add(SkipWeekRequested(widget.userChallenge!.id));
+              final pendingWeek = widget.userChallenge?.weeks?.firstWhere(
+                (w) => w.status == 'pending',
+                orElse: () => widget.userChallenge!.weeks!.first,
+              );
+              if (pendingWeek != null) {
+                bloc.add(
+                  SkipWeekRequested(
+                    widget.userChallenge!.id,
+                    pendingWeek.weekNumber,
+                  ),
+                );
+              }
               Navigator.pop(context);
             },
             child: Text(AppLocalizations.of(context)!.confirm),
@@ -551,7 +645,18 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
           ),
           ElevatedButton(
             onPressed: () {
-              bloc.add(PostponeDeadlineRequested(widget.userChallenge!.id));
+              final pendingWeek = widget.userChallenge?.weeks?.firstWhere(
+                (w) => w.status == 'pending',
+                orElse: () => widget.userChallenge!.weeks!.first,
+              );
+              if (pendingWeek != null) {
+                bloc.add(
+                  PostponeDeadlineRequested(
+                    widget.userChallenge!.id,
+                    pendingWeek.weekNumber,
+                  ),
+                );
+              }
               Navigator.pop(context);
             },
             child: Text(AppLocalizations.of(context)!.confirm),
@@ -659,83 +764,13 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                 hintText: pendingWeek.targetAmount.toStringAsFixed(0),
               ),
             ),
-            const SizedBox(height: 24),
-            Text(
-              AppLocalizations.of(context)!.transactionProof,
-              style: AppTextStyles.bodySmall.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
             const SizedBox(height: 8),
-            StatefulBuilder(
-              builder: (context, setDialogState) {
-                return Column(
-                  children: [
-                    if (_selectedImage != null)
-                      Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.file(
-                              File(_selectedImage!.path),
-                              height: 120,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Positioned(
-                            top: 4,
-                            right: 4,
-                            child: CircleAvatar(
-                              backgroundColor: Colors.black54,
-                              radius: 16,
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.close,
-                                  size: 16,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _selectedImage = null;
-                                  });
-                                  setDialogState(() {});
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () async {
-                                await _pickImage(ImageSource.camera);
-                                setDialogState(() {});
-                              },
-                              icon: const Icon(Icons.camera_alt_outlined),
-                              label: Text(AppLocalizations.of(context)!.photo),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () async {
-                                await _pickImage(ImageSource.gallery);
-                                setDialogState(() {});
-                              },
-                              icon: const Icon(Icons.image_outlined),
-                              label: Text(
-                                AppLocalizations.of(context)!.gallery,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                );
-              },
+            Text(
+              "Le montant sera automatiquement prélevé de votre portefeuille Kauri.",
+              style: AppTextStyles.bodySmall.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ],
         ),
@@ -748,17 +783,6 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
             onPressed: () {
               final double? amount = double.tryParse(controller.text);
               if (amount != null && amount > 0) {
-                if ((widget.challenge.requiresProof ?? false) &&
-                    _selectedImage == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        AppLocalizations.of(context)!.challengeProofRequired,
-                      ),
-                    ),
-                  );
-                  return;
-                }
                 // Show final confirmation
                 _showConfirmSubmitDialog(
                   context,
@@ -770,7 +794,8 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                         userChallengeId: widget.userChallenge!.id,
                         weekNumber: pendingWeek.weekNumber,
                         amount: amount,
-                        proofPath: _selectedImage?.path,
+                        note:
+                            "", // We could add a note field in the UI if needed
                       ),
                     );
                     getIt<AnalyticsManager>().trackEvent(
@@ -814,17 +839,6 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                 context,
               )!.confirmValidationMessage(amount.toStringAsFixed(0)),
             ),
-            if (_selectedImage != null) ...[
-              const SizedBox(height: 16),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.file(
-                  File(_selectedImage!.path),
-                  height: 150,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ],
           ],
         ),
         actions: [

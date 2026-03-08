@@ -10,9 +10,8 @@ AutoBudgetEntry _$AutoBudgetEntryFromJson(Map<String, dynamic> json) =>
     AutoBudgetEntry(
       category: json['category'] as String,
       amount: (json['amount'] as num).toDouble(),
-      period: BudgetPeriodModel.fromJson(
-        json['period'] as Map<String, dynamic>,
-      ),
+      period:
+          BudgetPeriodModel.fromJson(json['period'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$AutoBudgetEntryToJson(AutoBudgetEntry instance) =>

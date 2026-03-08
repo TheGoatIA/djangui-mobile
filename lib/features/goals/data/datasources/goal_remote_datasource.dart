@@ -9,6 +9,7 @@ abstract class GoalRemoteDataSource {
   Future<GoalModel> createGoal(GoalModel goal);
   Future<void> deleteGoal(String id);
   Future<GoalModel> contributeToGoal(String id, double amount, {String? note});
+  Future<GoalModel> redeemGoal(String id, {double? amount});
 }
 
 @LazySingleton(as: GoalRemoteDataSource)
@@ -71,6 +72,17 @@ class GoalRemoteDataSourceImpl implements GoalRemoteDataSource {
     });
     if (!response.isSuccessful || response.body?.data == null) {
       throw Exception(response.body?.message ?? 'Failed to contribute');
+    }
+    return response.body!.data!;
+  }
+
+  @override
+  Future<GoalModel> redeemGoal(String id, {double? amount}) async {
+    final response = await _apiService.redeemGoal(id, {
+      if (amount != null) 'amount': amount,
+    });
+    if (!response.isSuccessful || response.body?.data == null) {
+      throw Exception(response.body?.message ?? 'Failed to redeem funds');
     }
     return response.body!.data!;
   }

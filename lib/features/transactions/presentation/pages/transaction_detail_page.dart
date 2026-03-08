@@ -62,7 +62,8 @@ class TransactionDetailPage extends StatelessWidget {
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 actions: [
-                  if (transaction.source == 'cash')
+                  if (transaction.source == 'manual' ||
+                      transaction.source == 'cash')
                     IconButton(
                       icon: const Icon(
                         Icons.delete_outline,
@@ -162,6 +163,45 @@ class TransactionDetailPage extends StatelessWidget {
                           ],
                         ),
                       ),
+                      if (transaction.source == 'manual') ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer
+                                .withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  l10n.manualTransactionInfo,
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 32),
 
                       Text(l10n.categoryDetails, style: AppTextStyles.h3),

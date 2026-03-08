@@ -99,21 +99,18 @@ class FintechRepositoryImpl implements FintechRepository {
     try {
       final response = await _apiService.getInvoice(transactionId);
       if (response.isSuccessful && response.body?.data != null) {
-        final pdfUrl = response.body!.data!['pdfUrl'] as String?;
-        if (pdfUrl != null) {
-          String finalPdfUrl = pdfUrl;
-          final baseUrlStr = dotenv.env['API_BASE_URL'];
-          if (baseUrlStr != null &&
-              (finalPdfUrl.contains('localhost') ||
-                  finalPdfUrl.contains('127.0.0.1'))) {
-            final uri = Uri.parse(baseUrlStr);
-            finalPdfUrl = finalPdfUrl
-                .replaceAll('localhost', uri.host)
-                .replaceAll('127.0.0.1', uri.host);
-          }
-          return Right(finalPdfUrl);
+        final pdfUrl = response.body!.data!.pdfUrl;
+        String finalPdfUrl = pdfUrl;
+        final baseUrlStr = dotenv.env['API_BASE_URL'];
+        if (baseUrlStr != null &&
+            (finalPdfUrl.contains('localhost') ||
+                finalPdfUrl.contains('127.0.0.1'))) {
+          final uri = Uri.parse(baseUrlStr);
+          finalPdfUrl = finalPdfUrl
+              .replaceAll('localhost', uri.host)
+              .replaceAll('127.0.0.1', uri.host);
         }
-        return Left(ServerFailure('URL du reçu non trouvée'));
+        return Right(finalPdfUrl);
       }
       return Left(
         ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),

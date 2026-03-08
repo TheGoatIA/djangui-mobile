@@ -28,6 +28,10 @@ class TransactionModel extends Equatable {
   final String? receipt;
   final String? linkedGoalId;
   final Map<String, dynamic>? metadata;
+  final String? paymentMethod;
+  final double? fees;
+  final String? externalReference;
+  final String? receiptUrl;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -63,9 +67,23 @@ class TransactionModel extends Equatable {
     this.receipt,
     this.linkedGoalId,
     this.metadata,
+    this.paymentMethod,
+    this.fees,
+    this.externalReference,
+    this.receiptUrl,
     this.createdAt,
     this.updatedAt,
   });
+
+  bool get isRealWalletTransaction {
+    return paymentMethod == 'wallet' ||
+        paymentMethod == 'notchpay' ||
+        paymentMethod == 'stripe';
+  }
+
+  bool get isManualBudgetEntry {
+    return paymentMethod == null || paymentMethod == 'cash';
+  }
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     final data = json['request'] ?? json;
@@ -97,6 +115,10 @@ class TransactionModel extends Equatable {
     receipt,
     linkedGoalId,
     metadata,
+    paymentMethod,
+    fees,
+    externalReference,
+    receiptUrl,
     createdAt,
     updatedAt,
   ];

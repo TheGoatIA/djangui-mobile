@@ -637,6 +637,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String get delete => 'Supprimer';
 
   @override
+  String get deleteTransaction => 'Supprimer la transaction';
+
+  @override
+  String get deleteConfirmation =>
+      'Voulez-vous vraiment supprimer cette transaction ?';
+
+  @override
+  String get manualTransactionBadge => 'Manuel';
+
+  @override
+  String get manualTransactionInfo =>
+      'Cette transaction est manuelle et n\'affecte pas votre solde réel.';
+
+  @override
   String get smsPermissionRequired =>
       'Permission SMS requise pour cette fonctionnalité';
 
@@ -1001,6 +1015,42 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addSavingsAction => 'Ajouter Épargne';
+
+  @override
+  String get redeemAction => 'Récupérer l\'argent';
+
+  @override
+  String get redeemSuccess => 'Fonds récupérés avec succès';
+
+  @override
+  String get redeemDialogTitle => 'Récupérer des fonds';
+
+  @override
+  String get redeemAmountHint =>
+      'Combien souhaitez-vous reverser dans votre portefeuille ?';
+
+  @override
+  String get redeemAmountLabel => 'Saisissez le montant';
+
+  @override
+  String redeemAvailableAmount(String amount) {
+    return 'Disponible : $amount';
+  }
+
+  @override
+  String get redeemConfirmAction => 'Confirmer le rachat';
+
+  @override
+  String get redeemAmountExceedsError =>
+      'Le montant dépasse l\'épargne actuelle.';
+
+  @override
+  String earlyRedemptionWarning(String date) {
+    return 'Attention: un retrait anticipé (avant le $date) entraînera une pénalité de 0,5% sur le montant retiré pour indiscipline. Êtes-vous sûr ?';
+  }
+
+  @override
+  String get earlyRedemptionTitle => 'Retrait Anticipé';
 
   @override
   String get currentAmountLabel => 'Épargné';
@@ -2069,13 +2119,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get replaceBudget => 'Remplacer';
 
   @override
-  String get deleteTransaction => 'Supprimer la transaction';
-
-  @override
-  String get deleteConfirmation =>
-      'Êtes-vous sûr de vouloir supprimer cette transaction ?';
-
-  @override
   String get success => 'Succès';
 
   @override
@@ -2270,6 +2313,54 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get withdraw => 'Retirer';
+
+  @override
+  String get transferLimitInfo =>
+      'Cette limite inclut tous vos transferts sortants pour le mois en cours.';
+
+  @override
+  String get tutorialWalletTitle => 'Votre Portefeuille';
+
+  @override
+  String get tutorialWalletDesc =>
+      'Cliquez ici pour accéder aux détails de votre portefeuille, effectuer des dépôts ou des retraits.';
+
+  @override
+  String get realMoneyWelcomeTitle => 'Gestion de l\'Argent Réel';
+
+  @override
+  String get realMoneySlide1Title => 'L\'Argent Réel arrive sur Kauri !';
+
+  @override
+  String get realMoneySlide1Desc =>
+      'Kauri passe au niveau supérieur ! Vous pouvez désormais gérer votre vrai argent directement depuis l\'application.';
+
+  @override
+  String get realMoneySlide2Title => 'Portefeuille';
+
+  @override
+  String get realMoneySlide2Desc =>
+      'Dépôts et retraits facilités via Mobile Money en toute sécurité.';
+
+  @override
+  String get realMoneySlide3Title => 'Objectifs';
+
+  @override
+  String get realMoneySlide3Desc =>
+      'Vos épargnes sont désormais réelles et sécurisées. Plus besoin de simuler vos finances !';
+
+  @override
+  String get realMoneySlide4Title => 'Tontines';
+
+  @override
+  String get realMoneySlide4Desc =>
+      'Automatisez vos prélèvements et paiements pour vos tontines sans tracas.';
+
+  @override
+  String get gotItButton => 'J\'ai compris !';
+
+  @override
+  String get nextButton => 'Suivant';
 
   @override
   String get noTransactions => 'Aucune transaction pour le moment';
