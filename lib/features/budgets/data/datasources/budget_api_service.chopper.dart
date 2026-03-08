@@ -20,11 +20,7 @@ final class _$BudgetApiService extends BudgetApiService {
   @override
   Future<Response<BaseResponse<BudgetModel>>> getCurrentBudget() {
     final Uri $url = Uri.parse('/budgets/current');
-    final Request $request = Request(
-      'GET',
-      $url,
-      client.baseUrl,
-    );
+    final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<BaseResponse<BudgetModel>, BudgetModel>($request);
   }
 
@@ -49,15 +45,11 @@ final class _$BudgetApiService extends BudgetApiService {
 
   @override
   Future<Response<BaseResponse<BudgetModel>>> createBudget(
-      Map<String, dynamic> body) {
+    Map<String, dynamic> body,
+  ) {
     final Uri $url = Uri.parse('/budgets');
     final $body = body;
-    final Request $request = Request(
-      'POST',
-      $url,
-      client.baseUrl,
-      body: $body,
-    );
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
     return client.send<BaseResponse<BudgetModel>, BudgetModel>($request);
   }
 
@@ -68,23 +60,14 @@ final class _$BudgetApiService extends BudgetApiService {
   ) {
     final Uri $url = Uri.parse('/budgets/${id}');
     final $body = body;
-    final Request $request = Request(
-      'PUT',
-      $url,
-      client.baseUrl,
-      body: $body,
-    );
+    final Request $request = Request('PUT', $url, client.baseUrl, body: $body);
     return client.send<BaseResponse<BudgetModel>, BudgetModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<dynamic>>> deleteBudget(String id) {
     final Uri $url = Uri.parse('/budgets/${id}');
-    final Request $request = Request(
-      'DELETE',
-      $url,
-      client.baseUrl,
-    );
+    final Request $request = Request('DELETE', $url, client.baseUrl);
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 
@@ -104,7 +87,8 @@ final class _$BudgetApiService extends BudgetApiService {
       client.baseUrl,
       parameters: $params,
     );
-    return client
-        .send<BaseResponse<AutoBudgetResponse>, AutoBudgetResponse>($request);
+    return client.send<BaseResponse<AutoBudgetResponse>, AutoBudgetResponse>(
+      $request,
+    );
   }
 }

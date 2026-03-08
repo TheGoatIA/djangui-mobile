@@ -33,31 +33,27 @@ final class _$SystemApiService extends SystemApiService {
       client.baseUrl,
       parameters: $params,
     );
-    return client.send<BaseResponse<VersionCheckResponse>,
-        VersionCheckResponse>($request);
+    return client
+        .send<BaseResponse<VersionCheckResponse>, VersionCheckResponse>(
+          $request,
+        );
   }
 
   @override
   Future<Response<BaseResponse<PublicSettingsModel>>> getPublicSettings() {
     final Uri $url = Uri.parse('/system/public-settings');
-    final Request $request = Request(
-      'GET',
-      $url,
-      client.baseUrl,
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client.send<BaseResponse<PublicSettingsModel>, PublicSettingsModel>(
+      $request,
     );
-    return client
-        .send<BaseResponse<PublicSettingsModel>, PublicSettingsModel>($request);
   }
 
   @override
   Future<Response<BaseResponse<CountryListResponse>>> getCountries() {
     final Uri $url = Uri.parse('/system/countries');
-    final Request $request = Request(
-      'GET',
-      $url,
-      client.baseUrl,
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client.send<BaseResponse<CountryListResponse>, CountryListResponse>(
+      $request,
     );
-    return client
-        .send<BaseResponse<CountryListResponse>, CountryListResponse>($request);
   }
 }

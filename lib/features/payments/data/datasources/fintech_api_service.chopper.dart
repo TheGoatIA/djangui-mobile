@@ -20,52 +20,44 @@ final class _$FintechApiService extends FintechApiService {
   @override
   Future<Response<BaseResponse<Map<String, dynamic>>>> getBalance() {
     final Uri $url = Uri.parse('/fintech/wallet/balance');
-    final Request $request = Request(
-      'GET',
-      $url,
-      client.baseUrl,
-    );
-    return client.send<BaseResponse<Map<String, dynamic>>,
-        Map<String, dynamic>>($request);
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client
+        .send<BaseResponse<Map<String, dynamic>>, Map<String, dynamic>>(
+          $request,
+        );
   }
 
   @override
   Future<Response<BaseResponse<FintechTransactionsResponseModel>>>
-      getTransactions() {
+  getTransactions() {
     final Uri $url = Uri.parse('/fintech/wallet/transactions');
-    final Request $request = Request(
-      'GET',
-      $url,
-      client.baseUrl,
-    );
-    return client.send<BaseResponse<FintechTransactionsResponseModel>,
-        FintechTransactionsResponseModel>($request);
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client.send<
+      BaseResponse<FintechTransactionsResponseModel>,
+      FintechTransactionsResponseModel
+    >($request);
   }
 
   @override
   Future<Response<BaseResponse<Map<String, dynamic>>>> withdraw(
-      Map<String, dynamic> body) {
+    Map<String, dynamic> body,
+  ) {
     final Uri $url = Uri.parse('/fintech/payout/withdraw');
     final $body = body;
-    final Request $request = Request(
-      'POST',
-      $url,
-      client.baseUrl,
-      body: $body,
-    );
-    return client.send<BaseResponse<Map<String, dynamic>>,
-        Map<String, dynamic>>($request);
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client
+        .send<BaseResponse<Map<String, dynamic>>, Map<String, dynamic>>(
+          $request,
+        );
   }
 
   @override
   Future<Response<BaseResponse<InvoiceResponseModel>>> getInvoice(String id) {
     final Uri $url = Uri.parse('/fintech/invoice/${id}');
-    final Request $request = Request(
-      'GET',
-      $url,
-      client.baseUrl,
-    );
-    return client.send<BaseResponse<InvoiceResponseModel>,
-        InvoiceResponseModel>($request);
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client
+        .send<BaseResponse<InvoiceResponseModel>, InvoiceResponseModel>(
+          $request,
+        );
   }
 }

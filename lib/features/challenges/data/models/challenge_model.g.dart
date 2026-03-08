@@ -44,7 +44,8 @@ UserChallengeModel _$UserChallengeModelFromJson(Map<String, dynamic> json) =>
       flexibility: json['flexibility'] == null
           ? null
           : ChallengeFlexibilityModel.fromJson(
-              json['flexibility'] as Map<String, dynamic>),
+              json['flexibility'] as Map<String, dynamic>,
+            ),
       weeks: (json['weeks'] as List<dynamic>?)
           ?.map((e) => ChallengeWeekModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -88,24 +89,24 @@ Map<String, dynamic> _$ChallengeWeekModelToJson(ChallengeWeekModel instance) =>
     };
 
 ChallengeFlexibilityModel _$ChallengeFlexibilityModelFromJson(
-        Map<String, dynamic> json) =>
-    ChallengeFlexibilityModel(
-      skipsUsed: (json['skipsUsed'] as num?)?.toInt() ?? 0,
-      maxSkips: (json['maxSkips'] as num?)?.toInt() ?? 3,
-      postponementsUsed: (json['postponementsUsed'] as num?)?.toInt() ?? 0,
-      nextDeadline: json['nextDeadline'] == null
-          ? null
-          : DateTime.parse(json['nextDeadline'] as String),
-    );
+  Map<String, dynamic> json,
+) => ChallengeFlexibilityModel(
+  skipsUsed: (json['skipsUsed'] as num?)?.toInt() ?? 0,
+  maxSkips: (json['maxSkips'] as num?)?.toInt() ?? 3,
+  postponementsUsed: (json['postponementsUsed'] as num?)?.toInt() ?? 0,
+  nextDeadline: json['nextDeadline'] == null
+      ? null
+      : DateTime.parse(json['nextDeadline'] as String),
+);
 
 Map<String, dynamic> _$ChallengeFlexibilityModelToJson(
-        ChallengeFlexibilityModel instance) =>
-    <String, dynamic>{
-      'skipsUsed': instance.skipsUsed,
-      'maxSkips': instance.maxSkips,
-      'postponementsUsed': instance.postponementsUsed,
-      'nextDeadline': instance.nextDeadline?.toIso8601String(),
-    };
+  ChallengeFlexibilityModel instance,
+) => <String, dynamic>{
+  'skipsUsed': instance.skipsUsed,
+  'maxSkips': instance.maxSkips,
+  'postponementsUsed': instance.postponementsUsed,
+  'nextDeadline': instance.nextDeadline?.toIso8601String(),
+};
 
 ChallengeProofModel _$ChallengeProofModelFromJson(Map<String, dynamic> json) =>
     ChallengeProofModel(
@@ -116,10 +117,10 @@ ChallengeProofModel _$ChallengeProofModelFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$ChallengeProofModelToJson(
-        ChallengeProofModel instance) =>
-    <String, dynamic>{
-      '_id': instance.id,
-      'imageUrl': instance.imageUrl,
-      'status': instance.status,
-      'createdAt': instance.createdAt.toIso8601String(),
-    };
+  ChallengeProofModel instance,
+) => <String, dynamic>{
+  '_id': instance.id,
+  'imageUrl': instance.imageUrl,
+  'status': instance.status,
+  'createdAt': instance.createdAt.toIso8601String(),
+};

@@ -7,42 +7,41 @@ part of 'tontine_model.dart';
 // **************************************************************************
 
 TontineModel _$TontineModelFromJson(Map<String, dynamic> json) => TontineModel(
-      id: json['_id'] as String,
-      name: json['name'] as String,
-      frequency: json['frequency'] as String,
-      contributionAmount: (json['contributionAmount'] as num).toDouble(),
-      totalParts: (json['totalParts'] as num).toInt(),
-      currency: json['currency'] as String,
-      rotationMode: json['rotationMode'] as String,
-      validationMode: json['validationMode'] as String,
-      sanctions: json['sanctions'] as Map<String, dynamic>,
-      escrowDetails: (json['escrowDetails'] as List<dynamic>?)
-          ?.map((e) => e as Map<String, dynamic>)
-          .toList(),
-      socialFund: json['socialFund'] as Map<String, dynamic>,
-      status: json['status'] as String,
-      inviteCode: json['inviteCode'] as String,
-      currentTurn: (json['currentTurn'] as num).toInt(),
-      creatorId: _idFromMapOrString(json['creatorId']),
-      startDate: json['startDate'] == null
-          ? null
-          : DateTime.parse(json['startDate'] as String),
-      createdAt: json['createdAt'] == null
-          ? null
-          : DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
-      autoRenew: json['autoRenew'] as bool?,
-      deadline: json['deadline'] == null
-          ? null
-          : DateTime.parse(json['deadline'] as String),
-      rulesAcceptedByAll: json['rulesAcceptedByAll'] as bool?,
-      turnSummary: json['turnSummary'] == null
-          ? null
-          : TurnSummaryModel.fromJson(
-              json['turnSummary'] as Map<String, dynamic>),
-    );
+  id: json['_id'] as String,
+  name: json['name'] as String,
+  frequency: json['frequency'] as String,
+  contributionAmount: (json['contributionAmount'] as num).toDouble(),
+  totalParts: (json['totalParts'] as num).toInt(),
+  currency: json['currency'] as String,
+  rotationMode: json['rotationMode'] as String,
+  validationMode: json['validationMode'] as String,
+  sanctions: json['sanctions'] as Map<String, dynamic>,
+  escrowDetails: (json['escrowDetails'] as List<dynamic>?)
+      ?.map((e) => e as Map<String, dynamic>)
+      .toList(),
+  socialFund: json['socialFund'] as Map<String, dynamic>,
+  status: json['status'] as String,
+  inviteCode: json['inviteCode'] as String,
+  currentTurn: (json['currentTurn'] as num).toInt(),
+  creatorId: _idFromMapOrString(json['creatorId']),
+  startDate: json['startDate'] == null
+      ? null
+      : DateTime.parse(json['startDate'] as String),
+  createdAt: json['createdAt'] == null
+      ? null
+      : DateTime.parse(json['createdAt'] as String),
+  updatedAt: json['updatedAt'] == null
+      ? null
+      : DateTime.parse(json['updatedAt'] as String),
+  autoRenew: json['autoRenew'] as bool?,
+  deadline: json['deadline'] == null
+      ? null
+      : DateTime.parse(json['deadline'] as String),
+  rulesAcceptedByAll: json['rulesAcceptedByAll'] as bool?,
+  turnSummary: json['turnSummary'] == null
+      ? null
+      : TurnSummaryModel.fromJson(json['turnSummary'] as Map<String, dynamic>),
+);
 
 Map<String, dynamic> _$TontineModelToJson(TontineModel instance) =>
     <String, dynamic>{
@@ -97,32 +96,32 @@ Map<String, dynamic> _$TontineMemberModelToJson(TontineMemberModel instance) =>
     };
 
 TontineContributionModel _$TontineContributionModelFromJson(
-        Map<String, dynamic> json) =>
-    TontineContributionModel(
-      id: json['_id'] as String,
-      tontineId: json['tontineId'] as String,
-      memberId: _idFromMapOrString(json['memberId']),
-      turnIndex: (json['turnIndex'] as num).toInt(),
-      amountPaid: (json['amountPaid'] as num).toDouble(),
-      proofImage: json['proofImage'] as String,
-      validationStatus: json['validationStatus'] as String,
-      aiAnalysis: json['aiAnalysis'] as Map<String, dynamic>?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-    );
+  Map<String, dynamic> json,
+) => TontineContributionModel(
+  id: json['_id'] as String,
+  tontineId: json['tontineId'] as String,
+  memberId: _idFromMapOrString(json['memberId']),
+  turnIndex: (json['turnIndex'] as num).toInt(),
+  amountPaid: (json['amountPaid'] as num).toDouble(),
+  proofImage: json['proofImage'] as String,
+  validationStatus: json['validationStatus'] as String,
+  aiAnalysis: json['aiAnalysis'] as Map<String, dynamic>?,
+  createdAt: DateTime.parse(json['createdAt'] as String),
+);
 
 Map<String, dynamic> _$TontineContributionModelToJson(
-        TontineContributionModel instance) =>
-    <String, dynamic>{
-      '_id': instance.id,
-      'tontineId': instance.tontineId,
-      'memberId': instance.memberId,
-      'turnIndex': instance.turnIndex,
-      'amountPaid': instance.amountPaid,
-      'proofImage': instance.proofImage,
-      'validationStatus': instance.validationStatus,
-      'aiAnalysis': instance.aiAnalysis,
-      'createdAt': instance.createdAt.toIso8601String(),
-    };
+  TontineContributionModel instance,
+) => <String, dynamic>{
+  '_id': instance.id,
+  'tontineId': instance.tontineId,
+  'memberId': instance.memberId,
+  'turnIndex': instance.turnIndex,
+  'amountPaid': instance.amountPaid,
+  'proofImage': instance.proofImage,
+  'validationStatus': instance.validationStatus,
+  'aiAnalysis': instance.aiAnalysis,
+  'createdAt': instance.createdAt.toIso8601String(),
+};
 
 TontineMessageModel _$TontineMessageModelFromJson(Map<String, dynamic> json) =>
     TontineMessageModel(
@@ -134,14 +133,14 @@ TontineMessageModel _$TontineMessageModelFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$TontineMessageModelToJson(
-        TontineMessageModel instance) =>
-    <String, dynamic>{
-      '_id': instance.id,
-      'tontineId': instance.tontineId,
-      'senderId': instance.senderId,
-      'content': instance.content,
-      'createdAt': instance.createdAt.toIso8601String(),
-    };
+  TontineMessageModel instance,
+) => <String, dynamic>{
+  '_id': instance.id,
+  'tontineId': instance.tontineId,
+  'senderId': instance.senderId,
+  'content': instance.content,
+  'createdAt': instance.createdAt.toIso8601String(),
+};
 
 TurnSummaryModel _$TurnSummaryModelFromJson(Map<String, dynamic> json) =>
     TurnSummaryModel(

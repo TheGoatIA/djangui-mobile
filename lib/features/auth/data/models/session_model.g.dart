@@ -7,17 +7,17 @@ part of 'session_model.dart';
 // **************************************************************************
 
 SessionModel _$SessionModelFromJson(Map<String, dynamic> json) => SessionModel(
-      id: json['_id'] as String?,
-      deviceName: json['deviceName'] as String?,
-      browser: json['browser'] as String?,
-      os: json['os'] as String?,
-      ipAddress: json['ipAddress'] as String?,
-      location: json['location'] as String?,
-      lastActive: json['lastActive'] == null
-          ? null
-          : DateTime.parse(json['lastActive'] as String),
-      isCurrent: json['isCurrent'] as bool? ?? false,
-    );
+  id: json['_id'] as String?,
+  deviceName: json['deviceName'] as String?,
+  browser: json['browser'] as String?,
+  os: json['os'] as String?,
+  ipAddress: json['ipAddress'] as String?,
+  location: json['location'] as String?,
+  lastActive: json['lastActive'] == null
+      ? null
+      : DateTime.parse(json['lastActive'] as String),
+  isCurrent: json['isCurrent'] as bool? ?? false,
+);
 
 Map<String, dynamic> _$SessionModelToJson(SessionModel instance) =>
     <String, dynamic>{

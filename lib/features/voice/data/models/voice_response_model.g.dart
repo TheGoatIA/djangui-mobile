@@ -15,8 +15,9 @@ VoiceResponseModel _$VoiceResponseModelFromJson(Map<String, dynamic> json) =>
       merchant: json['merchant'] as String?,
       description: json['description'] as String,
       type: json['type'] as String,
-      date:
-          json['date'] == null ? null : DateTime.parse(json['date'] as String),
+      date: json['date'] == null
+          ? null
+          : DateTime.parse(json['date'] as String),
       targetGoal: json['targetGoal'] as String?,
     );
 
