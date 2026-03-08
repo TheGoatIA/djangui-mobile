@@ -51,4 +51,15 @@ final class _$GoalApiService extends GoalApiService {
     final Request $request = Request('POST', $url, client.baseUrl, body: $body);
     return client.send<BaseResponse<GoalModel>, GoalModel>($request);
   }
+
+  @override
+  Future<Response<BaseResponse<GoalModel>>> redeemGoal(
+    String id,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/goals/${id}/redeem');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<GoalModel>, GoalModel>($request);
+  }
 }

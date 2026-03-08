@@ -196,7 +196,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
 
         return BlocListener<GoalsBloc, GoalsState>(
           listener: (context, state) {
-            if (state.status == GoalsStatus.success) {
+            if (state.status == GoalsStatus.goalCreated) {
               getIt<AnalyticsManager>().trackEvent(
                 feature: 'Goals',
                 action: 'create',

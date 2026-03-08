@@ -230,6 +230,10 @@
     "deleteBudget": "Supprimer le budget",
     "deleteBudgetConfirmation": "Êtes-vous sûr de vouloir supprimer ce budget ?",
     "delete": "Supprimer",
+    "deleteTransaction": "Supprimer la transaction",
+    "deleteConfirmation": "Voulez-vous vraiment supprimer cette transaction ?",
+    "manualTransactionBadge": "Manuel",
+    "manualTransactionInfo": "Cette transaction est manuelle et n'affecte pas votre solde réel.",
     "@transactionsImported": {
         "placeholders": {
             "count": {
@@ -376,6 +380,30 @@
     "strategy_custom": "Personnalisée",
     "strategy_custom_desc": "Contributions flexibles sans règles prédéfinies.",
     "addSavingsAction": "Ajouter Épargne",
+    "redeemAction": "Récupérer l'argent",
+    "redeemSuccess": "Fonds récupérés avec succès",
+    "redeemDialogTitle": "Récupérer des fonds",
+    "redeemAmountHint": "Combien souhaitez-vous reverser dans votre portefeuille ?",
+    "redeemAmountLabel": "Saisissez le montant",
+    "redeemAvailableAmount": "Disponible : {amount}",
+    "@redeemAvailableAmount": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "redeemConfirmAction": "Confirmer le rachat",
+    "redeemAmountExceedsError": "Le montant dépasse l'épargne actuelle.",
+    "earlyRedemptionWarning": "Attention: un retrait anticipé (avant le {date}) entraînera une pénalité de 0,5% sur le montant retiré pour indiscipline. Êtes-vous sûr ?",
+    "@earlyRedemptionWarning": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "earlyRedemptionTitle": "Retrait Anticipé",
     "currentAmountLabel": "Épargné",
     "monthAndYear": "Mois & Année",
     "add": "Ajouter",
@@ -718,8 +746,6 @@
     "budgetExistsTitle": "Budget déjà existant",
     "budgetExistsMessage": "Un budget pour cette période existe déjà. Voulez-vous le remplacer par l'analyse d'Anne ?",
     "replaceBudget": "Remplacer",
-    "deleteTransaction": "Supprimer la transaction",
-    "deleteConfirmation": "Êtes-vous sûr de vouloir supprimer cette transaction ?",
     "success": "Succès",
     "debtType": "Dette",
     "strategy_snowball": "Boule de neige",
@@ -793,6 +819,20 @@
     "outcomes": "Sorties",
     "recharge": "Recharger",
     "withdraw": "Retirer",
+    "transferLimitInfo": "Cette limite inclut tous vos transferts sortants pour le mois en cours.",
+    "tutorialWalletTitle": "Votre Portefeuille",
+    "tutorialWalletDesc": "Cliquez ici pour accéder aux détails de votre portefeuille, effectuer des dépôts ou des retraits.",
+    "realMoneyWelcomeTitle": "Gestion de l'Argent Réel",
+    "realMoneySlide1Title": "L'Argent Réel arrive sur Kauri !",
+    "realMoneySlide1Desc": "Kauri passe au niveau supérieur ! Vous pouvez désormais gérer votre vrai argent directement depuis l'application.",
+    "realMoneySlide2Title": "Portefeuille",
+    "realMoneySlide2Desc": "Dépôts et retraits facilités via Mobile Money en toute sécurité.",
+    "realMoneySlide3Title": "Objectifs",
+    "realMoneySlide3Desc": "Vos épargnes sont désormais réelles et sécurisées. Plus besoin de simuler vos finances !",
+    "realMoneySlide4Title": "Tontines",
+    "realMoneySlide4Desc": "Automatisez vos prélèvements et paiements pour vos tontines sans tracas.",
+    "gotItButton": "J'ai compris !",
+    "nextButton": "Suivant",
     "noTransactions": "Aucune transaction pour le moment",
     "autoDebit": "Auto-Débit",
     "rotateTurn": "Lancer la Rotation",

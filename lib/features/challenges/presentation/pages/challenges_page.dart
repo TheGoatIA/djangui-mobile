@@ -271,7 +271,10 @@ class _ChallengeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isJoined = userChallenge != null;
-    final double progress = userChallenge?.progress ?? 0.0;
+    final double rawProgress = userChallenge?.progress ?? 0.0;
+    final double progress = rawProgress > 1.0
+        ? rawProgress / 100.0
+        : rawProgress;
     final daysLeft = challenge.durationDays;
 
     return InkWell(

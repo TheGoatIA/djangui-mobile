@@ -179,10 +179,11 @@ class GoalRepositoryImpl implements GoalRepository {
   @override
   Future<Either<Failure, GoalModel>> updateGoalAmount(
     String id,
-    double amount,
-  ) async {
+    double amount, {
+    String? note,
+  }) async {
     _logger.info(
-      'Contribution à l\'objectif: $id (montant: $amount)',
+      'Contribution à l\'objectif: $id (montant: $amount, note: $note)',
       component: 'GoalRepository',
     );
     final localGoals = await _localDataSource.getGoals();
@@ -205,6 +206,7 @@ class GoalRepositoryImpl implements GoalRepository {
         final updatedGoal = await _remoteDataSource.contributeToGoal(
           id,
           amount,
+          note: note,
         );
         await _localDataSource.saveGoal(updatedGoal);
         _logger.info(
@@ -233,7 +235,7 @@ class GoalRepositoryImpl implements GoalRepository {
             SyncRequestsCompanion.insert(
               table: 'goals',
               action: 'contribute',
-              payload: jsonEncode({'id': id, 'amount': amount}),
+              payload: jsonEncode({'id': id, 'amount': amount, 'note': note}),
             ),
           );
 
@@ -249,6 +251,44 @@ class GoalRepositoryImpl implements GoalRepository {
               createdAt: DateTime.now(),
             ),
       );
+    }
+  }
+
+  @override
+  Future<Either<Failure, GoalModel>> redeemGoal(
+    String id,
+    double? amount,
+  ) async {
+    _logger.info(
+      'Rachat de l\'objectif: $id (montant: ${amount ?? "tout"})',
+      component: 'GoalRepository',
+    );
+
+    if (await _networkInfo.isConnected) {
+      try {
+        final updatedGoal = await _remoteDataSource.redeemGoal(
+          id,
+          amount: amount,
+        );
+        await _localDataSource.saveGoal(updatedGoal);
+        _logger.info(
+          'Rachat enregistré avec succès sur le serveur.',
+          component: 'GoalRepository',
+          metadata: {'id': id},
+        );
+        return Right(updatedGoal);
+      } catch (e) {
+        _logger.error(
+          'Échec du rachat sur le serveur',
+          error: e,
+          component: 'GoalRepository',
+        );
+        return Left(ServerFailure(e.toString()));
+      }
+    } else {
+      // Offline redemption is tricky because it affects balance immediately.
+      // For now, let's treat it as a server-only action or queue it.
+      return Left(ServerFailure('Connexion requise pour le rachat de fonds.'));
     }
   }
 }

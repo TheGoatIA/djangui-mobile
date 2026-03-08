@@ -25,4 +25,10 @@ abstract class GoalApiService extends ChopperService {
     @Path('id') String id,
     @Body() Map<String, dynamic> body,
   );
+
+  @Post(path: '/{id}/redeem')
+  Future<Response<BaseResponse<GoalModel>>> redeemGoal(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
 }

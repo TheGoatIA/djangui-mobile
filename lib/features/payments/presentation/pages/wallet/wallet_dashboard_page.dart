@@ -141,7 +141,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
         ),
         body: BlocBuilder<FintechBloc, FintechState>(
           builder: (context, state) {
-            final transactions = state.transactions;
+            final realTransactions = state.transactions
+                .where((t) => t.isRealWalletTransaction)
+                .toList();
             final balance = state.balance;
 
             return RefreshIndicator(
@@ -155,7 +157,11 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildBalanceCard(balance, transactions, currencyFormat),
+                    _buildBalanceCard(
+                      balance,
+                      realTransactions,
+                      currencyFormat,
+                    ),
                     const SizedBox(height: 30),
                     _buildQuickActions(),
                     const SizedBox(height: 30),
@@ -167,7 +173,11 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
                     ),
                     const SizedBox(height: 15),
                     const SizedBox(height: 15),
-                    _buildTransactionList(state, currencyFormat),
+                    _buildTransactionList(
+                      state,
+                      realTransactions,
+                      currencyFormat,
+                    ),
                   ],
                 ),
               ),
@@ -365,18 +375,22 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
     );
   }
 
-  Widget _buildTransactionList(FintechState state, NumberFormat format) {
-    if (state.status == FintechStatus.loading && state.transactions.isEmpty) {
+  Widget _buildTransactionList(
+    FintechState state,
+    List<FintechTransactionModel> realTransactions,
+    NumberFormat format,
+  ) {
+    if (state.status == FintechStatus.loading && realTransactions.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (state.transactions.isEmpty) {
+    if (realTransactions.isEmpty) {
       return _buildEmptyState();
     }
 
     final displayTransactions = _showAllTransactions
-        ? state.transactions
-        : state.transactions.take(10).toList();
+        ? realTransactions
+        : realTransactions.take(10).toList();
 
     return Column(
       children: [
@@ -390,7 +404,7 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
             return _buildTransactionItem(tx, format, state);
           },
         ),
-        if (!_showAllTransactions && state.transactions.length > 10)
+        if (!_showAllTransactions && realTransactions.length > 10)
           Padding(
             padding: const EdgeInsets.only(top: 16),
             child: TextButton(

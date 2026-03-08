@@ -70,6 +70,7 @@ class TontineMemberModel {
   final int parts;
   final double trustScore;
   final bool hasPaidSocialFund;
+  @JsonKey(name: 'isAutoDebitEnabled')
   final bool autoDebitEnabled;
   final Map<String, dynamic>? payoutDetails;
 

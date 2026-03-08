@@ -8,6 +8,7 @@ enum GoalsStatus {
   error,
   goalCreated,
   contributionSuccess,
+  redeemSuccess,
 }
 
 class GoalsState extends Equatable {

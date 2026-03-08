@@ -35,6 +35,7 @@ import 'package:kauri/features/settings/presentation/bloc/settings_bloc.dart';
 import '../../../payments/presentation/bloc/fintech_bloc.dart';
 import '../../../payments/presentation/bloc/fintech_state.dart';
 import '../../../payments/presentation/bloc/fintech_event.dart';
+import '../widgets/real_money_welcome_carousel.dart';
 
 /// Page d'accueil (Tableau de bord) de l'application.
 ///
@@ -92,8 +93,26 @@ class _DashboardViewState extends State<DashboardView> {
       );
       // Récupération des dernières transactions financières
       context.read<TransactionsBloc>().add(const GetTransactionsRequested());
+      _checkAndShowWelcomeModal();
       _startTutorial();
     });
+  }
+
+  void _checkAndShowWelcomeModal() async {
+    final tutorialService = getIt<TutorialService>();
+    if (!tutorialService.hasSeenTutorial('real_money_welcome')) {
+      final user = context.read<AuthBloc>().state.authResponse?.user;
+      if (user != null && (user.country == 'CM' || user.currency == 'XAF')) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (!mounted) return;
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const RealMoneyWelcomeCarousel(),
+        );
+        tutorialService.markTutorialAsSeen('real_money_welcome');
+      }
+    }
   }
 
   @override
@@ -314,12 +333,10 @@ class _DashboardViewState extends State<DashboardView> {
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Showcase(
                       key: _balanceKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialBalanceCardTitle,
+                      title: AppLocalizations.of(context)!.tutorialWalletTitle,
                       description: AppLocalizations.of(
                         context,
-                      )!.tutorialBalanceCardDesc,
+                      )!.tutorialWalletDesc,
                       child: GestureDetector(
                         onTap: () async {
                           await context.push(RouteConstants.wallet);

@@ -229,6 +229,10 @@
     "deleteBudget": "Delete Budget",
     "deleteBudgetConfirmation": "Are you sure you want to delete this budget?",
     "delete": "Delete",
+    "deleteTransaction": "Delete Transaction",
+    "deleteConfirmation": "Are you sure you want to delete this transaction?",
+    "manualTransactionBadge": "Manual",
+    "manualTransactionInfo": "This transaction is manual and does not affect your real balance.",
     "@transactionsImported": {
         "placeholders": {
             "count": {
@@ -375,6 +379,30 @@
     "strategy_custom": "Custom",
     "strategy_custom_desc": "Flexible contributions without predefined rules.",
     "addSavingsAction": "Add Savings",
+    "redeemAction": "Redeem Money",
+    "redeemSuccess": "Funds redeemed successfully",
+    "redeemDialogTitle": "Redeem Funds",
+    "redeemAmountHint": "How much would you like to transfer back to your wallet?",
+    "redeemAmountLabel": "Enter amount",
+    "redeemAvailableAmount": "Available: {amount}",
+    "@redeemAvailableAmount": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "redeemConfirmAction": "Confirm Redemption",
+    "redeemAmountExceedsError": "Amount exceeds current savings.",
+    "earlyRedemptionWarning": "Warning: an early withdrawal (before {date}) will result in a 0.5% penalty on the amount withdrawn for lack of discipline. Are you sure?",
+    "@earlyRedemptionWarning": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "earlyRedemptionTitle": "Early Withdrawal",
     "currentAmountLabel": "Saved",
     "monthAndYear": "Month & Year",
     "add": "Add",
@@ -717,8 +745,6 @@
     "budgetExistsTitle": "Budget Already Exists",
     "budgetExistsMessage": "A budget for this period already exists. Do you want to replace it with Anne's analysis?",
     "replaceBudget": "Replace",
-    "deleteTransaction": "Delete Transaction",
-    "deleteConfirmation": "Are you sure you want to delete this transaction?",
     "success": "Success",
     "debtType": "Debt",
     "strategy_snowball": "Snowball",
@@ -756,6 +782,20 @@
     "autoBudgetDesc": "Let Kauri optimize your limits based on your income.",
     "premiumReportTitle": "Premium Financial Report",
     "premiumReportDesc": "In-depth analysis of your financial health this month.",
+    "transferLimitInfo": "This limit includes all your outgoing transfers for the current month.",
+    "tutorialWalletTitle": "Your Wallet",
+    "tutorialWalletDesc": "Click here to access your wallet details, make deposits, or withdrawals.",
+    "realMoneyWelcomeTitle": "Real Money Management",
+    "realMoneySlide1Title": "Real Money is here on Kauri!",
+    "realMoneySlide1Desc": "Kauri is leveling up! You can now manage your real money directly from the app.",
+    "realMoneySlide2Title": "Wallet",
+    "realMoneySlide2Desc": "Easy and secure deposits and withdrawals using Mobile Money.",
+    "realMoneySlide3Title": "Goals",
+    "realMoneySlide3Desc": "Your savings are now real and secure. No more simulating your finances!",
+    "realMoneySlide4Title": "Tontines",
+    "realMoneySlide4Desc": "Automate your deductions and payouts for your tontines hassle-free.",
+    "gotItButton": "Got it!",
+    "nextButton": "Next",
     "challengeTypeSaving": "Saving",
     "challengeTypeSpending": "Spending cut",
     "challengeTypeHabit": "Habit",

@@ -8,5 +8,10 @@ abstract class GoalRepository {
   });
   Future<Either<Failure, GoalModel>> createGoal(GoalModel goal);
   Future<Either<Failure, void>> deleteGoal(String id);
-  Future<Either<Failure, GoalModel>> updateGoalAmount(String id, double amount);
+  Future<Either<Failure, GoalModel>> updateGoalAmount(
+    String id,
+    double amount, {
+    String? note,
+  });
+  Future<Either<Failure, GoalModel>> redeemGoal(String id, double? amount);
 }

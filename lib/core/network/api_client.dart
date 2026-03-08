@@ -106,6 +106,7 @@ class KauriApiClient {
             FintechTransactionModel.fromJson(json),
         FintechTransactionsResponseModel: (json) =>
             FintechTransactionsResponseModel.fromJson(json),
+        InvoiceResponseModel: (json) => InvoiceResponseModel.fromJson(json),
       }),
       services: [
         AuthApiService.create(),

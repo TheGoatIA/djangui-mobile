@@ -16,6 +16,7 @@ FintechTransactionModel _$FintechTransactionModelFromJson(
   status: json['status'] as String,
   createdAt: DateTime.parse(json['createdAt'] as String),
   reference: json['reference'] as String?,
+  paymentMethod: json['paymentMethod'] as String?,
 );
 
 Map<String, dynamic> _$FintechTransactionModelToJson(
@@ -28,6 +29,7 @@ Map<String, dynamic> _$FintechTransactionModelToJson(
   'status': instance.status,
   'createdAt': instance.createdAt.toIso8601String(),
   'reference': instance.reference,
+  'paymentMethod': instance.paymentMethod,
 };
 
 FintechTransactionsResponseModel _$FintechTransactionsResponseModelFromJson(
@@ -41,3 +43,21 @@ FintechTransactionsResponseModel _$FintechTransactionsResponseModelFromJson(
 Map<String, dynamic> _$FintechTransactionsResponseModelToJson(
   FintechTransactionsResponseModel instance,
 ) => <String, dynamic>{'transactions': instance.transactions};
+
+InvoiceResponseModel _$InvoiceResponseModelFromJson(
+  Map<String, dynamic> json,
+) => InvoiceResponseModel(
+  pdfUrl: json['pdfUrl'] as String,
+  invoiceNumber: json['invoiceNumber'] as String,
+  createdAt: json['createdAt'] == null
+      ? null
+      : DateTime.parse(json['createdAt'] as String),
+);
+
+Map<String, dynamic> _$InvoiceResponseModelToJson(
+  InvoiceResponseModel instance,
+) => <String, dynamic>{
+  'pdfUrl': instance.pdfUrl,
+  'invoiceNumber': instance.invoiceNumber,
+  'createdAt': instance.createdAt?.toIso8601String(),
+};

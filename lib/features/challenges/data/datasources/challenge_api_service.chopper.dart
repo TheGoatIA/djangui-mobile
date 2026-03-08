@@ -50,25 +50,12 @@ final class _$ChallengeApiService extends ChallengeApiService {
 
   @override
   Future<Response<BaseResponse<UserChallengeModel>>> validateWeek(
-    String userChallengeId,
-    int weekNumber,
-    double amount,
-    MultipartFile? proof,
+    String id,
+    Map<String, dynamic> body,
   ) {
-    final Uri $url = Uri.parse('/challenges/validate-week');
-    final List<PartValue> $parts = <PartValue>[
-      PartValue<String>('userChallengeId', userChallengeId),
-      PartValue<int>('weekNumber', weekNumber),
-      PartValue<double>('amount', amount),
-      PartValueFile<MultipartFile?>('proof', proof),
-    ];
-    final Request $request = Request(
-      'POST',
-      $url,
-      client.baseUrl,
-      parts: $parts,
-      multipart: true,
-    );
+    final Uri $url = Uri.parse('/challenges/${id}/validate-week');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
     return client.send<BaseResponse<UserChallengeModel>, UserChallengeModel>(
       $request,
     );
@@ -82,16 +69,40 @@ final class _$ChallengeApiService extends ChallengeApiService {
   }
 
   @override
-  Future<Response<BaseResponse<dynamic>>> skipWeek(String id) {
-    final Uri $url = Uri.parse('/challenges/skip/${id}');
-    final Request $request = Request('POST', $url, client.baseUrl);
-    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  Future<Response<BaseResponse<UserChallengeModel>>> skipWeek(
+    String id,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/challenges/${id}/skip');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<UserChallengeModel>, UserChallengeModel>(
+      $request,
+    );
   }
 
   @override
-  Future<Response<BaseResponse<dynamic>>> postponeDeadline(String id) {
-    final Uri $url = Uri.parse('/challenges/postpone/${id}');
+  Future<Response<BaseResponse<UserChallengeModel>>> postponeDeadline(
+    String id,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/challenges/${id}/postpone');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<UserChallengeModel>, UserChallengeModel>(
+      $request,
+    );
+  }
+
+  @override
+  Future<Response<BaseResponse<ChallengeRedeemModel>>> redeemChallenge(
+    String id,
+  ) {
+    final Uri $url = Uri.parse('/challenges/${id}/redeem');
     final Request $request = Request('POST', $url, client.baseUrl);
-    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+    return client
+        .send<BaseResponse<ChallengeRedeemModel>, ChallengeRedeemModel>(
+          $request,
+        );
   }
 }

@@ -52,11 +52,11 @@ final class _$FintechApiService extends FintechApiService {
   }
 
   @override
-  Future<Response<BaseResponse<Map<String, dynamic>>>> getInvoice(String id) {
+  Future<Response<BaseResponse<InvoiceResponseModel>>> getInvoice(String id) {
     final Uri $url = Uri.parse('/fintech/invoice/${id}');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client
-        .send<BaseResponse<Map<String, dynamic>>, Map<String, dynamic>>(
+        .send<BaseResponse<InvoiceResponseModel>, InvoiceResponseModel>(
           $request,
         );
   }

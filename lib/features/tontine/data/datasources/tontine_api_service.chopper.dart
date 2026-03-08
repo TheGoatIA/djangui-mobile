@@ -203,7 +203,12 @@ final class _$TontineApiService extends TontineApiService {
       '/tontines/${id}/members/${memberId}/auto-debit/toggle',
     );
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'PATCH',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<BaseResponse<TontineMemberModel>, TontineMemberModel>(
       $request,
     );

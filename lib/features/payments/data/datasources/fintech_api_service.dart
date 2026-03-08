@@ -22,7 +22,7 @@ abstract class FintechApiService extends ChopperService {
   );
 
   @Get(path: '/invoice/{id}')
-  Future<Response<BaseResponse<Map<String, dynamic>>>> getInvoice(
+  Future<Response<BaseResponse<InvoiceResponseModel>>> getInvoice(
     @Path('id') String id,
   );
 }
