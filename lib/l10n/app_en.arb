@@ -118,6 +118,7 @@
     "goalNameLabel": "Goal Name",
     "goalNameHint": "e.g. New Phone, Trip...",
     "targetAmountLabel": "Target Amount",
+    "deadlineLabel": "Deadline",
     "saveAction": "Save",
     "createBudgetAction": "Create Budget",
     "saveGoalAction": "Save",
