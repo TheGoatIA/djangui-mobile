@@ -40,6 +40,8 @@ import 'package:kauri/features/payments/presentation/bloc/fintech_bloc.dart';
 import 'package:kauri/features/payments/presentation/bloc/fintech_event.dart';
 import 'package:kauri/features/payments/presentation/bloc/payment_bloc.dart';
 import 'features/analytics/presentation/manager/analytics_manager.dart';
+import 'core/analytics/analytics_service.dart';
+import 'core/analytics/analytics_bloc_observer.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 /// Point d'entrée principal de l'application Kauri.
@@ -67,6 +69,9 @@ void main() async {
   // Initialisation des services globaux via GetIt
   await getIt<NotificationService>().initialize();
   await getIt<AnalyticsManager>().initialize();
+
+  // Enregistrement de l'observateur BLoC global pour les métriques et Crashlytics
+  Bloc.observer = AnalyticsBlocObserver(getIt<AnalyticsService>());
   getIt<SyncService>()
       .initialize(); // Démarre l'écouteur de synchronisation au réseau
   final telemetry = getIt<TelemetryService>();
