@@ -1,0 +1,1803 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Dashboard complet Kauri Mobile — Métriques OpenTelemetry exportées via Prometheus. Couvre cycle de vie, HTTP, navigation, IA, OCR, transactions, challenges, auth, voix, tutoriel, paiements.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["kauri", "mobile", "flutter", "opentelemetry", "prometheus"],
+  "time": { "from": "now-24h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Kauri Mobile — Dashboard Principal",
+  "uid": "kauri-mobile-v1",
+  "version": 1,
+
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Source de données",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "type": "datasource"
+      },
+      {
+        "current": {},
+        "datasource": { "type": "prometheus", "uid": "${datasource}" },
+        "definition": "label_values(app_session_total, version)",
+        "hide": 0,
+        "includeAll": true,
+        "allValue": ".*",
+        "label": "Version App",
+        "multi": false,
+        "name": "version",
+        "options": [],
+        "query": { "query": "label_values(app_session_total, version)", "refId": "Q" },
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": { "type": "prometheus", "uid": "${datasource}" },
+        "definition": "label_values(app_session_total, environment)",
+        "hide": 0,
+        "includeAll": true,
+        "allValue": ".*",
+        "label": "Environnement",
+        "multi": false,
+        "name": "environment",
+        "options": [],
+        "query": { "query": "label_values(app_session_total, environment)", "refId": "Q" },
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+
+  "panels": [
+
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Utilisateurs Actifs",
+      "description": "Nombre d'utilisateurs avec une session ouverte en ce moment (app_user_active = 1 par session active).",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "text": {}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "unit": "short",
+          "mappings": []
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(app_user_active{version=~\"$version\", environment=~\"$environment\"})",
+          "legendFormat": "Actifs",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Sessions (24h)",
+      "description": "Nombre total de sessions démarrées dans les dernières 24h. Chaque ouverture de l'app incrémente app_session_total.",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "text", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(increase(app_session_total{version=~\"$version\", environment=~\"$environment\"}[24h]))",
+          "legendFormat": "Sessions",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Cold Start Moyen",
+      "description": "Temps moyen de démarrage de l'application (cold start) en millisecondes. Mesuré de l'initialisation Flutter jusqu'au premier écran affiché.",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1000 },
+              { "color": "red", "value": 3000 }
+            ]
+          },
+          "unit": "ms"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "avg(app_startup_duration_ms{version=~\"$version\", environment=~\"$environment\"})",
+          "legendFormat": "Cold Start",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Taux d'Erreurs HTTP",
+      "description": "Pourcentage de requêtes HTTP en erreur (4xx/5xx) sur le total des requêtes des 5 dernières minutes.",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 2 },
+              { "color": "red", "value": 5 }
+            ]
+          },
+          "unit": "percent",
+          "decimals": 1
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(http_request_error_total{version=~\"$version\"}[5m])) / (sum(rate(http_request_success_total{version=~\"$version\"}[5m])) + sum(rate(http_request_error_total{version=~\"$version\"}[5m])) + sum(rate(http_request_fault_total{version=~\"$version\"}[5m]))) * 100",
+          "legendFormat": "% Erreurs",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Taux Succès OCR",
+      "description": "Pourcentage de scans de reçus ayant réussi à extraire le montant automatiquement. Indicateur clé de la fiabilité OCR.",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 60 },
+              { "color": "green", "value": 80 }
+            ]
+          },
+          "unit": "percent",
+          "decimals": 1
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(reliability_ocr_scan_total{found_amount=\"true\", version=~\"$version\"}) / sum(reliability_ocr_scan_total{version=~\"$version\"}) * 100",
+          "legendFormat": "% Succès OCR",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Taux Succès Vocal",
+      "description": "Pourcentage de commandes vocales correctement interprétées sur le total des tentatives (succès / succès + erreurs + invalides).",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "green", "value": 85 }
+            ]
+          },
+          "unit": "percent",
+          "decimals": 1
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(reliability_voice_success_total{version=~\"$version\"}) / (sum(reliability_voice_success_total{version=~\"$version\"}) + sum(reliability_voice_error_total{version=~\"$version\"}) + sum(reliability_voice_invalid_total{version=~\"$version\"})) * 100",
+          "legendFormat": "% Succès Voix",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 7,
+      "type": "row",
+      "title": "Cycle de vie Application",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 4 },
+      "panels": []
+    },
+
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Cold Start — Historique",
+      "description": "Évolution du temps de démarrage de l'app dans le temps. Permet de détecter des régressions de performance après un déploiement.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "showPoints": "never" },
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1000 },
+              { "color": "red", "value": 3000 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "avg(app_startup_duration_ms{version=~\"$version\", environment=~\"$environment\"})",
+          "legendFormat": "Moyenne",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "max(app_startup_duration_ms{version=~\"$version\", environment=~\"$environment\"})",
+          "legendFormat": "Maximum",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "min(app_startup_duration_ms{version=~\"$version\", environment=~\"$environment\"})",
+          "legendFormat": "Minimum",
+          "refId": "C"
+        }
+      ]
+    },
+
+    {
+      "id": 9,
+      "type": "gauge",
+      "title": "Taille Base de Données SQLite",
+      "description": "Taille de la base de données locale SQLite en mégaoctets. Une croissance rapide peut indiquer un problème de nettoyage des données.",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 50 },
+              { "color": "red", "value": 100 }
+            ]
+          },
+          "unit": "decmbytes",
+          "min": 0,
+          "max": 200
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "max(db_size_bytes{version=~\"$version\", environment=~\"$environment\"}) / 1024 / 1024",
+          "legendFormat": "Taille DB",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Durée des Sessions",
+      "description": "Durée moyenne des sessions utilisateur en secondes. Mesurée de l'ouverture de l'app à sa fermeture (background ou kill).",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" },
+          "unit": "s"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "avg(app_session_duration_seconds{version=~\"$version\", environment=~\"$environment\"})",
+          "legendFormat": "Durée Moy.",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "Erreurs Flutter (1h)",
+      "description": "Nombre d'erreurs non catchées du framework Flutter (thread UI) dans la dernière heure. Remontées via FlutterError.onError.",
+      "gridPos": { "h": 4, "w": 3, "x": 18, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 10 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(increase(app_error_flutter_total{version=~\"$version\"}[1h]))",
+          "legendFormat": "Erreurs Flutter",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 12,
+      "type": "stat",
+      "title": "Erreurs Plateforme (1h)",
+      "description": "Nombre d'erreurs natives iOS/Android (PlatformDispatcher) dans la dernière heure. Indiquent des crashs natifs ou des erreurs de plugins.",
+      "gridPos": { "h": 4, "w": 3, "x": 21, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 5 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(increase(app_error_platform_total{version=~\"$version\"}[1h]))",
+          "legendFormat": "Erreurs Platform",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 13,
+      "type": "row",
+      "title": "Réseau HTTP",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+      "panels": []
+    },
+
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "Requêtes HTTP — Succès / Erreurs / Faults",
+      "description": "Volume de requêtes HTTP par type : Succès (2xx/3xx), Erreurs (4xx/5xx), Faults (exceptions réseau : timeout, SSL, no connection). Permet de détecter des pannes backend.",
+      "gridPos": { "h": 8, "w": 16, "x": 0, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] },
+        "tooltip": { "mode": "multi" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" },
+          "unit": "reqps"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Erreurs HTTP" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Faults Réseau" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Succès" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(http_request_success_total{version=~\"$version\"}[5m]))",
+          "legendFormat": "Succès",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(http_request_error_total{version=~\"$version\"}[5m]))",
+          "legendFormat": "Erreurs HTTP",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(http_request_fault_total{version=~\"$version\"}[5m]))",
+          "legendFormat": "Faults Réseau",
+          "refId": "C"
+        }
+      ]
+    },
+
+    {
+      "id": 15,
+      "type": "stat",
+      "title": "Requêtes/s (5m)",
+      "description": "Débit instantané des requêtes HTTP toutes catégories confondues sur les 5 dernières minutes.",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "blue", "value": null }]
+          },
+          "unit": "reqps"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(http_request_success_total{version=~\"$version\"}[5m])) + sum(rate(http_request_error_total{version=~\"$version\"}[5m])) + sum(rate(http_request_fault_total{version=~\"$version\"}[5m]))",
+          "legendFormat": "Total req/s",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 16,
+      "type": "stat",
+      "title": "Latence API Moyenne (5m)",
+      "description": "Latence moyenne des requêtes HTTP vers le backend, calculée sur une fenêtre glissante de 5 minutes.",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 500 },
+              { "color": "red", "value": 2000 }
+            ]
+          },
+          "unit": "ms"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "rate(http_client_duration_ms_sum{version=~\"$version\"}[5m]) / rate(http_client_duration_ms_count{version=~\"$version\"}[5m])",
+          "legendFormat": "Latence Moy.",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 17,
+      "type": "stat",
+      "title": "Faults Réseau (1h)",
+      "description": "Nombre total d'exceptions réseau (timeout, TLS, no connection) sur la dernière heure. Un pic indique un problème de connectivité.",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 18 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "red", "value": 20 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(increase(http_request_fault_total{version=~\"$version\"}[1h]))",
+          "legendFormat": "Faults",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Latence HTTP par Méthode",
+      "description": "Latence moyenne des requêtes HTTP décomposée par méthode HTTP (GET, POST, PUT, DELETE).",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 18 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 0, "lineWidth": 2, "showPoints": "never" },
+          "unit": "ms"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "rate(http_client_duration_ms_sum{version=~\"$version\"}[5m]) / rate(http_client_duration_ms_count{version=~\"$version\"}[5m])",
+          "legendFormat": "{{method}}",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 19,
+      "type": "row",
+      "title": "Navigation & UX",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 },
+      "panels": []
+    },
+
+    {
+      "id": 20,
+      "type": "barchart",
+      "title": "Visites par Écran",
+      "description": "Nombre total de visites par écran (screen_name). Permet d'identifier les écrans les plus fréquentés et ceux abandonnés.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 23 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "barWidth": 0.7,
+        "fillOpacity": 80,
+        "gradientMode": "none",
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "orientation": "horizontal",
+        "tooltip": { "mode": "single" },
+        "xTickLabelRotation": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 80 },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(ux_screen_visit_total{version=~\"$version\", environment=~\"$environment\"}) by (screen_name)",
+          "legendFormat": "{{screen_name}}",
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+
+    {
+      "id": 21,
+      "type": "barchart",
+      "title": "Temps Moyen par Écran",
+      "description": "Durée moyenne passée sur chaque écran en millisecondes. Mesurée via le RouteObserver de l'entrée à la sortie de la route.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 23 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "barWidth": 0.7,
+        "fillOpacity": 80,
+        "gradientMode": "none",
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "orientation": "horizontal",
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 80 },
+          "unit": "ms"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "avg(ux_screen_visit_duration_ms{version=~\"$version\", environment=~\"$environment\"}) by (screen_name)",
+          "legendFormat": "{{screen_name}}",
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+
+    {
+      "id": 22,
+      "type": "row",
+      "title": "Coach IA (Anne)",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
+      "panels": []
+    },
+
+    {
+      "id": 23,
+      "type": "timeseries",
+      "title": "Latence Réponse Coach IA",
+      "description": "Latence de réponse du coach IA Anne en millisecondes. Un temps élevé dégrade l'expérience utilisateur. Idéalement < 2000ms.",
+      "gridPos": { "h": 8, "w": 14, "x": 0, "y": 32 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max", "p95"] },
+        "tooltip": { "mode": "multi" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "showPoints": "never" },
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 2000 },
+              { "color": "red", "value": 5000 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "avg(ux_ai_coach_response_latency_ms{version=~\"$version\"})",
+          "legendFormat": "Latence Moy.",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "max(ux_ai_coach_response_latency_ms{version=~\"$version\"})",
+          "legendFormat": "Latence Max.",
+          "refId": "B"
+        }
+      ]
+    },
+
+    {
+      "id": 24,
+      "type": "stat",
+      "title": "Sessions IA (24h)",
+      "description": "Nombre de sessions coach IA initialisées dans les 24 dernières heures. Indique l'adoption de la fonctionnalité coach.",
+      "gridPos": { "h": 4, "w": 5, "x": 14, "y": 32 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "green", "value": 10 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(increase(ux_ai_coach_session_load_total{version=~\"$version\"}[24h]))",
+          "legendFormat": "Sessions IA",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 25,
+      "type": "stat",
+      "title": "Taux Erreur IA (5m)",
+      "description": "Pourcentage de sessions IA ayant produit une erreur sur les 5 dernières minutes. Surveille la stabilité du backend LLM.",
+      "gridPos": { "h": 4, "w": 5, "x": 19, "y": 32 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "red", "value": 15 }
+            ]
+          },
+          "unit": "percent",
+          "decimals": 1
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(ux_ai_coach_error_total{version=~\"$version\"}[5m])) / (sum(rate(ux_ai_coach_response_total{version=~\"$version\"}[5m])) + sum(rate(ux_ai_coach_error_total{version=~\"$version\"}[5m]))) * 100",
+          "legendFormat": "% Erreurs IA",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 26,
+      "type": "timeseries",
+      "title": "Erreurs IA — Tendance",
+      "description": "Évolution du taux d'erreurs du coach IA dans le temps. Utile pour détecter des incidents backend LLM.",
+      "gridPos": { "h": 4, "w": 10, "x": 14, "y": 36 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "red", "mode": "fixed" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "showPoints": "never" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(ux_ai_coach_error_total{version=~\"$version\"}[5m]))",
+          "legendFormat": "Erreurs IA/s",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 27,
+      "type": "row",
+      "title": "OCR — Scan de Reçus",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 40 },
+      "panels": []
+    },
+
+    {
+      "id": 28,
+      "type": "gauge",
+      "title": "Taux Succès OCR Global",
+      "description": "Pourcentage de scans ayant extrait au moins le montant. Indicateur global de fiabilité de l'extraction automatique de reçus.",
+      "gridPos": { "h": 8, "w": 4, "x": 0, "y": 41 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 60 },
+              { "color": "green", "value": 80 }
+            ]
+          },
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "decimals": 1
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(reliability_ocr_scan_total{found_amount=\"true\", version=~\"$version\"}) / sum(reliability_ocr_scan_total{version=~\"$version\"}) * 100",
+          "legendFormat": "Succès OCR %",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 29,
+      "type": "barchart",
+      "title": "Champs Détectés par OCR",
+      "description": "Taux de détection par champ (montant, description, date, catégorie). Permet d'identifier les champs les plus difficiles à extraire des reçus.",
+      "gridPos": { "h": 8, "w": 12, "x": 4, "y": 41 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "barWidth": 0.6,
+        "fillOpacity": 80,
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "orientation": "vertical",
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(reliability_ocr_scan_total{found_amount=\"true\", version=~\"$version\"}) / sum(reliability_ocr_scan_total{version=~\"$version\"}) * 100",
+          "legendFormat": "Montant",
+          "refId": "A",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(reliability_ocr_scan_total{found_description=\"true\", version=~\"$version\"}) / sum(reliability_ocr_scan_total{version=~\"$version\"}) * 100",
+          "legendFormat": "Description",
+          "refId": "B",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(reliability_ocr_scan_total{found_date=\"true\", version=~\"$version\"}) / sum(reliability_ocr_scan_total{version=~\"$version\"}) * 100",
+          "legendFormat": "Date",
+          "refId": "C",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(reliability_ocr_scan_total{found_category=\"true\", version=~\"$version\"}) / sum(reliability_ocr_scan_total{version=~\"$version\"}) * 100",
+          "legendFormat": "Catégorie",
+          "refId": "D",
+          "instant": true
+        }
+      ]
+    },
+
+    {
+      "id": 30,
+      "type": "timeseries",
+      "title": "Volume de Scans OCR & Latence",
+      "description": "Évolution du nombre de scans OCR et de la latence moyenne de traitement. Un temps de traitement élevé dégrade l'expérience d'ajout de transaction.",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 41 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Latence OCR (ms)" },
+            "properties": [
+              { "id": "unit", "value": "ms" },
+              { "id": "custom.axisPlacement", "value": "right" }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(reliability_ocr_scan_total{version=~\"$version\"}[5m]))",
+          "legendFormat": "Scans/s",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "avg(reliability_ocr_scan_latency_ms{version=~\"$version\"})",
+          "legendFormat": "Latence OCR (ms)",
+          "refId": "B"
+        }
+      ]
+    },
+
+    {
+      "id": 31,
+      "type": "row",
+      "title": "Transactions Financières",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 49 },
+      "panels": []
+    },
+
+    {
+      "id": 32,
+      "type": "barchart",
+      "title": "Transactions par Catégorie",
+      "description": "Répartition du nombre de transactions créées par catégorie (alimentation, transport, loisirs, etc.). Révèle les habitudes de dépenses.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 50 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "barWidth": 0.7,
+        "fillOpacity": 80,
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "orientation": "horizontal",
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(transaction_created_total{version=~\"$version\", environment=~\"$environment\"}) by (category)",
+          "legendFormat": "{{category}}",
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+
+    {
+      "id": 33,
+      "type": "timeseries",
+      "title": "Volume de Transactions — Tendance",
+      "description": "Évolution du volume de transactions créées dans le temps, décomposé par type (dépense, revenu, transfert). Indique l'activité des utilisateurs.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 50 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["sum", "mean"] },
+        "tooltip": { "mode": "multi" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2, "showPoints": "never" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(transaction_created_total{version=~\"$version\"}[5m])) by (type)",
+          "legendFormat": "{{type}}",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 34,
+      "type": "row",
+      "title": "Challenges & Gamification",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 58 },
+      "panels": []
+    },
+
+    {
+      "id": 35,
+      "type": "barchart",
+      "title": "Funnel des Challenges",
+      "description": "Entonnoir de progression des challenges : rejoints → validés / ignorés / reportés / récompenses réclamées. Identifie les points de friction.",
+      "gridPos": { "h": 8, "w": 14, "x": 0, "y": 59 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "barWidth": 0.6,
+        "fillOpacity": 80,
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "orientation": "vertical",
+        "tooltip": { "mode": "multi" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(challenge_joined_total{version=~\"$version\"})",
+          "legendFormat": "Rejoints",
+          "refId": "A",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(challenge_validated_total{version=~\"$version\"})",
+          "legendFormat": "Validés",
+          "refId": "B",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(challenge_skip_total{version=~\"$version\"})",
+          "legendFormat": "Ignorés",
+          "refId": "C",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(challenge_postpone_total{version=~\"$version\"})",
+          "legendFormat": "Reportés",
+          "refId": "D",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(challenge_redeem_total{version=~\"$version\"})",
+          "legendFormat": "Récompenses",
+          "refId": "E",
+          "instant": true
+        }
+      ]
+    },
+
+    {
+      "id": 36,
+      "type": "stat",
+      "title": "Taux de Complétion",
+      "description": "Ratio challenges validés / challenges rejoints. Un taux faible indique que les défis sont trop difficiles ou mal expliqués.",
+      "gridPos": { "h": 4, "w": 5, "x": 14, "y": 59 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 40 },
+              { "color": "green", "value": 70 }
+            ]
+          },
+          "unit": "percent",
+          "decimals": 1
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(challenge_validated_total{version=~\"$version\"}) / sum(challenge_joined_total{version=~\"$version\"}) * 100",
+          "legendFormat": "Taux Complétion",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 37,
+      "type": "stat",
+      "title": "Récompenses Réclamées (24h)",
+      "description": "Nombre de récompenses de challenge réclamées dans les 24 dernières heures. Mesure l'engagement utilisateur avec la gamification.",
+      "gridPos": { "h": 4, "w": 5, "x": 19, "y": 59 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "green", "value": 5 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(increase(challenge_redeem_total{version=~\"$version\"}[24h]))",
+          "legendFormat": "Récompenses",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 38,
+      "type": "timeseries",
+      "title": "Activité Challenges — Tendance",
+      "description": "Évolution dans le temps des différentes actions sur les challenges (join, validate, skip, postpone, redeem).",
+      "gridPos": { "h": 4, "w": 10, "x": 14, "y": 63 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(challenge_joined_total{version=~\"$version\"}[5m]))",
+          "legendFormat": "Rejoints",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(challenge_validated_total{version=~\"$version\"}[5m]))",
+          "legendFormat": "Validés",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(challenge_skip_total{version=~\"$version\"}[5m]))",
+          "legendFormat": "Ignorés",
+          "refId": "C"
+        }
+      ]
+    },
+
+    {
+      "id": 39,
+      "type": "row",
+      "title": "Authentification",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 67 },
+      "panels": []
+    },
+
+    {
+      "id": 40,
+      "type": "piechart",
+      "title": "Répartition des Méthodes d'Auth",
+      "description": "Distribution des connexions réussies par méthode : Google, Apple, Email/Mot de passe. Permet de prioriser les efforts d'optimisation SSO.",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 68 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "displayLabels": ["name", "percent"],
+        "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] },
+        "pieType": "donut",
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(auth_google_success_total{version=~\"$version\"})",
+          "legendFormat": "Google",
+          "refId": "A",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(auth_apple_success_total{version=~\"$version\"})",
+          "legendFormat": "Apple",
+          "refId": "B",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(auth_login_success_total{version=~\"$version\"})",
+          "legendFormat": "Email",
+          "refId": "C",
+          "instant": true
+        }
+      ]
+    },
+
+    {
+      "id": 41,
+      "type": "stat",
+      "title": "Taux Succès Connexion",
+      "description": "Taux global de connexions réussies toutes méthodes confondues. Un taux bas peut indiquer un problème serveur d'auth ou UX de login.",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 68 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 80 },
+              { "color": "green", "value": 95 }
+            ]
+          },
+          "unit": "percent",
+          "decimals": 1
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "(sum(auth_google_success_total{version=~\"$version\"}) + sum(auth_apple_success_total{version=~\"$version\"}) + sum(auth_login_success_total{version=~\"$version\"})) / (sum(auth_google_success_total{version=~\"$version\"}) + sum(auth_google_failure_total{version=~\"$version\"}) + sum(auth_apple_success_total{version=~\"$version\"}) + sum(auth_apple_failure_total{version=~\"$version\"}) + sum(auth_login_success_total{version=~\"$version\"}) + sum(auth_login_failure_total{version=~\"$version\"})) * 100",
+          "legendFormat": "Succès Auth %",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 42,
+      "type": "stat",
+      "title": "Déconnexions (24h)",
+      "description": "Nombre de déconnexions volontaires (auth.logout) dans les 24 dernières heures.",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 68 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(increase(auth_logout_total{version=~\"$version\"}[24h]))",
+          "legendFormat": "Déconnexions",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 43,
+      "type": "stat",
+      "title": "Révocations de Session",
+      "description": "Nombre de révocations de session (ex: après changement de mot de passe, connexion suspecte). Indicateur de sécurité.",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 68 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "red", "value": 20 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(increase(auth_session_revoke_success_total{version=~\"$version\"}[24h]))",
+          "legendFormat": "Révocations",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 44,
+      "type": "timeseries",
+      "title": "Authentifications — Succès & Échecs",
+      "description": "Évolution temporelle des connexions réussies vs échouées par méthode. Détecte les pics d'échecs (brute force, panne IdP).",
+      "gridPos": { "h": 8, "w": 4, "x": 20, "y": 68 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(auth_google_success_total{version=~\"$version\"}[5m])) + sum(rate(auth_apple_success_total{version=~\"$version\"}[5m])) + sum(rate(auth_login_success_total{version=~\"$version\"}[5m]))",
+          "legendFormat": "Succès",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(auth_google_failure_total{version=~\"$version\"}[5m])) + sum(rate(auth_apple_failure_total{version=~\"$version\"}[5m])) + sum(rate(auth_login_failure_total{version=~\"$version\"}[5m]))",
+          "legendFormat": "Échecs",
+          "refId": "B"
+        }
+      ]
+    },
+
+    {
+      "id": 45,
+      "type": "row",
+      "title": "Commandes Vocales",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 76 },
+      "panels": []
+    },
+
+    {
+      "id": 46,
+      "type": "piechart",
+      "title": "Résultats des Commandes Vocales",
+      "description": "Distribution des résultats de reconnaissance vocale : succès (intent reconnu), invalide (commande non comprise), erreur (échec moteur vocal).",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 77 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "displayLabels": ["name", "percent"],
+        "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] },
+        "pieType": "donut",
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Succès" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Invalide" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Erreur" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(reliability_voice_success_total{version=~\"$version\"})",
+          "legendFormat": "Succès",
+          "refId": "A",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(reliability_voice_invalid_total{version=~\"$version\"})",
+          "legendFormat": "Invalide",
+          "refId": "B",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(reliability_voice_error_total{version=~\"$version\"})",
+          "legendFormat": "Erreur",
+          "refId": "C",
+          "instant": true
+        }
+      ]
+    },
+
+    {
+      "id": 47,
+      "type": "barchart",
+      "title": "Intentions Vocales Reconnues",
+      "description": "Top des intents vocaux détectés avec succès (ex: add_transaction, check_balance, open_coach). Aide à prioriser les améliorations du NLU.",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 77 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "barWidth": 0.7,
+        "fillOpacity": 80,
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "orientation": "horizontal",
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "topk(10, sum(reliability_voice_success_total{version=~\"$version\"}) by (intent))",
+          "legendFormat": "{{intent}}",
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+
+    {
+      "id": 48,
+      "type": "row",
+      "title": "Tutoriel & Onboarding",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 85 },
+      "panels": []
+    },
+
+    {
+      "id": 49,
+      "type": "barchart",
+      "title": "Funnel du Tutoriel (Onboarding)",
+      "description": "Nombre d'utilisateurs ayant complété chaque étape du tutoriel, dans l'ordre chronologique. La chute entre deux étapes identifie les points d'abandon.",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 86 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "barWidth": 0.6,
+        "fillOpacity": 80,
+        "gradientMode": "opacity",
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "orientation": "vertical",
+        "tooltip": { "mode": "single" },
+        "xTickLabelRotation": -30
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "blue", "mode": "fixed" },
+          "custom": { "fillOpacity": 80 },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(ux_tutorial_step_completed_total{version=~\"$version\", environment=~\"$environment\"}) by (step_key)",
+          "legendFormat": "{{step_key}}",
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+
+    {
+      "id": 50,
+      "type": "row",
+      "title": "Paiements & Connectivité",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 94 },
+      "panels": []
+    },
+
+    {
+      "id": 51,
+      "type": "piechart",
+      "title": "Succès des Paiements",
+      "description": "Répartition des initialisations de paiement entre succès et échecs. Un taux d'échec élevé peut bloquer la monétisation de l'app.",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 95 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "displayLabels": ["name", "percent"],
+        "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] },
+        "pieType": "donut",
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Succès" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Échec" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(business_payment_verify_total{success=\"true\", version=~\"$version\"})",
+          "legendFormat": "Succès",
+          "refId": "A",
+          "instant": true
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(business_payment_verify_total{success=\"false\", version=~\"$version\"})",
+          "legendFormat": "Échec",
+          "refId": "B",
+          "instant": true
+        }
+      ]
+    },
+
+    {
+      "id": 52,
+      "type": "barchart",
+      "title": "Paiements par Fournisseur",
+      "description": "Volume de paiements initialisés par fournisseur (Stripe, Wave, Orange Money, etc.). Permet d'identifier les intégrations les plus utilisées.",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 95 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "barWidth": 0.6,
+        "fillOpacity": 80,
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "orientation": "horizontal",
+        "tooltip": { "mode": "single" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(business_payment_init_total{version=~\"$version\"}) by (provider)",
+          "legendFormat": "{{provider}}",
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+
+    {
+      "id": 53,
+      "type": "timeseries",
+      "title": "Changements de Connectivité Réseau",
+      "description": "Évolution des transitions online/offline du device. Des pics d'offline fréquents corrèlent avec les faults HTTP et les erreurs de sync.",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 95 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "showPoints": "auto" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(network_status_change_total{status=\"online\", version=~\"$version\"}[5m]))",
+          "legendFormat": "→ Online",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "sum(rate(network_status_change_total{status=\"offline\", version=~\"$version\"}[5m]))",
+          "legendFormat": "→ Offline",
+          "refId": "B"
+        }
+      ]
+    }
+
+  ]
+}
