@@ -337,6 +337,91 @@ extension AnalyticsServiceX on AnalyticsService {
     if (provider != null) AnalyticsParams.provider: provider,
   });
 
+  // --- Deposits ---
+
+  Future<void> logDepositInitiated({
+    required String paymentMethod,
+    required String currency,
+    required num amount,
+    String? provider,
+  }) => logEvent(AnalyticsEvents.depositInitiated, parameters: {
+    AnalyticsParams.paymentMethod: paymentMethod,
+    AnalyticsParams.currency: currency,
+    AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
+    if (provider != null) AnalyticsParams.provider: provider,
+  });
+
+  Future<void> logDepositCompleted({
+    required String paymentMethod,
+    required String currency,
+    required num amount,
+    String? provider,
+    int? durationMs,
+  }) => logEvent(AnalyticsEvents.depositCompleted, parameters: {
+    AnalyticsParams.paymentMethod: paymentMethod,
+    AnalyticsParams.currency: currency,
+    AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
+    if (provider != null) AnalyticsParams.provider: provider,
+    if (durationMs != null) AnalyticsParams.durationMs: durationMs,
+  });
+
+  Future<void> logDepositFailed({
+    required String paymentMethod,
+    required String reason,
+    String? provider,
+  }) => logEvent(AnalyticsEvents.depositFailed, parameters: {
+    AnalyticsParams.paymentMethod: paymentMethod,
+    AnalyticsParams.reason: reason,
+    if (provider != null) AnalyticsParams.provider: provider,
+  });
+
+  // --- Withdrawals ---
+
+  Future<void> logWithdrawalInitiated({
+    required String currency,
+    required num amount,
+    String? provider,
+  }) => logEvent(AnalyticsEvents.withdrawalInitiated, parameters: {
+    AnalyticsParams.currency: currency,
+    AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
+    if (provider != null) AnalyticsParams.provider: provider,
+  });
+
+  Future<void> logWithdrawalCompleted({
+    required String currency,
+    required num amount,
+    String? provider,
+    int? durationMs,
+  }) => logEvent(AnalyticsEvents.withdrawalCompleted, parameters: {
+    AnalyticsParams.currency: currency,
+    AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
+    if (provider != null) AnalyticsParams.provider: provider,
+    if (durationMs != null) AnalyticsParams.durationMs: durationMs,
+  });
+
+  Future<void> logWithdrawalFailed({
+    required String reason,
+    String? provider,
+  }) => logEvent(AnalyticsEvents.withdrawalFailed, parameters: {
+    AnalyticsParams.reason: reason,
+    if (provider != null) AnalyticsParams.provider: provider,
+  });
+
+  // --- Transactions locales ---
+
+  Future<void> logTransactionAdded({
+    required String currency,
+    required num amount,
+    required String type,
+    required String category,
+  }) => logEvent(AnalyticsEvents.sendMoneyCompleted, parameters: {
+    AnalyticsParams.paymentMethod: 'manual',
+    AnalyticsParams.currency: currency,
+    AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
+    AnalyticsParams.type: type,
+    'category': category,
+  });
+
   // --- API Errors ---
 
   Future<void> logApiError({

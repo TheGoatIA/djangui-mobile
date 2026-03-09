@@ -13,6 +13,7 @@ import 'package:kauri/features/payments/presentation/bloc/payment_state.dart';
 import 'package:kauri/features/payments/presentation/bloc/payment_event.dart';
 import 'package:kauri/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:kauri/core/mixins/secure_screen_mixin.dart';
+import 'package:kauri/core/widgets/debounced_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
@@ -579,8 +580,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: DebouncedButton(
+                    text: AppLocalizations.of(context)!.notchpayLabel,
+                    onPressed: () async {
                       final amount = double.tryParse(amountController.text);
                       final phone = phoneController.text.trim();
                       if (amount != null && amount > 0 && phone.isNotEmpty) {
@@ -590,7 +592,6 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                         );
                       }
                     },
-                    child: Text(AppLocalizations.of(context)!.notchpayLabel),
                   ),
                 ),
               ],
@@ -599,8 +600,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
+                  child: DebouncedButton(
+                    text: AppLocalizations.of(context)!.stripeLabel,
+                    onPressed: () async {
                       final amount = double.tryParse(amountController.text);
                       if (amount != null && amount > 0) {
                         Navigator.pop(context);
@@ -609,7 +611,6 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                         );
                       }
                     },
-                    child: Text(AppLocalizations.of(context)!.stripeLabel),
                   ),
                 ),
               ],
@@ -666,8 +667,10 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
               onPressed: () => Navigator.pop(context),
               child: Text(AppLocalizations.of(context)!.cancel),
             ),
-            ElevatedButton(
-              onPressed: () {
+            DebouncedButton(
+              isFullWidth: false,
+              text: AppLocalizations.of(context)!.confirmAction,
+              onPressed: () async {
                 final amount = double.tryParse(amountController.text);
                 if (amount != null &&
                     amount > 0 &&
@@ -682,7 +685,6 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                   );
                 }
               },
-              child: Text(AppLocalizations.of(context)!.confirmAction),
             ),
           ],
         ),
