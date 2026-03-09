@@ -12,6 +12,7 @@ import 'package:kauri/features/payments/presentation/bloc/payment_bloc.dart';
 import 'package:kauri/features/payments/presentation/bloc/payment_state.dart';
 import 'package:kauri/features/payments/presentation/bloc/payment_event.dart';
 import 'package:kauri/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:kauri/core/mixins/secure_screen_mixin.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
@@ -22,7 +23,8 @@ class WalletDashboardPage extends StatefulWidget {
   State<WalletDashboardPage> createState() => _WalletDashboardPageState();
 }
 
-class _WalletDashboardPageState extends State<WalletDashboardPage> {
+class _WalletDashboardPageState extends State<WalletDashboardPage>
+    with WidgetsBindingObserver, SecureScreenMixin {
   bool _showAllTransactions = false;
 
   @override

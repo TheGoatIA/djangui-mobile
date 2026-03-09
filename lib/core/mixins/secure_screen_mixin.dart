@@ -15,10 +15,12 @@ import 'package:flutter/widgets.dart';
 /// ## Utilisation
 /// ```dart
 /// class _WalletDashboardPageState extends State<WalletDashboardPage>
-///     with SecureScreenMixin {
+///     with WidgetsBindingObserver, SecureScreenMixin {
 ///   // ...
 /// }
 /// ```
+/// **Important** : `WidgetsBindingObserver` DOIT précéder `SecureScreenMixin`
+/// dans la liste des mixins pour respecter la contrainte `on`.
 ///
 /// ## Implémentation technique
 /// - **Android** : FLAG_SECURE via MethodChannel natif
@@ -27,8 +29,7 @@ import 'package:flutter/widgets.dart';
 ///   en background (iOS empêche nativement le screenshot en app store)
 ///
 /// > Note : Sur les autres plateformes (Web, Desktop), le mixin est no-op.
-mixin SecureScreenMixin<T extends StatefulWidget> on State<T>
-    with WidgetsBindingObserver {
+mixin SecureScreenMixin on State, WidgetsBindingObserver {
 
   static const _channel = MethodChannel('kauri/secure_screen');
 

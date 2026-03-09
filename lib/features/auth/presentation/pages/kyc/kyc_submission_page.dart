@@ -9,6 +9,7 @@ import 'package:kauri/core/widgets/app_text_field.dart';
 import 'package:kauri/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:kauri/core/widgets/glass_card.dart';
 import 'package:kauri/l10n/app_localizations.dart';
+import 'package:kauri/core/mixins/secure_screen_mixin.dart';
 
 class KYCSubmissionPage extends StatefulWidget {
   const KYCSubmissionPage({super.key});
@@ -17,7 +18,8 @@ class KYCSubmissionPage extends StatefulWidget {
   State<KYCSubmissionPage> createState() => _KYCSubmissionPageState();
 }
 
-class _KYCSubmissionPageState extends State<KYCSubmissionPage> {
+class _KYCSubmissionPageState extends State<KYCSubmissionPage>
+    with WidgetsBindingObserver, SecureScreenMixin {
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
   final _docNumberController = TextEditingController();
