@@ -94,6 +94,35 @@ class KauriAnalyticsService implements AnalyticsService {
 
   KauriAnalyticsService(this._telemetry, this._logger);
 
+  // ── OTel counter mapping ────────────────────────────────────────────────────
+
+  /// Événements qui doivent également être enregistrés comme compteurs OTel
+  /// (en plus du span d'événement) pour être visibles dans Prometheus via le
+  /// connecteur SpanMetrics du OTel Collector.
+  ///
+  /// Seuls les attributs à faible cardinalité sont conservés comme labels
+  /// Prometheus afin d'éviter l'explosion des séries temporelles.
+  static const Map<String, Set<String>> _prometheusCounterLabels = {
+    // Dépôts
+    AnalyticsEvents.depositInitiated:    {'payment_method', 'provider', 'currency', 'amount_range'},
+    AnalyticsEvents.depositCompleted:    {'payment_method', 'provider', 'currency', 'amount_range'},
+    AnalyticsEvents.depositFailed:       {'payment_method', 'provider'},
+    // Retraits
+    AnalyticsEvents.withdrawalInitiated: {'provider', 'currency', 'amount_range'},
+    AnalyticsEvents.withdrawalCompleted: {'provider', 'currency', 'amount_range'},
+    AnalyticsEvents.withdrawalFailed:    {'provider'},
+    // Transactions (send money + local)
+    AnalyticsEvents.sendMoneyStarted:    {'entry_point'},
+    AnalyticsEvents.sendMoneyCompleted:  {'payment_method', 'currency', 'amount_range'},
+    AnalyticsEvents.sendMoneyFailed:     {'payment_method', 'at_step'},
+    // Auth
+    AnalyticsEvents.loginAttempt:        {'method', 'success'},
+    AnalyticsEvents.logout:              {'reason'},
+    // Erreurs
+    AnalyticsEvents.blocError:           {'bloc_type', 'error_type'},
+    AnalyticsEvents.apiError:            {'endpoint', 'status_code'},
+  };
+
   // ── Sanitization ───────────────────────────────────────────────────────────
 
   /// Filtre les paramètres pour retirer toute donnée sensible avant envoi.
@@ -118,8 +147,19 @@ class KauriAnalyticsService implements AnalyticsService {
   Future<void> logEvent(String name, {Map<String, Object?>? parameters}) async {
     final sanitized = _sanitize(parameters);
     try {
-      // OpenTelemetry (Grafana / backend)
+      // OpenTelemetry — span d'événement (traces / Jaeger)
       _telemetry.recordEvent(name, sanitized);
+
+      // OTel counter span → Prometheus via SpanMetrics connector du OTel Collector.
+      // Seuls les labels à faible cardinalité sont conservés pour éviter l'explosion
+      // des séries temporelles dans Prometheus.
+      final allowedLabels = _prometheusCounterLabels[name];
+      if (allowedLabels != null) {
+        final counterAttrs = Map<String, Object>.fromEntries(
+          sanitized.entries.where((e) => allowedLabels.contains(e.key)),
+        );
+        _telemetry.recordCount(name, 1, attributes: counterAttrs);
+      }
 
       // Log de dev uniquement
       if (kDebugMode) {

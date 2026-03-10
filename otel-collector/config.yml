@@ -1,0 +1,156 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# OpenTelemetry Collector — Configuration Kauri Mobile
+#
+# Pipeline :
+#   App Flutter → OTLP/HTTP → [otlp receiver]
+#     → [spanmetrics connector] → Prometheus (port 8889)
+#     → [otlp/jaeger exporter] → Jaeger UI (traces)
+#
+# Métriques Prometheus générées (format SpanMetrics) :
+#   kauri_calls_total{span_name="<event>", <labels>...}
+#   kauri_duration_milliseconds_bucket{span_name="<trace>", le="..."}
+#
+# Démarrage :
+#   docker run --rm -p 4318:4318 -p 8889:8889 \
+#     -v $(pwd)/otel-collector/config.yml:/etc/otelcol/config.yaml \
+#     otel/opentelemetry-collector-contrib:latest
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Récepteurs ───────────────────────────────────────────────────────────────
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+            - "*"
+
+# ── Connecteurs ──────────────────────────────────────────────────────────────
+connectors:
+  spanmetrics:
+    # Préfixe de toutes les métriques Prometheus générées.
+    # Résultat : kauri_calls_total, kauri_duration_milliseconds_bucket, etc.
+    namespace: kauri
+
+    # Dimensions = attributs de span conservés comme labels Prometheus.
+    # Seuls des attributs à faible cardinalité sont inclus.
+    dimensions:
+      # ── Paiements & Retraits ──────────────────────────────────────────────
+      - name: payment_method
+        default: unknown
+      - name: provider
+        default: unknown
+      - name: currency
+        default: XAF
+      - name: amount_range
+        default: unknown
+      # ── Auth ──────────────────────────────────────────────────────────────
+      - name: method
+        default: unknown
+      - name: success
+        default: "false"
+      - name: reason
+        default: unknown
+      # ── Erreurs ───────────────────────────────────────────────────────────
+      - name: bloc_type
+        default: unknown
+      - name: error_type
+        default: unknown
+      - name: endpoint
+        default: unknown
+      - name: status_code
+        default: "0"
+      # ── Navigation ────────────────────────────────────────────────────────
+      - name: screen_name
+        default: unknown
+      # ── Transactions locales ──────────────────────────────────────────────
+      - name: type
+        default: unknown
+      - name: category
+        default: unknown
+      # ── Send Money ────────────────────────────────────────────────────────
+      - name: entry_point
+        default: unknown
+      - name: at_step
+        default: unknown
+
+    # Fréquence d'export des métriques vers l'exportateur Prometheus
+    metrics_flush_interval: 15s
+
+    # Cache des combinaisons de dimensions (évite les fuites mémoire)
+    dimensions_cache_size: 2000
+
+    # Cumulatif = compteurs croissants (standard Prometheus)
+    aggregation_temporality: "AGGREGATION_TEMPORALITY_CUMULATIVE"
+
+    # Histogramme des durées : buckets adaptés aux opérations mobiles (ms)
+    histogram:
+      explicit:
+        buckets:
+          [50, 100, 200, 500, 1000, 2000, 5000, 10000, 30000]
+
+# ── Exportateurs ─────────────────────────────────────────────────────────────
+exporters:
+  # Prometheus — scraped par Grafana/Prometheus sur :8889/metrics
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    send_timestamps: true
+    metric_expiration: 5m
+    enable_open_metrics: true
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  # Jaeger — traces lisibles dans l'UI Jaeger sur :16686
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
+  # Debug (désactiver en production)
+  debug:
+    verbosity: normal
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+# ── Processeurs ──────────────────────────────────────────────────────────────
+processors:
+  # Limite mémoire — protège le collector des pics de charge
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  # Batch — regroupe les spans pour réduire les appels réseau
+  batch:
+    timeout: 5s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+  # Enrichissement des ressources
+  resource:
+    attributes:
+      - key: service.name
+        value: kauri-mobile
+        action: upsert
+
+# ── Service ───────────────────────────────────────────────────────────────────
+service:
+  telemetry:
+    logs:
+      level: "info"
+
+  pipelines:
+    # Pipeline traces : Flutter → Jaeger + génération des métriques SpanMetrics
+    traces:
+      receivers:  [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters:  [otlp/jaeger, spanmetrics, debug]
+
+    # Pipeline métriques : SpanMetrics → Prometheus
+    metrics:
+      receivers:  [spanmetrics]
+      processors: [memory_limiter, batch]
+      exporters:  [prometheus]
