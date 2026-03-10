@@ -29,8 +29,8 @@ import 'package:flutter/widgets.dart';
 ///   en background (iOS empêche nativement le screenshot en app store)
 ///
 /// > Note : Sur les autres plateformes (Web, Desktop), le mixin est no-op.
-mixin SecureScreenMixin on State, WidgetsBindingObserver {
-
+mixin SecureScreenMixin<T extends StatefulWidget>
+    on State<T>, WidgetsBindingObserver {
   static const _channel = MethodChannel('kauri/secure_screen');
 
   @override

@@ -27,7 +27,7 @@ class TransactionDetailPage extends StatefulWidget {
 }
 
 class _TransactionDetailPageState extends State<TransactionDetailPage>
-    with WidgetsBindingObserver, SecureScreenMixin {
+    with WidgetsBindingObserver, SecureScreenMixin<TransactionDetailPage> {
   @override
   Widget build(BuildContext context) {
     // Alias local pour conserver la lisibilité du code existant sans modification

@@ -25,7 +25,7 @@ class WalletDashboardPage extends StatefulWidget {
 }
 
 class _WalletDashboardPageState extends State<WalletDashboardPage>
-    with WidgetsBindingObserver, SecureScreenMixin {
+    with WidgetsBindingObserver, SecureScreenMixin<WalletDashboardPage> {
   bool _showAllTransactions = false;
 
   @override

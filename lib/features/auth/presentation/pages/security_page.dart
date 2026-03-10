@@ -21,7 +21,7 @@ class SecurityPage extends StatefulWidget {
 }
 
 class _SecurityPageState extends State<SecurityPage>
-    with WidgetsBindingObserver, SecureScreenMixin {
+    with WidgetsBindingObserver, SecureScreenMixin<SecurityPage> {
   final LocalAuthentication auth = LocalAuthentication();
   bool _canCheckBiometrics = false;
   List<BiometricType>? _availableBiometrics;

@@ -19,7 +19,7 @@ class KYCSubmissionPage extends StatefulWidget {
 }
 
 class _KYCSubmissionPageState extends State<KYCSubmissionPage>
-    with WidgetsBindingObserver, SecureScreenMixin {
+    with WidgetsBindingObserver, SecureScreenMixin<KYCSubmissionPage> {
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
   final _docNumberController = TextEditingController();
