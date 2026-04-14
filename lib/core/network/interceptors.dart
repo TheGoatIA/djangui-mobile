@@ -6,11 +6,12 @@ import 'package:kauri/core/services/log_service.dart';
 import '../../di/injection.dart';
 
 /// Intercepteur chargé d'ajouter automatiquement le jeton d'authentification aux requêtes sortantes.
-class AuthInterceptor implements RequestInterceptor {
+class AuthInterceptor implements Interceptor {
   final FlutterSecureStorage _storage = getIt<FlutterSecureStorage>();
 
   @override
-  FutureOr<Request> onRequest(Request request) async {
+  FutureOr<Response<BodyType>> intercept<BodyType>(Chain<BodyType> chain) async {
+    var request = chain.request;
     // Liste des chemins qui ne nécessitent pas de jeton d'authentification (connexion, inscription, etc.)
     final List<String> excludedPaths = [
       '/auth/login',
@@ -20,42 +21,45 @@ class AuthInterceptor implements RequestInterceptor {
       '/auth/reset-password',
       '/auth/verify-email',
       '/auth/firebase',
+      '/system/public-settings',
+      '/system/countries',
+      '/system/version-check',
+      '/config/features',
     ];
 
     final bool isExcluded = excludedPaths.any((path) {
-      final uri = Uri.parse(request.url.toString());
+      final uri = request.url;
       return uri.path.endsWith(path);
     });
 
-    if (isExcluded) return request;
+    if (!isExcluded) {
+      // Tentative de lecture du jeton d'accès depuis le stockage sécurisé
+      final String? token = await _storage.read(key: 'access_token');
 
-    // Tentative de lecture du jeton d'accès depuis le stockage sécurisé
-    final String? token = await _storage.read(key: 'access_token');
-
-    if (token != null) {
-      final headers = Map<String, String>.from(request.headers);
-      headers['Authorization'] = 'Bearer $token';
-      return request.copyWith(headers: headers);
+      if (token != null) {
+        final headers = Map<String, String>.from(request.headers);
+        headers['Authorization'] = 'Bearer $token';
+        request = request.copyWith(headers: headers);
+      }
     }
-    return request;
+
+    return chain.proceed(request);
   }
 }
 
 /// Intercepteur de journalisation pour déboguer les échanges HTTP en mode développement.
-class HttpLoggingInterceptor
-    implements RequestInterceptor, ResponseInterceptor {
+class HttpLoggingInterceptor implements Interceptor {
   @override
-  FutureOr<Request> onRequest(Request request) async {
+  FutureOr<Response<BodyType>> intercept<BodyType>(Chain<BodyType> chain) async {
+    final request = chain.request;
     if (kDebugMode) {
       debugPrint('🌐 REQUÊTE : ${request.method} ${request.url}');
       debugPrint('📦 En-têtes : ${request.headers}');
       if (request.body != null) debugPrint('📦 Corps : ${request.body}');
     }
-    return request;
-  }
 
-  @override
-  FutureOr<Response> onResponse(Response response) async {
+    final response = await chain.proceed(request);
+
     if (kDebugMode) {
       debugPrint(
         '✅ RÉPONSE : ${response.statusCode} ${response.base.request?.url}',
@@ -72,13 +76,13 @@ class HttpLoggingInterceptor
 }
 
 /// Intercepteur qui envoie les métadonnées des requêtes HTTP vers Graylog.
-class RemoteLoggingInterceptor
-    implements RequestInterceptor, ResponseInterceptor {
+class RemoteLoggingInterceptor implements Interceptor {
   @override
-  FutureOr<Request> onRequest(Request request) async {
+  FutureOr<Response<BodyType>> intercept<BodyType>(Chain<BodyType> chain) async {
+    final request = chain.request;
     // Éviter de logger l'envoi des logs eux-mêmes pour éviter une boucle infinie
     if (request.url.toString().contains('/system/telemetry/logs')) {
-      return request;
+      return chain.proceed(request);
     }
 
     getIt<LogService>().info(
@@ -90,17 +94,8 @@ class RemoteLoggingInterceptor
         'has_body': request.body != null,
       },
     );
-    return request;
-  }
 
-  @override
-  FutureOr<Response> onResponse(Response response) async {
-    if (response.base.request?.url.toString().contains(
-          '/system/telemetry/logs',
-        ) ??
-        false) {
-      return response;
-    }
+    final response = await chain.proceed(request);
 
     final isError = response.statusCode >= 400;
     final message =
@@ -130,3 +125,4 @@ class RemoteLoggingInterceptor
     return response;
   }
 }
+

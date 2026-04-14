@@ -12,101 +12,101 @@ part 'auth_api_service.chopper.dart';
 
 @ChopperApi()
 abstract class AuthApiService extends ChopperService {
-  @Post(path: ApiConstants.login)
+  @POST(path: ApiConstants.login)
   Future<Response<BaseResponse<AuthResponse>>> login(@Body() LoginRequest body);
 
-  @Post(path: ApiConstants.kycSubmit)
+  @POST(path: ApiConstants.kycSubmit)
   Future<Response<BaseResponse<Map<String, dynamic>>>> submitKYC(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: ApiConstants.firebaseAuth)
+  @POST(path: ApiConstants.firebaseAuth)
   Future<Response<AuthResponse>> firebaseLogin(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: ApiConstants.appleAuth)
+  @POST(path: ApiConstants.appleAuth)
   Future<Response<AuthResponse>> appleLogin(@Body() Map<String, dynamic> body);
 
-  @Post(path: ApiConstants.refresh)
+  @POST(path: ApiConstants.refresh)
   Future<Response<BaseResponse<Map<String, dynamic>>>> refreshToken(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: ApiConstants.logout)
+  @POST(path: ApiConstants.logout)
   Future<Response<BaseResponse<dynamic>>> logout();
 
-  @Post(path: ApiConstants.fcmToken)
+  @POST(path: ApiConstants.fcmToken)
   Future<Response<BaseResponse<dynamic>>> updateFcmToken(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: ApiConstants.linkPhone)
+  @POST(path: ApiConstants.linkPhone)
   Future<Response<BaseResponse<dynamic>>> linkPhone(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: ApiConstants.register)
+  @POST(path: ApiConstants.register)
   Future<Response<BaseResponse<AuthResponse>>> register(
     @Body() RegisterRequest body,
   );
 
-  @Post(path: ApiConstants.forgotPassword)
+  @POST(path: ApiConstants.forgotPassword)
   Future<Response<BaseResponse<dynamic>>> forgotPassword(
     @Body() Map<String, dynamic> body,
   );
 
-  @Patch(path: '${ApiConstants.resetPassword}/{token}')
+  @PATCH(path: '${ApiConstants.resetPassword}/{token}')
   Future<Response<BaseResponse<dynamic>>> resetPassword(
     @Path('token') String token,
     @Body() Map<String, dynamic> body,
   );
 
-  @Get(path: ApiConstants.verifyEmail)
+  @GET(path: ApiConstants.verifyEmail)
   Future<Response<BaseResponse<dynamic>>> verifyEmail(
     @Query('token') String token,
   );
 
-  @Get(path: ApiConstants.me)
+  @GET(path: ApiConstants.me)
   Future<Response<BaseResponse<Map<String, dynamic>>>> getUserProfile();
 
-  @Patch(path: ApiConstants.me)
+  @PATCH(path: ApiConstants.me)
   Future<Response<BaseResponse<Map<String, dynamic>>>> updateProfile(
     @Body() Map<String, dynamic> body,
   );
 
-  @Patch(path: '/auth/device')
+  @PATCH(path: '/auth/device')
   Future<Response<BaseResponse<dynamic>>> updateDeviceInfo(
     @Body() DeviceInfoRequest body,
   );
-  @Patch(path: ApiConstants.changePassword)
+  @PATCH(path: ApiConstants.changePassword)
   Future<Response<BaseResponse<dynamic>>> changePassword(
     @Body() Map<String, dynamic> body,
   );
 
-  @Delete(path: ApiConstants.deleteMe)
+  @DELETE(path: ApiConstants.deleteMe)
   Future<Response<BaseResponse<dynamic>>> deleteAccount();
 
-  @Get(path: ApiConstants.sessions)
+  @GET(path: ApiConstants.sessions)
   Future<Response<BaseResponse<Map<String, dynamic>>>> getSessions();
 
-  @Delete(path: ApiConstants.sessions)
+  @DELETE(path: ApiConstants.sessions)
   Future<Response<BaseResponse<dynamic>>> revokeAllOtherSessions();
 
-  @Delete(path: '${ApiConstants.sessions}/{sessionId}')
+  @DELETE(path: '${ApiConstants.sessions}/{sessionId}')
   Future<Response<BaseResponse<dynamic>>> revokeSession(
     @Path('sessionId') String sessionId,
   );
 
-  @Post(path: ApiConstants.connection)
+  @POST(path: ApiConstants.connection)
   Future<Response<BaseResponse<dynamic>>> logConnection(
     @Body() ConnectionRequest body,
   );
-  @Post(path: ApiConstants.requestCountryChange)
+  @POST(path: ApiConstants.requestCountryChange)
   Future<Response<BaseResponse<CountryChangeRequestModel>>>
   requestCountryChange(@Body() Map<String, dynamic> body);
 
-  @Patch(path: ApiConstants.updateLanguage)
+  @PATCH(path: ApiConstants.updateLanguage)
   Future<Response<BaseResponse<dynamic>>> updateLanguage(
     @Body() Map<String, dynamic> body,
   );
@@ -114,3 +114,4 @@ abstract class AuthApiService extends ChopperService {
   static AuthApiService create([ChopperClient? client]) =>
       _$AuthApiService(client);
 }
+

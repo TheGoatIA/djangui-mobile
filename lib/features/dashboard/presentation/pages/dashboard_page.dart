@@ -91,7 +91,8 @@ class _DashboardViewState extends State<DashboardView> {
         feature: 'Dashboard',
         action: 'view',
       );
-      // Récupération des dernières transactions financières
+      // Récupération des dernières transactions et du solde du wallet
+      context.read<FintechBloc>().add(FetchWalletBalance());
       context.read<TransactionsBloc>().add(const GetTransactionsRequested());
       _checkAndShowWelcomeModal();
       _startTutorial();
@@ -225,6 +226,7 @@ class _DashboardViewState extends State<DashboardView> {
         appBar: _buildAppBar(context),
         body: RefreshIndicator(
           onRefresh: () async {
+            context.read<FintechBloc>().add(FetchWalletBalance());
             context.read<DashboardBloc>().add(GetDashboardDataRequested());
             context.read<TransactionsBloc>().add(
               const GetTransactionsRequested(forceRefresh: true),
@@ -568,13 +570,42 @@ class _DashboardViewState extends State<DashboardView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            AppLocalizations.of(context)!.totalBalance,
-            style: AppTextStyles.labelLarge.copyWith(
-              color: Theme.of(
-                context,
-              ).colorScheme.onPrimary.withValues(alpha: 0.7),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.totalBalance,
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onPrimary.withValues(alpha: 0.7),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.walletTitle,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      size: 12,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           BlocBuilder<FintechBloc, FintechState>(

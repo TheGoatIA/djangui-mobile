@@ -1182,28 +1182,43 @@ class AppLocalizationsFr extends AppLocalizations {
       'Êtes-vous sûr de vouloir revenir au plan gratuit ? Les fonctionnalités Premium ne seront plus accessibles.';
 
   @override
-  String get featureTransactions => 'Gestion des Transactions';
+  String get freeFeatureLimits => 'Limite de 100 000 FCFA / jour';
 
   @override
-  String get featureBudgetsGoals => 'Budgets & Objectifs';
+  String get freeFeatureInput => 'Saisie manuelle des transactions';
 
   @override
-  String get featureCoachStandard => 'Coach IA Standard';
+  String get freeFeatureTontine => 'Max 1 tontine créée, 3 participations';
 
   @override
-  String get featureGamification => 'Gamification (XP, Badges)';
+  String get freeFeatureAI => 'Assistant IA (mémoire de 20 tr)';
 
   @override
-  String get featureInvestments => 'Investissements (Bourse, Crypto, Immo)';
+  String get freeFeatureTracker => 'Suivi budgétaire standard';
 
   @override
-  String get featureOCR => 'OCR / Scan de Reçus';
+  String get freeFeatureFees => 'Frais retrait Mobile Money : 3%';
 
   @override
-  String get featureAIReports => 'Rapports Narratifs IA';
+  String get premiumFeatureLimits => 'Limite de 300 000 FCFA / jour';
 
   @override
-  String get featureBulkImport => 'Import en Masse (CSV/SMS)';
+  String get premiumFeatureInput => 'Saisie Express (Import, OCR, Vocal)';
+
+  @override
+  String get premiumFeatureTontine => 'Tontines illimitées';
+
+  @override
+  String get premiumFeatureAI => 'IA VIP (100 tr, Budget Auto, Rapports)';
+
+  @override
+  String get premiumFeatureInvest => 'Simulateur, Prévisions et Actifs';
+
+  @override
+  String get premiumFeatureFees => 'Frais retrait réduits : 1.5%';
+
+  @override
+  String get premiumFeaturePrevention => 'Alerte de Découvert proactive IA';
 
   @override
   String get revertToFree => 'Revenir au plan gratuit';
@@ -2447,4 +2462,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get withdrawSuccess => 'Demande de retrait soumise avec succès';
+
+  @override
+  String get tutorialWalletRechargeTitle => 'Recharger votre compte';
+
+  @override
+  String get tutorialWalletRechargeDesc =>
+      'Cliquez ici pour approvisionner votre solde via Mobile Money ou Carte Bancaire.';
+
+  @override
+  String get rechargeLimitError =>
+      'Le montant de recharge est limité à 50 000 FCFA par transaction.';
 }

@@ -332,7 +332,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               final isLoggedOut =
                   previous.status == AuthStatus.authenticated &&
                   current.status == AuthStatus.unauthenticated;
-              return isCountryChanged || isLoggedOut;
+              final isLoggedIn =
+                  previous.status != AuthStatus.authenticated &&
+                  current.status == AuthStatus.authenticated;
+              return isCountryChanged || isLoggedOut || isLoggedIn;
             },
             listener: (context, authState) {
               if (authState.status == AuthStatus.unauthenticated) {

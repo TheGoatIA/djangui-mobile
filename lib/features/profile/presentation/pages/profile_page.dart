@@ -895,6 +895,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
 
                     _buildSettingsTile(
+                      Icons.account_balance_outlined,
+                      Localizations.localeOf(context).languageCode == 'fr'
+                          ? 'Kauri & l\'Argent Réel'
+                          : 'Kauri & Real Money',
+                      onTap: () => context.push(RouteConstants.realMoneyInfo),
+                    ),
+
+                    _buildSettingsTile(
                       Icons.info_outline,
                       AppLocalizations.of(context)!.aboutApp,
                       onTap: () => _showAboutDialog(context),
@@ -1001,56 +1009,58 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildLogoutButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: TextButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (dialogContext) => AlertDialog(
-              title: Text(AppLocalizations.of(context)!.logout),
-              content: Text(AppLocalizations.of(context)!.confirmLogout),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: Text(AppLocalizations.of(context)!.cancel),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(dialogContext);
-                    getIt<LogService>().info(
-                      'Action: Déconnexion utilisateur',
-                      component: 'ProfilePage',
-                    );
-                    context.read<AuthBloc>().add(AuthLogoutRequested());
-                  },
-                  child: Text(
-                    AppLocalizations.of(context)!.logout,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Theme.of(context).colorScheme.error),
-          ),
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(
-          AppLocalizations.of(context)!.logout,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.error,
-            fontWeight: FontWeight.bold,
-          ),
+        child: Icon(
+          Icons.logout,
+          color: Theme.of(context).colorScheme.error,
+          size: 20,
         ),
       ),
+      title: Text(
+        AppLocalizations.of(context)!.logout,
+        style: AppTextStyles.bodyMedium.copyWith(
+          color: Theme.of(context).colorScheme.error,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.logout),
+            content: Text(AppLocalizations.of(context)!.confirmLogout),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  getIt<LogService>().info(
+                    'Action: Déconnexion utilisateur',
+                    component: 'ProfilePage',
+                  );
+                  context.read<AuthBloc>().add(AuthLogoutRequested());
+                },
+                child: Text(
+                  AppLocalizations.of(context)!.logout,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

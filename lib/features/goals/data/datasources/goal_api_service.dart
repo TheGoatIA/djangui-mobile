@@ -9,26 +9,27 @@ abstract class GoalApiService extends ChopperService {
   static GoalApiService create([ChopperClient? client]) =>
       _$GoalApiService(client);
 
-  @Get()
+  @GET()
   Future<Response<BaseListResponse<GoalModel>>> getGoals();
 
-  @Post()
+  @POST()
   Future<Response<BaseResponse<GoalModel>>> createGoal(
     @Body() Map<String, dynamic> body,
   );
 
-  @Delete(path: '/{id}')
+  @DELETE(path: '/{id}')
   Future<Response<BaseResponse<dynamic>>> deleteGoal(@Path('id') String id);
 
-  @Post(path: '/{id}/contribute')
+  @POST(path: '/{id}/contribute')
   Future<Response<BaseResponse<GoalModel>>> contributeToGoal(
     @Path('id') String id,
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: '/{id}/redeem')
+  @POST(path: '/{id}/redeem')
   Future<Response<BaseResponse<GoalModel>>> redeemGoal(
     @Path('id') String id,
     @Body() Map<String, dynamic> body,
   );
 }
+

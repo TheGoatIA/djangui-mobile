@@ -9,19 +9,20 @@ abstract class ReportsApiService extends ChopperService {
   static ReportsApiService create([ChopperClient? client]) =>
       _$ReportsApiService(client);
 
-  @Get(path: '/dashboard')
+  @GET(path: '/dashboard')
   Future<Response<BaseResponse<DashboardReportModel>>> getDashboardReport();
 
-  @Get(path: '/analysis')
+  @GET(path: '/analysis')
   Future<Response<BaseListResponse<SpendingAnalysisModel>>>
   getSpendingAnalysis();
 
-  @Get(path: '/trends')
+  @GET(path: '/trends')
   Future<Response<BaseListResponse<SavingsTrendModel>>> getSavingsTrend();
 
-  @Get(path: '/narrative')
+  @GET(path: '/narrative')
   Future<Response<BaseResponse<NarrativeReportModel>>> getNarrativeReport();
 
-  @Get(path: '/export/csv')
+  @GET(path: '/export/csv')
   Future<Response<dynamic>> exportCsv();
 }
+

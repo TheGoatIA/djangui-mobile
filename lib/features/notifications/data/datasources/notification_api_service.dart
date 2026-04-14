@@ -7,28 +7,29 @@ part 'notification_api_service.chopper.dart';
 
 @ChopperApi()
 abstract class NotificationApiService extends ChopperService {
-  @Get(path: ApiConstants.notifications)
+  @GET(path: ApiConstants.notifications)
   Future<Response<BaseListResponse<NotificationModel>>> getNotifications({
     @Query('page') int? page,
     @Query('limit') int? limit,
   });
 
-  @Patch(path: '${ApiConstants.notifications}/{id}/read')
+  @PATCH(path: '${ApiConstants.notifications}/{id}/read')
   Future<Response<BaseResponse<NotificationModel>>> markAsRead(
     @Path('id') String id,
   );
 
-  @Patch(path: ApiConstants.notificationsMarkRead)
+  @PATCH(path: ApiConstants.notificationsMarkRead)
   Future<Response<BaseResponse<dynamic>>> markAllAsRead();
 
-  @Delete(path: '${ApiConstants.notifications}/{id}')
+  @DELETE(path: '${ApiConstants.notifications}/{id}')
   Future<Response<BaseResponse<dynamic>>> deleteNotification(
     @Path('id') String id,
   );
 
-  @Get(path: ApiConstants.notificationsUnreadCount)
+  @GET(path: ApiConstants.notificationsUnreadCount)
   Future<Response<BaseResponse<Map<String, dynamic>>>> getUnreadCount();
 
   static NotificationApiService create(ChopperClient client) =>
       _$NotificationApiService(client);
 }
+
