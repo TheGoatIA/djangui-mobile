@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import '../../data/models/transaction_model.dart';
 import '../../domain/repositories/transaction_repository.dart';
 
+import 'package:kauri/core/analytics/analytics_service.dart';
 import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
@@ -17,6 +18,7 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
   final TransactionRepository _transactionRepository;
   TelemetryService get _telemetry => getIt<TelemetryService>();
   LogService get _logger => getIt<LogService>();
+  AnalyticsService get _analytics => getIt<AnalyticsService>();
 
   TransactionsBloc(this._transactionRepository)
     : super(TransactionsState.initial()) {
@@ -140,6 +142,13 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
             'type': event.transaction.type,
             'category': event.transaction.category,
           });
+
+          _analytics.logTransactionAdded(
+            currency: event.transaction.currency,
+            amount: event.transaction.amount,
+            type: event.transaction.type.toString(),
+            category: event.transaction.category,
+          );
 
           final List<TransactionModel> updatedList = List.from(
             state.transactions,

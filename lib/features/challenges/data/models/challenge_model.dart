@@ -211,18 +211,9 @@ class ChallengeRedeemModel extends Equatable {
     required this.userChallenge,
   });
 
-  factory ChallengeRedeemModel.fromJson(Map<String, dynamic> json) {
-    return ChallengeRedeemModel(
-      redeemedAmount: (json['redeemedAmount'] as num).toDouble(),
-      userChallenge: UserChallengeModel.fromJson(
-        json['userChallenge'] as Map<String, dynamic>,
-      ),
-    );
-  }
-  Map<String, dynamic> toJson() => {
-    'redeemedAmount': redeemedAmount,
-    'userChallenge': userChallenge.toJson(),
-  };
+  factory ChallengeRedeemModel.fromJson(Map<String, dynamic> json) =>
+      _$ChallengeRedeemModelFromJson(json);
+  Map<String, dynamic> toJson() => _$ChallengeRedeemModelToJson(this);
 
   @override
   List<Object?> get props => [redeemedAmount, userChallenge];

@@ -9,21 +9,22 @@ abstract class UploadApiService extends ChopperService {
   static UploadApiService create([ChopperClient? client]) =>
       _$UploadApiService(client);
 
-  @Post(path: '/receipt')
+  @POST(path: '/receipt')
   @Multipart()
   Future<Response<BaseResponse<UploadResponseModel>>> uploadReceipt(
     @PartFile('receipt') String filePath,
   );
 
-  @Post(path: '/avatar')
+  @POST(path: '/avatar')
   @Multipart()
   Future<Response<BaseResponse<UploadResponseModel>>> uploadAvatar(
     @PartFile('avatar') String filePath,
   );
 
-  @Post(path: '/document')
+  @POST(path: '/document')
   @Multipart()
   Future<Response<BaseResponse<UploadResponseModel>>> uploadDocument(
     @PartFile('document') String filePath,
   );
 }
+

@@ -11,6 +11,7 @@ import '../../../../di/injection.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
@@ -19,7 +20,8 @@ class SecurityPage extends StatefulWidget {
   State<SecurityPage> createState() => _SecurityPageState();
 }
 
-class _SecurityPageState extends State<SecurityPage> {
+class _SecurityPageState extends State<SecurityPage>
+    with WidgetsBindingObserver, SecureScreenMixin<SecurityPage> {
   final LocalAuthentication auth = LocalAuthentication();
   bool _canCheckBiometrics = false;
   List<BiometricType>? _availableBiometrics;

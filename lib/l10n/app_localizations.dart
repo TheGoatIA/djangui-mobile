@@ -2318,53 +2318,83 @@ abstract class AppLocalizations {
   /// **'Êtes-vous sûr de vouloir revenir au plan gratuit ? Les fonctionnalités Premium ne seront plus accessibles.'**
   String get confirmDowngradeMessage;
 
-  /// No description provided for @featureTransactions.
+  /// No description provided for @freeFeatureLimits.
   ///
   /// In fr, this message translates to:
-  /// **'Gestion des Transactions'**
-  String get featureTransactions;
+  /// **'Limite de 100 000 FCFA / jour'**
+  String get freeFeatureLimits;
 
-  /// No description provided for @featureBudgetsGoals.
+  /// No description provided for @freeFeatureInput.
   ///
   /// In fr, this message translates to:
-  /// **'Budgets & Objectifs'**
-  String get featureBudgetsGoals;
+  /// **'Saisie manuelle des transactions'**
+  String get freeFeatureInput;
 
-  /// No description provided for @featureCoachStandard.
+  /// No description provided for @freeFeatureTontine.
   ///
   /// In fr, this message translates to:
-  /// **'Coach IA Standard'**
-  String get featureCoachStandard;
+  /// **'Max 1 tontine créée, 3 participations'**
+  String get freeFeatureTontine;
 
-  /// No description provided for @featureGamification.
+  /// No description provided for @freeFeatureAI.
   ///
   /// In fr, this message translates to:
-  /// **'Gamification (XP, Badges)'**
-  String get featureGamification;
+  /// **'Assistant IA (mémoire de 20 tr)'**
+  String get freeFeatureAI;
 
-  /// No description provided for @featureInvestments.
+  /// No description provided for @freeFeatureTracker.
   ///
   /// In fr, this message translates to:
-  /// **'Investissements (Bourse, Crypto, Immo)'**
-  String get featureInvestments;
+  /// **'Suivi budgétaire standard'**
+  String get freeFeatureTracker;
 
-  /// No description provided for @featureOCR.
+  /// No description provided for @freeFeatureFees.
   ///
   /// In fr, this message translates to:
-  /// **'OCR / Scan de Reçus'**
-  String get featureOCR;
+  /// **'Frais retrait Mobile Money : 3%'**
+  String get freeFeatureFees;
 
-  /// No description provided for @featureAIReports.
+  /// No description provided for @premiumFeatureLimits.
   ///
   /// In fr, this message translates to:
-  /// **'Rapports Narratifs IA'**
-  String get featureAIReports;
+  /// **'Limite de 300 000 FCFA / jour'**
+  String get premiumFeatureLimits;
 
-  /// No description provided for @featureBulkImport.
+  /// No description provided for @premiumFeatureInput.
   ///
   /// In fr, this message translates to:
-  /// **'Import en Masse (CSV/SMS)'**
-  String get featureBulkImport;
+  /// **'Saisie Express (Import, OCR, Vocal)'**
+  String get premiumFeatureInput;
+
+  /// No description provided for @premiumFeatureTontine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tontines illimitées'**
+  String get premiumFeatureTontine;
+
+  /// No description provided for @premiumFeatureAI.
+  ///
+  /// In fr, this message translates to:
+  /// **'IA VIP (100 tr, Budget Auto, Rapports)'**
+  String get premiumFeatureAI;
+
+  /// No description provided for @premiumFeatureInvest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simulateur, Prévisions et Actifs'**
+  String get premiumFeatureInvest;
+
+  /// No description provided for @premiumFeatureFees.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais retrait réduits : 1.5%'**
+  String get premiumFeatureFees;
+
+  /// No description provided for @premiumFeaturePrevention.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alerte de Découvert proactive IA'**
+  String get premiumFeaturePrevention;
 
   /// No description provided for @revertToFree.
   ///
@@ -4657,6 +4687,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Demande de retrait soumise avec succès'**
   String get withdrawSuccess;
+
+  /// No description provided for @tutorialWalletRechargeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recharger votre compte'**
+  String get tutorialWalletRechargeTitle;
+
+  /// No description provided for @tutorialWalletRechargeDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cliquez ici pour approvisionner votre solde via Mobile Money ou Carte Bancaire.'**
+  String get tutorialWalletRechargeDesc;
+
+  /// No description provided for @rechargeLimitError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant de recharge est limité à 50 000 FCFA par transaction.'**
+  String get rechargeLimitError;
 }
 
 class _AppLocalizationsDelegate

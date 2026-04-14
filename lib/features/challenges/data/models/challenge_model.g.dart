@@ -124,3 +124,19 @@ Map<String, dynamic> _$ChallengeProofModelToJson(
   'status': instance.status,
   'createdAt': instance.createdAt.toIso8601String(),
 };
+
+ChallengeRedeemModel _$ChallengeRedeemModelFromJson(
+  Map<String, dynamic> json,
+) => ChallengeRedeemModel(
+  redeemedAmount: (json['redeemedAmount'] as num).toDouble(),
+  userChallenge: UserChallengeModel.fromJson(
+    json['userChallenge'] as Map<String, dynamic>,
+  ),
+);
+
+Map<String, dynamic> _$ChallengeRedeemModelToJson(
+  ChallengeRedeemModel instance,
+) => <String, dynamic>{
+  'redeemedAmount': instance.redeemedAmount,
+  'userChallenge': instance.userChallenge,
+};

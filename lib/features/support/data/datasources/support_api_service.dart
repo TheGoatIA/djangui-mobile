@@ -7,15 +7,15 @@ part 'support_api_service.chopper.dart';
 
 @ChopperApi()
 abstract class SupportApiService extends ChopperService {
-  @Get(path: ApiConstants.supportTickets)
+  @GET(path: ApiConstants.supportTickets)
   Future<Response<BaseListResponse<SupportTicketModel>>> getTickets();
 
-  @Post(path: ApiConstants.supportTickets)
+  @POST(path: ApiConstants.supportTickets)
   Future<Response<BaseResponse<dynamic>>> createTicket(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: '${ApiConstants.supportTickets}/{id}/reply')
+  @POST(path: '${ApiConstants.supportTickets}/{id}/reply')
   Future<Response<BaseResponse<dynamic>>> replyToTicket(
     @Path('id') String id,
     @Body() Map<String, dynamic> body,
@@ -24,3 +24,4 @@ abstract class SupportApiService extends ChopperService {
   static SupportApiService create(ChopperClient client) =>
       _$SupportApiService(client);
 }
+

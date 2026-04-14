@@ -78,7 +78,7 @@ TontineMemberModel _$TontineMemberModelFromJson(Map<String, dynamic> json) =>
       parts: (json['parts'] as num).toInt(),
       trustScore: (json['trustScore'] as num).toDouble(),
       hasPaidSocialFund: json['hasPaidSocialFund'] as bool,
-      autoDebitEnabled: json['autoDebitEnabled'] as bool? ?? false,
+      autoDebitEnabled: json['isAutoDebitEnabled'] as bool? ?? false,
       payoutDetails: json['payoutDetails'] as Map<String, dynamic>?,
     );
 
@@ -91,7 +91,7 @@ Map<String, dynamic> _$TontineMemberModelToJson(TontineMemberModel instance) =>
       'parts': instance.parts,
       'trustScore': instance.trustScore,
       'hasPaidSocialFund': instance.hasPaidSocialFund,
-      'autoDebitEnabled': instance.autoDebitEnabled,
+      'isAutoDebitEnabled': instance.autoDebitEnabled,
       'payoutDetails': instance.payoutDetails,
     };
 

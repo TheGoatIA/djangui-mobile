@@ -6,9 +6,10 @@ part 'config_api_service.chopper.dart';
 
 @ChopperApi(baseUrl: '/config')
 abstract class ConfigApiService extends ChopperService {
-  @Get(path: '/features')
+  @GET(path: '/features')
   Future<Response<BaseResponse<FeatureFlagModel>>> getFeatureFlags();
 
   static ConfigApiService create(ChopperClient client) =>
       _$ConfigApiService(client);
 }
+

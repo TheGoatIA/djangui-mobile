@@ -35,11 +35,13 @@ import '../features/insights/presentation/pages/insights_page.dart';
 import '../features/profile/presentation/pages/profile_page.dart';
 import '../features/subscription/presentation/pages/subscription_page.dart';
 import '../features/settings/presentation/pages/about_page.dart';
+import '../features/profile/presentation/pages/real_money_info_page.dart';
 import '../features/notifications/presentation/pages/notifications_page.dart';
 import '../features/auth/presentation/pages/security_page.dart';
 import '../features/auth/presentation/pages/change_password_page.dart';
 import '../features/auth/presentation/pages/sessions_page.dart';
 import '../features/subscription/presentation/pages/payment_success_page.dart';
+import '../features/subscription/presentation/pages/payment_failure_page.dart';
 import '../features/support/presentation/pages/support_tickets_page.dart';
 import '../features/support/presentation/pages/create_ticket_page.dart';
 import '../features/support/presentation/pages/ticket_details_page.dart';
@@ -71,6 +73,9 @@ final appRouter = GoRouter(
       // host: payment, path: /success
       if (state.uri.host == 'payment' && state.uri.path == '/success') {
         return '${RouteConstants.paymentSuccess}?${state.uri.query}';
+      }
+      if (state.uri.host == 'payment' && state.uri.path == '/failure') {
+        return '${RouteConstants.paymentFailure}?${state.uri.query}';
       }
       // If the link is kauri://tontines/join?code=XYZ
       if ((state.uri.host == 'tontines' && state.uri.path == '/join') ||
@@ -336,6 +341,14 @@ final appRouter = GoRouter(
       ),
     ),
     GoRoute(
+      path: RouteConstants.realMoneyInfo,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const RealMoneyInfoPage(),
+      ),
+    ),
+    GoRoute(
       path: RouteConstants.notifications,
       pageBuilder: (context, state) => buildPageWithDefaultTransition(
         context: context,
@@ -376,6 +389,18 @@ final appRouter = GoRouter(
           context: context,
           state: state,
           child: PaymentSuccessPage(ref: ref, status: status),
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteConstants.paymentFailure,
+      pageBuilder: (context, state) {
+        final ref = state.uri.queryParameters['ref'];
+        final message = state.uri.queryParameters['message'];
+        return buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: PaymentFailurePage(ref: ref, message: message),
         );
       },
     ),

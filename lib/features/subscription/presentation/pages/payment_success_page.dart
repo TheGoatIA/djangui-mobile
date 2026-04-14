@@ -6,6 +6,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../../features/payments/presentation/bloc/fintech_bloc.dart';
+import '../../../../features/payments/presentation/bloc/fintech_event.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/payment_service.dart';
 import '../../../../core/services/log_service.dart';
@@ -68,6 +70,8 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
         _isVerified = true; // Optimistic or handle error
       });
       context.read<AuthBloc>().add(AuthRefreshUserRequested());
+      context.read<FintechBloc>().add(FetchWalletBalance());
+      context.read<FintechBloc>().add(FetchWalletTransactions());
     }
   }
 
@@ -142,6 +146,8 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
                         ? 'Continuer vers le Tableau de Bord'
                         : 'Retour au Tableau de Bord',
                     onPressed: () {
+                      context.read<FintechBloc>().add(FetchWalletBalance());
+                      context.read<FintechBloc>().add(FetchWalletTransactions());
                       context.go(RouteConstants.dashboard);
                     },
                   ),

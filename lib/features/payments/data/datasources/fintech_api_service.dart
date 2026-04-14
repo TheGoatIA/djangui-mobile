@@ -9,20 +9,21 @@ abstract class FintechApiService extends ChopperService {
   static FintechApiService create([ChopperClient? client]) =>
       _$FintechApiService(client);
 
-  @Get(path: '/wallet/balance')
+  @GET(path: '/wallet/balance')
   Future<Response<BaseResponse<Map<String, dynamic>>>> getBalance();
 
-  @Get(path: '/wallet/transactions')
+  @GET(path: '/wallet/transactions')
   Future<Response<BaseResponse<FintechTransactionsResponseModel>>>
   getTransactions();
 
-  @Post(path: '/payout/withdraw')
+  @POST(path: '/payout/withdraw')
   Future<Response<BaseResponse<Map<String, dynamic>>>> withdraw(
     @Body() Map<String, dynamic> body,
   );
 
-  @Get(path: '/invoice/{id}')
+  @GET(path: '/invoice/{id}')
   Future<Response<BaseResponse<InvoiceResponseModel>>> getInvoice(
     @Path('id') String id,
   );
 }
+

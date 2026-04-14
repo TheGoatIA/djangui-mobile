@@ -329,7 +329,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get targetAmountLabel => 'Target Amount';
 
   @override
-  String get deadlineLabel => 'Date Limite';
+  String get deadlineLabel => 'Deadline';
 
   @override
   String get saveAction => 'Save';
@@ -1174,28 +1174,43 @@ class AppLocalizationsEn extends AppLocalizations {
       'Are you sure you want to revert to the free plan? Premium features will no longer be accessible.';
 
   @override
-  String get featureTransactions => 'Transaction Management';
+  String get freeFeatureLimits => 'Limit 100,000 FCFA / day';
 
   @override
-  String get featureBudgetsGoals => 'Budgeting & Goals';
+  String get freeFeatureInput => 'Manual transaction entry';
 
   @override
-  String get featureCoachStandard => 'Standard AI Coach';
+  String get freeFeatureTontine => 'Max 1 tontine created, 3 participations';
 
   @override
-  String get featureGamification => 'Gamification (XP, Badges)';
+  String get freeFeatureAI => 'AI Assistant (20 tx memory)';
 
   @override
-  String get featureInvestments => 'Investments (Stocks, Crypto, Real Estate)';
+  String get freeFeatureTracker => 'Standard budget tracking';
 
   @override
-  String get featureOCR => 'OCR / Receipt Scanning';
+  String get freeFeatureFees => 'Mobile Money withdrawal fees: 3%';
 
   @override
-  String get featureAIReports => 'AI Narrative Reports';
+  String get premiumFeatureLimits => 'Limit 300,000 FCFA / day';
 
   @override
-  String get featureBulkImport => 'Bulk Import (CSV/SMS)';
+  String get premiumFeatureInput => 'Express entry (Import, OCR, Voice)';
+
+  @override
+  String get premiumFeatureTontine => 'Unlimited tontines';
+
+  @override
+  String get premiumFeatureAI => 'VIP AI (100 tx, Auto-Budget, Reports)';
+
+  @override
+  String get premiumFeatureInvest => 'Simulator, Forecasts & Assets';
+
+  @override
+  String get premiumFeatureFees => 'Reduced withdrawal fees: 1.5%';
+
+  @override
+  String get premiumFeaturePrevention => 'Proactive AI Overdraft Alert';
 
   @override
   String get revertToFree => 'Revert to free plan';
@@ -2434,4 +2449,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withdrawSuccess => 'Withdrawal request submitted successfully';
+
+  @override
+  String get tutorialWalletRechargeTitle => 'Recharge your account';
+
+  @override
+  String get tutorialWalletRechargeDesc =>
+      'Click here to fund your balance via Mobile Money or Bank Card.';
+
+  @override
+  String get rechargeLimitError =>
+      'The recharge amount is limited to 50,000 FCFA per transaction.';
 }
