@@ -8,18 +8,19 @@ part 'system_api_service.chopper.dart';
 
 @ChopperApi(baseUrl: '/system')
 abstract class SystemApiService extends ChopperService {
-  @Get(path: '/version-check')
+  @GET(path: '/version-check')
   Future<Response<BaseResponse<VersionCheckResponse>>> checkVersion(
     @Query('platform') String platform,
     @Query('version') String version,
   );
 
-  @Get(path: '/public-settings')
+  @GET(path: '/public-settings')
   Future<Response<BaseResponse<PublicSettingsModel>>> getPublicSettings();
 
-  @Get(path: '/countries')
+  @GET(path: '/countries')
   Future<Response<BaseResponse<CountryListResponse>>> getCountries();
 
   static SystemApiService create(ChopperClient client) =>
       _$SystemApiService(client);
 }
+

@@ -9,14 +9,15 @@ abstract class PremiumApiService extends ChopperService {
   static PremiumApiService create([ChopperClient? client]) =>
       _$PremiumApiService(client);
 
-  @Post(path: ApiConstants.coachAsk)
+  @POST(path: ApiConstants.coachAsk)
   Future<Response<BaseResponse<Map<String, dynamic>>>> askCoach(
     @Body() Map<String, dynamic> body,
   );
 
-  @Get(path: ApiConstants.premiumAutoBudget)
+  @GET(path: ApiConstants.premiumAutoBudget)
   Future<Response<BaseResponse<Map<String, dynamic>>>> getAutoBudget();
 
-  @Get(path: ApiConstants.premiumReport)
+  @GET(path: ApiConstants.premiumReport)
   Future<Response<BaseResponse<Map<String, dynamic>>>> getPremiumReport();
 }
+

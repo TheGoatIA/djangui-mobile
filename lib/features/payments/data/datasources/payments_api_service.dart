@@ -9,18 +9,19 @@ abstract class PaymentsApiService extends ChopperService {
   static PaymentsApiService create([ChopperClient? client]) =>
       _$PaymentsApiService(client);
 
-  @Post(path: '/checkout/stripe')
+  @POST(path: '/checkout/stripe')
   Future<Response<BaseResponse<PaymentInitResponseModel>>> initStripeCheckout(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: '/init/notchpay')
+  @POST(path: '/init/notchpay')
   Future<Response<BaseResponse<PaymentInitResponseModel>>> initNotchPayPayment(
     @Body() Map<String, dynamic> body,
   );
 
-  @Get(path: '/verify/{reference}')
+  @GET(path: '/verify/{reference}')
   Future<Response<BaseResponse<Map<String, dynamic>>>> verifyPayment(
     @Path('reference') String reference,
   );
 }
+

@@ -12,14 +12,26 @@ import '../bloc/transactions_bloc.dart';
 import '../../../../core/utils/toast_utils.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
-class TransactionDetailPage extends StatelessWidget {
+// Converti en StatefulWidget pour appliquer SecureScreenMixin
+// (empêche les captures d'écran sur le détail d'une transaction).
+// Aucun changement de comportement ou de logique métier.
+class TransactionDetailPage extends StatefulWidget {
   final TransactionModel transaction;
 
   const TransactionDetailPage({super.key, required this.transaction});
 
   @override
+  State<TransactionDetailPage> createState() => _TransactionDetailPageState();
+}
+
+class _TransactionDetailPageState extends State<TransactionDetailPage>
+    with WidgetsBindingObserver, SecureScreenMixin<TransactionDetailPage> {
+  @override
   Widget build(BuildContext context) {
+    // Alias local pour conserver la lisibilité du code existant sans modification
+    final transaction = widget.transaction;
     final l10n = AppLocalizations.of(context)!;
     return BlocBuilder<SystemBloc, SystemState>(
       builder: (context, systemState) {
@@ -276,7 +288,7 @@ class TransactionDetailPage extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).pop();
               context.read<TransactionsBloc>().add(
-                DeleteTransactionRequested(transaction.id),
+                DeleteTransactionRequested(widget.transaction.id),
               );
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),

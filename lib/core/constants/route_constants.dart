@@ -73,6 +73,9 @@ class RouteConstants {
   /// Page d'informations sur l'application.
   static const String about = '/about';
 
+  /// Page Kauri & Argent Réel.
+  static const String realMoneyInfo = '/real-money-info';
+
   /// Centre de notifications.
   static const String notifications = '/notifications';
 
@@ -88,7 +91,11 @@ class RouteConstants {
   /// Page de confirmation de succès après un paiement.
   static const String paymentSuccess = '/payment/success';
 
+  /// Page de signalement d'échec après un paiement.
+  static const String paymentFailure = '/payment/failure';
+
   /// Liste des tickets de support client.
+
   static const String supportTickets = '/support/tickets';
 
   /// Formulaire de création d'un ticket de support.

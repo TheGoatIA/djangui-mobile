@@ -92,7 +92,8 @@ class _SplashPageState extends State<SplashPage> {
         // If the user has verified at least one method, they can proceed.
         final isVerified =
             (user?.isEmailVerified ?? false) ||
-            (user?.isPhoneVerified ?? false);
+            (user?.isPhoneVerified ?? false) ||
+            (user?.phone != null && user!.phone!.isNotEmpty);
 
         if (user != null && !isVerified) {
           context.go(RouteConstants.emailVerificationPending);

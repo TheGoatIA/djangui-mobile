@@ -5,27 +5,28 @@ part 'payment_api_service.chopper.dart';
 
 @ChopperApi()
 abstract class PaymentApiService extends ChopperService {
-  @Post(path: ApiConstants.notchPayInit)
+  @POST(path: ApiConstants.notchPayInit)
   Future<Response<Map<String, dynamic>>> initializeNotchPay(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: ApiConstants.stripeCheckout)
+  @POST(path: ApiConstants.stripeCheckout)
   Future<Response<Map<String, dynamic>>> createStripeCheckout(
     @Body() Map<String, dynamic> body,
   );
 
-  @Get(path: ApiConstants.verifyPayment)
+  @GET(path: ApiConstants.verifyPayment)
   Future<Response<Map<String, dynamic>>> verifyTransaction(
     @Path('reference') String reference,
   );
 
-  @Get(path: ApiConstants.paymentHistory)
+  @GET(path: ApiConstants.paymentHistory)
   Future<Response<Map<String, dynamic>>> getPaymentHistory();
 
-  @Post(path: ApiConstants.cancelSubscription)
+  @POST(path: ApiConstants.cancelSubscription)
   Future<Response<Map<String, dynamic>>> cancelSubscription();
 
   static PaymentApiService create(ChopperClient client) =>
       _$PaymentApiService(client);
 }
+

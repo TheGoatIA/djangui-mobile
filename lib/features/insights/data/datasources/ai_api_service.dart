@@ -5,26 +5,27 @@ part 'ai_api_service.chopper.dart';
 
 @ChopperApi()
 abstract class AiApiService extends ChopperService {
-  @Post(path: ApiConstants.ocrScan)
+  @POST(path: ApiConstants.ocrScan)
   @Multipart()
   Future<Response<Map<String, dynamic>>> scanReceipt(
     @PartFile('image') String imagePath,
   );
 
   /*
-  @Post(path: ApiConstants.smsParse)
+  @POST(path: ApiConstants.smsParse)
   Future<Response<List<Map<String, dynamic>>>> parseSms(
     @Body() Map<String, dynamic> body,
   );
 
-  @Post(path: ApiConstants.smsBulkParse)
+  @POST(path: ApiConstants.smsBulkParse)
   Future<Response<Map<String, dynamic>>> bulkParseSms(
     @Body() Map<String, dynamic> body,
   );
 */
 
-  @Get(path: ApiConstants.reportNarrative)
+  @GET(path: ApiConstants.reportNarrative)
   Future<Response<Map<String, dynamic>>> getNarrativeReport();
 
   static AiApiService create(ChopperClient client) => _$AiApiService(client);
 }
+

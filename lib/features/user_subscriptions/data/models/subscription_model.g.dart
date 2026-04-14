@@ -30,31 +30,23 @@ SubscriptionModel _$SubscriptionModelFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['updatedAt'] as String),
     );
 
-Map<String, dynamic> _$SubscriptionModelToJson(SubscriptionModel instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('_id', instance.id);
-  writeNotNull('userId', instance.userId);
-  val['name'] = instance.name;
-  writeNotNull('provider', instance.provider);
-  val['amount'] = instance.amount;
-  val['currency'] = instance.currency;
-  val['frequency'] = instance.frequency;
-  writeNotNull('category', instance.category);
-  writeNotNull('status', instance.status);
-  val['nextBillingDate'] = instance.nextBillingDate.toIso8601String();
-  writeNotNull('trialEndDate', instance.trialEndDate?.toIso8601String());
-  val['remindMe'] = instance.remindMe;
-  writeNotNull('createdAt', instance.createdAt?.toIso8601String());
-  writeNotNull('updatedAt', instance.updatedAt?.toIso8601String());
-  return val;
-}
+Map<String, dynamic> _$SubscriptionModelToJson(SubscriptionModel instance) =>
+    <String, dynamic>{
+      '_id': ?instance.id,
+      'userId': ?instance.userId,
+      'name': instance.name,
+      'provider': ?instance.provider,
+      'amount': instance.amount,
+      'currency': instance.currency,
+      'frequency': instance.frequency,
+      'category': ?instance.category,
+      'status': ?instance.status,
+      'nextBillingDate': instance.nextBillingDate.toIso8601String(),
+      'trialEndDate': ?instance.trialEndDate?.toIso8601String(),
+      'remindMe': instance.remindMe,
+      'createdAt': ?instance.createdAt?.toIso8601String(),
+      'updatedAt': ?instance.updatedAt?.toIso8601String(),
+    };
 
 SubscriptionSuggestion _$SubscriptionSuggestionFromJson(
   Map<String, dynamic> json,

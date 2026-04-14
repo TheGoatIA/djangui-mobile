@@ -12,8 +12,13 @@ import 'package:kauri/features/payments/presentation/bloc/payment_bloc.dart';
 import 'package:kauri/features/payments/presentation/bloc/payment_state.dart';
 import 'package:kauri/features/payments/presentation/bloc/payment_event.dart';
 import 'package:kauri/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:kauri/core/mixins/secure_screen_mixin.dart';
+import 'package:kauri/core/widgets/debounced_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
+import 'package:showcaseview/showcaseview.dart';
+import 'package:kauri/di/injection.dart';
+import 'package:kauri/core/services/tutorial_service.dart';
 
 class WalletDashboardPage extends StatefulWidget {
   const WalletDashboardPage({super.key});
@@ -22,14 +27,57 @@ class WalletDashboardPage extends StatefulWidget {
   State<WalletDashboardPage> createState() => _WalletDashboardPageState();
 }
 
-class _WalletDashboardPageState extends State<WalletDashboardPage> {
+class _WalletDashboardPageState extends State<WalletDashboardPage>
+    with WidgetsBindingObserver, SecureScreenMixin<WalletDashboardPage> {
   bool _showAllTransactions = false;
+  final GlobalKey _rechargeKey = GlobalKey();
+  bool _isAwaitingPaymentReturn = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     context.read<FintechBloc>().add(FetchWalletBalance());
     context.read<FintechBloc>().add(FetchWalletTransactions());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      context.read<FintechBloc>().add(FetchWalletBalance());
+      context.read<FintechBloc>().add(FetchWalletTransactions());
+
+      if (_isAwaitingPaymentReturn) {
+        _isAwaitingPaymentReturn = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Vérification de votre paiement en cours...'),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+        
+        Future.delayed(const Duration(seconds: 3), () {
+          if (mounted) {
+            context.read<FintechBloc>().add(FetchWalletBalance());
+            context.read<FintechBloc>().add(FetchWalletTransactions());
+          }
+        });
+        
+        Future.delayed(const Duration(seconds: 8), () {
+          if (mounted) {
+            context.read<FintechBloc>().add(FetchWalletBalance());
+            context.read<FintechBloc>().add(FetchWalletTransactions());
+          }
+        });
+      }
+    }
   }
 
   @override
@@ -123,22 +171,35 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
           },
         ),
       ],
-      child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.walletTitle),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                context.read<FintechBloc>().add(FetchWalletBalance());
-                context.read<FintechBloc>().add(FetchWalletTransactions());
-              },
-            ),
-          ],
-        ),
+      child: ShowCaseWidget(
+        builder: (context) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+              final tutorialService = getIt<TutorialService>();
+              if (!tutorialService.hasSeenTutorial('wallet_recharge')) {
+                Future.delayed(const Duration(milliseconds: 500), () {
+                  if (context.mounted) {
+                    ShowCaseWidget.of(context).startShowCase([_rechargeKey]);
+                    tutorialService.markTutorialAsSeen('wallet_recharge');
+                  }
+                });
+              }
+            });
+            return Scaffold(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              appBar: AppBar(
+                title: Text(AppLocalizations.of(context)!.walletTitle),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: () {
+                      context.read<FintechBloc>().add(FetchWalletBalance());
+                      context.read<FintechBloc>().add(FetchWalletTransactions());
+                    },
+                  ),
+                ],
+              ),
         body: BlocBuilder<FintechBloc, FintechState>(
           builder: (context, state) {
             final realTransactions = state.transactions
@@ -184,8 +245,10 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
             );
           },
         ),
-      ),
-    );
+      );
+    },
+  ),
+);
   }
 
   Widget _buildBalanceCard(
@@ -316,11 +379,16 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
     return Row(
       children: [
         Expanded(
-          child: _buildActionBtn(
-            icon: Icons.add_circle_outline,
-            label: AppLocalizations.of(context)!.recharge,
-            onTap: () => _showRechargeDialog(),
-            color: AppColors.primary,
+          child: Showcase(
+            key: _rechargeKey,
+            title: AppLocalizations.of(context)!.tutorialWalletRechargeTitle,
+            description: AppLocalizations.of(context)!.tutorialWalletRechargeDesc,
+            child: _buildActionBtn(
+              icon: Icons.add_circle_outline,
+              label: AppLocalizations.of(context)!.recharge,
+              onTap: () => _showRechargeDialog(),
+              color: AppColors.primary,
+            ),
           ),
         ),
         const SizedBox(width: 15),
@@ -527,10 +595,12 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
   }
 
   void _handlePaymentRedirection(String url) async {
+    _isAwaitingPaymentReturn = true;
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
+      _isAwaitingPaymentReturn = false;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context)!.genericError)),
@@ -577,10 +647,20 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: DebouncedButton(
+                    text: AppLocalizations.of(context)!.notchpayLabel,
+                    onPressed: () async {
                       final amount = double.tryParse(amountController.text);
                       final phone = phoneController.text.trim();
+                      if (amount != null && amount > 50000) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!.rechargeLimitError),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                        return;
+                      }
                       if (amount != null && amount > 0 && phone.isNotEmpty) {
                         Navigator.pop(context);
                         context.read<PaymentBloc>().add(
@@ -588,7 +668,6 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
                         );
                       }
                     },
-                    child: Text(AppLocalizations.of(context)!.notchpayLabel),
                   ),
                 ),
               ],
@@ -597,9 +676,19 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
+                  child: DebouncedButton(
+                    text: AppLocalizations.of(context)!.stripeLabel,
+                    onPressed: () async {
                       final amount = double.tryParse(amountController.text);
+                      if (amount != null && amount > 50000) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!.rechargeLimitError),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                        return;
+                      }
                       if (amount != null && amount > 0) {
                         Navigator.pop(context);
                         context.read<PaymentBloc>().add(
@@ -607,7 +696,6 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
                         );
                       }
                     },
-                    child: Text(AppLocalizations.of(context)!.stripeLabel),
                   ),
                 ),
               ],
@@ -664,8 +752,10 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
               onPressed: () => Navigator.pop(context),
               child: Text(AppLocalizations.of(context)!.cancel),
             ),
-            ElevatedButton(
-              onPressed: () {
+            DebouncedButton(
+              isFullWidth: false,
+              text: AppLocalizations.of(context)!.confirmAction,
+              onPressed: () async {
                 final amount = double.tryParse(amountController.text);
                 if (amount != null &&
                     amount > 0 &&
@@ -680,7 +770,6 @@ class _WalletDashboardPageState extends State<WalletDashboardPage> {
                   );
                 }
               },
-              child: Text(AppLocalizations.of(context)!.confirmAction),
             ),
           ],
         ),

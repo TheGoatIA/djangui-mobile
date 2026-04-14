@@ -10,32 +10,33 @@ abstract class BudgetApiService extends ChopperService {
   static BudgetApiService create([ChopperClient? client]) =>
       _$BudgetApiService(client);
 
-  @Get(path: '/budgets/current')
+  @GET(path: '/budgets/current')
   Future<Response<BaseResponse<BudgetModel>>> getCurrentBudget();
 
-  @Get(path: '/budgets')
+  @GET(path: '/budgets')
   Future<Response<BaseListResponse<BudgetModel>>> getBudgets({
     @Query('year') int? year,
     @Query('month') int? month,
   });
 
-  @Post(path: '/budgets')
+  @POST(path: '/budgets')
   Future<Response<BaseResponse<BudgetModel>>> createBudget(
     @Body() Map<String, dynamic> body,
   );
 
-  @Put(path: '/budgets/{id}')
+  @PUT(path: '/budgets/{id}')
   Future<Response<BaseResponse<BudgetModel>>> updateBudget(
     @Path('id') String id,
     @Body() Map<String, dynamic> body,
   );
 
-  @Delete(path: '/budgets/{id}')
+  @DELETE(path: '/budgets/{id}')
   Future<Response<BaseResponse<dynamic>>> deleteBudget(@Path('id') String id);
 
-  @Get(path: '/premium/auto-budget')
+  @GET(path: '/premium/auto-budget')
   Future<Response<BaseResponse<AutoBudgetResponse>>> generateAutoBudget({
     @Query('month') int? month,
     @Query('year') int? year,
   });
 }
+

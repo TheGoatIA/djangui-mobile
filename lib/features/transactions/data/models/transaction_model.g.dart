@@ -44,40 +44,33 @@ TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['updatedAt'] as String),
     );
 
-Map<String, dynamic> _$TransactionModelToJson(TransactionModel instance) {
-  final val = <String, dynamic>{'_id': instance.id};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('userId', instance.userId);
-  val['amount'] = instance.amount;
-  val['currency'] = instance.currency;
-  val['type'] = instance.type;
-  val['category'] = instance.category;
-  writeNotNull('subcategory', instance.subcategory);
-  val['description'] = instance.description;
-  writeNotNull('merchant', instance.merchant);
-  writeNotNull('location', instance.location);
-  val['date'] = instance.date.toIso8601String();
-  val['status'] = instance.status;
-  writeNotNull('source', instance.source);
-  val['tags'] = instance.tags;
-  val['isRecurring'] = instance.isRecurring;
-  writeNotNull('recurringFrequency', instance.recurringFrequency);
-  val['isAutoCategorized'] = instance.isAutoCategorized;
-  writeNotNull('categorizationConfidence', instance.categorizationConfidence);
-  writeNotNull('receipt', instance.receipt);
-  writeNotNull('linkedGoalId', instance.linkedGoalId);
-  writeNotNull('metadata', instance.metadata);
-  writeNotNull('paymentMethod', instance.paymentMethod);
-  writeNotNull('fees', instance.fees);
-  writeNotNull('externalReference', instance.externalReference);
-  writeNotNull('receiptUrl', instance.receiptUrl);
-  writeNotNull('createdAt', instance.createdAt?.toIso8601String());
-  writeNotNull('updatedAt', instance.updatedAt?.toIso8601String());
-  return val;
-}
+Map<String, dynamic> _$TransactionModelToJson(TransactionModel instance) =>
+    <String, dynamic>{
+      '_id': instance.id,
+      'userId': ?instance.userId,
+      'amount': instance.amount,
+      'currency': instance.currency,
+      'type': instance.type,
+      'category': instance.category,
+      'subcategory': ?instance.subcategory,
+      'description': instance.description,
+      'merchant': ?instance.merchant,
+      'location': ?instance.location,
+      'date': instance.date.toIso8601String(),
+      'status': instance.status,
+      'source': ?instance.source,
+      'tags': instance.tags,
+      'isRecurring': instance.isRecurring,
+      'recurringFrequency': ?instance.recurringFrequency,
+      'isAutoCategorized': instance.isAutoCategorized,
+      'categorizationConfidence': ?instance.categorizationConfidence,
+      'receipt': ?instance.receipt,
+      'linkedGoalId': ?instance.linkedGoalId,
+      'metadata': ?instance.metadata,
+      'paymentMethod': ?instance.paymentMethod,
+      'fees': ?instance.fees,
+      'externalReference': ?instance.externalReference,
+      'receiptUrl': ?instance.receiptUrl,
+      'createdAt': ?instance.createdAt?.toIso8601String(),
+      'updatedAt': ?instance.updatedAt?.toIso8601String(),
+    };

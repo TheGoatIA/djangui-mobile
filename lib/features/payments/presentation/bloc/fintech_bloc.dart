@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/analytics/analytics_service.dart';
+import 'package:kauri/di/injection.dart';
 import '../../domain/repositories/fintech_repository.dart';
 import 'fintech_event.dart';
 import 'fintech_state.dart';
@@ -7,6 +9,7 @@ import 'fintech_state.dart';
 @injectable
 class FintechBloc extends Bloc<FintechEvent, FintechState> {
   final FintechRepository _repository;
+  AnalyticsService get _analytics => getIt<AnalyticsService>();
 
   FintechBloc(this._repository) : super(const FintechState()) {
     on<FetchWalletBalance>(_onFetchWalletBalance);
@@ -62,6 +65,12 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
     RequestWithdrawal event,
     Emitter<FintechState> emit,
   ) async {
+    final startMs = DateTime.now().millisecondsSinceEpoch;
+    _analytics.logWithdrawalInitiated(
+      currency: 'XAF',
+      amount: event.amount,
+      provider: event.provider,
+    );
     emit(state.copyWith(status: FintechStatus.loading));
     final result = await _repository.requestPayout(
       amount: event.amount,
@@ -69,18 +78,32 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
       provider: event.provider,
     );
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: FintechStatus.withdrawalError,
-          message: failure.message,
-        ),
-      ),
-      (message) => emit(
-        state.copyWith(
-          status: FintechStatus.withdrawalSuccess,
-          message: message,
-        ),
-      ),
+      (failure) {
+        _analytics.logWithdrawalFailed(
+          reason: failure.message,
+          provider: event.provider,
+        );
+        emit(
+          state.copyWith(
+            status: FintechStatus.withdrawalError,
+            message: failure.message,
+          ),
+        );
+      },
+      (message) {
+        _analytics.logWithdrawalCompleted(
+          currency: 'XAF',
+          amount: event.amount,
+          provider: event.provider,
+          durationMs: DateTime.now().millisecondsSinceEpoch - startMs,
+        );
+        emit(
+          state.copyWith(
+            status: FintechStatus.withdrawalSuccess,
+            message: message,
+          ),
+        );
+      },
     );
   }
 

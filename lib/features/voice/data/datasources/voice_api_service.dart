@@ -8,7 +8,7 @@ part 'voice_api_service.chopper.dart';
 
 @ChopperApi()
 abstract class VoiceApiService extends ChopperService {
-  @Post(path: ApiConstants.voiceProcess)
+  @POST(path: ApiConstants.voiceProcess)
   @Multipart()
   Future<Response<BaseResponse<VoiceResponseModel>>> processVoice(
     @PartFile('audio') MultipartFile audio,
@@ -17,3 +17,4 @@ abstract class VoiceApiService extends ChopperService {
   static VoiceApiService create(ChopperClient client) =>
       _$VoiceApiService(client);
 }
+

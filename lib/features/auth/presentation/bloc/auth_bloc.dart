@@ -9,6 +9,8 @@ import '../../data/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../../upload/domain/repositories/upload_repository.dart';
 
+import 'package:kauri/core/analytics/analytics_service.dart';
+import 'package:kauri/core/analytics/events.dart';
 import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
@@ -23,6 +25,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UploadRepository _uploadRepository;
   TelemetryService get _telemetry => getIt<TelemetryService>();
   LogService get _logger => getIt<LogService>();
+  AnalyticsService get _analytics => getIt<AnalyticsService>();
+
+  /// Appelé à chaque connexion réussie, quelle que soit la méthode.
+  /// Associe l'identifiant utilisateur (hashé) aux services d'observabilité.
+  void _notifyAuthSuccess(AuthResponse response, {required String method}) {
+    _analytics.setUserId(response.user.id);
+    _analytics.logEvent(AnalyticsEvents.loginAttempt, parameters: {
+      AnalyticsParams.method: method,
+      AnalyticsParams.success: true,
+    });
+  }
 
   AuthBloc(this._authRepository, this._uploadRepository)
     : super(AuthState.initial()) {
@@ -140,6 +153,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         _authRepository.logConnection();
         _tempCountryCode = null;
         _logger.setUserId(response.user.id);
+        _notifyAuthSuccess(response, method: 'otp');
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
@@ -211,6 +225,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           });
           _authRepository.updateDeviceInfo();
           _authRepository.logConnection();
+          _notifyAuthSuccess(response, method: 'google');
           emit(
             state.copyWith(
               status: AuthStatus.authenticated,
@@ -273,6 +288,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           });
           _authRepository.updateDeviceInfo();
           _authRepository.logConnection();
+          _notifyAuthSuccess(response, method: 'apple');
           emit(
             state.copyWith(
               status: AuthStatus.authenticated,
@@ -346,6 +362,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           _authRepository.updateDeviceInfo(); // Fire and forget
           _authRepository.logConnection();
           _logger.setUserId(user.id);
+          _analytics.setUserId(user.id);
           emit(
             state.copyWith(
               status: AuthStatus.authenticated,
@@ -413,6 +430,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           );
           _authRepository.updateDeviceInfo();
           _authRepository.logConnection();
+          _notifyAuthSuccess(response, method: 'password');
           emit(
             state.copyWith(
               status: AuthStatus.authenticated,
@@ -503,6 +521,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     final userId = state.authResponse?.user.id ?? 'unknown';
     _telemetry.recordEvent('auth.logout', {'user_id': userId});
+    _analytics.logEvent(AnalyticsEvents.logout, parameters: {
+      AnalyticsParams.reason: 'user_initiated',
+    });
+    _analytics.setUserId(null);
     _logger.info(
       'Déconnexion de l\'utilisateur',
       component: 'AuthBloc',
