@@ -83,7 +83,7 @@ dependencies:
 
   # PDF & QR
   pdf: ^3.11.3
-  printing: ^5.14.2
+  printing: ^5.14.3
   qr_flutter: ^4.1.0
 
   # Biometrics
