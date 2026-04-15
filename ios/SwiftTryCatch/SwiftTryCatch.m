@@ -2,9 +2,9 @@
 
 @implementation SwiftTryCatch
 
-+ (void)tryBlock:(void (^)(void))tryBlock
-      catchBlock:(void (^)(NSException *exception))catchBlock
-    finallyBlock:(void (^)(void))finallyBlock {
++ (void)try:(void (^)(void))tryBlock
+      catch:(void (^)(NSException *exception))catchBlock
+    finally:(void (^)(void))finallyBlock {
     @try {
         if (tryBlock) tryBlock();
     }
