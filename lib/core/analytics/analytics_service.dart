@@ -196,7 +196,9 @@ class KauriAnalyticsService implements AnalyticsService {
         component: 'AnalyticsService',
         metadata: {'error': e.toString()},
       );
-      if (kDebugMode) debugPrint('⚠️ [Analytics] logEvent error: $e\n$stack');
+      if (kDebugMode) {
+        debugPrint('⚠️ [Analytics] logEvent error: $e\n$stack');
+      }
     }
   }
 
@@ -205,7 +207,9 @@ class KauriAnalyticsService implements AnalyticsService {
     try {
       _telemetry.recordEvent('user_property', {name: value});
     } catch (e) {
-      if (kDebugMode) debugPrint('⚠️ [Analytics] setUserProperty error: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ [Analytics] setUserProperty error: $e');
+      }
     }
   }
 
@@ -223,7 +227,9 @@ class KauriAnalyticsService implements AnalyticsService {
         _logger.setUserId(null);
       }
     } catch (e) {
-      if (kDebugMode) debugPrint('⚠️ [Analytics] setUserId error: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ [Analytics] setUserId error: $e');
+      }
     }
   }
 
@@ -238,18 +244,23 @@ class KauriAnalyticsService implements AnalyticsService {
       firebaseTrace = FirebasePerformance.instance.newTrace(traceName);
       await firebaseTrace.start();
     } catch (e) {
-      if (kDebugMode) debugPrint('⚠️ [Performance] startTrace error: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ [Performance] startTrace error: $e');
+      }
     }
 
     return ({String? status, String? errorType}) async {
       final durationMs = DateTime.now().difference(startTime).inMilliseconds;
       try {
         if (status != null) firebaseTrace?.putAttribute('status', status);
-        if (errorType != null)
+        if (errorType != null) {
           firebaseTrace?.putAttribute('error_type', errorType);
+        }
         await firebaseTrace?.stop();
       } catch (e) {
-        if (kDebugMode) debugPrint('⚠️ [Performance] stopTrace error: $e');
+        if (kDebugMode) {
+          debugPrint('⚠️ [Performance] stopTrace error: $e');
+        }
       }
       // Envoie aussi la durée via OpenTelemetry
       _telemetry.recordGauge(
@@ -312,8 +323,9 @@ class KauriAnalyticsService implements AnalyticsService {
         FirebaseCrashlytics.instance.setCustomKey('last_bloc_state', blocState);
       }
     } catch (e) {
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint('⚠️ [Analytics] setCrashlyticsContext error: $e');
+      }
     }
   }
 }
