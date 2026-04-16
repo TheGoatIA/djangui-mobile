@@ -17,4 +17,3 @@ abstract class VoiceApiService extends ChopperService {
   static VoiceApiService create(ChopperClient client) =>
       _$VoiceApiService(client);
 }
-

@@ -12,4 +12,3 @@ abstract class ConfigApiService extends ChopperService {
   static ConfigApiService create(ChopperClient client) =>
       _$ConfigApiService(client);
 }
-

@@ -10,7 +10,9 @@ class AuthInterceptor implements Interceptor {
   final FlutterSecureStorage _storage = getIt<FlutterSecureStorage>();
 
   @override
-  FutureOr<Response<BodyType>> intercept<BodyType>(Chain<BodyType> chain) async {
+  FutureOr<Response<BodyType>> intercept<BodyType>(
+    Chain<BodyType> chain,
+  ) async {
     var request = chain.request;
     // Liste des chemins qui ne nécessitent pas de jeton d'authentification (connexion, inscription, etc.)
     final List<String> excludedPaths = [
@@ -50,7 +52,9 @@ class AuthInterceptor implements Interceptor {
 /// Intercepteur de journalisation pour déboguer les échanges HTTP en mode développement.
 class HttpLoggingInterceptor implements Interceptor {
   @override
-  FutureOr<Response<BodyType>> intercept<BodyType>(Chain<BodyType> chain) async {
+  FutureOr<Response<BodyType>> intercept<BodyType>(
+    Chain<BodyType> chain,
+  ) async {
     final request = chain.request;
     if (kDebugMode) {
       debugPrint('🌐 REQUÊTE : ${request.method} ${request.url}');
@@ -78,7 +82,9 @@ class HttpLoggingInterceptor implements Interceptor {
 /// Intercepteur qui envoie les métadonnées des requêtes HTTP vers Graylog.
 class RemoteLoggingInterceptor implements Interceptor {
   @override
-  FutureOr<Response<BodyType>> intercept<BodyType>(Chain<BodyType> chain) async {
+  FutureOr<Response<BodyType>> intercept<BodyType>(
+    Chain<BodyType> chain,
+  ) async {
     final request = chain.request;
     // Éviter de logger l'envoi des logs eux-mêmes pour éviter une boucle infinie
     if (request.url.toString().contains('/system/telemetry/logs')) {
@@ -125,4 +131,3 @@ class RemoteLoggingInterceptor implements Interceptor {
     return response;
   }
 }
-

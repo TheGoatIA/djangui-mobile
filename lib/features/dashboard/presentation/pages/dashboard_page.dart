@@ -27,7 +27,7 @@ import '../../../user_subscriptions/presentation/bloc/subscription_bloc.dart';
 import '../../../user_subscriptions/presentation/widgets/next_invoices_widget.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../system/data/models/feature_flag_model.dart';
-import '../../../voice/presentation/bloc/voice_bloc.dart';
+
 import '../bloc/dashboard_bloc.dart';
 import '../../../notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
@@ -46,17 +46,7 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        // Chargement immédiat des données du tableau de bord au démarrage
-        BlocProvider(
-          create: (context) =>
-              getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
-        ),
-        BlocProvider(create: (context) => getIt<VoiceBloc>()),
-      ],
-      child: const DashboardView(),
-    );
+    return const DashboardView();
   }
 }
 
@@ -91,9 +81,16 @@ class _DashboardViewState extends State<DashboardView> {
         feature: 'Dashboard',
         action: 'view',
       );
-      // Récupération des dernières transactions et du solde du wallet
-      context.read<FintechBloc>().add(FetchWalletBalance());
-      context.read<TransactionsBloc>().add(const GetTransactionsRequested());
+      // Petit délai pour laisser la session et les tokens se stabiliser au démarrage
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        if (mounted) {
+          context.read<FintechBloc>().add(FetchWalletBalance());
+          context.read<TransactionsBloc>().add(
+            const GetTransactionsRequested(forceRefresh: true),
+          );
+          context.read<DashboardBloc>().add(GetDashboardDataRequested());
+        }
+      });
       _checkAndShowWelcomeModal();
       _startTutorial();
     });
@@ -168,6 +165,16 @@ class _DashboardViewState extends State<DashboardView> {
             if (state.status == AuthStatus.unauthenticated) {
               context.read<TransactionsBloc>().add(ResetTransactionsStatus());
               context.go(RouteConstants.login);
+            } else if (state.status == AuthStatus.authenticated) {
+              // On attend un court instant pour que le token soit bien propagé dans les intercepteurs
+              Future.delayed(const Duration(seconds: 1), () {
+                if (context.mounted) {
+                  context.read<FintechBloc>().add(FetchWalletBalance());
+                  context.read<DashboardBloc>().add(
+                    GetDashboardDataRequested(),
+                  );
+                }
+              });
             }
           },
         ),
@@ -447,6 +454,19 @@ class _DashboardViewState extends State<DashboardView> {
         .toList();
   }
 
+  String _getGreeting(BuildContext context) {
+    final hour = DateTime.now().hour;
+    final localizations = AppLocalizations.of(context)!;
+
+    if (hour >= 6 && hour < 12) {
+      return localizations.greetingMorning;
+    } else if (hour >= 12 && hour < 18) {
+      return localizations.greetingAfternoon;
+    } else {
+      return localizations.greetingEvening;
+    }
+  }
+
   /// Construit la barre d'application avec salutations, notifications et bouton déconnexion.
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
@@ -456,7 +476,7 @@ class _DashboardViewState extends State<DashboardView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.greeting,
+            _getGreeting(context),
             style: AppTextStyles.bodyMedium.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -582,9 +602,14 @@ class _DashboardViewState extends State<DashboardView> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.15),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onPrimary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -633,12 +658,20 @@ class _DashboardViewState extends State<DashboardView> {
                     .currencySymbol;
               }
 
+              final isLoading =
+                  state.status == FintechStatus.loading ||
+                  state.status == FintechStatus.initial ||
+                  (state.status == FintechStatus.error && state.balance == 0);
+              final displayBalance = isLoading ? null : balance;
+
               return Text(
-                CurrencyHelper.formatAmount(
-                  balance,
-                  currencyCode: userCurrency,
-                  currencySymbol: currencySymbol,
-                ),
+                displayBalance != null
+                    ? CurrencyHelper.formatAmount(
+                        displayBalance,
+                        currencyCode: userCurrency,
+                        currencySymbol: currencySymbol,
+                      )
+                    : '---',
                 style: AppTextStyles.headlineLarge.copyWith(
                   color: Theme.of(context).colorScheme.onPrimary,
                   fontWeight: FontWeight.bold,

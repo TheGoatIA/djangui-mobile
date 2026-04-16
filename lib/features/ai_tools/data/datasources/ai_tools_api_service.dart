@@ -25,4 +25,3 @@ abstract class AiToolsApiService extends ChopperService {
     @Body() Map<String, dynamic> body,
   );
 }
-

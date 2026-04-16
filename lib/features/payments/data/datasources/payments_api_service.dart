@@ -24,4 +24,3 @@ abstract class PaymentsApiService extends ChopperService {
     @Path('reference') String reference,
   );
 }
-

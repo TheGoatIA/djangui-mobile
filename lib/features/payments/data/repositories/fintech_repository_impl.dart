@@ -119,4 +119,34 @@ class FintechRepositoryImpl implements FintechRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> getPaymentInvoicePdfUrl(
+    String paymentId,
+  ) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+
+    try {
+      final response = await _apiService.getPaymentInvoice(paymentId);
+      if (response.isSuccessful && response.body?.data != null) {
+        final pdfUrl = response.body!.data!.pdfUrl;
+        String finalPdfUrl = pdfUrl;
+        final baseUrlStr = dotenv.env['API_BASE_URL'];
+        if (baseUrlStr != null &&
+            (finalPdfUrl.contains('localhost') ||
+                finalPdfUrl.contains('127.0.0.1'))) {
+          final uri = Uri.parse(baseUrlStr);
+          finalPdfUrl = finalPdfUrl
+              .replaceAll('localhost', uri.host)
+              .replaceAll('127.0.0.1', uri.host);
+        }
+        return Right(finalPdfUrl);
+      }
+      return Left(
+        ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),
+      );
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

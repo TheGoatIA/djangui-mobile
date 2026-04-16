@@ -1226,6 +1226,24 @@ abstract class AppLocalizations {
   /// **'Bonjour,'**
   String get greeting;
 
+  /// No description provided for @greetingMorning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour,'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bon après-midi,'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonsoir,'**
+  String get greetingEvening;
+
   /// No description provided for @user.
   ///
   /// In fr, this message translates to:

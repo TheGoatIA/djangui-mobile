@@ -17,9 +17,11 @@ class PaymentService {
   PaymentService(this._apiService);
 
   /// Récupère l'historique des paiements effectués par l'utilisateur.
-  Future<List<PaymentModel>> getPaymentHistory() async {
+  Future<List<PaymentModel>> getPaymentHistory({
+    String type = 'subscription',
+  }) async {
     try {
-      final response = await _apiService.getPaymentHistory();
+      final response = await _apiService.getPaymentHistory(type: type);
       if (response.isSuccessful && response.body != null) {
         final data = response.body!['data'] as List?;
         if (data != null) {

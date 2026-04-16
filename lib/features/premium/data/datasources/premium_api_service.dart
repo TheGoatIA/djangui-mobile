@@ -20,4 +20,3 @@ abstract class PremiumApiService extends ChopperService {
   @GET(path: ApiConstants.premiumReport)
   Future<Response<BaseResponse<Map<String, dynamic>>>> getPremiumReport();
 }
-

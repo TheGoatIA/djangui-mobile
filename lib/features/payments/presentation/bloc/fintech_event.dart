@@ -36,3 +36,12 @@ class DownloadReceipt extends FintechEvent {
   @override
   List<Object?> get props => [transactionId];
 }
+
+class DownloadPaymentReceipt extends FintechEvent {
+  final String paymentId;
+
+  const DownloadPaymentReceipt({required this.paymentId});
+
+  @override
+  List<Object?> get props => [paymentId];
+}

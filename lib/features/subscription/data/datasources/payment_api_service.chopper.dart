@@ -46,9 +46,15 @@ final class _$PaymentApiService extends PaymentApiService {
   }
 
   @override
-  Future<Response<Map<String, dynamic>>> getPaymentHistory() {
+  Future<Response<Map<String, dynamic>>> getPaymentHistory({String? type}) {
     final Uri $url = Uri.parse('/payments');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Map<String, dynamic> $params = <String, dynamic>{'type': type};
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
 

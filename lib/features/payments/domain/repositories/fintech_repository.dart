@@ -12,4 +12,5 @@ abstract class FintechRepository {
     required String provider,
   });
   Future<Either<Failure, String>> getInvoicePdfUrl(String transactionId);
+  Future<Either<Failure, String>> getPaymentInvoicePdfUrl(String paymentId);
 }

@@ -6,7 +6,7 @@ import '../../domain/repositories/fintech_repository.dart';
 import 'fintech_event.dart';
 import 'fintech_state.dart';
 
-@injectable
+@lazySingleton
 class FintechBloc extends Bloc<FintechEvent, FintechState> {
   final FintechRepository _repository;
   AnalyticsService get _analytics => getIt<AnalyticsService>();
@@ -16,6 +16,7 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
     on<FetchWalletTransactions>(_onFetchWalletTransactions);
     on<RequestWithdrawal>(_onRequestWithdrawal);
     on<DownloadReceipt>(_onDownloadReceipt);
+    on<DownloadPaymentReceipt>(_onDownloadPaymentReceipt);
     on<ClearFintechData>(_onClearFintechData);
   }
 
@@ -118,6 +119,41 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
       ),
     );
     final result = await _repository.getInvoicePdfUrl(event.transactionId);
+
+    if (result.isRight()) {
+      // Petite pause pour laisser au serveur le temps de finaliser/sauvegarder le PDF
+      await Future.delayed(const Duration(seconds: 2));
+    }
+
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: FintechStatus.receiptError,
+          message: failure.message,
+          clearDownloadingReceiptId: true,
+        ),
+      ),
+      (url) => emit(
+        state.copyWith(
+          status: FintechStatus.receiptReady,
+          message: url,
+          clearDownloadingReceiptId: true,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onDownloadPaymentReceipt(
+    DownloadPaymentReceipt event,
+    Emitter<FintechState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        status: FintechStatus.loadingReceipt,
+        downloadingReceiptId: event.paymentId,
+      ),
+    );
+    final result = await _repository.getPaymentInvoicePdfUrl(event.paymentId);
 
     if (result.isRight()) {
       // Petite pause pour laisser au serveur le temps de finaliser/sauvegarder le PDF

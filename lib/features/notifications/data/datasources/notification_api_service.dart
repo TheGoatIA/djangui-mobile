@@ -32,4 +32,3 @@ abstract class NotificationApiService extends ChopperService {
   static NotificationApiService create(ChopperClient client) =>
       _$NotificationApiService(client);
 }
-

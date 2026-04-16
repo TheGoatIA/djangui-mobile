@@ -28,4 +28,3 @@ abstract class AiApiService extends ChopperService {
 
   static AiApiService create(ChopperClient client) => _$AiApiService(client);
 }
-

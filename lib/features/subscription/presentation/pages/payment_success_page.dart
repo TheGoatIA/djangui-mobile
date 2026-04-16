@@ -147,7 +147,9 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
                         : 'Retour au Tableau de Bord',
                     onPressed: () {
                       context.read<FintechBloc>().add(FetchWalletBalance());
-                      context.read<FintechBloc>().add(FetchWalletTransactions());
+                      context.read<FintechBloc>().add(
+                        FetchWalletTransactions(),
+                      );
                       context.go(RouteConstants.dashboard);
                     },
                   ),

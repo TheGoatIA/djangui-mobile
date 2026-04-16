@@ -97,4 +97,3 @@ abstract class TontineApiService extends ChopperService {
     @Body() Map<String, dynamic> body,
   );
 }
-

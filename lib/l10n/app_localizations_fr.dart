@@ -591,6 +591,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get greeting => 'Bonjour,';
 
   @override
+  String get greetingMorning => 'Bonjour,';
+
+  @override
+  String get greetingAfternoon => 'Bon après-midi,';
+
+  @override
+  String get greetingEvening => 'Bonsoir,';
+
+  @override
   String get user => 'Utilisateur';
 
   @override

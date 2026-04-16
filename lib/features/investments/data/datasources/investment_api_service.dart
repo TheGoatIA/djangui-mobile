@@ -34,4 +34,3 @@ abstract class InvestmentApiService extends ChopperService {
   static InvestmentApiService create(ChopperClient client) =>
       _$InvestmentApiService(client);
 }
-

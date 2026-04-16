@@ -4,6 +4,8 @@ part 'payment_model.g.dart';
 
 @JsonSerializable()
 class PaymentModel {
+  @JsonKey(name: '_id')
+  final String id;
   final double amount;
   final String currency;
   final String status;
@@ -11,6 +13,7 @@ class PaymentModel {
   final DateTime createdAt;
 
   PaymentModel({
+    required this.id,
     required this.amount,
     required this.currency,
     required this.status,

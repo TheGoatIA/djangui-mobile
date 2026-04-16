@@ -104,23 +104,45 @@ class KauriAnalyticsService implements AnalyticsService {
   /// Prometheus afin d'éviter l'explosion des séries temporelles.
   static const Map<String, Set<String>> _prometheusCounterLabels = {
     // Dépôts
-    AnalyticsEvents.depositInitiated:    {'payment_method', 'provider', 'currency', 'amount_range'},
-    AnalyticsEvents.depositCompleted:    {'payment_method', 'provider', 'currency', 'amount_range'},
-    AnalyticsEvents.depositFailed:       {'payment_method', 'provider'},
+    AnalyticsEvents.depositInitiated: {
+      'payment_method',
+      'provider',
+      'currency',
+      'amount_range',
+    },
+    AnalyticsEvents.depositCompleted: {
+      'payment_method',
+      'provider',
+      'currency',
+      'amount_range',
+    },
+    AnalyticsEvents.depositFailed: {'payment_method', 'provider'},
     // Retraits
-    AnalyticsEvents.withdrawalInitiated: {'provider', 'currency', 'amount_range'},
-    AnalyticsEvents.withdrawalCompleted: {'provider', 'currency', 'amount_range'},
-    AnalyticsEvents.withdrawalFailed:    {'provider'},
+    AnalyticsEvents.withdrawalInitiated: {
+      'provider',
+      'currency',
+      'amount_range',
+    },
+    AnalyticsEvents.withdrawalCompleted: {
+      'provider',
+      'currency',
+      'amount_range',
+    },
+    AnalyticsEvents.withdrawalFailed: {'provider'},
     // Transactions (send money + local)
-    AnalyticsEvents.sendMoneyStarted:    {'entry_point'},
-    AnalyticsEvents.sendMoneyCompleted:  {'payment_method', 'currency', 'amount_range'},
-    AnalyticsEvents.sendMoneyFailed:     {'payment_method', 'at_step'},
+    AnalyticsEvents.sendMoneyStarted: {'entry_point'},
+    AnalyticsEvents.sendMoneyCompleted: {
+      'payment_method',
+      'currency',
+      'amount_range',
+    },
+    AnalyticsEvents.sendMoneyFailed: {'payment_method', 'at_step'},
     // Auth
-    AnalyticsEvents.loginAttempt:        {'method', 'success'},
-    AnalyticsEvents.logout:              {'reason'},
+    AnalyticsEvents.loginAttempt: {'method', 'success'},
+    AnalyticsEvents.logout: {'reason'},
     // Erreurs
-    AnalyticsEvents.blocError:           {'bloc_type', 'error_type'},
-    AnalyticsEvents.apiError:            {'endpoint', 'status_code'},
+    AnalyticsEvents.blocError: {'bloc_type', 'error_type'},
+    AnalyticsEvents.apiError: {'endpoint', 'status_code'},
   };
 
   // ── Sanitization ───────────────────────────────────────────────────────────
@@ -163,7 +185,9 @@ class KauriAnalyticsService implements AnalyticsService {
 
       // Log de dev uniquement
       if (kDebugMode) {
-        debugPrint('📊 [Analytics] $name | ${sanitized.entries.map((e) => '${e.key}=${e.value}').join(', ')}');
+        debugPrint(
+          '📊 [Analytics] $name | ${sanitized.entries.map((e) => '${e.key}=${e.value}').join(', ')}',
+        );
       }
     } catch (e, stack) {
       // Ne jamais laisser l'analytique crasher l'app
@@ -172,7 +196,9 @@ class KauriAnalyticsService implements AnalyticsService {
         component: 'AnalyticsService',
         metadata: {'error': e.toString()},
       );
-      if (kDebugMode) debugPrint('⚠️ [Analytics] logEvent error: $e\n$stack');
+      if (kDebugMode) {
+        debugPrint('⚠️ [Analytics] logEvent error: $e\n$stack');
+      }
     }
   }
 
@@ -181,7 +207,9 @@ class KauriAnalyticsService implements AnalyticsService {
     try {
       _telemetry.recordEvent('user_property', {name: value});
     } catch (e) {
-      if (kDebugMode) debugPrint('⚠️ [Analytics] setUserProperty error: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ [Analytics] setUserProperty error: $e');
+      }
     }
   }
 
@@ -199,7 +227,9 @@ class KauriAnalyticsService implements AnalyticsService {
         _logger.setUserId(null);
       }
     } catch (e) {
-      if (kDebugMode) debugPrint('⚠️ [Analytics] setUserId error: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ [Analytics] setUserId error: $e');
+      }
     }
   }
 
@@ -214,17 +244,23 @@ class KauriAnalyticsService implements AnalyticsService {
       firebaseTrace = FirebasePerformance.instance.newTrace(traceName);
       await firebaseTrace.start();
     } catch (e) {
-      if (kDebugMode) debugPrint('⚠️ [Performance] startTrace error: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ [Performance] startTrace error: $e');
+      }
     }
 
     return ({String? status, String? errorType}) async {
       final durationMs = DateTime.now().difference(startTime).inMilliseconds;
       try {
         if (status != null) firebaseTrace?.putAttribute('status', status);
-        if (errorType != null) firebaseTrace?.putAttribute('error_type', errorType);
+        if (errorType != null) {
+          firebaseTrace?.putAttribute('error_type', errorType);
+        }
         await firebaseTrace?.stop();
       } catch (e) {
-        if (kDebugMode) debugPrint('⚠️ [Performance] stopTrace error: $e');
+        if (kDebugMode) {
+          debugPrint('⚠️ [Performance] stopTrace error: $e');
+        }
       }
       // Envoie aussi la durée via OpenTelemetry
       _telemetry.recordGauge(
@@ -274,7 +310,10 @@ class KauriAnalyticsService implements AnalyticsService {
         FirebaseCrashlytics.instance.setCustomKey('app_state', appState);
       }
       if (networkState != null) {
-        FirebaseCrashlytics.instance.setCustomKey('network_state', networkState);
+        FirebaseCrashlytics.instance.setCustomKey(
+          'network_state',
+          networkState,
+        );
       }
       if (walletState != null) {
         // walletState = 'loaded' | 'loading' | 'error' — JAMAIS le solde réel
@@ -284,7 +323,9 @@ class KauriAnalyticsService implements AnalyticsService {
         FirebaseCrashlytics.instance.setCustomKey('last_bloc_state', blocState);
       }
     } catch (e) {
-      if (kDebugMode) debugPrint('⚠️ [Analytics] setCrashlyticsContext error: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ [Analytics] setCrashlyticsContext error: $e');
+      }
     }
   }
 }
@@ -302,12 +343,16 @@ extension AnalyticsServiceX on AnalyticsService {
     required String screenClass,
     String? previousScreen,
     int? durationMs,
-  }) => logEvent(AnalyticsEvents.screenView, parameters: {
-    AnalyticsParams.screenName: screenName,
-    AnalyticsParams.screenClass: screenClass,
-    if (previousScreen != null) AnalyticsParams.previousScreen: previousScreen,
-    if (durationMs != null) AnalyticsParams.durationMs: durationMs,
-  });
+  }) => logEvent(
+    AnalyticsEvents.screenView,
+    parameters: {
+      AnalyticsParams.screenName: screenName,
+      AnalyticsParams.screenClass: screenClass,
+      if (previousScreen != null)
+        AnalyticsParams.previousScreen: previousScreen,
+      if (durationMs != null) AnalyticsParams.durationMs: durationMs,
+    },
+  );
 
   // --- Auth ---
 
@@ -317,36 +362,42 @@ extension AnalyticsServiceX on AnalyticsService {
     String? failureReason,
     int attemptNumber = 1,
     int? durationMs,
-  }) => logEvent(AnalyticsEvents.loginAttempt, parameters: {
-    AnalyticsParams.method: method,
-    AnalyticsParams.success: success,
-    if (failureReason != null) AnalyticsParams.failureReason: failureReason,
-    AnalyticsParams.attemptNumber: attemptNumber,
-    if (durationMs != null) AnalyticsParams.durationMs: durationMs,
-  });
+  }) => logEvent(
+    AnalyticsEvents.loginAttempt,
+    parameters: {
+      AnalyticsParams.method: method,
+      AnalyticsParams.success: success,
+      if (failureReason != null) AnalyticsParams.failureReason: failureReason,
+      AnalyticsParams.attemptNumber: attemptNumber,
+      if (durationMs != null) AnalyticsParams.durationMs: durationMs,
+    },
+  );
 
-  Future<void> logLogout({required String reason}) =>
-      logEvent(AnalyticsEvents.logout, parameters: {
-        AnalyticsParams.reason: reason,
-      });
+  Future<void> logLogout({required String reason}) => logEvent(
+    AnalyticsEvents.logout,
+    parameters: {AnalyticsParams.reason: reason},
+  );
 
   Future<void> logSessionExpired({
     required String reason,
     String? screenName,
     int? sessionDurationSeconds,
-  }) => logEvent(AnalyticsEvents.sessionExpired, parameters: {
-    AnalyticsParams.reason: reason,
-    if (screenName != null) AnalyticsParams.screenName: screenName,
-    if (sessionDurationSeconds != null)
-      AnalyticsParams.sessionDurationSeconds: sessionDurationSeconds,
-  });
+  }) => logEvent(
+    AnalyticsEvents.sessionExpired,
+    parameters: {
+      AnalyticsParams.reason: reason,
+      if (screenName != null) AnalyticsParams.screenName: screenName,
+      if (sessionDurationSeconds != null)
+        AnalyticsParams.sessionDurationSeconds: sessionDurationSeconds,
+    },
+  );
 
   // --- Transactions ---
 
-  Future<void> logSendMoneyStarted({required String entryPoint}) =>
-      logEvent(AnalyticsEvents.sendMoneyStarted, parameters: {
-        AnalyticsParams.entryPoint: entryPoint,
-      });
+  Future<void> logSendMoneyStarted({required String entryPoint}) => logEvent(
+    AnalyticsEvents.sendMoneyStarted,
+    parameters: {AnalyticsParams.entryPoint: entryPoint},
+  );
 
   Future<void> logSendMoneyCompleted({
     required String paymentMethod,
@@ -355,27 +406,33 @@ extension AnalyticsServiceX on AnalyticsService {
     String? provider,
     int? durationMs,
     int? totalFlowDurationMs,
-  }) => logEvent(AnalyticsEvents.sendMoneyCompleted, parameters: {
-    AnalyticsParams.paymentMethod: paymentMethod,
-    AnalyticsParams.currency: currency,
-    AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
-    if (provider != null) AnalyticsParams.provider: provider,
-    if (durationMs != null) AnalyticsParams.durationMs: durationMs,
-    if (totalFlowDurationMs != null)
-      AnalyticsParams.totalFlowDurationMs: totalFlowDurationMs,
-  });
+  }) => logEvent(
+    AnalyticsEvents.sendMoneyCompleted,
+    parameters: {
+      AnalyticsParams.paymentMethod: paymentMethod,
+      AnalyticsParams.currency: currency,
+      AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
+      if (provider != null) AnalyticsParams.provider: provider,
+      if (durationMs != null) AnalyticsParams.durationMs: durationMs,
+      if (totalFlowDurationMs != null)
+        AnalyticsParams.totalFlowDurationMs: totalFlowDurationMs,
+    },
+  );
 
   Future<void> logSendMoneyFailed({
     required String paymentMethod,
     required String reason,
     required String atStep,
     String? provider,
-  }) => logEvent(AnalyticsEvents.sendMoneyFailed, parameters: {
-    AnalyticsParams.paymentMethod: paymentMethod,
-    AnalyticsParams.reason: reason,
-    AnalyticsParams.atStep: atStep,
-    if (provider != null) AnalyticsParams.provider: provider,
-  });
+  }) => logEvent(
+    AnalyticsEvents.sendMoneyFailed,
+    parameters: {
+      AnalyticsParams.paymentMethod: paymentMethod,
+      AnalyticsParams.reason: reason,
+      AnalyticsParams.atStep: atStep,
+      if (provider != null) AnalyticsParams.provider: provider,
+    },
+  );
 
   // --- Deposits ---
 
@@ -384,12 +441,15 @@ extension AnalyticsServiceX on AnalyticsService {
     required String currency,
     required num amount,
     String? provider,
-  }) => logEvent(AnalyticsEvents.depositInitiated, parameters: {
-    AnalyticsParams.paymentMethod: paymentMethod,
-    AnalyticsParams.currency: currency,
-    AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
-    if (provider != null) AnalyticsParams.provider: provider,
-  });
+  }) => logEvent(
+    AnalyticsEvents.depositInitiated,
+    parameters: {
+      AnalyticsParams.paymentMethod: paymentMethod,
+      AnalyticsParams.currency: currency,
+      AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
+      if (provider != null) AnalyticsParams.provider: provider,
+    },
+  );
 
   Future<void> logDepositCompleted({
     required String paymentMethod,
@@ -397,23 +457,29 @@ extension AnalyticsServiceX on AnalyticsService {
     required num amount,
     String? provider,
     int? durationMs,
-  }) => logEvent(AnalyticsEvents.depositCompleted, parameters: {
-    AnalyticsParams.paymentMethod: paymentMethod,
-    AnalyticsParams.currency: currency,
-    AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
-    if (provider != null) AnalyticsParams.provider: provider,
-    if (durationMs != null) AnalyticsParams.durationMs: durationMs,
-  });
+  }) => logEvent(
+    AnalyticsEvents.depositCompleted,
+    parameters: {
+      AnalyticsParams.paymentMethod: paymentMethod,
+      AnalyticsParams.currency: currency,
+      AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
+      if (provider != null) AnalyticsParams.provider: provider,
+      if (durationMs != null) AnalyticsParams.durationMs: durationMs,
+    },
+  );
 
   Future<void> logDepositFailed({
     required String paymentMethod,
     required String reason,
     String? provider,
-  }) => logEvent(AnalyticsEvents.depositFailed, parameters: {
-    AnalyticsParams.paymentMethod: paymentMethod,
-    AnalyticsParams.reason: reason,
-    if (provider != null) AnalyticsParams.provider: provider,
-  });
+  }) => logEvent(
+    AnalyticsEvents.depositFailed,
+    parameters: {
+      AnalyticsParams.paymentMethod: paymentMethod,
+      AnalyticsParams.reason: reason,
+      if (provider != null) AnalyticsParams.provider: provider,
+    },
+  );
 
   // --- Withdrawals ---
 
@@ -421,31 +487,40 @@ extension AnalyticsServiceX on AnalyticsService {
     required String currency,
     required num amount,
     String? provider,
-  }) => logEvent(AnalyticsEvents.withdrawalInitiated, parameters: {
-    AnalyticsParams.currency: currency,
-    AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
-    if (provider != null) AnalyticsParams.provider: provider,
-  });
+  }) => logEvent(
+    AnalyticsEvents.withdrawalInitiated,
+    parameters: {
+      AnalyticsParams.currency: currency,
+      AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
+      if (provider != null) AnalyticsParams.provider: provider,
+    },
+  );
 
   Future<void> logWithdrawalCompleted({
     required String currency,
     required num amount,
     String? provider,
     int? durationMs,
-  }) => logEvent(AnalyticsEvents.withdrawalCompleted, parameters: {
-    AnalyticsParams.currency: currency,
-    AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
-    if (provider != null) AnalyticsParams.provider: provider,
-    if (durationMs != null) AnalyticsParams.durationMs: durationMs,
-  });
+  }) => logEvent(
+    AnalyticsEvents.withdrawalCompleted,
+    parameters: {
+      AnalyticsParams.currency: currency,
+      AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
+      if (provider != null) AnalyticsParams.provider: provider,
+      if (durationMs != null) AnalyticsParams.durationMs: durationMs,
+    },
+  );
 
   Future<void> logWithdrawalFailed({
     required String reason,
     String? provider,
-  }) => logEvent(AnalyticsEvents.withdrawalFailed, parameters: {
-    AnalyticsParams.reason: reason,
-    if (provider != null) AnalyticsParams.provider: provider,
-  });
+  }) => logEvent(
+    AnalyticsEvents.withdrawalFailed,
+    parameters: {
+      AnalyticsParams.reason: reason,
+      if (provider != null) AnalyticsParams.provider: provider,
+    },
+  );
 
   // --- Transactions locales ---
 
@@ -454,13 +529,16 @@ extension AnalyticsServiceX on AnalyticsService {
     required num amount,
     required String type,
     required String category,
-  }) => logEvent(AnalyticsEvents.sendMoneyCompleted, parameters: {
-    AnalyticsParams.paymentMethod: 'manual',
-    AnalyticsParams.currency: currency,
-    AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
-    AnalyticsParams.type: type,
-    'category': category,
-  });
+  }) => logEvent(
+    AnalyticsEvents.sendMoneyCompleted,
+    parameters: {
+      AnalyticsParams.paymentMethod: 'manual',
+      AnalyticsParams.currency: currency,
+      AnalyticsParams.amountRange: AnalyticsAmountRange.fromAmount(amount),
+      AnalyticsParams.type: type,
+      'category': category,
+    },
+  );
 
   // --- API Errors ---
 
@@ -471,12 +549,15 @@ extension AnalyticsServiceX on AnalyticsService {
     int? durationMs,
     int retryCount = 0,
     String? networkType,
-  }) => logEvent(AnalyticsEvents.apiError, parameters: {
-    AnalyticsParams.endpoint: endpoint,
-    AnalyticsParams.statusCode: statusCode,
-    if (errorCode != null) AnalyticsParams.errorCode: errorCode,
-    if (durationMs != null) AnalyticsParams.durationMs: durationMs,
-    AnalyticsParams.retryCount: retryCount,
-    if (networkType != null) AnalyticsParams.networkType: networkType,
-  });
+  }) => logEvent(
+    AnalyticsEvents.apiError,
+    parameters: {
+      AnalyticsParams.endpoint: endpoint,
+      AnalyticsParams.statusCode: statusCode,
+      if (errorCode != null) AnalyticsParams.errorCode: errorCode,
+      if (durationMs != null) AnalyticsParams.durationMs: durationMs,
+      AnalyticsParams.retryCount: retryCount,
+      if (networkType != null) AnalyticsParams.networkType: networkType,
+    },
+  );
 }

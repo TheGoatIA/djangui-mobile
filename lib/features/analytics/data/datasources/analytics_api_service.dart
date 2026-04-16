@@ -23,4 +23,3 @@ abstract class AnalyticsApiService extends ChopperService {
     @Body() Map<String, dynamic> body,
   );
 }
-

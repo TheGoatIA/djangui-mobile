@@ -23,4 +23,3 @@ abstract class InsightApiService extends ChopperService {
     @Query('year') int? year,
   });
 }
-

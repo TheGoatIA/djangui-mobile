@@ -39,4 +39,3 @@ abstract class BudgetApiService extends ChopperService {
     @Query('year') int? year,
   });
 }
-
