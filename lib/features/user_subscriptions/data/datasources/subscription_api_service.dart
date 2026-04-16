@@ -38,4 +38,3 @@ abstract class SubscriptionApiService extends ChopperService {
   static SubscriptionApiService create(ChopperClient client) =>
       _$SubscriptionApiService(client);
 }
-

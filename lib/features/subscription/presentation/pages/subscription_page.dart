@@ -11,6 +11,10 @@ import '../../../../core/services/payment_service.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/subscription/data/models/payment_model.dart';
+import '../../../../features/payments/presentation/bloc/fintech_bloc.dart';
+import '../../../../features/payments/presentation/bloc/fintech_event.dart';
+import '../../../../features/payments/presentation/bloc/fintech_state.dart';
+import '../../../../core/utils/toast_utils.dart';
 // import 'package:go_router/go_router.dart';
 
 import 'package:showcaseview/showcaseview.dart';
@@ -90,89 +94,116 @@ class _SubscriptionViewState extends State<SubscriptionView> {
         title: Text(AppLocalizations.of(context)!.upgradeToPremiumTitle),
         elevation: 0,
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          getIt<LogService>().info(
-            'Rafraîchissement manuel de l\'état d\'abonnement',
-            component: 'SubscriptionPage',
-          );
-          context.read<AuthBloc>().add(AuthRefreshUserRequested());
-          await Future.delayed(const Duration(seconds: 1));
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Icon(
-                Icons.star_rounded,
-                color: Theme.of(context).colorScheme.primary,
-                size: 80,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context)!.premiumWelcomeTitle,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.h2,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                AppLocalizations.of(context)!.premiumWelcomeSubtitle,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<FintechBloc, FintechState>(
+            listenWhen: (previous, current) {
+              return previous.status != current.status &&
+                  (current.status == FintechStatus.receiptReady ||
+                      current.status == FintechStatus.receiptError);
+            },
+            listener: (context, fintechState) {
+              if (fintechState.status == FintechStatus.receiptReady &&
+                  fintechState.message != null) {
+                _handlePaymentRedirection(fintechState.message!);
+              } else if (fintechState.status == FintechStatus.receiptError) {
+                if (mounted) {
+                  ToastUtils.showError(
+                    context,
+                    fintechState.message ??
+                        AppLocalizations.of(context)!.genericError,
+                  );
+                }
+              }
+            },
+          ),
+        ],
+        child: RefreshIndicator(
+          onRefresh: () async {
+            getIt<LogService>().info(
+              'Rafraîchissement manuel de l\'état d\'abonnement',
+              component: 'SubscriptionPage',
+            );
+            context.read<AuthBloc>().add(AuthRefreshUserRequested());
+            await Future.delayed(const Duration(seconds: 1));
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.star_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 80,
                 ),
-              ),
-              const SizedBox(height: 40),
-              _buildPlanCard(
-                context,
-                title: AppLocalizations.of(context)!.freePlan,
-                price: AppLocalizations.of(context)!.freePrice,
-                features: [
-                  AppLocalizations.of(context)!.freeFeatureLimits,
-                  AppLocalizations.of(context)!.freeFeatureTracker,
-                  AppLocalizations.of(context)!.freeFeatureInput,
-                  AppLocalizations.of(context)!.freeFeatureTontine,
-                  AppLocalizations.of(context)!.freeFeatureAI,
-                  AppLocalizations.of(context)!.freeFeatureFees,
-                ],
-                isPremium: false,
-                isCurrentPlan: !(user?.isPremium ?? false),
-                onTap: (user?.isPremium ?? false)
-                    ? () => _confirmDowngrade(context)
-                    : null,
-              ),
-              const SizedBox(height: 24),
-              Showcase(
-                key: _premiumPlanKey,
-                title: AppLocalizations.of(context)!.tutorialSubscriptionTitle,
-                description: AppLocalizations.of(
+                const SizedBox(height: 16),
+                Text(
+                  AppLocalizations.of(context)!.premiumWelcomeTitle,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.h2,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  AppLocalizations.of(context)!.premiumWelcomeSubtitle,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                _buildPlanCard(
                   context,
-                )!.tutorialSubscriptionDesc,
-                child: _buildPlanCard(
-                  context,
-                  title: AppLocalizations.of(context)!.premiumPlan,
-                  price: priceInfo.formattedPrice,
+                  title: AppLocalizations.of(context)!.freePlan,
+                  price: AppLocalizations.of(context)!.freePrice,
                   features: [
-                    AppLocalizations.of(context)!.premiumFeatureLimits,
-                    AppLocalizations.of(context)!.premiumFeatureInvest,
-                    AppLocalizations.of(context)!.premiumFeatureInput,
-                    AppLocalizations.of(context)!.premiumFeatureTontine,
-                    AppLocalizations.of(context)!.premiumFeatureAI,
-                    AppLocalizations.of(context)!.premiumFeatureFees,
-                    AppLocalizations.of(context)!.premiumFeaturePrevention,
+                    AppLocalizations.of(context)!.freeFeatureLimits,
+                    AppLocalizations.of(context)!.freeFeatureTracker,
+                    AppLocalizations.of(context)!.freeFeatureInput,
+                    AppLocalizations.of(context)!.freeFeatureTontine,
+                    AppLocalizations.of(context)!.freeFeatureAI,
+                    AppLocalizations.of(context)!.freeFeatureFees,
                   ],
-                  isPremium: true,
-                  isBestValue: true,
-                  isCurrentPlan: (user?.isPremium ?? false),
-                  onTap: !(user?.isPremium ?? false)
-                      ? () => _showPaymentOptions(context, priceInfo)
+                  isPremium: false,
+                  isCurrentPlan: !(user?.isPremium ?? false),
+                  onTap: (user?.isPremium ?? false)
+                      ? () => _confirmDowngrade(context)
                       : null,
                 ),
-              ),
-              const SizedBox(height: 48),
-              _buildHistorySection(context),
-            ],
+                const SizedBox(height: 24),
+                Showcase(
+                  key: _premiumPlanKey,
+                  title: AppLocalizations.of(
+                    context,
+                  )!.tutorialSubscriptionTitle,
+                  description: AppLocalizations.of(
+                    context,
+                  )!.tutorialSubscriptionDesc,
+                  child: _buildPlanCard(
+                    context,
+                    title: AppLocalizations.of(context)!.premiumPlan,
+                    price: priceInfo.formattedPrice,
+                    features: [
+                      AppLocalizations.of(context)!.premiumFeatureLimits,
+                      AppLocalizations.of(context)!.premiumFeatureInvest,
+                      AppLocalizations.of(context)!.premiumFeatureInput,
+                      AppLocalizations.of(context)!.premiumFeatureTontine,
+                      AppLocalizations.of(context)!.premiumFeatureAI,
+                      AppLocalizations.of(context)!.premiumFeatureFees,
+                      AppLocalizations.of(context)!.premiumFeaturePrevention,
+                    ],
+                    isPremium: true,
+                    isBestValue: true,
+                    isCurrentPlan: (user?.isPremium ?? false),
+                    onTap: !(user?.isPremium ?? false)
+                        ? () => _showPaymentOptions(context, priceInfo)
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 48),
+                _buildHistorySection(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -358,6 +389,41 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                           ),
                         ],
                       ),
+                      if (payment.status == 'completed' ||
+                          payment.status == 'succeeded') ...[
+                        const SizedBox(width: 8),
+                        BlocBuilder<FintechBloc, FintechState>(
+                          builder: (context, fintechState) {
+                            if (fintechState.downloadingReceiptId ==
+                                payment.id) {
+                              return const Padding(
+                                padding: EdgeInsets.only(left: 8.0),
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              );
+                            }
+                            return IconButton(
+                              onPressed: () {
+                                context.read<FintechBloc>().add(
+                                  DownloadPaymentReceipt(paymentId: payment.id),
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.download_rounded,
+                                size: 20,
+                              ),
+                              color: Theme.of(context).colorScheme.primary,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            );
+                          },
+                        ),
+                      ],
                     ],
                   ),
                 );
@@ -633,6 +699,20 @@ class _SubscriptionViewState extends State<SubscriptionView> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Erreur : $e')));
+    }
+  }
+
+  void _handlePaymentRedirection(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ToastUtils.showError(
+          context,
+          AppLocalizations.of(context)!.genericError,
+        );
+      }
     }
   }
 }

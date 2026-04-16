@@ -23,4 +23,3 @@ abstract class SystemApiService extends ChopperService {
   static SystemApiService create(ChopperClient client) =>
       _$SystemApiService(client);
 }
-

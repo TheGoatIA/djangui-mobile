@@ -29,7 +29,9 @@ class PaymentFailurePage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.error.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -55,10 +57,7 @@ class PaymentFailurePage extends StatelessWidget {
             ),
             if (ref != null) ...[
               const SizedBox(height: 24),
-              Text(
-                'Référence: $ref',
-                style: AppTextStyles.bodySmall,
-              ),
+              Text('Référence: $ref', style: AppTextStyles.bodySmall),
             ],
             const SizedBox(height: 48),
             AppButton(

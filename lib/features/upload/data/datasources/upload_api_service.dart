@@ -27,4 +27,3 @@ abstract class UploadApiService extends ChopperService {
     @PartFile('document') String filePath,
   );
 }
-

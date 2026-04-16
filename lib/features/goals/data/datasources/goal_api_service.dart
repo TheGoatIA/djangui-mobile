@@ -32,4 +32,3 @@ abstract class GoalApiService extends ChopperService {
     @Body() Map<String, dynamic> body,
   );
 }
-

@@ -31,10 +31,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   /// Associe l'identifiant utilisateur (hashé) aux services d'observabilité.
   void _notifyAuthSuccess(AuthResponse response, {required String method}) {
     _analytics.setUserId(response.user.id);
-    _analytics.logEvent(AnalyticsEvents.loginAttempt, parameters: {
-      AnalyticsParams.method: method,
-      AnalyticsParams.success: true,
-    });
+    _analytics.logEvent(
+      AnalyticsEvents.loginAttempt,
+      parameters: {
+        AnalyticsParams.method: method,
+        AnalyticsParams.success: true,
+      },
+    );
   }
 
   AuthBloc(this._authRepository, this._uploadRepository)
@@ -521,9 +524,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     final userId = state.authResponse?.user.id ?? 'unknown';
     _telemetry.recordEvent('auth.logout', {'user_id': userId});
-    _analytics.logEvent(AnalyticsEvents.logout, parameters: {
-      AnalyticsParams.reason: 'user_initiated',
-    });
+    _analytics.logEvent(
+      AnalyticsEvents.logout,
+      parameters: {AnalyticsParams.reason: 'user_initiated'},
+    );
     _analytics.setUserId(null);
     _logger.info(
       'Déconnexion de l\'utilisateur',
@@ -857,7 +861,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     try {
       // 1. Upload du document
-      final docResult = await _uploadRepository.uploadAvatar(event.docFilePath);
+      final docResult = await _uploadRepository.uploadDocument(
+        event.docFilePath,
+      );
       final docUrl = docResult.fold(
         (failure) => throw Exception(
           'Échec de l\'upload du document: ${failure.message}',
@@ -866,7 +872,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
 
       // 2. Upload du selfie
-      final selfieResult = await _uploadRepository.uploadAvatar(
+      final selfieResult = await _uploadRepository.uploadDocument(
         event.selfieFilePath,
       );
       final selfieUrl = selfieResult.fold(

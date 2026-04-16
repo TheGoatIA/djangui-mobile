@@ -588,6 +588,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get greeting => 'Hello,';
 
   @override
+  String get greetingMorning => 'Good morning,';
+
+  @override
+  String get greetingAfternoon => 'Good afternoon,';
+
+  @override
+  String get greetingEvening => 'Good evening,';
+
+  @override
   String get user => 'User';
 
   @override

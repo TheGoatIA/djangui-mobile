@@ -47,4 +47,3 @@ abstract class ChallengeApiService extends ChopperService {
     @Path('id') String id,
   );
 }
-

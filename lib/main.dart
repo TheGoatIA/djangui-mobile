@@ -39,6 +39,7 @@ import 'features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:kauri/features/payments/presentation/bloc/fintech_bloc.dart';
 import 'package:kauri/features/payments/presentation/bloc/fintech_event.dart';
 import 'package:kauri/features/payments/presentation/bloc/payment_bloc.dart';
+import 'package:kauri/features/voice/presentation/bloc/voice_bloc.dart';
 import 'features/analytics/presentation/manager/analytics_manager.dart';
 import 'core/analytics/analytics_service.dart';
 import 'core/analytics/analytics_bloc_observer.dart';
@@ -314,10 +315,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           create: (context) =>
               getIt<NotificationsBloc>()..add(FetchUnreadCountRequested()),
         ),
-        BlocProvider(
-          create: (context) => getIt<FintechBloc>()..add(FetchWalletBalance()),
-        ),
+        BlocProvider(create: (context) => getIt<FintechBloc>()),
         BlocProvider(create: (context) => getIt<PaymentBloc>()),
+        BlocProvider(
+          create: (context) =>
+              getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
+        ),
+        BlocProvider(create: (context) => getIt<VoiceBloc>()),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
@@ -359,7 +363,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 context.read<ChallengesBloc>().add(
                   GetUserChallengesRequested(),
                 );
-                context.read<FintechBloc>().add(FetchWalletBalance());
+                // Les données financières seront rafraîchies par les pages respectives (DashboardPage, Wallet, etc.)
+                // via leurs propres listeners ou initState, pour éviter les race conditions au démarrage.
               }
             },
             child: ChangeNotifierProvider.value(

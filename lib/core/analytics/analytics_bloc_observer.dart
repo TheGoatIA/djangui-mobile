@@ -34,7 +34,9 @@ class AnalyticsBlocObserver extends BlocObserver {
     _analytics.setCrashlyticsContext(blocState: '$blocType: $stateType');
 
     if (kDebugMode) {
-      debugPrint('🔵 [BLoC] $blocType: ${change.currentState.runtimeType} → $stateType');
+      debugPrint(
+        '🔵 [BLoC] $blocType: ${change.currentState.runtimeType} → $stateType',
+      );
     }
   }
 
@@ -83,10 +85,13 @@ class AnalyticsBlocObserver extends BlocObserver {
     }
 
     // Événement analytics pour monitorer les erreurs BLoC
-    _analytics.logEvent(AnalyticsEvents.blocError, parameters: {
-      AnalyticsParams.blocType: blocType,
-      AnalyticsParams.errorType: errorType,
-    });
+    _analytics.logEvent(
+      AnalyticsEvents.blocError,
+      parameters: {
+        AnalyticsParams.blocType: blocType,
+        AnalyticsParams.errorType: errorType,
+      },
+    );
 
     if (kDebugMode) {
       debugPrint('🔴 [BLoC] Error in $blocType: $error');

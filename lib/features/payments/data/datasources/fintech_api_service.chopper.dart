@@ -61,4 +61,16 @@ final class _$FintechApiService extends FintechApiService {
           $request,
         );
   }
+
+  @override
+  Future<Response<BaseResponse<InvoiceResponseModel>>> getPaymentInvoice(
+    String id,
+  ) {
+    final Uri $url = Uri.parse('/fintech/invoice/payment/${id}');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client
+        .send<BaseResponse<InvoiceResponseModel>, InvoiceResponseModel>(
+          $request,
+        );
+  }
 }

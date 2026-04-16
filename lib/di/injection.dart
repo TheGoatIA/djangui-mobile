@@ -17,10 +17,8 @@ Future<void> configureDependencies() async {
   // Register AnalyticsService (wraps TelemetryService + Firebase Crashlytics/Performance)
   if (!getIt.isRegistered<AnalyticsService>()) {
     getIt.registerLazySingleton<AnalyticsService>(
-      () => KauriAnalyticsService(
-        getIt<TelemetryService>(),
-        getIt<LogService>(),
-      ),
+      () =>
+          KauriAnalyticsService(getIt<TelemetryService>(), getIt<LogService>()),
     );
   }
 }

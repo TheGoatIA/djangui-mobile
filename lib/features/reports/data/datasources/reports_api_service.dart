@@ -25,4 +25,3 @@ abstract class ReportsApiService extends ChopperService {
   @GET(path: '/export/csv')
   Future<Response<dynamic>> exportCsv();
 }
-

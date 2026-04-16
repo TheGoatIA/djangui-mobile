@@ -62,14 +62,14 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
             duration: const Duration(seconds: 4),
           ),
         );
-        
+
         Future.delayed(const Duration(seconds: 3), () {
           if (mounted) {
             context.read<FintechBloc>().add(FetchWalletBalance());
             context.read<FintechBloc>().add(FetchWalletTransactions());
           }
         });
-        
+
         Future.delayed(const Duration(seconds: 8), () {
           if (mounted) {
             context.read<FintechBloc>().add(FetchWalletBalance());
@@ -174,81 +174,81 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
       child: ShowCaseWidget(
         builder: (context) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-              final tutorialService = getIt<TutorialService>();
-              if (!tutorialService.hasSeenTutorial('wallet_recharge')) {
-                Future.delayed(const Duration(milliseconds: 500), () {
-                  if (context.mounted) {
-                    ShowCaseWidget.of(context).startShowCase([_rechargeKey]);
-                    tutorialService.markTutorialAsSeen('wallet_recharge');
-                  }
-                });
-              }
-            });
-            return Scaffold(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              appBar: AppBar(
-                title: Text(AppLocalizations.of(context)!.walletTitle),
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: () {
-                      context.read<FintechBloc>().add(FetchWalletBalance());
-                      context.read<FintechBloc>().add(FetchWalletTransactions());
-                    },
-                  ),
-                ],
-              ),
-        body: BlocBuilder<FintechBloc, FintechState>(
-          builder: (context, state) {
-            final realTransactions = state.transactions
-                .where((t) => t.isRealWalletTransaction)
-                .toList();
-            final balance = state.balance;
-
-            return RefreshIndicator(
-              onRefresh: () async {
-                context.read<FintechBloc>().add(FetchWalletBalance());
-                context.read<FintechBloc>().add(FetchWalletTransactions());
-              },
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildBalanceCard(
-                      balance,
-                      realTransactions,
-                      currencyFormat,
-                    ),
-                    const SizedBox(height: 30),
-                    _buildQuickActions(),
-                    const SizedBox(height: 30),
-                    Text(
-                      AppLocalizations.of(context)!.recentTransactions,
-                      style: AppTextStyles.h3.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    const SizedBox(height: 15),
-                    _buildTransactionList(
-                      state,
-                      realTransactions,
-                      currencyFormat,
-                    ),
-                  ],
+            final tutorialService = getIt<TutorialService>();
+            if (!tutorialService.hasSeenTutorial('wallet_recharge')) {
+              Future.delayed(const Duration(milliseconds: 500), () {
+                if (context.mounted) {
+                  ShowCaseWidget.of(context).startShowCase([_rechargeKey]);
+                  tutorialService.markTutorialAsSeen('wallet_recharge');
+                }
+              });
+            }
+          });
+          return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context)!.walletTitle),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    context.read<FintechBloc>().add(FetchWalletBalance());
+                    context.read<FintechBloc>().add(FetchWalletTransactions());
+                  },
                 ),
-              ),
-            );
-          },
-        ),
-      );
-    },
-  ),
-);
+              ],
+            ),
+            body: BlocBuilder<FintechBloc, FintechState>(
+              builder: (context, state) {
+                final realTransactions = state.transactions
+                    .where((t) => t.isRealWalletTransaction)
+                    .toList();
+                final balance = state.balance;
+
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    context.read<FintechBloc>().add(FetchWalletBalance());
+                    context.read<FintechBloc>().add(FetchWalletTransactions());
+                  },
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildBalanceCard(
+                          balance,
+                          realTransactions,
+                          currencyFormat,
+                        ),
+                        const SizedBox(height: 30),
+                        _buildQuickActions(),
+                        const SizedBox(height: 30),
+                        Text(
+                          AppLocalizations.of(context)!.recentTransactions,
+                          style: AppTextStyles.h3.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        const SizedBox(height: 15),
+                        _buildTransactionList(
+                          state,
+                          realTransactions,
+                          currencyFormat,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildBalanceCard(
@@ -382,7 +382,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
           child: Showcase(
             key: _rechargeKey,
             title: AppLocalizations.of(context)!.tutorialWalletRechargeTitle,
-            description: AppLocalizations.of(context)!.tutorialWalletRechargeDesc,
+            description: AppLocalizations.of(
+              context,
+            )!.tutorialWalletRechargeDesc,
             child: _buildActionBtn(
               icon: Icons.add_circle_outline,
               label: AppLocalizations.of(context)!.recharge,
@@ -655,7 +657,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                       if (amount != null && amount > 50000) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(AppLocalizations.of(context)!.rechargeLimitError),
+                            content: Text(
+                              AppLocalizations.of(context)!.rechargeLimitError,
+                            ),
                             backgroundColor: Colors.orange,
                           ),
                         );
@@ -683,7 +687,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                       if (amount != null && amount > 50000) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(AppLocalizations.of(context)!.rechargeLimitError),
+                            content: Text(
+                              AppLocalizations.of(context)!.rechargeLimitError,
+                            ),
                             backgroundColor: Colors.orange,
                           ),
                         );

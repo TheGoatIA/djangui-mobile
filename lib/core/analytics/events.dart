@@ -32,7 +32,8 @@ abstract final class AnalyticsEvents {
 
   // --- Envoi d'argent ---
   static const String sendMoneyStarted = 'send_money_started';
-  static const String sendMoneyRecipientSelected = 'send_money_recipient_selected';
+  static const String sendMoneyRecipientSelected =
+      'send_money_recipient_selected';
   static const String sendMoneyAmountEntered = 'send_money_amount_entered';
   static const String sendMoneySummaryViewed = 'send_money_summary_viewed';
   static const String sendMoneyConfirmed = 'send_money_confirmed';
@@ -236,10 +237,10 @@ abstract final class AnalyticsParams {
 
 abstract final class AnalyticsAmountRange {
   static const String zero = '0';
-  static const String micro = '1-1000';        // 0–1 000 XAF
-  static const String small = '1001-10000';    // 1 001–10 000 XAF
+  static const String micro = '1-1000'; // 0–1 000 XAF
+  static const String small = '1001-10000'; // 1 001–10 000 XAF
   static const String medium = '10001-100000'; // 10 001–100 000 XAF
-  static const String large = '100001+';       // > 100 000 XAF
+  static const String large = '100001+'; // > 100 000 XAF
 
   /// Retourne la tranche correspondant au montant fourni (en centimes ou entier).
   static String fromAmount(num amount) {

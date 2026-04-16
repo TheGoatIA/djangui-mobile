@@ -44,4 +44,3 @@ abstract class TransactionApiService extends ChopperService {
   static TransactionApiService create(ChopperClient client) =>
       _$TransactionApiService(client);
 }
-

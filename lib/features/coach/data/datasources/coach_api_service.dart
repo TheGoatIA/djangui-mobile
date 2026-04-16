@@ -13,4 +13,3 @@ abstract class CoachApiService extends ChopperService {
   @GET(path: '/history')
   Future<Response<dynamic>> getChatHistory();
 }
-
