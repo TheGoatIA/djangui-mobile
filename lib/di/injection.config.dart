@@ -477,7 +477,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i777.AppDatabase>(),
       ),
     );
-    gh.factory<_i697.FintechBloc>(
+    gh.lazySingleton<_i697.FintechBloc>(
       () => _i697.FintechBloc(gh<_i958.FintechRepository>()),
     );
     gh.lazySingleton<_i224.NotificationRepository>(

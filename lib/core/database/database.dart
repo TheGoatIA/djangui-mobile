@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:sqlite3/sqlite3.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -373,12 +374,22 @@ class AppDatabase extends _$AppDatabase {
       final executor = NativeDatabase(
         file,
         setup: (db) {
-          // Verify that the sqlite3 library uses SQLCipher
-          // (Requires sqlcipher_flutter_libs instead of sqlite3_flutter_libs)
           db.execute("PRAGMA key = '$dbKey';");
+          // Fails fast (debug builds only) if the linked SQLite build doesn't
+          // actually support encryption — e.g. if the `sqlite3mc` hook in
+          // pubspec.yaml was ever reverted to plain `sqlite3`, PRAGMA key
+          // above would silently no-op and the database would be stored
+          // in plaintext without any other visible symptom.
+          assert(_debugCheckHasCipher(db));
         },
       );
       return TelemetryQueryExecutor(executor);
     });
   }
+}
+
+/// Verifies the native SQLite build actually understands `PRAGMA cipher`
+/// (i.e. it's an encryption-capable build, not plain SQLite). Debug-only.
+bool _debugCheckHasCipher(Database database) {
+  return database.select('PRAGMA cipher;').isNotEmpty;
 }
