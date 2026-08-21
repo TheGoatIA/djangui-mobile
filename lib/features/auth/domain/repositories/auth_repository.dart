@@ -107,12 +107,6 @@ abstract class AuthRepository {
   /// Révoque toutes les autres sessions actives à part l'actuelle.
   Future<Either<Failure, void>> revokeAllOtherSessions();
 
-  /// Récupère les identifiants stockés de manière sécurisée pour la biométrie.
-  Future<Map<String, String>?> getBiometricCredentials();
-
-  /// Supprime les identifiants biométriques stockés.
-  Future<void> clearBiometricCredentials();
-
   /// Enregistre une trace de connexion (IP, localisation, appareil).
   Future<void> logConnection();
 

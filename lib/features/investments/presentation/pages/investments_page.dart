@@ -66,30 +66,38 @@ class _InvestmentsViewState extends State<InvestmentsView> {
     });
   }
 
+  /// La cible [_listKey] n'existe que lorsqu'il y a déjà au moins un
+  /// investissement (sinon c'est l'état vide qui s'affiche) : on la saute et
+  /// on ne montre que [_addKey] si le portefeuille est encore vide, sinon la
+  /// séquence resterait bloquée dès la première étape.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('investments')) {
-      if (ModalRoute.of(context)?.isCurrent != true) return;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        final authState = context.read<AuthBloc>().state;
-        final isPremium = authState.authResponse?.user.isPremium ?? false;
+    if (tutorialService.hasSeenTutorial('investments')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final authState = context.read<AuthBloc>().state;
+      final isPremium = authState.authResponse?.user.isPremium ?? false;
 
-        if (!isPremium) {
-          ShowCaseWidget.of(context).startShowCase([_premiumKey]);
-        } else {
-          ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
-        }
-        tutorialService.markTutorialAsSeen('investments');
-      });
-    }
+      if (!isPremium) {
+        tutorialService.startTutorial(context, 'investments', [_premiumKey]);
+        return;
+      }
+      final hasInvestments = context
+          .read<InvestmentsBloc>()
+          .state
+          .investments
+          .isNotEmpty;
+      tutorialService.startTutorial(context, 'investments', [
+        if (hasInvestments) _listKey,
+        _addKey,
+      ]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
@@ -187,7 +195,18 @@ class _InvestmentsViewState extends State<InvestmentsView> {
                 );
               }
 
-              return BlocBuilder<InvestmentsBloc, InvestmentsState>(
+              return BlocConsumer<InvestmentsBloc, InvestmentsState>(
+                listenWhen: (previous, current) =>
+                    current.status == InvestmentsStatus.loaded &&
+                    previous.status != InvestmentsStatus.loaded,
+                listener: (context, state) {
+                  // La liste ne monte son Showcase qu'une fois les
+                  // investissements chargés : on retente ici dès que c'est
+                  // le cas (utile si le portefeuille se remplit après coup).
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _startTutorial();
+                  });
+                },
                 builder: (context, state) {
                   if (state.status == InvestmentsStatus.loading) {
                     return const Center(child: CircularProgressIndicator());

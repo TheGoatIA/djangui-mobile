@@ -17,9 +17,6 @@ abstract class AuthLocalDataSource {
   Future<void> clearTokens();
   Future<void> saveUser(UserModel user);
   Future<UserModel?> getUser();
-  Future<void> saveCredentials(String email, String password);
-  Future<Map<String, String>?> getCredentials();
-  Future<void> clearCredentials();
   Future<void> saveLoginProvider(String provider);
   Future<String?> getLoginProvider();
   Future<void> clearLoginProvider();
@@ -38,8 +35,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
-  static const _emailKey = 'login_email';
-  static const _passwordKey = 'login_password';
   static const _providerKey = 'login_provider';
   static const _biometricTokenKey = 'biometric_token';
 
@@ -134,32 +129,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       status: 'active',
       walletBalance: 0.0,
     );
-  }
-
-  @override
-  Future<void> saveCredentials(String email, String password) async {
-    _logger.d('💾 [AuthLocal] Saving credentials for biometric login: $email');
-    await _storage.write(key: _emailKey, value: email);
-    await _storage.write(key: _passwordKey, value: password);
-  }
-
-  @override
-  Future<Map<String, String>?> getCredentials() async {
-    final email = await _storage.read(key: _emailKey);
-    final password = await _storage.read(key: _passwordKey);
-    _logger.d(
-      '💾 [AuthLocal] Fetching credentials: ${email != null ? "Found" : "Not Found"}',
-    );
-    if (email != null && password != null) {
-      return {'email': email, 'password': password};
-    }
-    return null;
-  }
-
-  @override
-  Future<void> clearCredentials() async {
-    await _storage.delete(key: _emailKey);
-    await _storage.delete(key: _passwordKey);
   }
 
   @override

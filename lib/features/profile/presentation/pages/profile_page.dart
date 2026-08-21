@@ -62,31 +62,47 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Relance le tutoriel si le service de tutoriel est réinitialisé
+    // (ex : bouton "Réinitialiser les tutoriels" plus bas sur cette page).
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
   /// Démarre le tutoriel si l'utilisateur ne l'a pas encore vu sur cet écran.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('profile')) {
-      try {
-        final shell = StatefulNavigationShell.of(context);
-        if (shell.currentIndex != 4) return;
-      } catch (_) {
-        if (ModalRoute.of(context)?.isCurrent != true) return;
-      }
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(
-          context,
-        ).startShowCase([_profileHeaderKey, _settingsKey, _premiumKey]);
-        tutorialService.markTutorialAsSeen('profile');
-      });
+    if (tutorialService.hasSeenTutorial('profile')) return;
+    try {
+      final shell = StatefulNavigationShell.of(context);
+      if (shell.currentIndex != 4) return;
+    } catch (_) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
     }
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final showPremiumStep = context
+          .read<SystemBloc>()
+          .state
+          .featureFlags
+          .featSubscriptions
+          .isEnabled;
+      tutorialService.startTutorial(context, 'profile', [
+        _profileHeaderKey,
+        _settingsKey,
+        if (showPremiumStep) _premiumKey,
+        _resetTutorialsKey,
+      ]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
@@ -375,10 +391,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       // Section des paramètres (Réglages)
                       Showcase(
                         key: _settingsKey,
-                        title: AppLocalizations.of(context)!.settings,
+                        title: AppLocalizations.of(
+                          context,
+                        )!.tutorialSettingsSectionTitle,
                         description: AppLocalizations.of(
                           context,
-                        )!.tutorialProfileDesc,
+                        )!.tutorialSettingsSectionDesc,
                         child: _buildSettingsSection(context),
                       ),
                       const SizedBox(height: 32),

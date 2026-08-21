@@ -72,24 +72,26 @@ class _InsightsViewState extends State<InsightsView> {
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('insights')) {
-      if (ModalRoute.of(context)?.isCurrent != true) return;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(
-          context,
-        ).startShowCase([_periodKey, _aiReportKey, _chartsKey]);
-        tutorialService.markTutorialAsSeen('insights');
-      });
-    }
+    if (tutorialService.hasSeenTutorial('insights')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    // Les 3 cibles ne sont construites qu'une fois le chargement initial
+    // terminé (voir le spinner plein écran dans build()) : on attend un court
+    // instant, et on retentera de toute façon via le BlocListener ci-dessous
+    // dès que l'état passe à `success`.
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      tutorialService.startTutorial(context, 'insights', [
+        _periodKey,
+        _aiReportKey,
+        _chartsKey,
+      ]);
+    });
   }
 
   @override
@@ -114,66 +116,78 @@ class _InsightsViewState extends State<InsightsView> {
         return Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(title: Text(l10n.insightsTitle)),
-          body: BlocBuilder<InsightsBloc, InsightsState>(
-            builder: (context, state) {
-              if (state.status == InsightsStatus.loading &&
-                  state.distribution.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Showcase(
-                      key: _periodKey,
-                      title: l10n.tutorialInsightsTitle,
-                      description: l10n.tutorialInsightsDesc,
-                      child: _buildPeriodSelector(context, state.period),
-                    ),
-                    const SizedBox(height: 24),
-                    Showcase(
-                      key: _aiReportKey,
-                      title: l10n.aiAnalysisTitle,
-                      description: l10n.aiAnalysisPremiumRestriction,
-                      child: _buildAINarrativeCard(context),
-                    ),
-                    const SizedBox(height: 32),
-                    _buildSectionTitle(l10n.spendingDistribution),
-                    const SizedBox(height: 16),
-                    Showcase(
-                      key: _chartsKey,
-                      title: l10n.spendingDistribution,
-                      description: l10n.spendingDistribution,
-                      child: _buildPieChartCard(state.distribution, context),
-                    ),
-                    const SizedBox(height: 32),
-                    if (context
-                            .read<AuthBloc>()
-                            .state
-                            .authResponse
-                            ?.user
-                            .isPremium ??
-                        false) ...[
-                      _buildSectionTitle("Auto-Budget (IA Premium)"),
-                      const SizedBox(height: 16),
-                      _buildAutoBudgetCard(context),
-                      const SizedBox(height: 32),
-                      _buildSectionTitle("Rapport Premium"),
-                      const SizedBox(height: 16),
-                      _buildPremiumReportCard(context),
-                      const SizedBox(height: 32),
-                    ],
-                    _buildSectionTitle(l10n.spendingTrends),
-                    const SizedBox(height: 16),
-                    _buildLineChartCard(state.trends, context),
-                    const SizedBox(height: 32),
-                    _buildTopCategories(state.distribution, context),
-                  ],
-                ),
-              );
+          body: BlocListener<InsightsBloc, InsightsState>(
+            listenWhen: (previous, current) =>
+                current.status == InsightsStatus.success &&
+                previous.status != InsightsStatus.success,
+            listener: (context, state) {
+              // Les cibles du tutoriel ne sont montées qu'une fois les
+              // données chargées : on retente ici dès que c'est le cas.
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _startTutorial();
+              });
             },
+            child: BlocBuilder<InsightsBloc, InsightsState>(
+              builder: (context, state) {
+                if (state.status == InsightsStatus.loading &&
+                    state.distribution.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Showcase(
+                        key: _periodKey,
+                        title: l10n.tutorialInsightsTitle,
+                        description: l10n.tutorialInsightsDesc,
+                        child: _buildPeriodSelector(context, state.period),
+                      ),
+                      const SizedBox(height: 24),
+                      Showcase(
+                        key: _aiReportKey,
+                        title: l10n.tutorialAiReportTitle,
+                        description: l10n.tutorialAiReportDesc,
+                        child: _buildAINarrativeCard(context),
+                      ),
+                      const SizedBox(height: 32),
+                      _buildSectionTitle(l10n.spendingDistribution),
+                      const SizedBox(height: 16),
+                      Showcase(
+                        key: _chartsKey,
+                        title: l10n.tutorialChartsTitle,
+                        description: l10n.tutorialChartsDesc,
+                        child: _buildPieChartCard(state.distribution, context),
+                      ),
+                      const SizedBox(height: 32),
+                      if (context
+                              .read<AuthBloc>()
+                              .state
+                              .authResponse
+                              ?.user
+                              .isPremium ??
+                          false) ...[
+                        _buildSectionTitle("Auto-Budget (IA Premium)"),
+                        const SizedBox(height: 16),
+                        _buildAutoBudgetCard(context),
+                        const SizedBox(height: 32),
+                        _buildSectionTitle("Rapport Premium"),
+                        const SizedBox(height: 16),
+                        _buildPremiumReportCard(context),
+                        const SizedBox(height: 32),
+                      ],
+                      _buildSectionTitle(l10n.spendingTrends),
+                      const SizedBox(height: 16),
+                      _buildLineChartCard(state.trends, context),
+                      const SizedBox(height: 32),
+                      _buildTopCategories(state.distribution, context),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         );
       },

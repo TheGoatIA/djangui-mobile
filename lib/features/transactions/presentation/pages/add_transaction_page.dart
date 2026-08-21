@@ -89,23 +89,32 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   }
 
   /// Démarre le tutoriel pour la création de transactions.
+  ///
+  /// La cible de scan OCR n'est construite que si le feature flag est actif
+  /// (voir le BlocBuilder du SystemBloc dans l'AppBar) : on ne l'inclut donc
+  /// dans la séquence que dans ce cas, sinon le tutoriel resterait bloqué.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('add_transaction')) {
-      if (ModalRoute.of(context)?.isCurrent != true) return;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_scanKey, _amountKey]);
-        tutorialService.markTutorialAsSeen('add_transaction');
-      });
-    }
+    if (tutorialService.hasSeenTutorial('add_transaction')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final showScanStep = context
+          .read<SystemBloc>()
+          .state
+          .featureFlags
+          .featScanUpload
+          .isEnabled;
+      tutorialService.startTutorial(context, 'add_transaction', [
+        if (showScanStep) _scanKey,
+        _amountKey,
+      ]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     _amountController.dispose();
     _descriptionController.dispose();
     _subcategoryController.dispose();
@@ -129,7 +138,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           content: Text(AppLocalizations.of(context)!.ocrPremiumRestriction),
           action: SnackBarAction(
             label: AppLocalizations.of(context)!.seeOffers,
-            onPressed: () => context.push(RouteConstants.subscription),
+            onPressed: () {
+              if (!mounted) return;
+              context.push(RouteConstants.subscription);
+            },
           ),
         ),
       );

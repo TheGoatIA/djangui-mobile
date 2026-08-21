@@ -67,26 +67,22 @@ class _ChallengesViewState extends State<ChallengesView> {
 
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('challenges')) {
-      try {
-        final shell = StatefulNavigationShell.of(context);
-        if (shell.currentIndex != 1) return;
-      } catch (_) {
-        if (ModalRoute.of(context)?.isCurrent != true) return;
-      }
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_listKey]);
-        tutorialService.markTutorialAsSeen('challenges');
-      });
+    if (tutorialService.hasSeenTutorial('challenges')) return;
+    try {
+      final shell = StatefulNavigationShell.of(context);
+      if (shell.currentIndex != 1) return;
+    } catch (_) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
     }
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      tutorialService.startTutorial(context, 'challenges', [_listKey]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
@@ -125,6 +121,13 @@ class _ChallengesViewState extends State<ChallengesView> {
                     backgroundColor: Theme.of(context).colorScheme.error,
                   ),
                 );
+              }
+              if (state.status == ChallengesStatus.success) {
+                // La carte du premier challenge ne monte son Showcase
+                // qu'une fois les données chargées : on retente ici.
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _startTutorial();
+                });
               }
             },
             child: BlocBuilder<ChallengesBloc, ChallengesState>(

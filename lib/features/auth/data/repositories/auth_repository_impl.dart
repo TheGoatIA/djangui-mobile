@@ -346,8 +346,6 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         await _localDataSource.saveUser(response.user);
         await _localDataSource.saveLoginProvider('password');
-        // Sauvegarde des identifiants chiffrés pour permettre la connexion biométrique ultérieure.
-        await _localDataSource.saveCredentials(request.email, request.password);
         return Right(response);
       } catch (e) {
         return Left(AuthFailure(e.toString()));
@@ -370,8 +368,6 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         await _localDataSource.saveUser(response.user);
         await _localDataSource.saveLoginProvider('password');
-        // Save credentials for biometrics
-        await _localDataSource.saveCredentials(request.email, request.password);
         return Right(response);
       } catch (e) {
         return Left(AuthFailure(e.toString()));
@@ -580,11 +576,8 @@ class AuthRepositoryImpl implements AuthRepository {
     if (await _networkInfo.isConnected) {
       try {
         await _remoteDataSource.changePassword(currentPassword, newPassword);
-        // Update credentials for biometrics if they exist
-        final user = await _localDataSource.getUser();
-        if (user != null) {
-          await _localDataSource.saveCredentials(user.email, newPassword);
-        }
+        // Biometric unlock is backed by the refresh token, not the password,
+        // so it keeps working across a password change with nothing to update here.
         return const Right(null);
       } catch (e) {
         return Left(AuthFailure(e.toString()));
@@ -650,16 +643,6 @@ class AuthRepositoryImpl implements AuthRepository {
     } else {
       return Left(NetworkFailure());
     }
-  }
-
-  @override
-  Future<Map<String, String>?> getBiometricCredentials() async {
-    return _localDataSource.getCredentials();
-  }
-
-  @override
-  Future<void> clearBiometricCredentials() async {
-    await _localDataSource.clearCredentials();
   }
 
   @override

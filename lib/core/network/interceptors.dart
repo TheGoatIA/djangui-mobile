@@ -5,6 +5,19 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kauri/core/services/log_service.dart';
 import '../../di/injection.dart';
 
+/// Endpoints whose request/response bodies must never be logged (locally or
+/// remotely) — they carry a plaintext password, even on a failed attempt.
+const _authBodySensitivePaths = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/reset-password',
+  '/auth/change-password',
+  '/auth/biometric-token',
+];
+
+bool _isAuthBodySensitive(Uri url) =>
+    _authBodySensitivePaths.any((path) => url.path.endsWith(path));
+
 /// Intercepteur chargé d'ajouter automatiquement le jeton d'authentification aux requêtes sortantes.
 class AuthInterceptor implements Interceptor {
   final FlutterSecureStorage _storage = getIt<FlutterSecureStorage>();
@@ -56,10 +69,13 @@ class HttpLoggingInterceptor implements Interceptor {
     Chain<BodyType> chain,
   ) async {
     final request = chain.request;
+    final sensitive = _isAuthBodySensitive(request.url);
     if (kDebugMode) {
       debugPrint('🌐 REQUÊTE : ${request.method} ${request.url}');
       debugPrint('📦 En-têtes : ${request.headers}');
-      if (request.body != null) debugPrint('📦 Corps : ${request.body}');
+      if (request.body != null) {
+        debugPrint(sensitive ? '📦 Corps : [redacted]' : '📦 Corps : ${request.body}');
+      }
     }
 
     final response = await chain.proceed(request);
@@ -69,7 +85,7 @@ class HttpLoggingInterceptor implements Interceptor {
         '✅ RÉPONSE : ${response.statusCode} ${response.base.request?.url}',
       );
       if (response.bodyString.isNotEmpty) {
-        debugPrint('📥 Corps : ${response.bodyString}');
+        debugPrint(sensitive ? '📥 Corps : [redacted]' : '📥 Corps : ${response.bodyString}');
       }
       if (response.error != null) {
         debugPrint('❌ Erreur : ${response.error}');
@@ -106,6 +122,7 @@ class RemoteLoggingInterceptor implements Interceptor {
     final isError = response.statusCode >= 400;
     final message =
         '📥 API Response: ${response.statusCode} ${response.base.request?.url.path}';
+    final sensitive = _isAuthBodySensitive(request.url);
 
     if (isError) {
       getIt<LogService>().error(
@@ -115,7 +132,7 @@ class RemoteLoggingInterceptor implements Interceptor {
           'status_code': response.statusCode,
           'url': response.base.request?.url.toString(),
           'error': response.error?.toString(),
-          'body': response.bodyString,
+          'body': sensitive ? '[redacted]' : response.bodyString,
         },
       );
     } else {

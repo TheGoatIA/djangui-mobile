@@ -90,21 +90,20 @@ class _TransactionListViewState extends State<TransactionListView> {
 
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('transactions')) {
-      if (ModalRoute.of(context)?.isCurrent != true) return;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
-        tutorialService.markTutorialAsSeen('transactions');
-      });
-    }
+    if (tutorialService.hasSeenTutorial('transactions')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      tutorialService.startTutorial(context, 'transactions', [
+        _listKey,
+        _addKey,
+      ]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
@@ -129,7 +128,17 @@ class _TransactionListViewState extends State<TransactionListView> {
           ),
         ],
       ),
-      body: BlocBuilder<TransactionsBloc, TransactionsState>(
+      body: BlocConsumer<TransactionsBloc, TransactionsState>(
+        listenWhen: (previous, current) =>
+            current.status == TransactionsStatus.success &&
+            previous.status != TransactionsStatus.success,
+        listener: (context, state) {
+          // La liste ne monte son Showcase qu'une fois les transactions
+          // chargées : on retente ici dès que c'est le cas.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _startTutorial();
+          });
+        },
         builder: (context, state) {
           if (state.status == TransactionsStatus.loading &&
               state.transactions.isEmpty) {

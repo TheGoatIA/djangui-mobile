@@ -49,18 +49,35 @@ class _TontineListPageState extends State<TontineListPage> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Relance le tutoriel si le service de tutoriel est réinitialisé
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void dispose() {
+    getIt<TutorialService>().cancelActiveTutorial(context);
+    super.dispose();
+  }
+
   /// Démarre le tutoriel interactif si nécessaire.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('tontines_v2')) {
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(
-          context,
-        ).startShowCase([_joinKey, _listKey, _createKey]);
-        tutorialService.markTutorialAsSeen('tontines_v2');
-      });
-    }
+    if (tutorialService.hasSeenTutorial('tontines_v2')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      tutorialService.startTutorial(context, 'tontines_v2', [
+        _joinKey,
+        _listKey,
+        _createKey,
+      ]);
+    });
   }
 
   @override
@@ -111,7 +128,17 @@ class _TontineListPageState extends State<TontineListPage> {
               ),
             ],
           ),
-          body: BlocBuilder<TontineBloc, TontineState>(
+          body: BlocConsumer<TontineBloc, TontineState>(
+            listenWhen: (previous, current) =>
+                current.status == TontineStatus.success &&
+                previous.status != TontineStatus.success,
+            listener: (context, state) {
+              // La liste ne monte son Showcase qu'une fois les tontines
+              // chargées : on retente ici dès que c'est le cas.
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _startTutorial();
+              });
+            },
             builder: (context, state) {
               // État de chargement initial
               if (state.status == TontineStatus.loading &&

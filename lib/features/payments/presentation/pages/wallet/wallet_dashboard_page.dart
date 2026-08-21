@@ -39,11 +39,35 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
     WidgetsBinding.instance.addObserver(this);
     context.read<FintechBloc>().add(FetchWalletBalance());
     context.read<FintechBloc>().add(FetchWalletTransactions());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Relance le tutoriel si le service de tutoriel est réinitialisé
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (tutorialService.hasSeenTutorial('wallet_recharge')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      tutorialService.startTutorial(context, 'wallet_recharge', [_rechargeKey]);
+    });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
@@ -171,82 +195,67 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
           },
         ),
       ],
-      child: ShowCaseWidget(
-        builder: (context) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            final tutorialService = getIt<TutorialService>();
-            if (!tutorialService.hasSeenTutorial('wallet_recharge')) {
-              Future.delayed(const Duration(milliseconds: 500), () {
-                if (context.mounted) {
-                  ShowCaseWidget.of(context).startShowCase([_rechargeKey]);
-                  tutorialService.markTutorialAsSeen('wallet_recharge');
-                }
-              });
-            }
-          });
-          return Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.walletTitle),
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: () {
-                    context.read<FintechBloc>().add(FetchWalletBalance());
-                    context.read<FintechBloc>().add(FetchWalletTransactions());
-                  },
-                ),
-              ],
-            ),
-            body: BlocBuilder<FintechBloc, FintechState>(
-              builder: (context, state) {
-                final realTransactions = state.transactions
-                    .where((t) => t.isRealWalletTransaction)
-                    .toList();
-                final balance = state.balance;
-
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    context.read<FintechBloc>().add(FetchWalletBalance());
-                    context.read<FintechBloc>().add(FetchWalletTransactions());
-                  },
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildBalanceCard(
-                          balance,
-                          realTransactions,
-                          currencyFormat,
-                        ),
-                        const SizedBox(height: 30),
-                        _buildQuickActions(),
-                        const SizedBox(height: 30),
-                        Text(
-                          AppLocalizations.of(context)!.recentTransactions,
-                          style: AppTextStyles.h3.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        const SizedBox(height: 15),
-                        _buildTransactionList(
-                          state,
-                          realTransactions,
-                          currencyFormat,
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.walletTitle),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                context.read<FintechBloc>().add(FetchWalletBalance());
+                context.read<FintechBloc>().add(FetchWalletTransactions());
               },
             ),
-          );
-        },
+          ],
+        ),
+        body: BlocBuilder<FintechBloc, FintechState>(
+          builder: (context, state) {
+            final realTransactions = state.transactions
+                .where((t) => t.isRealWalletTransaction)
+                .toList();
+            final balance = state.balance;
+
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<FintechBloc>().add(FetchWalletBalance());
+                context.read<FintechBloc>().add(FetchWalletTransactions());
+              },
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildBalanceCard(
+                      balance,
+                      realTransactions,
+                      currencyFormat,
+                    ),
+                    const SizedBox(height: 30),
+                    _buildQuickActions(),
+                    const SizedBox(height: 30),
+                    Text(
+                      AppLocalizations.of(context)!.recentTransactions,
+                      style: AppTextStyles.h3.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    const SizedBox(height: 15),
+                    _buildTransactionList(
+                      state,
+                      realTransactions,
+                      currencyFormat,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

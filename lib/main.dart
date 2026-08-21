@@ -370,6 +370,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             child: ChangeNotifierProvider.value(
               value: getIt<TutorialService>(),
               child: ShowCaseWidget(
+                enableAutoScroll: true,
+                onFinish: () =>
+                    getIt<TutorialService>().completeActiveTutorial(),
                 builder: (context) {
                   final authState = context.watch<AuthBloc>().state;
                   final isPremium =

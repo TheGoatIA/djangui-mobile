@@ -671,36 +671,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    final provider = await _authRepository.getLoginProvider();
 
-    if (provider == 'password') {
-      final credentials = await _authRepository.getBiometricCredentials();
-      if (credentials != null) {
-        add(
-          AuthLoginRequested(
-            email: credentials['email']!,
-            password: credentials['password']!,
+    // Biometric unlock is always backed by a stored refresh token, never the
+    // password — this works the same way regardless of login provider
+    // (password, Google, Apple, phone).
+    final token = await _authRepository.getBiometricToken();
+    if (token != null) {
+      final result = await _authRepository.refreshToken(token);
+      result.fold(
+        (failure) => emit(
+          state.copyWith(
+            status: AuthStatus.error,
+            errorMessage: 'Session expired. Please login again.',
           ),
-        );
-        return;
-      }
-    } else if (provider != null) {
-      // For social/phone, recover session using biometric token
-      final token = await _authRepository.getBiometricToken();
-      if (token != null) {
-        final result = await _authRepository.refreshToken(token);
-        result.fold(
-          (failure) => emit(
-            state.copyWith(
-              status: AuthStatus.error,
-              errorMessage:
-                  'Session expired. Please login with ${provider.toUpperCase()} again.',
-            ),
-          ),
-          (_) => add(AuthCheckRequested()),
-        );
-        return;
-      }
+        ),
+        (_) => add(AuthCheckRequested()),
+      );
+      return;
     }
 
     emit(
@@ -804,17 +791,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
 
-    // Verify the password before saving
+    // Verify the password before enabling biometrics, but never store it:
+    // only the refresh token issued by this login is persisted, exactly
+    // like the social/phone provider flow (_onAuthSetupBiometricsSocialRequested).
     final result = await _authRepository.login(
       LoginRequest(email: event.email, password: event.password),
     );
 
-    result.fold(
-      (failure) => emit(
+    await result.fold(
+      (failure) async => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
       ),
-      (response) {
-        // Repository's login already saved the credentials
+      (response) async {
+        await _authRepository.saveBiometricToken(response.tokens.refreshToken);
         emit(state.copyWith(status: AuthStatus.biometricCredentialsSaved));
       },
     );

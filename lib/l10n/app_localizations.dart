@@ -2714,6 +2714,30 @@ abstract class AppLocalizations {
   /// **'Filtrez par période pour voir votre évolution financière.'**
   String get tutorialInsightsDesc;
 
+  /// No description provided for @tutorialAiReportTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre rapport IA'**
+  String get tutorialAiReportTitle;
+
+  /// No description provided for @tutorialAiReportDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Kauri analyse vos transactions et rédige un résumé en langage simple de vos habitudes de dépense, avec des conseils personnalisés.'**
+  String get tutorialAiReportDesc;
+
+  /// No description provided for @tutorialChartsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répartition des dépenses'**
+  String get tutorialChartsTitle;
+
+  /// No description provided for @tutorialChartsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce graphique répartit vos dépenses par catégorie pour repérer instantanément où part votre argent.'**
+  String get tutorialChartsDesc;
+
   /// No description provided for @resetTutorials.
   ///
   /// In fr, this message translates to:
@@ -2810,6 +2834,30 @@ abstract class AppLocalizations {
   /// **'Gérez vos informations personnelles, votre abonnement et vos paramètres.'**
   String get tutorialProfileDesc;
 
+  /// No description provided for @tutorialSettingsSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres'**
+  String get tutorialSettingsSectionTitle;
+
+  /// No description provided for @tutorialSettingsSectionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue, thème, sécurité, notifications, KYC : toutes vos préférences de l\'application se trouvent ici.'**
+  String get tutorialSettingsSectionDesc;
+
+  /// No description provided for @tutorialCoachInputTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Posez une question à votre Coach IA'**
+  String get tutorialCoachInputTitle;
+
+  /// No description provided for @tutorialCoachInputDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écrivez n\'importe quelle question sur votre argent — \"Puis-je me permettre cet achat ?\", \"Comment épargner plus vite ?\" — et obtenez une réponse personnalisée basée sur vos données réelles.'**
+  String get tutorialCoachInputDesc;
+
   /// No description provided for @tutorialAddTransactionTitle.
   ///
   /// In fr, this message translates to:
@@ -2845,6 +2893,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Allouez un montant précis à une catégorie pour ce mois.'**
   String get tutorialAddBudgetDesc;
+
+  /// No description provided for @tutorialGoalNameFieldTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nommez votre objectif'**
+  String get tutorialGoalNameFieldTitle;
+
+  /// No description provided for @tutorialGoalNameFieldDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un nom clair et motivant (ex. \"Voyage à Paris\") : c\'est lui que vous verrez à chaque fois que vous suivrez votre progression.'**
+  String get tutorialGoalNameFieldDesc;
+
+  /// No description provided for @tutorialGoalAmountFieldTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fixez votre objectif'**
+  String get tutorialGoalAmountFieldTitle;
+
+  /// No description provided for @tutorialGoalAmountFieldDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez le montant total que vous souhaitez épargner. Kauri l\'utilise pour calculer votre progression et suggérer un rythme d\'épargne.'**
+  String get tutorialGoalAmountFieldDesc;
+
+  /// No description provided for @tutorialBudgetCategoryFieldTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez une catégorie'**
+  String get tutorialBudgetCategoryFieldTitle;
+
+  /// No description provided for @tutorialBudgetCategoryFieldDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez la catégorie de dépense concernée par ce budget, pour que Kauri puisse la suivre automatiquement à partir de vos transactions.'**
+  String get tutorialBudgetCategoryFieldDesc;
+
+  /// No description provided for @tutorialBudgetAmountFieldTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fixez votre limite'**
+  String get tutorialBudgetAmountFieldTitle;
+
+  /// No description provided for @tutorialBudgetAmountFieldDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez le montant maximum à dépenser dans cette catégorie ce mois-ci. Vous serez alerté(e) en vous en approchant.'**
+  String get tutorialBudgetAmountFieldDesc;
 
   /// No description provided for @tutorialAddInvestmentTitle.
   ///

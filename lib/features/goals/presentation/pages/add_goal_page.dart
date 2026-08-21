@@ -70,21 +70,20 @@ class _AddGoalPageState extends State<AddGoalPage> {
 
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('add_goal')) {
-      if (ModalRoute.of(context)?.isCurrent != true) return;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_nameKey, _amountKey]);
-        tutorialService.markTutorialAsSeen('add_goal');
-      });
-    }
+    if (tutorialService.hasSeenTutorial('add_goal')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      tutorialService.startTutorial(context, 'add_goal', [
+        _nameKey,
+        _amountKey,
+      ]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     _nameController.dispose();
     _descriptionController.dispose();
     _amountController.dispose();
@@ -223,299 +222,283 @@ class _AddGoalPageState extends State<AddGoalPage> {
               );
             }
           },
-          child: ShowCaseWidget(
-            builder: (context) => Scaffold(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              appBar: AppBar(
-                title: Text(AppLocalizations.of(context)!.addGoalTitle),
-              ),
-              body: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Showcase(
-                        key: _nameKey,
-                        title: AppLocalizations.of(context)!.goalNameLabel,
-                        description: AppLocalizations.of(context)!.goalNameHint,
-                        child: AppTextField(
-                          controller: _nameController,
-                          label: AppLocalizations.of(context)!.goalNameLabel,
-                          hint: AppLocalizations.of(context)!.goalNameHint,
-                          validator: (value) => (value == null || value.isEmpty)
-                              ? AppLocalizations.of(context)!.requiredField
-                              : null,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      AppTextField(
-                        controller: _descriptionController,
-                        label: AppLocalizations.of(
-                          context,
-                        )!.goalDescriptionLabel,
-                        hint: AppLocalizations.of(context)!.goalDescriptionHint,
-                        maxLines: 2,
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: _buildDropdown<String>(
-                              context,
-                              label: AppLocalizations.of(
-                                context,
-                              )!.goalTypeLabel,
-                              value: _selectedType,
-                              items: [
-                                DropdownMenuItem(
-                                  value: 'emergency',
-                                  child: Text(
-                                    AppLocalizations.of(context)!.emergencyType,
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'savings',
-                                  child: Text(
-                                    AppLocalizations.of(context)!.savingsType,
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'investment',
-                                  child: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.investmentType,
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'debt',
-                                  child: Text(
-                                    AppLocalizations.of(context)!.debtType,
-                                  ),
-                                ),
-                              ],
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedType = value!;
-                                  // Reset strategy if current one is not valid for the new type
-                                  if (_selectedType == 'debt') {
-                                    _selectedStrategy = 'snowball';
-                                  } else if (_selectedStrategy == 'snowball' ||
-                                      _selectedStrategy == 'avalanche') {
-                                    _selectedStrategy = 'custom';
-                                  }
-                                });
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: AppTextField(
-                              controller: _emojiController,
-                              label: AppLocalizations.of(
-                                context,
-                              )!.goalEmojiLabel,
-                              hint: '🎯',
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      _buildDropdown<String>(
+          child: Scaffold(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context)!.addGoalTitle),
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Showcase(
+                      key: _nameKey,
+                      title: AppLocalizations.of(
                         context,
-                        label: AppLocalizations.of(context)!.goalPriorityLabel,
-                        value: _selectedPriority,
-                        items: [
-                          DropdownMenuItem(
-                            value: 'high',
-                            child: Text(
-                              AppLocalizations.of(context)!.highPriority,
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'medium',
-                            child: Text(
-                              AppLocalizations.of(context)!.mediumPriority,
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'low',
-                            child: Text(
-                              AppLocalizations.of(context)!.lowPriority,
-                            ),
-                          ),
-                        ],
-                        onChanged: (value) =>
-                            setState(() => _selectedPriority = value!),
+                      )!.tutorialGoalNameFieldTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialGoalNameFieldDesc,
+                      child: AppTextField(
+                        controller: _nameController,
+                        label: AppLocalizations.of(context)!.goalNameLabel,
+                        hint: AppLocalizations.of(context)!.goalNameHint,
+                        validator: (value) => (value == null || value.isEmpty)
+                            ? AppLocalizations.of(context)!.requiredField
+                            : null,
                       ),
-                      const SizedBox(height: 20),
-                      _buildStrategyDropdown(),
-                      const SizedBox(height: 20),
-                      Showcase(
-                        key: _amountKey,
-                        title: AppLocalizations.of(context)!.targetAmountLabel,
-                        description: AppLocalizations.of(context)!.amountHint,
-                        child: AppTextField(
-                          controller: _amountController,
-                          label: AppLocalizations.of(
+                    ),
+                    const SizedBox(height: 20),
+                    AppTextField(
+                      controller: _descriptionController,
+                      label: AppLocalizations.of(context)!.goalDescriptionLabel,
+                      hint: AppLocalizations.of(context)!.goalDescriptionHint,
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: _buildDropdown<String>(
                             context,
-                          )!.targetAmountLabel,
-                          hint: AppLocalizations.of(context)!.amountHint,
-                          keyboardType: TextInputType.number,
-                          suffix: Text(
-                            context
-                                    .read<AuthBloc>()
-                                    .state
-                                    .authResponse
-                                    ?.user
-                                    .currency ??
-                                'XAF',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return AppLocalizations.of(
-                                context,
-                              )!.requiredField;
-                            }
-                            if (double.tryParse(value) == null) {
-                              return AppLocalizations.of(
-                                context,
-                              )!.invalidNumber;
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      InkWell(
-                        onTap: () => _selectDate(context),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                _selectedDate == null
-                                    ? AppLocalizations.of(
-                                        context,
-                                      )!.deadlineLabel
-                                    : DateFormat(
-                                        'dd/MM/yyyy',
-                                      ).format(_selectedDate!),
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  color: _selectedDate == null
-                                      ? Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant
-                                      : Theme.of(context).colorScheme.onSurface,
+                            label: AppLocalizations.of(context)!.goalTypeLabel,
+                            value: _selectedType,
+                            items: [
+                              DropdownMenuItem(
+                                value: 'emergency',
+                                child: Text(
+                                  AppLocalizations.of(context)!.emergencyType,
                                 ),
                               ),
-                              Icon(
-                                Icons.calendar_today,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                                size: 20,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      InkWell(
-                        onTap: () =>
-                            setState(() => _showAdvanced = !_showAdvanced),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            children: [
-                              Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.autoSaveRulesTitle,
-                                style: AppTextStyles.bodyLarge.copyWith(
-                                  fontWeight: FontWeight.bold,
+                              DropdownMenuItem(
+                                value: 'savings',
+                                child: Text(
+                                  AppLocalizations.of(context)!.savingsType,
                                 ),
                               ),
-                              const Spacer(),
-                              Icon(
-                                _showAdvanced
-                                    ? Icons.keyboard_arrow_up
-                                    : Icons.keyboard_arrow_down,
-                                color: Theme.of(context).colorScheme.primary,
+                              DropdownMenuItem(
+                                value: 'investment',
+                                child: Text(
+                                  AppLocalizations.of(context)!.investmentType,
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: 'debt',
+                                child: Text(
+                                  AppLocalizations.of(context)!.debtType,
+                                ),
                               ),
                             ],
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedType = value!;
+                                // Reset strategy if current one is not valid for the new type
+                                if (_selectedType == 'debt') {
+                                  _selectedStrategy = 'snowball';
+                                } else if (_selectedStrategy == 'snowball' ||
+                                    _selectedStrategy == 'avalanche') {
+                                  _selectedStrategy = 'custom';
+                                }
+                              });
+                            },
                           ),
                         ),
-                      ),
-                      if (_showAdvanced) ...[
-                        const SizedBox(height: 16),
-                        _buildSwitchTile(
-                          context,
-                          label: AppLocalizations.of(
-                            context,
-                          )!.enableSurplusLabel,
-                          subtitle: AppLocalizations.of(
-                            context,
-                          )!.enableSurplusDesc,
-                          value: _enableSurplus,
-                          onChanged: (value) =>
-                              setState(() => _enableSurplus = value),
-                        ),
-                        _buildSwitchTile(
-                          context,
-                          label: AppLocalizations.of(
-                            context,
-                          )!.enableRoundupLabel,
-                          subtitle: AppLocalizations.of(
-                            context,
-                          )!.enableRoundupDesc,
-                          value: _enableRoundup,
-                          onChanged: (value) =>
-                              setState(() => _enableRoundup = value),
-                        ),
-                        const SizedBox(height: 16),
-                        AppTextField(
-                          controller: _percentageController,
-                          label: AppLocalizations.of(
-                            context,
-                          )!.percentageIncomeLabel,
-                          hint: '0',
-                          keyboardType: TextInputType.number,
-                          helperText: AppLocalizations.of(
-                            context,
-                          )!.percentageIncomeDesc,
-                          suffix: const Text('%'),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: AppTextField(
+                            controller: _emojiController,
+                            label: AppLocalizations.of(context)!.goalEmojiLabel,
+                            hint: '🎯',
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ],
-                      const SizedBox(height: 40),
-                      BlocBuilder<GoalsBloc, GoalsState>(
-                        builder: (context, state) {
-                          return AppButton(
-                            text: AppLocalizations.of(context)!.saveGoalAction,
-                            isLoading: state.status == GoalsStatus.loading,
-                            onPressed: () => _onSave(context),
-                          );
+                    ),
+                    const SizedBox(height: 20),
+                    _buildDropdown<String>(
+                      context,
+                      label: AppLocalizations.of(context)!.goalPriorityLabel,
+                      value: _selectedPriority,
+                      items: [
+                        DropdownMenuItem(
+                          value: 'high',
+                          child: Text(
+                            AppLocalizations.of(context)!.highPriority,
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'medium',
+                          child: Text(
+                            AppLocalizations.of(context)!.mediumPriority,
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'low',
+                          child: Text(
+                            AppLocalizations.of(context)!.lowPriority,
+                          ),
+                        ),
+                      ],
+                      onChanged: (value) =>
+                          setState(() => _selectedPriority = value!),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildStrategyDropdown(),
+                    const SizedBox(height: 20),
+                    Showcase(
+                      key: _amountKey,
+                      title: AppLocalizations.of(
+                        context,
+                      )!.tutorialGoalAmountFieldTitle,
+                      description: AppLocalizations.of(
+                        context,
+                      )!.tutorialGoalAmountFieldDesc,
+                      child: AppTextField(
+                        controller: _amountController,
+                        label: AppLocalizations.of(context)!.targetAmountLabel,
+                        hint: AppLocalizations.of(context)!.amountHint,
+                        keyboardType: TextInputType.number,
+                        suffix: Text(
+                          context
+                                  .read<AuthBloc>()
+                                  .state
+                                  .authResponse
+                                  ?.user
+                                  .currency ??
+                              'XAF',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return AppLocalizations.of(context)!.requiredField;
+                          }
+                          if (double.tryParse(value) == null) {
+                            return AppLocalizations.of(context)!.invalidNumber;
+                          }
+                          return null;
                         },
                       ),
+                    ),
+                    const SizedBox(height: 20),
+                    InkWell(
+                      onTap: () => _selectDate(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _selectedDate == null
+                                  ? AppLocalizations.of(context)!.deadlineLabel
+                                  : DateFormat(
+                                      'dd/MM/yyyy',
+                                    ).format(_selectedDate!),
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: _selectedDate == null
+                                    ? Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant
+                                    : Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                            Icon(
+                              Icons.calendar_today,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    InkWell(
+                      onTap: () =>
+                          setState(() => _showAdvanced = !_showAdvanced),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.autoSaveRulesTitle,
+                              style: AppTextStyles.bodyLarge.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Spacer(),
+                            Icon(
+                              _showAdvanced
+                                  ? Icons.keyboard_arrow_up
+                                  : Icons.keyboard_arrow_down,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (_showAdvanced) ...[
+                      const SizedBox(height: 16),
+                      _buildSwitchTile(
+                        context,
+                        label: AppLocalizations.of(context)!.enableSurplusLabel,
+                        subtitle: AppLocalizations.of(
+                          context,
+                        )!.enableSurplusDesc,
+                        value: _enableSurplus,
+                        onChanged: (value) =>
+                            setState(() => _enableSurplus = value),
+                      ),
+                      _buildSwitchTile(
+                        context,
+                        label: AppLocalizations.of(context)!.enableRoundupLabel,
+                        subtitle: AppLocalizations.of(
+                          context,
+                        )!.enableRoundupDesc,
+                        value: _enableRoundup,
+                        onChanged: (value) =>
+                            setState(() => _enableRoundup = value),
+                      ),
+                      const SizedBox(height: 16),
+                      AppTextField(
+                        controller: _percentageController,
+                        label: AppLocalizations.of(
+                          context,
+                        )!.percentageIncomeLabel,
+                        hint: '0',
+                        keyboardType: TextInputType.number,
+                        helperText: AppLocalizations.of(
+                          context,
+                        )!.percentageIncomeDesc,
+                        suffix: const Text('%'),
+                      ),
                     ],
-                  ),
+                    const SizedBox(height: 40),
+                    BlocBuilder<GoalsBloc, GoalsState>(
+                      builder: (context, state) {
+                        return AppButton(
+                          text: AppLocalizations.of(context)!.saveGoalAction,
+                          isLoading: state.status == GoalsStatus.loading,
+                          onPressed: () => _onSave(context),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),

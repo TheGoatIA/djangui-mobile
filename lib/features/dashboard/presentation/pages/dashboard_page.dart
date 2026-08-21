@@ -125,34 +125,45 @@ class _DashboardViewState extends State<DashboardView> {
 
   @override
   void dispose() {
-    try {
-      // Ferme les infobulles du tutoriel si la page est quittée
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    // Ferme les infobulles du tutoriel si la page est quittée
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
   /// Démarre le tutoriel interactif si l'utilisateur ne l'a pas encore vu sur cet écran.
+  ///
+  /// La liste des cibles est recalculée à chaque appel à partir de l'état
+  /// courant (feature flags, pays, ordre du dashboard choisi par
+  /// l'utilisateur) : une carte masquée (flag désactivé, section retirée par
+  /// l'utilisateur, pays non éligible) ne doit jamais être incluse, sinon la
+  /// séquence entière reste bloquée sur cette étape.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('dashboard_v2')) {
-      try {
-        final shell = StatefulNavigationShell.of(context);
-        if (shell.currentIndex != 0) return;
-      } catch (_) {
-        if (ModalRoute.of(context)?.isCurrent != true) return;
-      }
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([
+    if (tutorialService.hasSeenTutorial('dashboard_v2')) return;
+    try {
+      final shell = StatefulNavigationShell.of(context);
+      if (shell.currentIndex != 0) return;
+    } catch (_) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
+    }
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final order = context.read<SettingsBloc>().state.dashboardOrder;
+      final flags = context.read<SystemBloc>().state.featureFlags;
+      final isCameroon =
+          context.read<AuthBloc>().state.authResponse?.user.country == 'CM';
+
+      final keys = <GlobalKey>[
+        if (order.contains('gamification') && flags.featGamification.isEnabled)
           _gamificationKey,
+        if (order.contains('balance') && isCameroon) ...[
           _balanceKey,
           _incomeKey,
-          _quickActionsKey,
-        ]);
-        tutorialService.markTutorialAsSeen('dashboard_v2');
-      });
-    }
+        ],
+        _quickActionsKey,
+      ];
+      tutorialService.startTutorial(context, 'dashboard_v2', keys);
+    });
   }
 
   @override
@@ -342,10 +353,12 @@ class _DashboardViewState extends State<DashboardView> {
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Showcase(
                       key: _balanceKey,
-                      title: AppLocalizations.of(context)!.tutorialWalletTitle,
+                      title: AppLocalizations.of(
+                        context,
+                      )!.tutorialBalanceCardTitle,
                       description: AppLocalizations.of(
                         context,
-                      )!.tutorialWalletDesc,
+                      )!.tutorialBalanceCardDesc,
                       child: GestureDetector(
                         onTap: () async {
                           await context.push(RouteConstants.wallet);

@@ -175,18 +175,18 @@ class _SecurityPageState extends State<SecurityPage>
                             (_availableBiometrics?.isNotEmpty ?? false))
                         ? (value) async {
                             if (value) {
-                              // If enabling, check if we need to save credentials
+                              // If enabling, check if we already have a biometric token
                               final repo = getIt<AuthRepository>();
-                              final credentials = await repo
-                                  .getBiometricCredentials();
+                              final biometricToken = await repo
+                                  .getBiometricToken();
                               final provider = await repo.getLoginProvider();
 
                               if (!context.mounted) return;
 
-                              if (credentials == null &&
+                              if (biometricToken == null &&
                                   provider == 'password') {
                                 _showPasswordDialog(context);
-                              } else if (credentials == null &&
+                              } else if (biometricToken == null &&
                                   provider != null &&
                                   provider != 'password') {
                                 // For social logins, just save the token

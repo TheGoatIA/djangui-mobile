@@ -1387,6 +1387,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Filter by period to see your financial evolution.';
 
   @override
+  String get tutorialAiReportTitle => 'Your AI Report';
+
+  @override
+  String get tutorialAiReportDesc =>
+      'Kauri reads your transactions and writes a plain-language summary of your spending habits, with tips tailored to you.';
+
+  @override
+  String get tutorialChartsTitle => 'Spending Breakdown';
+
+  @override
+  String get tutorialChartsDesc =>
+      'This chart splits your expenses by category so you can instantly spot where your money goes.';
+
+  @override
   String get resetTutorials => 'Reset Tutorials';
 
   @override
@@ -1443,6 +1457,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Manage your personal information, subscription, and settings.';
 
   @override
+  String get tutorialSettingsSectionTitle => 'Settings';
+
+  @override
+  String get tutorialSettingsSectionDesc =>
+      'Language, theme, security, notifications, KYC: all your app preferences live here.';
+
+  @override
+  String get tutorialCoachInputTitle => 'Ask your AI Coach';
+
+  @override
+  String get tutorialCoachInputDesc =>
+      'Type any question about your money — \"Can I afford this?\", \"How do I save faster?\" — and get a personalized answer based on your real data.';
+
+  @override
   String get tutorialAddTransactionTitle => 'Add a Transaction';
 
   @override
@@ -1462,6 +1490,34 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tutorialAddBudgetDesc =>
       'Allocate a precise amount to a category for this month.';
+
+  @override
+  String get tutorialGoalNameFieldTitle => 'Name your goal';
+
+  @override
+  String get tutorialGoalNameFieldDesc =>
+      'Choose a clear, motivating name (e.g. \"Trip to Paris\") — it\'s what you\'ll see every time you check your progress.';
+
+  @override
+  String get tutorialGoalAmountFieldTitle => 'Set your target';
+
+  @override
+  String get tutorialGoalAmountFieldDesc =>
+      'Enter the total amount you want to save. Kauri uses it to calculate your progress and suggest a saving pace.';
+
+  @override
+  String get tutorialBudgetCategoryFieldTitle => 'Pick a category';
+
+  @override
+  String get tutorialBudgetCategoryFieldDesc =>
+      'Choose the spending category this budget applies to, so Kauri can track it automatically from your transactions.';
+
+  @override
+  String get tutorialBudgetAmountFieldTitle => 'Set your limit';
+
+  @override
+  String get tutorialBudgetAmountFieldDesc =>
+      'Enter the maximum you want to spend in this category this month. You\'ll get alerted as you approach it.';
 
   @override
   String get tutorialAddInvestmentTitle => 'New Investment';

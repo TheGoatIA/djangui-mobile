@@ -7,12 +7,15 @@ import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:kauri/features/transactions/data/datasources/transaction_remote_datasource.dart';
+import 'package:kauri/features/transactions/data/datasources/transaction_local_datasource.dart';
 import 'package:kauri/features/transactions/data/models/transaction_model.dart';
 import 'package:kauri/features/user_subscriptions/data/datasources/subscription_api_service.dart';
 import 'package:kauri/features/user_subscriptions/data/models/subscription_model.dart';
 import 'package:kauri/features/challenges/data/datasources/challenge_remote_datasource.dart';
 import 'package:kauri/features/goals/data/datasources/goal_remote_datasource.dart';
+import 'package:kauri/features/goals/data/datasources/goal_local_datasource.dart';
 import 'package:kauri/features/budgets/data/datasources/budget_remote_datasource.dart';
+import 'package:kauri/features/budgets/data/datasources/budget_local_datasource.dart';
 import 'package:kauri/features/budgets/data/models/budget_model.dart';
 import 'package:kauri/features/tontine/data/datasources/tontine_api_service.dart';
 import 'package:kauri/features/goals/data/models/goal_model.dart';
@@ -189,8 +192,19 @@ class SyncService {
     final payload = jsonDecode(request.payload);
 
     if (request.action == 'create') {
-      final transaction = TransactionModel.fromJson(payload);
-      await _transactionRemoteDataSource.createTransaction(transaction);
+      final localTransaction = TransactionModel.fromJson(payload);
+      final remoteTransaction = await _transactionRemoteDataSource
+          .createTransaction(localTransaction);
+      // The server may assign a different id than the one generated
+      // optimistically offline — without this, the local record stays
+      // permanently out of sync with its server counterpart (mirrors the
+      // reconciliation already done in TransactionRepositoryImpl.createTransaction
+      // for the online path).
+      if (remoteTransaction.id != localTransaction.id) {
+        final localDataSource = getIt<TransactionLocalDataSource>();
+        await localDataSource.deleteTransaction(localTransaction.id);
+        await localDataSource.saveTransaction(remoteTransaction);
+      }
     } else if (request.action == 'delete') {
       final id = payload['id'] as String;
       await _transactionRemoteDataSource.deleteTransaction(id);
@@ -222,8 +236,13 @@ class SyncService {
     final payload = jsonDecode(request.payload);
 
     if (request.action == 'create') {
-      final goal = GoalModel.fromJson(payload);
-      await _goalRemoteDataSource.createGoal(goal);
+      final localGoal = GoalModel.fromJson(payload);
+      final remoteGoal = await _goalRemoteDataSource.createGoal(localGoal);
+      if (remoteGoal.id != localGoal.id) {
+        final localDataSource = getIt<GoalLocalDataSource>();
+        await localDataSource.deleteGoal(localGoal.id);
+        await localDataSource.saveGoal(remoteGoal);
+      }
     } else if (request.action == 'delete') {
       final id = payload['id'] as String;
       await _goalRemoteDataSource.deleteGoal(id);
@@ -259,8 +278,13 @@ class SyncService {
     final payload = jsonDecode(request.payload);
 
     if (request.action == 'create') {
-      final budget = BudgetModel.fromJson(payload);
-      await _budgetRemoteDataSource.createBudget(budget);
+      final localBudget = BudgetModel.fromJson(payload);
+      final remoteBudget = await _budgetRemoteDataSource.createBudget(localBudget);
+      if (remoteBudget.id != localBudget.id) {
+        final localDataSource = getIt<BudgetLocalDataSource>();
+        await localDataSource.deleteBudget(localBudget.id);
+        await localDataSource.saveBudget(remoteBudget);
+      }
     } else if (request.action == 'update') {
       final budget = BudgetModel.fromJson(payload);
       await _budgetRemoteDataSource.updateBudget(budget);

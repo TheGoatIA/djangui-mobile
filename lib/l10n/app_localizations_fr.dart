@@ -1396,6 +1396,20 @@ class AppLocalizationsFr extends AppLocalizations {
       'Filtrez par période pour voir votre évolution financière.';
 
   @override
+  String get tutorialAiReportTitle => 'Votre rapport IA';
+
+  @override
+  String get tutorialAiReportDesc =>
+      'Kauri analyse vos transactions et rédige un résumé en langage simple de vos habitudes de dépense, avec des conseils personnalisés.';
+
+  @override
+  String get tutorialChartsTitle => 'Répartition des dépenses';
+
+  @override
+  String get tutorialChartsDesc =>
+      'Ce graphique répartit vos dépenses par catégorie pour repérer instantanément où part votre argent.';
+
+  @override
   String get resetTutorials => 'Réinitialiser les tutoriels';
 
   @override
@@ -1452,6 +1466,20 @@ class AppLocalizationsFr extends AppLocalizations {
       'Gérez vos informations personnelles, votre abonnement et vos paramètres.';
 
   @override
+  String get tutorialSettingsSectionTitle => 'Paramètres';
+
+  @override
+  String get tutorialSettingsSectionDesc =>
+      'Langue, thème, sécurité, notifications, KYC : toutes vos préférences de l\'application se trouvent ici.';
+
+  @override
+  String get tutorialCoachInputTitle => 'Posez une question à votre Coach IA';
+
+  @override
+  String get tutorialCoachInputDesc =>
+      'Écrivez n\'importe quelle question sur votre argent — \"Puis-je me permettre cet achat ?\", \"Comment épargner plus vite ?\" — et obtenez une réponse personnalisée basée sur vos données réelles.';
+
+  @override
   String get tutorialAddTransactionTitle => 'Ajouter une Transaction';
 
   @override
@@ -1471,6 +1499,34 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get tutorialAddBudgetDesc =>
       'Allouez un montant précis à une catégorie pour ce mois.';
+
+  @override
+  String get tutorialGoalNameFieldTitle => 'Nommez votre objectif';
+
+  @override
+  String get tutorialGoalNameFieldDesc =>
+      'Choisissez un nom clair et motivant (ex. \"Voyage à Paris\") : c\'est lui que vous verrez à chaque fois que vous suivrez votre progression.';
+
+  @override
+  String get tutorialGoalAmountFieldTitle => 'Fixez votre objectif';
+
+  @override
+  String get tutorialGoalAmountFieldDesc =>
+      'Indiquez le montant total que vous souhaitez épargner. Kauri l\'utilise pour calculer votre progression et suggérer un rythme d\'épargne.';
+
+  @override
+  String get tutorialBudgetCategoryFieldTitle => 'Choisissez une catégorie';
+
+  @override
+  String get tutorialBudgetCategoryFieldDesc =>
+      'Sélectionnez la catégorie de dépense concernée par ce budget, pour que Kauri puisse la suivre automatiquement à partir de vos transactions.';
+
+  @override
+  String get tutorialBudgetAmountFieldTitle => 'Fixez votre limite';
+
+  @override
+  String get tutorialBudgetAmountFieldDesc =>
+      'Indiquez le montant maximum à dépenser dans cette catégorie ce mois-ci. Vous serez alerté(e) en vous en approchant.';
 
   @override
   String get tutorialAddInvestmentTitle => 'Nouvel Investissement';

@@ -66,14 +66,12 @@ class _CoachChatViewState extends State<CoachChatView> {
   /// Démarre le tutoriel si l'utilisateur découvre le Coach.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('coach')) {
-      if (ModalRoute.of(context)?.isCurrent != true) return;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_inputKey]);
-        tutorialService.markTutorialAsSeen('coach');
-      });
-    }
+    if (tutorialService.hasSeenTutorial('coach')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      tutorialService.startTutorial(context, 'coach', [_inputKey]);
+    });
   }
 
   @override
@@ -89,9 +87,7 @@ class _CoachChatViewState extends State<CoachChatView> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
@@ -216,8 +212,8 @@ class _CoachChatViewState extends State<CoachChatView> {
               // Zone de saisie mise en avant par le tutoriel le cas échéant
               Showcase(
                 key: _inputKey,
-                title: l10n.coachTitle,
-                description: l10n.typeQuestionHint,
+                title: l10n.tutorialCoachInputTitle,
+                description: l10n.tutorialCoachInputDesc,
                 child: _buildInputArea(context),
               ),
             ],
