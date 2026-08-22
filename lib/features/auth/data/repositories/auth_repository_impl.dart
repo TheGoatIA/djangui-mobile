@@ -27,6 +27,7 @@ import '../../../../di/injection.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 /// Implémentation concrète de [AuthRepository].
 ///
@@ -70,7 +71,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return const Right(null);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -118,7 +119,7 @@ class AuthRepositoryImpl implements AuthRepository {
         error: e,
         component: 'AuthRepository',
       );
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -172,7 +173,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return const Right(null);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -235,7 +236,7 @@ class AuthRepositoryImpl implements AuthRepository {
         error: e,
         component: 'AuthRepository',
       );
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -303,7 +304,7 @@ class AuthRepositoryImpl implements AuthRepository {
         error: e,
         component: 'AuthRepository',
       );
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -330,7 +331,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _localDataSource.saveUser(user);
       return Right(user);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -348,7 +349,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _localDataSource.saveLoginProvider('password');
         return Right(response);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -370,7 +371,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _localDataSource.saveLoginProvider('password');
         return Right(response);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -390,7 +391,7 @@ class AuthRepositoryImpl implements AuthRepository {
         // Fallback to local cache if network fails
         final user = await _localDataSource.getUser();
         if (user != null) return Right(user);
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       final user = await _localDataSource.getUser();
@@ -447,7 +448,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.forgotPassword(email);
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -464,7 +465,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.resetPassword(token, newPassword);
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -478,7 +479,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.verifyEmail(token);
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -504,7 +505,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Right(null);
       } catch (e) {
         debugPrint('🌐 [AuthRepository] Token refresh failed: $e');
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -518,7 +519,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.updateFcmToken(token);
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -580,7 +581,7 @@ class AuthRepositoryImpl implements AuthRepository {
         // so it keeps working across a password change with nothing to update here.
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -596,7 +597,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await logout();
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -610,7 +611,7 @@ class AuthRepositoryImpl implements AuthRepository {
         final sessions = await _remoteDataSource.getSessions();
         return Right(sessions);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -624,7 +625,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.revokeSession(sessionId);
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -638,7 +639,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.revokeAllOtherSessions();
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -705,7 +706,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final request = await _remoteDataSource.requestCountryChange(countryCode);
       return Right(request);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -717,7 +718,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _remoteDataSource.updateLanguage(languageCode);
       return const Right(null);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -761,7 +762,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return Right(data);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 

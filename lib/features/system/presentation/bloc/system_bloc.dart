@@ -4,6 +4,7 @@ import '../../domain/repositories/system_repository.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/utils/version_utils.dart';
 import '../../data/models/feature_flag_model.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:opentelemetry/api.dart';
@@ -71,7 +72,7 @@ class SystemBloc extends Bloc<SystemEvent, SystemState> {
       emit(
         state.copyWith(
           status: SystemStatus.failure,
-          errorMessage: e.toString(),
+          errorMessage: ErrorMapper.safeMessage(e),
         ),
       );
     }
@@ -89,7 +90,7 @@ class SystemBloc extends Bloc<SystemEvent, SystemState> {
       emit(
         state.copyWith(
           status: SystemStatus.failure,
-          errorMessage: e.toString(),
+          errorMessage: ErrorMapper.safeMessage(e),
         ),
       );
     }
@@ -107,7 +108,7 @@ class SystemBloc extends Bloc<SystemEvent, SystemState> {
       emit(
         state.copyWith(
           status: SystemStatus.failure,
-          errorMessage: e.toString(),
+          errorMessage: ErrorMapper.safeMessage(e),
         ),
       );
     }

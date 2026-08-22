@@ -10,6 +10,7 @@ import '../../../../core/network/network_info.dart';
 import '../../domain/repositories/voice_repository.dart';
 import '../datasources/voice_api_service.dart';
 import '../models/voice_response_model.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: VoiceRepository)
 class VoiceRepositoryImpl implements VoiceRepository {
@@ -52,7 +53,7 @@ class VoiceRepositoryImpl implements VoiceRepository {
           component: 'VoiceRepository',
           error: e,
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());

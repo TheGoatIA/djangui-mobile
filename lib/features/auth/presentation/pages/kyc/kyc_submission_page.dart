@@ -29,11 +29,19 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
 
   final ImagePicker _picker = ImagePicker();
 
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _docNumberController.dispose();
+    super.dispose();
+  }
+
   Future<void> _pickImage(bool isSelfie) async {
     final XFile? image = await _picker.pickImage(
       source: isSelfie ? ImageSource.camera : ImageSource.gallery,
       imageQuality: 70,
     );
+    if (!mounted) return;
 
     if (image != null) {
       setState(() {

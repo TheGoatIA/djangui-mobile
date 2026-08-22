@@ -928,7 +928,10 @@ class GoalDetailPage extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ).then((_) {
+      amountController.dispose();
+      noteController.dispose();
+    });
   }
 
   void _showDeleteDialog(BuildContext context, GoalModel goal) {

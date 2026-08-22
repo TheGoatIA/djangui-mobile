@@ -10,6 +10,7 @@ import 'package:kauri/features/challenges/domain/repositories/challenge_reposito
 import 'package:kauri/features/challenges/data/models/challenge_model.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: ChallengeRepository)
 class ChallengeRepositoryImpl implements ChallengeRepository {
@@ -84,7 +85,7 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
           error: e,
           component: 'ChallengeRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       final localChallenges = await _localDataSource.getChallenges();
@@ -156,7 +157,7 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
         error: e,
         component: 'ChallengeRepository',
       );
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -177,7 +178,7 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
           error: e,
           component: 'ChallengeRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline: Queue it
@@ -228,7 +229,7 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
           error: e,
           component: 'ChallengeRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline: Queue it
@@ -261,7 +262,7 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
         await _remoteDataSource.unjoinChallenge(id);
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline: Queue it
@@ -292,7 +293,7 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
         await _remoteDataSource.skipWeek(userChallengeId, weekNumber);
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline: Queue it
@@ -326,7 +327,7 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
         await _remoteDataSource.postponeDeadline(userChallengeId, weekNumber);
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline: Queue it
@@ -368,7 +369,7 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
           error: e,
           component: 'ChallengeRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());

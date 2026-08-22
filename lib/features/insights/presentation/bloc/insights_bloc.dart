@@ -22,10 +22,13 @@ class InsightsBloc extends Bloc<InsightsEvent, InsightsState> {
   ) async {
     emit(state.copyWith(status: InsightsStatus.loading, period: event.period));
 
-    // Fetch spending analysis, trends, and narrative in parallel
+    // Fetch spending analysis, trends, and narrative in parallel. The AI
+    // narrative stays month-focused (its prompt is built around "this
+    // month"'s numbers) — only the chart data actually respects the
+    // weekly/monthly/yearly selector.
     final results = await Future.wait([
-      _reportsRepository.getSpendingAnalysis(),
-      _reportsRepository.getSavingsTrend(),
+      _reportsRepository.getSpendingAnalysis(period: event.period),
+      _reportsRepository.getSavingsTrend(period: event.period),
       _reportsRepository.getNarrativeReport(),
     ]);
 

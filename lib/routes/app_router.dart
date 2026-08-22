@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/constants/route_constants.dart';
+import '../di/injection.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../core/navigation/telemetry_route_observer.dart';
 import '../core/widgets/scaffold_with_navbar.dart';
@@ -61,11 +63,47 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
 );
 
+/// Fait réévaluer `redirect` par GoRouter à chaque changement de statut
+/// d'authentification (ex : déconnexion pendant qu'un écran protégé est
+/// affiché), sans attendre une navigation déclenchée par l'utilisateur.
+class GoRouterRefreshStream extends ChangeNotifier {
+  late final StreamSubscription<dynamic> _subscription;
+
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
+/// Écrans accessibles sans être authentifié. Toute route absente de cette
+/// liste est considérée protégée : un utilisateur non authentifié qui essaie
+/// de l'atteindre (deep link direct, état restauré, navigation
+/// programmatique, session expirée pendant qu'il est déjà dessus) est
+/// renvoyé vers l'écran de connexion.
+const _publicRoutePaths = <String>{
+  RouteConstants.splash,
+  RouteConstants.login,
+  RouteConstants.register,
+  RouteConstants.forgotPassword,
+  RouteConstants.resetPassword,
+  RouteConstants.phoneLogin,
+  RouteConstants.otpVerification,
+  RouteConstants.onBoarding,
+  RouteConstants.accountSuspended,
+};
+
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: RouteConstants.splash,
   debugLogDiagnostics: true,
   observers: [TelemetryRouteObserver()],
+  refreshListenable: GoRouterRefreshStream(getIt<AuthBloc>().stream),
   redirect: (context, state) {
     // Handle kauri scheme deep links
     if (state.uri.scheme == 'kauri') {
@@ -91,15 +129,41 @@ final appRouter = GoRouter(
         return '${RouteConstants.shareGoal}?${state.uri.query}';
       }
     }
-    // Geographic Restriction: Only Cameroon (CM) for financial services
     final authState = context.read<AuthBloc>().state;
     final user = authState.authResponse?.user;
+    final isAuthenticated = authState.status == AuthStatus.authenticated;
+    final isKnownUnauthenticated =
+        authState.status == AuthStatus.unauthenticated ||
+        authState.status == AuthStatus.error;
+
+    // Garde d'authentification : un utilisateur non connecté ne doit jamais
+    // atteindre un écran protégé (lien profond direct, état de navigation
+    // restauré, session qui expire pendant qu'il est déjà sur la page). On ne
+    // redirige que lorsque le statut est connu comme "non authentifié" (pas
+    // pendant `initial`/`loading`, le temps que le Splash détermine l'état) —
+    // sinon un rafraîchissement de token en cours ferait un aller-retour
+    // intempestif vers le login.
+    if (isKnownUnauthenticated && !_publicRoutePaths.contains(state.uri.path)) {
+      return RouteConstants.login;
+    }
+
+    // Geographic Restriction: Only Cameroon (CM) for financial services
     final isFintechRoute =
         state.uri.path == RouteConstants.wallet ||
         state.uri.path == RouteConstants.kycSubmission;
 
     if (isFintechRoute && user != null && user.country != 'CM') {
       return RouteConstants.dashboard; // Redirect to dashboard if not in CM
+    }
+
+    // Un utilisateur authentifié qui atterrit sur login/register/onboarding
+    // (bouton "retour", lien profond obsolète) est renvoyé au tableau de bord
+    // plutôt que de revoir l'écran de connexion.
+    if (isAuthenticated &&
+        (state.uri.path == RouteConstants.login ||
+            state.uri.path == RouteConstants.register ||
+            state.uri.path == RouteConstants.onBoarding)) {
+      return RouteConstants.dashboard;
     }
 
     return null;

@@ -58,6 +58,8 @@
     "enterPasswordError": "Veuillez entrer votre mot de passe",
     "passwordLengthError": "Le mot de passe doit contenir au moins 6 caractères",
     "genericError": "Une erreur est survenue",
+    "networkErrorGeneric": "Pas de connexion internet. Vérifiez votre réseau et réessayez.",
+    "timeoutErrorGeneric": "Le serveur met trop de temps à répondre. Veuillez réessayer.",
     "loading": "Chargement...",
     "retry": "Réessayer",
     "noAccountQuestion": "Vous n'avez pas de compte ?",

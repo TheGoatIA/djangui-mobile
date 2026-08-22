@@ -11,6 +11,7 @@ import '../../domain/repositories/goal_repository.dart';
 import '../models/goal_model.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: GoalRepository)
 class GoalRepositoryImpl implements GoalRepository {
@@ -63,7 +64,7 @@ class GoalRepositoryImpl implements GoalRepository {
           error: e,
           component: 'GoalRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       final localGoals = await _localDataSource.getGoals();
@@ -111,7 +112,7 @@ class GoalRepositoryImpl implements GoalRepository {
           error: e,
           component: 'GoalRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline: Queue it
@@ -155,7 +156,7 @@ class GoalRepositoryImpl implements GoalRepository {
           error: e,
           component: 'GoalRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline: Queue it
@@ -216,12 +217,18 @@ class GoalRepositoryImpl implements GoalRepository {
         );
         return Right(updatedGoal);
       } catch (e) {
+        // Le serveur a rejeté la contribution : on annule l'écriture
+        // optimiste locale, sinon le prochain `getGoals(forceRefresh: false)`
+        // lirait un montant que le serveur n'a jamais appliqué.
+        if (goal != null) {
+          await _localDataSource.saveGoal(goal);
+        }
         _logger.error(
           'Échec de la contribution sur le serveur',
           error: e,
           component: 'GoalRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline: Queue it
@@ -283,7 +290,7 @@ class GoalRepositoryImpl implements GoalRepository {
           error: e,
           component: 'GoalRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline redemption is tricky because it affects balance immediately.

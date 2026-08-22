@@ -58,6 +58,8 @@
     "enterPasswordError": "Please enter your password",
     "passwordLengthError": "Password must be at least 6 characters",
     "genericError": "An error occurred",
+    "networkErrorGeneric": "No internet connection. Please check your network and try again.",
+    "timeoutErrorGeneric": "The server is taking too long to respond. Please try again.",
     "loading": "Loading...",
     "retry": "Retry",
     "noAccountQuestion": "Don't have an account?",

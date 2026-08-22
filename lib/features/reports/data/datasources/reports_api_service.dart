@@ -14,10 +14,12 @@ abstract class ReportsApiService extends ChopperService {
 
   @GET(path: '/analysis')
   Future<Response<BaseListResponse<SpendingAnalysisModel>>>
-  getSpendingAnalysis();
+  getSpendingAnalysis({@Query('period') String? period});
 
   @GET(path: '/trends')
-  Future<Response<BaseListResponse<SavingsTrendModel>>> getSavingsTrend();
+  Future<Response<BaseListResponse<SavingsTrendModel>>> getSavingsTrend({
+    @Query('period') String? period,
+  });
 
   @GET(path: '/narrative')
   Future<Response<BaseResponse<NarrativeReportModel>>> getNarrativeReport();

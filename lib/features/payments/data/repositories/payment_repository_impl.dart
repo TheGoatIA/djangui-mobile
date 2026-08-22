@@ -5,6 +5,7 @@ import '../../../../core/network/network_info.dart';
 import 'package:kauri/features/payments/domain/repositories/payment_repository.dart';
 import 'package:kauri/features/payments/data/models/payment_model.dart';
 import 'package:kauri/features/payments/data/datasources/payments_api_service.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: PaymentRepository)
 class PaymentRepositoryImpl implements PaymentRepository {
@@ -30,7 +31,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
       }
       return Left(ServerFailure(response.error?.toString() ?? 'Erreur Stripe'));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -55,7 +56,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
         ServerFailure(response.error?.toString() ?? 'Erreur NotchPay'),
       );
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -74,7 +75,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
         ServerFailure(response.error?.toString() ?? 'Erreur Vérification'),
       );
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 }

@@ -385,34 +385,41 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                         width: double.infinity,
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: () {
-                            if (!isJoined) {
-                              getIt<AnalyticsManager>().trackEvent(
-                                feature: 'Challenges',
-                                action: 'join',
-                                details: {
-                                  'challenge_title': widget.challenge.title,
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  if (!isJoined) {
+                                    getIt<AnalyticsManager>().trackEvent(
+                                      feature: 'Challenges',
+                                      action: 'join',
+                                      details: {
+                                        'challenge_title':
+                                            widget.challenge.title,
+                                      },
+                                    );
+                                    context.read<ChallengesBloc>().add(
+                                      JoinChallengeRequested(
+                                        widget.challenge.id,
+                                      ),
+                                    );
+                                    Navigator.pop(context);
+                                  } else if (isCompleted &&
+                                      widget.userChallenge?.status !=
+                                          'redeemed') {
+                                    context.read<ChallengesBloc>().add(
+                                      RedeemChallengeRequested(
+                                        widget.userChallenge!.id,
+                                      ),
+                                    );
+                                    Navigator.pop(context);
+                                  } else if (!isCompleted &&
+                                      isWeekReadyToValidate) {
+                                    _showValidationDialog(
+                                      context,
+                                      widget.userChallenge!,
+                                    );
+                                  }
                                 },
-                              );
-                              context.read<ChallengesBloc>().add(
-                                JoinChallengeRequested(widget.challenge.id),
-                              );
-                              Navigator.pop(context);
-                            } else if (isCompleted &&
-                                widget.userChallenge?.status != 'redeemed') {
-                              context.read<ChallengesBloc>().add(
-                                RedeemChallengeRequested(
-                                  widget.userChallenge!.id,
-                                ),
-                              );
-                              Navigator.pop(context);
-                            } else if (!isCompleted && isWeekReadyToValidate) {
-                              _showValidationDialog(
-                                context,
-                                widget.userChallenge!,
-                              );
-                            }
-                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isJoined
                                 ? (isCompleted

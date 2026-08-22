@@ -11,6 +11,7 @@ import '../../../upload/domain/repositories/upload_repository.dart';
 
 import 'package:kauri/core/analytics/analytics_service.dart';
 import 'package:kauri/core/analytics/events.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
@@ -394,7 +395,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       'Auth: Login',
       kind: SpanKind.internal,
     );
-    span.setAttribute(Attribute.fromString('auth.email', event.email));
 
     try {
       emit(state.copyWith(status: AuthStatus.loading));
@@ -406,12 +406,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           span.setStatus(StatusCode.error, failure.message);
           _telemetry.recordEvent('auth.login.failure', {
             'reason': failure.message,
-            'email': event.email,
           });
           _logger.warning(
             'Échec de connexion email/mot de passe',
             component: 'AuthBloc',
-            metadata: {'email': event.email, 'error': failure.message},
+            metadata: {'error': failure.message},
           );
           emit(
             state.copyWith(
@@ -424,12 +423,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           span.setAttribute(Attribute.fromString('user.id', response.user.id));
           _telemetry.recordEvent('auth.login.success', {
             'user.id': response.user.id,
-            'email': event.email,
           });
           _logger.info(
             'Connexion réussie',
             component: 'AuthBloc',
-            metadata: {'email': event.email, 'user_id': response.user.id},
+            metadata: {'user_id': response.user.id},
           );
           _authRepository.updateDeviceInfo();
           _authRepository.logConnection();
@@ -459,7 +457,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       'Auth: Register',
       kind: SpanKind.internal,
     );
-    span.setAttribute(Attribute.fromString('auth.email', event.email));
     span.setAttribute(
       Attribute.fromString('user.country', event.country ?? 'unknown'),
     );
@@ -482,7 +479,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           _logger.error(
             'Échec de l\'inscription',
             component: 'AuthBloc',
-            metadata: {'email': event.email, 'error': failure.message},
+            metadata: {'error': failure.message},
           );
           emit(
             state.copyWith(
@@ -497,7 +494,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           _logger.info(
             'Nouvelle inscription réussie',
             component: 'AuthBloc',
-            metadata: {'email': event.email, 'user_id': response.user.id},
+            metadata: {'user_id': response.user.id},
           );
           _authRepository.updateDeviceInfo();
           _authRepository.logConnection();
@@ -905,7 +902,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         component: 'AuthBloc',
       );
       emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
+        state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: ErrorMapper.safeMessage(e),
+        ),
       );
     }
   }

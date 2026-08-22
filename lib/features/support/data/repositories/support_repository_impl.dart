@@ -7,6 +7,7 @@ import 'package:kauri/features/support/data/models/support_ticket_model.dart';
 import 'package:kauri/features/support/domain/repositories/support_repository.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: SupportRepository)
 class SupportRepositoryImpl implements SupportRepository {
@@ -48,7 +49,7 @@ class SupportRepositoryImpl implements SupportRepository {
           error: e,
           component: 'SupportRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       _logger.warning(
@@ -97,7 +98,7 @@ class SupportRepositoryImpl implements SupportRepository {
           error: e,
           component: 'SupportRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       _logger.warning(
@@ -143,7 +144,7 @@ class SupportRepositoryImpl implements SupportRepository {
           error: e,
           component: 'SupportRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       _logger.warning(

@@ -186,6 +186,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
     final image = await ocrService.pickImage(source);
     if (image == null) return;
+    if (!mounted) return;
 
     setState(() => _isScanning = true);
 
@@ -207,6 +208,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         },
       );
 
+      if (!mounted) return;
       setState(() {
         if (result.amount != null) {
           _amountController.text = result.amount!.toStringAsFixed(0);
@@ -261,7 +263,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         }
       }
     } catch (e) {
-      setState(() => _isScanning = false);
       getIt<LogService>().error(
         'Erreur technique lors du scan OCR',
         error: e,
@@ -269,6 +270,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         page: 'AddTransaction',
       );
       if (mounted) {
+        setState(() => _isScanning = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.receiptScannedError),

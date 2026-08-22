@@ -9,6 +9,7 @@ import '../../domain/repositories/coach_repository.dart';
 import '../models/chat_message_model.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: CoachRepository)
 class CoachRepositoryImpl implements CoachRepository {
@@ -74,7 +75,7 @@ class CoachRepositoryImpl implements CoachRepository {
         );
         return Right(localHistory);
       }
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -103,14 +104,25 @@ class CoachRepositoryImpl implements CoachRepository {
         );
         return Right(aiMessage);
       } catch (e) {
+        // Le message n'a jamais atteint le serveur : on retire la copie
+        // locale plutôt que de la laisser dans un état ambigu qui serait de
+        // toute façon silencieusement effacé au prochain rechargement de
+        // l'historique en ligne (qui remplace le cache local par la liste
+        // serveur, laquelle ne contient pas ce message).
+        await _localDataSource.deleteMessage(userMessage.id);
         _logger.error(
           'Échec de l\'envoi du message au serveur AI',
           error: e,
           component: 'CoachRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
+      // Hors-ligne, l'assistant IA ne peut pas répondre en différé (pas de
+      // file d'attente de synchronisation pour ce flux) : même logique, on
+      // retire le message local plutôt que de le laisser disparaître plus
+      // tard sans explication.
+      await _localDataSource.deleteMessage(userMessage.id);
       _logger.warning(
         'Impossible de discuter avec Anne hors-ligne.',
         component: 'CoachRepository',

@@ -446,6 +446,18 @@ abstract class AppLocalizations {
   /// **'Une erreur est survenue'**
   String get genericError;
 
+  /// No description provided for @networkErrorGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de connexion internet. Vérifiez votre réseau et réessayez.'**
+  String get networkErrorGeneric;
+
+  /// No description provided for @timeoutErrorGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le serveur met trop de temps à répondre. Veuillez réessayer.'**
+  String get timeoutErrorGeneric;
+
   /// No description provided for @loading.
   ///
   /// In fr, this message translates to:

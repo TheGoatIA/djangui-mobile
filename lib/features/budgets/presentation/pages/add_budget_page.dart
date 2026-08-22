@@ -136,7 +136,7 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
       lastDate: DateTime(2030),
       helpText: 'SELECT MONTH AND YEAR',
     );
-    if (picked != null && picked != _selectedDate) {
+    if (picked != null && picked != _selectedDate && mounted) {
       setState(() {
         _selectedDate = picked;
       });

@@ -42,7 +42,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         emit(
           state.copyWith(
             status: SubscriptionStatus.failure,
-            errorMessage: failure.toString(),
+            errorMessage: failure.message,
           ),
         );
       },
@@ -82,7 +82,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         emit(
           state.copyWith(
             status: SubscriptionStatus.failure,
-            errorMessage: failure.toString(),
+            errorMessage: failure.message,
           ),
         );
       },
@@ -119,7 +119,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         emit(
           state.copyWith(
             status: SubscriptionStatus.failure,
-            errorMessage: failure.toString(),
+            errorMessage: failure.message,
           ),
         );
       },
@@ -153,7 +153,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         emit(
           state.copyWith(
             status: SubscriptionStatus.failure,
-            errorMessage: failure.toString(),
+            errorMessage: failure.message,
           ),
         );
       },
@@ -187,7 +187,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         emit(
           state.copyWith(
             status: SubscriptionStatus.failure,
-            errorMessage: failure.toString(),
+            errorMessage: failure.message,
           ),
         );
       },

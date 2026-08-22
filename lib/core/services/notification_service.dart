@@ -64,6 +64,13 @@ class NotificationService {
         );
       }
     });
+
+    // Firebase peut faire tourner le jeton FCM en cours de session (réinstallation,
+    // expiration, changement d'appareil restauré...). Sans cet écouteur, le backend
+    // garde l'ancien jeton et les notifications push s'arrêtent silencieusement.
+    FirebaseMessaging.instance.onTokenRefresh.listen((_) {
+      syncFcmToken();
+    });
   }
 
   /// Récupère le jeton FCM de l'appareil et le synchronise avec le serveur backend.

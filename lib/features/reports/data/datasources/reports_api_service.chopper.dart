@@ -30,9 +30,15 @@ final class _$ReportsApiService extends ReportsApiService {
 
   @override
   Future<Response<BaseListResponse<SpendingAnalysisModel>>>
-  getSpendingAnalysis() {
+  getSpendingAnalysis({String? period}) {
     final Uri $url = Uri.parse('/reports/analysis');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Map<String, dynamic> $params = <String, dynamic>{'period': period};
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
     return client
         .send<BaseListResponse<SpendingAnalysisModel>, SpendingAnalysisModel>(
           $request,
@@ -40,9 +46,17 @@ final class _$ReportsApiService extends ReportsApiService {
   }
 
   @override
-  Future<Response<BaseListResponse<SavingsTrendModel>>> getSavingsTrend() {
+  Future<Response<BaseListResponse<SavingsTrendModel>>> getSavingsTrend({
+    String? period,
+  }) {
     final Uri $url = Uri.parse('/reports/trends');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Map<String, dynamic> $params = <String, dynamic>{'period': period};
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
     return client.send<BaseListResponse<SavingsTrendModel>, SavingsTrendModel>(
       $request,
     );

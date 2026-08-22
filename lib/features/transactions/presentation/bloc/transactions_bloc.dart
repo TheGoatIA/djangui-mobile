@@ -32,7 +32,16 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     ResetTransactionsStatus event,
     Emitter<TransactionsState> emit,
   ) {
-    emit(state.copyWith(status: TransactionsStatus.initial));
+    // TransactionsBloc is a singleton kept alive for the whole app lifetime,
+    // so on logout we must also clear the cached list — not just the status —
+    // otherwise the next account to log in on this device can briefly see the
+    // previous user's transactions before the first fetch completes.
+    emit(
+      state.copyWith(
+        status: TransactionsStatus.initial,
+        transactions: const [],
+      ),
+    );
   }
 
   Future<void> _onGetTransactionsRequested(

@@ -268,7 +268,7 @@ class SyncService {
         payload['userChallengeId'] as String,
         payload['weekNumber'] as int,
         (payload['amount'] as num).toDouble(),
-        payload['proofPath'] as String,
+        payload['note'] as String?,
       );
     }
   }
@@ -279,7 +279,9 @@ class SyncService {
 
     if (request.action == 'create') {
       final localBudget = BudgetModel.fromJson(payload);
-      final remoteBudget = await _budgetRemoteDataSource.createBudget(localBudget);
+      final remoteBudget = await _budgetRemoteDataSource.createBudget(
+        localBudget,
+      );
       if (remoteBudget.id != localBudget.id) {
         final localDataSource = getIt<BudgetLocalDataSource>();
         await localDataSource.deleteBudget(localBudget.id);

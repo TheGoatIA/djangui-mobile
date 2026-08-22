@@ -167,7 +167,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
-    if (picked != null) {
+    if (picked != null && mounted) {
       setState(() => _selectedDate = picked);
     }
   }

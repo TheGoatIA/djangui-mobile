@@ -6,6 +6,7 @@ abstract class CoachLocalDataSource {
   Future<List<ChatMessageModel>> getChatHistory();
   Future<void> saveMessage(ChatMessageModel message);
   Future<void> saveMessages(List<ChatMessageModel> messages);
+  Future<void> deleteMessage(String id);
   Future<void> clearHistory();
 }
 
@@ -61,6 +62,13 @@ class CoachLocalDataSourceImpl implements CoachLocalDataSource {
             .toList(),
       );
     });
+  }
+
+  @override
+  Future<void> deleteMessage(String id) async {
+    await (_database.delete(
+      _database.chatMessages,
+    )..where((tbl) => tbl.id.equals(id))).go();
   }
 
   @override

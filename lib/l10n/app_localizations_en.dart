@@ -187,6 +187,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get genericError => 'An error occurred';
 
   @override
+  String get networkErrorGeneric =>
+      'No internet connection. Please check your network and try again.';
+
+  @override
+  String get timeoutErrorGeneric =>
+      'The server is taking too long to respond. Please try again.';
+
+  @override
   String get loading => 'Loading...';
 
   @override

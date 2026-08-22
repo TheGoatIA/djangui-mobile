@@ -14,6 +14,7 @@ import '../models/tontine_model.dart';
 import '../../domain/repositories/tontine_repository.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: TontineRepository)
 class TontineRepositoryImpl implements TontineRepository {
@@ -64,7 +65,7 @@ class TontineRepositoryImpl implements TontineRepository {
           error: e,
           component: 'TontineRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       _logger.warning(
@@ -119,7 +120,7 @@ class TontineRepositoryImpl implements TontineRepository {
           );
           return Right(localModels.map(_mapModelToEntity).toList());
         }
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       if (localModels.isNotEmpty) {
@@ -167,7 +168,7 @@ class TontineRepositoryImpl implements TontineRepository {
           error: e,
           component: 'TontineRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       if (localModel != null) return Right(_mapModelToEntity(localModel));
@@ -203,7 +204,7 @@ class TontineRepositoryImpl implements TontineRepository {
           error: e,
           component: 'TontineRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -221,7 +222,7 @@ class TontineRepositoryImpl implements TontineRepository {
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -279,7 +280,7 @@ class TontineRepositoryImpl implements TontineRepository {
           error: e,
           component: 'TontineRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -299,7 +300,7 @@ class TontineRepositoryImpl implements TontineRepository {
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -318,7 +319,7 @@ class TontineRepositoryImpl implements TontineRepository {
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -350,7 +351,7 @@ class TontineRepositoryImpl implements TontineRepository {
         if (localMembers.isNotEmpty) {
           return Right(localMembers.map(_mapMemberModelToEntity).toList());
         }
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       if (localMembers.isNotEmpty) {
@@ -379,7 +380,7 @@ class TontineRepositoryImpl implements TontineRepository {
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       final localMembers = await _localDataSource.getTontineMembers(tontineId);
@@ -443,7 +444,7 @@ class TontineRepositoryImpl implements TontineRepository {
           error: e,
           component: 'TontineRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       _logger.warning(
@@ -479,7 +480,7 @@ class TontineRepositoryImpl implements TontineRepository {
         if (localMessages.isNotEmpty) {
           return Right(localMessages.map(_mapMessageModelToEntity).toList());
         }
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       if (localMessages.isNotEmpty) {
@@ -529,7 +530,7 @@ class TontineRepositoryImpl implements TontineRepository {
           error: e,
           component: 'TontineRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       _logger.info(
@@ -587,7 +588,7 @@ class TontineRepositoryImpl implements TontineRepository {
             localContributions.map(_mapContributionModelToEntity).toList(),
           );
         }
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       if (localContributions.isNotEmpty) {
@@ -614,7 +615,7 @@ class TontineRepositoryImpl implements TontineRepository {
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -631,7 +632,7 @@ class TontineRepositoryImpl implements TontineRepository {
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -646,7 +647,7 @@ class TontineRepositoryImpl implements TontineRepository {
         if (response.isSuccessful) return const Right(unit);
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -665,7 +666,7 @@ class TontineRepositoryImpl implements TontineRepository {
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -692,7 +693,7 @@ class TontineRepositoryImpl implements TontineRepository {
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());

@@ -10,6 +10,7 @@ import '../models/transaction_model.dart';
 import '../../../../core/database/database.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: TransactionRepository)
 class TransactionRepositoryImpl implements TransactionRepository {
@@ -62,7 +63,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
           error: e,
           component: 'TransactionRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       final localTransactions = await _localDataSource.getTransactions();
@@ -115,7 +116,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
           error: e,
           component: 'TransactionRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline: Queue it
@@ -159,7 +160,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
           error: e,
           component: 'TransactionRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline: Queue it

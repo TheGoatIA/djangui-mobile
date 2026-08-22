@@ -67,6 +67,7 @@ class _SecurityPageState extends State<SecurityPage>
     if (canCheckBiometrics) {
       try {
         final availableBiometrics = await auth.getAvailableBiometrics();
+        if (!mounted) return;
         setState(() {
           _availableBiometrics = availableBiometrics;
         });

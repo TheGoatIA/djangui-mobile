@@ -22,6 +22,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   @override
   void dispose() {
@@ -82,8 +84,18 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       label: l10n.newPassword,
                       hint: '********',
                       controller: _passwordController,
-                      isPassword: true,
+                      isPassword: !_isPasswordVisible,
                       prefixIcon: Icons.lock_outline,
+                      suffix: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
+                        onPressed: () => setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        }),
+                      ),
                       validator: (value) {
                         if (value == null || value.length < 6) {
                           return l10n.passwordLengthError;
@@ -96,8 +108,19 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       label: l10n.confirmPassword,
                       hint: '********',
                       controller: _confirmPasswordController,
-                      isPassword: true,
+                      isPassword: !_isConfirmPasswordVisible,
                       prefixIcon: Icons.lock,
+                      suffix: IconButton(
+                        icon: Icon(
+                          _isConfirmPasswordVisible
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
+                        onPressed: () => setState(() {
+                          _isConfirmPasswordVisible =
+                              !_isConfirmPasswordVisible;
+                        }),
+                      ),
                       validator: (value) {
                         if (value != _passwordController.text) {
                           return l10n.passwordsDoNotMatch;

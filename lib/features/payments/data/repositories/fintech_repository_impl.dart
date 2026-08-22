@@ -6,6 +6,7 @@ import '../../../../core/network/network_info.dart';
 import '../datasources/fintech_api_service.dart';
 import '../models/fintech_models.dart';
 import 'package:kauri/features/payments/domain/repositories/fintech_repository.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: FintechRepository)
 class FintechRepositoryImpl implements FintechRepository {
@@ -28,7 +29,7 @@ class FintechRepositoryImpl implements FintechRepository {
         ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),
       );
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -46,7 +47,7 @@ class FintechRepositoryImpl implements FintechRepository {
         ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),
       );
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -88,7 +89,7 @@ class FintechRepositoryImpl implements FintechRepository {
         ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),
       );
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -116,7 +117,7 @@ class FintechRepositoryImpl implements FintechRepository {
         ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),
       );
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -146,7 +147,7 @@ class FintechRepositoryImpl implements FintechRepository {
         ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),
       );
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 }

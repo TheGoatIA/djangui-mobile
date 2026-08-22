@@ -266,8 +266,7 @@ class _DashboardViewState extends State<DashboardView> {
                         horizontal: 10,
                         vertical: 20,
                       ),
-                      onReorder: (oldIndex, newIndex) {
-                        if (newIndex > oldIndex) newIndex -= 1;
+                      onReorderItem: (oldIndex, newIndex) {
                         final items = List<String>.from(
                           settingsState.dashboardOrder,
                         );

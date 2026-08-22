@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/brand_icons.dart';
 import '../../../../l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -37,6 +38,9 @@ class _LoginPageState extends State<LoginPage> {
 
   /// Contrôleur pour le champ mot de passe.
   final _passwordController = TextEditingController();
+
+  /// Bascule l'affichage en clair du mot de passe.
+  bool _isPasswordVisible = false;
 
   @override
   void dispose() {
@@ -130,8 +134,18 @@ class _LoginPageState extends State<LoginPage> {
                     label: AppLocalizations.of(context)!.password,
                     hint: '********',
                     controller: _passwordController,
-                    isPassword: true,
+                    isPassword: !_isPasswordVisible,
                     prefixIcon: Icons.lock_outline,
+                    suffix: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                      ),
+                      onPressed: () => setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      }),
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return AppLocalizations.of(context)!.enterPasswordError;
@@ -356,11 +370,7 @@ class _LoginPageState extends State<LoginPage> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
-                                    Icons.g_mobiledata,
-                                    color: AppColors.info,
-                                    size: 28,
-                                  ),
+                                  const GoogleLogo(size: 22),
                                   const SizedBox(width: 12),
                                   Text(
                                     AppLocalizations.of(context)!.googleSignIn,
@@ -402,12 +412,11 @@ class _LoginPageState extends State<LoginPage> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
-                                    Icons.apple,
+                                  AppleLogo(
+                                    size: 22,
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.onSurface,
-                                    size: 28,
                                   ),
                                   const SizedBox(width: 12),
                                   Text(

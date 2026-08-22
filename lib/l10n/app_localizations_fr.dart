@@ -189,6 +189,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get genericError => 'Une erreur est survenue';
 
   @override
+  String get networkErrorGeneric =>
+      'Pas de connexion internet. Vérifiez votre réseau et réessayez.';
+
+  @override
+  String get timeoutErrorGeneric =>
+      'Le serveur met trop de temps à répondre. Veuillez réessayer.';
+
+  @override
   String get loading => 'Chargement...';
 
   @override

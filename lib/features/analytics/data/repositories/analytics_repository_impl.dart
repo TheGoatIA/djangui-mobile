@@ -5,6 +5,7 @@ import '../../../../core/network/network_info.dart';
 import '../datasources/analytics_api_service.dart';
 import '../models/analytics_models.dart';
 import '../../domain/repositories/analytics_repository.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: AnalyticsRepository)
 class AnalyticsRepositoryImpl implements AnalyticsRepository {
@@ -23,7 +24,7 @@ class AnalyticsRepositoryImpl implements AnalyticsRepository {
         }
         return Left(ServerFailure());
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     }
     // For now, only track online. Offline tracking could be added later.
@@ -48,7 +49,7 @@ class AnalyticsRepositoryImpl implements AnalyticsRepository {
         }
         return Left(ServerFailure());
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     }
     return Left(NetworkFailure());
@@ -64,7 +65,7 @@ class AnalyticsRepositoryImpl implements AnalyticsRepository {
         }
         return Left(ServerFailure());
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     }
     return Left(NetworkFailure());

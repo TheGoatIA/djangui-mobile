@@ -5,6 +5,7 @@ import '../../../../core/network/network_info.dart';
 import '../datasources/reports_api_service.dart';
 import '../../domain/repositories/reports_repository.dart';
 import '../models/reports_model.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: ReportsRepository)
 class ReportsRepositoryImpl implements ReportsRepository {
@@ -25,44 +26,57 @@ class ReportsRepositoryImpl implements ReportsRepository {
           ServerFailure(response.error?.toString() ?? 'Erreur serveur'),
         );
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     }
     return Left(NetworkFailure());
   }
 
   @override
-  Future<Either<Failure, List<SpendingAnalysisModel>>>
-  getSpendingAnalysis() async {
+  Future<Either<Failure, List<SpendingAnalysisModel>>> getSpendingAnalysis({
+    String? period,
+  }) async {
     if (await _networkInfo.isConnected) {
       try {
-        final response = await _apiService.getSpendingAnalysis();
+        final response = await _apiService.getSpendingAnalysis(period: period);
         if (response.isSuccessful && response.body?.data != null) {
           return Right(response.body!.data!);
         }
         return Left(
-          ServerFailure(response.error?.toString() ?? 'Erreur serveur'),
+          ServerFailure(
+            ErrorMapper.safeMessage(
+              response.error ?? 'server_error',
+              backendMessage: response.error?.toString(),
+            ),
+          ),
         );
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     }
     return Left(NetworkFailure());
   }
 
   @override
-  Future<Either<Failure, List<SavingsTrendModel>>> getSavingsTrend() async {
+  Future<Either<Failure, List<SavingsTrendModel>>> getSavingsTrend({
+    String? period,
+  }) async {
     if (await _networkInfo.isConnected) {
       try {
-        final response = await _apiService.getSavingsTrend();
+        final response = await _apiService.getSavingsTrend(period: period);
         if (response.isSuccessful && response.body?.data != null) {
           return Right(response.body!.data!);
         }
         return Left(
-          ServerFailure(response.error?.toString() ?? 'Erreur serveur'),
+          ServerFailure(
+            ErrorMapper.safeMessage(
+              response.error ?? 'server_error',
+              backendMessage: response.error?.toString(),
+            ),
+          ),
         );
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     }
     return Left(NetworkFailure());
@@ -80,7 +94,7 @@ class ReportsRepositoryImpl implements ReportsRepository {
           ServerFailure(response.error?.toString() ?? 'Erreur serveur'),
         );
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     }
     return Left(NetworkFailure());

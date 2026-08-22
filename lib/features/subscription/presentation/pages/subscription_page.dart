@@ -692,9 +692,9 @@ class _SubscriptionViewState extends State<SubscriptionView> {
         component: 'SubscriptionPage',
         error: e,
       );
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erreur : $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.genericError)),
+      );
     }
   }
 
