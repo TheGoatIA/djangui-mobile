@@ -776,8 +776,9 @@ class TontineRepositoryImpl implements TontineRepository {
 
   String _getErrorMessage(dynamic error) {
     if (error is Map) {
-      return error['message'] as String? ?? 'Une erreur est survenue';
+      final msg = error['message'] ?? error['error'] ?? error['detail'];
+      if (msg != null) return ErrorMapper.safeMessage(error, backendMessage: msg.toString());
     }
-    return error?.toString() ?? 'Une erreur est survenue';
+    return ErrorMapper.safeMessage(error, backendMessage: error?.toString());
   }
 }

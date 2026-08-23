@@ -846,33 +846,61 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
 
     try {
-      // 1. Upload du document
-      final docResult = await _uploadRepository.uploadDocument(
-        event.docFilePath,
-      );
-      final docUrl = docResult.fold(
-        (failure) => throw Exception(
-          'Échec de l\'upload du document: ${failure.message}',
-        ),
-        (response) => response.finalUrl,
-      );
+      // 1. Upload du document recto s'il a été modifié, sinon conserver l'existant
+      String? docUrl = event.existingDocUrl;
+      if (event.docFilePath != null && event.docFilePath!.isNotEmpty) {
+        final docResult = await _uploadRepository.uploadDocument(
+          event.docFilePath!,
+        );
+        docUrl = docResult.fold(
+          (failure) => throw Exception(
+            'Échec de l\'upload du document recto: ${failure.message}',
+          ),
+          (response) => response.finalUrl,
+        );
+      }
 
-      // 2. Upload du selfie
-      final selfieResult = await _uploadRepository.uploadDocument(
-        event.selfieFilePath,
-      );
-      final selfieUrl = selfieResult.fold(
-        (failure) =>
-            throw Exception('Échec de l\'upload du selfie: ${failure.message}'),
-        (response) => response.finalUrl,
-      );
+      if (docUrl == null || docUrl.isEmpty) {
+        throw Exception('Veuillez fournir la pièce d\'identité (Recto).');
+      }
+
+      // 1b. Upload optionnel du document verso
+      String? docBackUrl = event.existingDocBackUrl;
+      if (event.docBackFilePath != null && event.docBackFilePath!.isNotEmpty) {
+        final backResult = await _uploadRepository.uploadDocument(
+          event.docBackFilePath!,
+        );
+        docBackUrl = backResult.fold(
+          (failure) => null, // facultatif
+          (response) => response.finalUrl,
+        );
+      }
+
+      // 2. Upload du selfie s'il a été modifié, sinon conserver l'existant
+      String? selfieUrl = event.existingSelfieUrl;
+      if (event.selfieFilePath != null && event.selfieFilePath!.isNotEmpty) {
+        final selfieResult = await _uploadRepository.uploadDocument(
+          event.selfieFilePath!,
+        );
+        selfieUrl = selfieResult.fold(
+          (failure) =>
+              throw Exception('Échec de l\'upload du selfie: ${failure.message}'),
+          (response) => response.finalUrl,
+        );
+      }
+
+      if (selfieUrl == null || selfieUrl.isEmpty) {
+        throw Exception('Veuillez fournir le selfie de vérification.');
+      }
 
       // 3. Soumission finale au backend Auth/Fintech
       final result = await _authRepository.submitKYC(
         fullName: event.fullName,
         documentType: event.documentType.toLowerCase().replaceAll(' ', '_'),
         documentNumber: event.documentNumber,
+        documentExpiryDate: event.expiryDate?.toIso8601String(),
         documentImageUrl: docUrl,
+        documentBackImageUrl: docBackUrl,
         selfieImageUrl: selfieUrl,
       );
 

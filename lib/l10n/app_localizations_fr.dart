@@ -2546,4 +2546,283 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get rechargeLimitError =>
       'Le montant de recharge est limité à 50 000 FCFA par transaction.';
+
+  @override
+  String get kycDocInfoTitle => 'Informations du document';
+
+  @override
+  String get kycDocFrontTitle => '1. Pièce d\'identité - Recto (Face avant)';
+
+  @override
+  String get kycDocFrontSubtitle => 'Photo claire ou document PDF (Requis)';
+
+  @override
+  String get kycDocBackTitle => '2. Pièce d\'identité - Verso (Face arrière)';
+
+  @override
+  String get kycDocBackSubtitle =>
+      'Photo du dos de la pièce (Facultatif mais conseillé)';
+
+  @override
+  String get kycDocTypeCni => 'Carte Nationale d\'Identité (CNI)';
+
+  @override
+  String get kycDocTypePassport => 'Passeport';
+
+  @override
+  String get kycDocTypeLicense => 'Permis de conduire';
+
+  @override
+  String get kycDocTypeResidence => 'Titre de séjour / Résident';
+
+  @override
+  String get kycImportMethodTitle =>
+      'Choisissez le moyen d\'importer votre document :';
+
+  @override
+  String get kycImportMethodCamera => 'Prendre une photo';
+
+  @override
+  String get kycImportMethodCameraSub => 'Caméra arrière (cadrage net)';
+
+  @override
+  String get kycImportMethodGallery => 'Choisir une image';
+
+  @override
+  String get kycImportMethodGallerySub =>
+      'Depuis votre galerie (JPG, PNG, WEBP)';
+
+  @override
+  String get kycImportMethodPdf => 'Importer un document PDF';
+
+  @override
+  String get kycImportMethodPdfSub => 'Fichier PDF (scan officiel, max 10 Mo)';
+
+  @override
+  String get kycSelfieStepTitle => '3. Selfie de vérification';
+
+  @override
+  String get kycSelfieStepSubtitle =>
+      'Photo nette de votre visage prise avec la caméra avant';
+
+  @override
+  String get kycSelfieSheetTitle => 'Prendre votre Selfie';
+
+  @override
+  String get kycSelfieSheetSubtitle =>
+      'Positionnez votre visage bien au centre, sans lunettes de soleil ni chapeau :';
+
+  @override
+  String get kycSelfieCameraTitle => 'Prendre un selfie maintenant';
+
+  @override
+  String get kycSelfieCameraSub => 'Caméra frontale nette et centrée';
+
+  @override
+  String get kycSelfieGalleryTitle => 'Choisir une photo récente';
+
+  @override
+  String get kycSelfieGallerySub => 'Depuis votre galerie photo';
+
+  @override
+  String get kycSelfieAction => 'Prendre un selfie (Caméra avant)';
+
+  @override
+  String get kycSelfieActionSub => 'Touchez pour lancer la caméra avant';
+
+  @override
+  String get kycSelfieRetake => 'Reprendre';
+
+  @override
+  String get kycSelfieMirrorActive => 'Miroir activé';
+
+  @override
+  String get kycSelfieMirrorToggle => 'Inverser / Miroir';
+
+  @override
+  String get kycDocPdfLabel => 'Document PDF';
+
+  @override
+  String get kycDocPdfAccepted => 'Format PDF accepté';
+
+  @override
+  String get kycDocPhotoOrPdf => 'Photo ou PDF (JPG, PNG, PDF)';
+
+  @override
+  String get kycDocTapToUpload => 'Touchez pour importer le document';
+
+  @override
+  String get kycDocChange => 'Changer';
+
+  @override
+  String get kycUploadingTitle => 'Téléversement en cours...';
+
+  @override
+  String get kycUploadStep1 =>
+      '1/3 - Préparation des fichiers et chiffrement...';
+
+  @override
+  String get kycUploadStep2 => '2/3 - Téléversement de la pièce d\'identité...';
+
+  @override
+  String get kycUploadStep3 =>
+      '3/3 - Validation et vérification biométrique...';
+
+  @override
+  String get kycSuccessTitle => 'Vérification validée avec succès !';
+
+  @override
+  String get kycSuccessSubtitle =>
+      'Vos documents KYC ont été soumis avec succès.';
+
+  @override
+  String get kycMissingFront =>
+      'Veuillez fournir le document d\'identité (Recto).';
+
+  @override
+  String get kycMissingSelfie => 'Veuillez prendre un selfie de vérification.';
+
+  @override
+  String get kycPendingDialogTitle => 'Vérification en cours';
+
+  @override
+  String get kycPendingDialogMessage =>
+      'Vos documents d\'identité sont actuellement en cours d\'examen par notre équipe. Ce processus prend généralement entre 24h et 48h. Vous recevrez une notification dès que la validation sera effectuée.';
+
+  @override
+  String get kycVerifiedDialogTitle => 'Identité vérifiée';
+
+  @override
+  String get kycVerifiedDialogMessage =>
+      'Votre compte est certifié et votre identité est validée. Toutes les limites et opérations sont débloquées.';
+
+  @override
+  String get kycPendingPageTitle => 'Dossier en cours d\'examen';
+
+  @override
+  String get kycPendingPageSubtitle =>
+      'Nous analysons actuellement vos documents et votre selfie. Vous n\'avez aucune action supplémentaire à effectuer.';
+
+  @override
+  String get kycPendingEstimatedTime => 'Délai moyen de traitement : 24h à 48h';
+
+  @override
+  String get kycPendingUnderReviewBadge => 'Examen en cours';
+
+  @override
+  String get kycPendingDocumentsSent => 'Pièce d\'identité et selfie transmis';
+
+  @override
+  String get kycBackToProfile => 'Retour au profil';
+
+  @override
+  String get kycBackToHome => 'Retour à l\'accueil';
+
+  @override
+  String get kycRejectedNotice =>
+      'Votre précédente soumission a été rejetée. Veuillez vérifier la netteté de vos documents et soumettre à nouveau.';
+
+  @override
+  String get kycDocExpiryLabel => 'Date d\'expiration du document';
+
+  @override
+  String get kycDocExpiryHint => 'Sélectionner la date d\'expiration';
+
+  @override
+  String get kycDocExpiryRequired =>
+      'Veuillez renseigner la date d\'expiration du document';
+
+  @override
+  String get kycDocExpiryInvalid =>
+      'Le document est expiré ou la date est dépassée';
+
+  @override
+  String get kycUpdateRequiredNotice =>
+      'Votre dossier KYC nécessite une mise à jour (document expiré ou informations à renouveler). Vos précédentes informations ont été pré-remplies ci-dessous.';
+
+  @override
+  String get kycExistingDocKept => 'Document actuel enregistré';
+
+  @override
+  String get kycReplaceDoc => 'Remplacer le fichier';
+
+  @override
+  String get kycStatusExpired => 'Document Expiré';
+
+  @override
+  String get kycStatusUpdateRequired => 'Mise à jour requise';
+
+  @override
+  String get txStatusCompleted => 'Réussie';
+
+  @override
+  String get txStatusPending => 'En attente';
+
+  @override
+  String get txStatusFailed => 'Échouée';
+
+  @override
+  String get txStatusCancelled => 'Annulée';
+
+  @override
+  String get withdrawSummaryTitle => 'Détail de l\'opération';
+
+  @override
+  String get withdrawAmountRequested => 'Montant du retrait';
+
+  @override
+  String get withdrawFeesLabel => 'Frais de retrait';
+
+  @override
+  String get withdrawTotalDebited => 'Total débité';
+
+  @override
+  String get withdrawRemainingBalance => 'Solde restant après retrait';
+
+  @override
+  String get withdrawPremiumDiscountTag => 'Réduction Premium -50%';
+
+  @override
+  String get withdrawFreeFeeHint =>
+      'Frais standards de 3% (min 100 FCFA). Passez à Premium pour bénéficier de 1.5% !';
+
+  @override
+  String get withdrawPremiumFeeHint =>
+      'Frais réduits Premium de 1.5% (min 100 FCFA) appliqués !';
+
+  @override
+  String get withdrawMinAmountError =>
+      'Le montant minimum de retrait est de 500 FCFA';
+
+  @override
+  String get withdrawMaxAmountError =>
+      'Le montant maximum par retrait est de 50 000 FCFA';
+
+  @override
+  String get withdrawInsufficientFundsForFees =>
+      'Solde insuffisant pour couvrir le montant et les frais';
+
+  @override
+  String get walletPaymentMethod => 'Portefeuille Kauri';
+
+  @override
+  String walletPaymentSubtitle(Object balance) {
+    return 'Payer instantanément avec votre solde ($balance)';
+  }
+
+  @override
+  String get walletInsufficientBalance =>
+      'Solde insuffisant dans votre portefeuille pour souscrire';
+
+  @override
+  String get walletSubscriptionSuccess =>
+      'Félicitations ! Votre abonnement Premium est maintenant actif.';
+
+  @override
+  String get walletSubscriptionConfirmTitle => 'Payer avec le portefeuille';
+
+  @override
+  String walletSubscriptionConfirmMessage(Object amount) {
+    return 'Voulez-vous débiter $amount de votre portefeuille Kauri pour activer l\'abonnement Premium (1 mois) ?';
+  }
 }

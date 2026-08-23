@@ -36,6 +36,7 @@ class UserModel {
 
   final UserPreferences? preferences;
   final UserSubscription? subscription;
+  final KycDataModel? kycData;
 
   UserModel({
     required this.id,
@@ -65,6 +66,7 @@ class UserModel {
     this.badges = const [],
     this.preferences,
     this.subscription,
+    this.kycData,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -111,3 +113,33 @@ class UserSubscription {
       _$UserSubscriptionFromJson(json);
   Map<String, dynamic> toJson() => _$UserSubscriptionToJson(this);
 }
+
+@JsonSerializable()
+class KycDataModel {
+  final String? documentType;
+  final String? documentNumber;
+  final String? fullName;
+  final DateTime? documentExpiryDate;
+  final String? documentImageUrl;
+  final String? documentBackImageUrl;
+  final String? selfieImageUrl;
+  final String? rejectionReason;
+  final DateTime? verifiedAt;
+
+  KycDataModel({
+    this.documentType,
+    this.documentNumber,
+    this.fullName,
+    this.documentExpiryDate,
+    this.documentImageUrl,
+    this.documentBackImageUrl,
+    this.selfieImageUrl,
+    this.rejectionReason,
+    this.verifiedAt,
+  });
+
+  factory KycDataModel.fromJson(Map<String, dynamic> json) =>
+      _$KycDataModelFromJson(json);
+  Map<String, dynamic> toJson() => _$KycDataModelToJson(this);
+}
+

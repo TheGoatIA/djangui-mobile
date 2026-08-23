@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 import '../bloc/auth_bloc.dart';
 import '../../../../l10n/app_localizations.dart';
 import 'package:pinput/pinput.dart';
@@ -29,7 +30,8 @@ class OtpVerificationPage extends StatefulWidget {
   State<OtpVerificationPage> createState() => _OtpVerificationPageState();
 }
 
-class _OtpVerificationPageState extends State<OtpVerificationPage> {
+class _OtpVerificationPageState extends State<OtpVerificationPage>
+    with WidgetsBindingObserver, SecureScreenMixin<OtpVerificationPage> {
   final _pinController = TextEditingController();
 
   void _onVerify(String code) {

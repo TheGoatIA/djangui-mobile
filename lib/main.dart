@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'core/services/telemetry_service.dart';
 import 'core/services/log_service.dart';
 import 'core/services/tutorial_service.dart';
+import 'core/widgets/environment_banner.dart';
 
 import 'di/injection.dart';
 import 'routes/app_router.dart';
@@ -16,7 +17,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/app_theme_type.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/sync_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'firebase_options.dart';
@@ -33,7 +34,6 @@ import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'features/support/presentation/bloc/support_bloc.dart';
 import 'features/system/presentation/bloc/system_bloc.dart';
 import 'features/tontine/presentation/bloc/tontine_bloc.dart';
-import 'features/tontine/presentation/bloc/tontine_event.dart';
 import 'features/user_subscriptions/presentation/bloc/subscription_bloc.dart';
 import 'features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:kauri/features/payments/presentation/bloc/fintech_bloc.dart';
@@ -60,9 +60,6 @@ void main() async {
 
   // Capture automatique des erreurs fatales Flutter par Crashlytics
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-
-  // Chargement des variables d'environnement (API keys, etc.)
-  await dotenv.load(fileName: ".env");
 
   // Configuration du conteneur d'injection de dépendances
   await configureDependencies();
@@ -254,8 +251,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       // Refresh financial data when returning to the app (e.g., after a payment)
       if (mounted) {
-        context.read<FintechBloc>().add(FetchWalletBalance());
-        context.read<DashboardBloc>().add(GetDashboardDataRequested());
+        // Use getIt directly: _MyAppState context is ABOVE MultiBlocProvider
+        getIt<FintechBloc>().add(FetchWalletBalance());
+        getIt<DashboardBloc>().add(GetDashboardDataRequested());
       }
 
       // Telemetry: Session Start (Prometheus Count)
@@ -275,53 +273,27 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Injection des Blocs globaux nécessaires dès le lancement
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => getIt<SettingsBloc>()..add(LoadSettings()),
-        ),
-        BlocProvider(
-          create: (context) => getIt<AuthBloc>()..add(AuthCheckRequested()),
-        ),
-        BlocProvider(
-          create: (context) =>
-              getIt<GoalsBloc>()..add(const GetGoalsRequested()),
-        ),
-        BlocProvider(
-          create: (context) =>
-              getIt<TransactionsBloc>()..add(const GetTransactionsRequested()),
-        ),
-        BlocProvider(
-          create: (context) =>
-              getIt<BudgetsBloc>()..add(const GetBudgetsRequested()),
-        ),
-        BlocProvider(
-          create: (context) =>
-              getIt<ChallengesBloc>()..add(const GetChallengesRequested()),
-        ),
-        BlocProvider(create: (context) => getIt<SupportBloc>()),
-        BlocProvider(
-          create: (context) => getIt<SystemBloc>()
+        BlocProvider.value(value: getIt<SettingsBloc>()..add(LoadSettings())),
+        BlocProvider.value(value: getIt<AuthBloc>()..add(AuthCheckRequested())),
+        BlocProvider.value(value: getIt<GoalsBloc>()),
+        BlocProvider.value(value: getIt<TransactionsBloc>()),
+        BlocProvider.value(value: getIt<BudgetsBloc>()),
+        BlocProvider.value(value: getIt<ChallengesBloc>()),
+        BlocProvider.value(value: getIt<SupportBloc>()),
+        BlocProvider.value(
+          value: getIt<SystemBloc>()
             ..add(GetPublicSettingsRequested())
             ..add(GetCountriesRequested()),
         ),
-        BlocProvider(
-          create: (context) =>
-              getIt<TontineBloc>()..add(TontinesLoadRequested()),
+        BlocProvider.value(value: getIt<TontineBloc>()),
+        BlocProvider.value(value: getIt<SubscriptionBloc>()),
+        BlocProvider.value(
+          value: getIt<NotificationsBloc>()..add(FetchUnreadCountRequested()),
         ),
-        BlocProvider(
-          create: (context) =>
-              getIt<SubscriptionBloc>()..add(GetSubscriptionsRequested()),
-        ),
-        BlocProvider(
-          create: (context) =>
-              getIt<NotificationsBloc>()..add(FetchUnreadCountRequested()),
-        ),
-        BlocProvider(create: (context) => getIt<FintechBloc>()),
-        BlocProvider(create: (context) => getIt<PaymentBloc>()),
-        BlocProvider(
-          create: (context) =>
-              getIt<DashboardBloc>()..add(GetDashboardDataRequested()),
-        ),
-        BlocProvider(create: (context) => getIt<VoiceBloc>()),
+        BlocProvider.value(value: getIt<FintechBloc>()),
+        BlocProvider.value(value: getIt<PaymentBloc>()),
+        BlocProvider.value(value: getIt<DashboardBloc>()),
+        BlocProvider.value(value: getIt<VoiceBloc>()),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
@@ -344,27 +316,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             listener: (context, authState) {
               if (authState.status == AuthStatus.unauthenticated) {
                 // Vider les données utilisateur en mémoire lors de la déconnexion
-                context.read<FintechBloc>().add(ClearFintechData());
-                // Ideallement, chaque bloc de données devrait avoir un event 'ClearData' ou on relance Fetch sans compte
+                getIt<FintechBloc>().add(ClearFintechData());
               } else {
                 // Rafraîchir les données pour le nouveau compte / pays
-                context.read<TransactionsBloc>().add(
+                getIt<DashboardBloc>().add(GetDashboardDataRequested());
+                getIt<FintechBloc>().add(FetchWalletBalance());
+                getIt<FintechBloc>().add(FetchWalletTransactions());
+                getIt<TransactionsBloc>().add(
                   const GetTransactionsRequested(forceRefresh: true),
                 );
-                context.read<GoalsBloc>().add(
+                getIt<GoalsBloc>().add(
                   const GetGoalsRequested(forceRefresh: true),
                 );
-                context.read<BudgetsBloc>().add(
+                getIt<BudgetsBloc>().add(
                   const GetBudgetsRequested(forceRefresh: true),
                 );
-                context.read<ChallengesBloc>().add(
+                getIt<ChallengesBloc>().add(
                   const GetChallengesRequested(forceRefresh: true),
                 );
-                context.read<ChallengesBloc>().add(
-                  GetUserChallengesRequested(),
-                );
-                // Les données financières seront rafraîchies par les pages respectives (DashboardPage, Wallet, etc.)
-                // via leurs propres listeners ou initState, pour éviter les race conditions au démarrage.
+                getIt<ChallengesBloc>().add(GetUserChallengesRequested());
               }
             },
             child: ChangeNotifierProvider.value(
@@ -415,7 +385,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                     themeMode: effectiveThemeType.toThemeMode,
                     locale: state.locale,
                     routerConfig: appRouter,
-                    builder: (context, child) => child!,
+                    builder: (context, child) =>
+                        EnvironmentBanner(child: child!),
                     // Configuration de l'internationalisation
                     localizationsDelegates: [
                       AppLocalizations.delegate,

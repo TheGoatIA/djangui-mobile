@@ -747,7 +747,9 @@ class AuthRepositoryImpl implements AuthRepository {
     required String documentType,
     required String documentNumber,
     required String fullName,
+    String? documentExpiryDate,
     required String documentImageUrl,
+    String? documentBackImageUrl,
     required String selfieImageUrl,
   }) async {
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
@@ -757,7 +759,9 @@ class AuthRepositoryImpl implements AuthRepository {
         documentType: documentType,
         documentNumber: documentNumber,
         fullName: fullName,
+        documentExpiryDate: documentExpiryDate,
         documentImageUrl: documentImageUrl,
+        documentBackImageUrl: documentBackImageUrl,
         selfieImageUrl: selfieImageUrl,
       );
       return Right(data);

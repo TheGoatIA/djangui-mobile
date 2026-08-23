@@ -136,6 +136,21 @@ class RealMoneyInfoPage extends StatelessWidget {
                 'Money can cause anxiety.\n\nA failing network during a Mobile Money deposit? A desynchronization? Do not panic. Kauri commits a full team to operational support. We ensure continuous traceability so that no cent is ever lost.',
               ),
             ),
+
+            _buildSection(
+              context,
+              icon: Icons.account_balance_wallet_outlined,
+              title: _text(
+                context,
+                '6. Où va concrètement votre argent',
+                '6. Where your money actually goes',
+              ),
+              content: _text(
+                context,
+                'Kauri ne conserve jamais vos fonds elle-même. Vos dépôts et retraits transitent exclusivement par NotchPay, un agrégateur Mobile Money déjà autorisé à opérer au Cameroun.\n\n• Votre argent reste chez NotchPay, dans son système régulé — Kauri n\'en a jamais la garde directe.\n• Le solde affiché dans l\'application représente votre droit sur les fonds détenus par NotchPay, pas une créance indépendante de Kauri.\n• Les retraits Mobile Money (Orange/MTN) sont exécutés directement par NotchPay vers votre compte.\n\nCela signifie que la sécurité réglementaire de vos fonds repose sur l\'agrément de NotchPay en tant que prestataire de paiement, en plus des contrôles internes de Kauri décrits ci-dessus.',
+                'Kauri never holds your funds itself. Your deposits and withdrawals move exclusively through NotchPay, a Mobile Money aggregator already authorized to operate in Cameroon.\n\n• Your money stays with NotchPay, inside its regulated system — Kauri never takes direct custody of it.\n• The balance shown in the app represents your claim on the funds NotchPay holds, not a separate debt owed by Kauri.\n• Mobile Money withdrawals (Orange/MTN) are executed directly by NotchPay to your account.\n\nThis means the regulatory security of your funds rests on NotchPay\'s license as a payment service provider, in addition to Kauri\'s own internal controls described above.',
+              ),
+            ),
             const SizedBox(height: 32),
           ],
         ),

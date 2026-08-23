@@ -48,6 +48,9 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
   subscription: json['subscription'] == null
       ? null
       : UserSubscription.fromJson(json['subscription'] as Map<String, dynamic>),
+  kycData: json['kycData'] == null
+      ? null
+      : KycDataModel.fromJson(json['kycData'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -78,6 +81,7 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
   'badges': instance.badges,
   'preferences': instance.preferences,
   'subscription': instance.subscription,
+  'kycData': instance.kycData,
 };
 
 UserPreferences _$UserPreferencesFromJson(Map<String, dynamic> json) =>
@@ -114,4 +118,33 @@ Map<String, dynamic> _$UserSubscriptionToJson(UserSubscription instance) =>
       'autoRenew': instance.autoRenew,
       'startDate': instance.startDate?.toIso8601String(),
       'endDate': instance.endDate?.toIso8601String(),
+    };
+
+KycDataModel _$KycDataModelFromJson(Map<String, dynamic> json) => KycDataModel(
+  documentType: json['documentType'] as String?,
+  documentNumber: json['documentNumber'] as String?,
+  fullName: json['fullName'] as String?,
+  documentExpiryDate: json['documentExpiryDate'] == null
+      ? null
+      : DateTime.parse(json['documentExpiryDate'] as String),
+  documentImageUrl: json['documentImageUrl'] as String?,
+  documentBackImageUrl: json['documentBackImageUrl'] as String?,
+  selfieImageUrl: json['selfieImageUrl'] as String?,
+  rejectionReason: json['rejectionReason'] as String?,
+  verifiedAt: json['verifiedAt'] == null
+      ? null
+      : DateTime.parse(json['verifiedAt'] as String),
+);
+
+Map<String, dynamic> _$KycDataModelToJson(KycDataModel instance) =>
+    <String, dynamic>{
+      'documentType': instance.documentType,
+      'documentNumber': instance.documentNumber,
+      'fullName': instance.fullName,
+      'documentExpiryDate': instance.documentExpiryDate?.toIso8601String(),
+      'documentImageUrl': instance.documentImageUrl,
+      'documentBackImageUrl': instance.documentBackImageUrl,
+      'selfieImageUrl': instance.selfieImageUrl,
+      'rejectionReason': instance.rejectionReason,
+      'verifiedAt': instance.verifiedAt?.toIso8601String(),
     };

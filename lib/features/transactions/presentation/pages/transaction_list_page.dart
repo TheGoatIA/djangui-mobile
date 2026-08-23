@@ -18,6 +18,7 @@ import '../../../../core/utils/currency_helper.dart';
 import '../../../payments/presentation/bloc/fintech_bloc.dart';
 import '../../../payments/presentation/bloc/fintech_event.dart';
 import '../../../payments/presentation/bloc/fintech_state.dart';
+import '../../../../core/widgets/transaction_status_badge.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/utils/toast_utils.dart';
 
@@ -368,8 +369,13 @@ class _TransactionItem extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
+                      const SizedBox(width: 6),
+                      TransactionStatusBadge(
+                        status: transaction.status,
+                        compact: true,
+                      ),
                       if (isManual) ...[
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,

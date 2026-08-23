@@ -6,7 +6,11 @@ import 'package:kauri/features/system/presentation/bloc/system_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/di/injection.dart';
+
 class MockSystemRepository extends Mock implements SystemRepository {}
+class MockTelemetryService extends Mock implements TelemetryService {}
 
 void main() {
   late SystemBloc systemBloc;
@@ -21,11 +25,19 @@ void main() {
       buildSignature: '',
     );
     mockSystemRepository = MockSystemRepository();
+    if (getIt.isRegistered<TelemetryService>()) {
+      getIt.unregister<TelemetryService>();
+    }
+    getIt.registerSingleton<TelemetryService>(TelemetryService());
+
     systemBloc = SystemBloc(mockSystemRepository);
   });
 
   tearDown(() {
     systemBloc.close();
+    if (getIt.isRegistered<TelemetryService>()) {
+      getIt.unregister<TelemetryService>();
+    }
   });
 
   group('SystemBloc Feature Flags', () {

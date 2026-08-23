@@ -2533,4 +2533,277 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get rechargeLimitError =>
       'The recharge amount is limited to 50,000 FCFA per transaction.';
+
+  @override
+  String get kycDocInfoTitle => 'Document Information';
+
+  @override
+  String get kycDocFrontTitle => '1. Identity Document - Front';
+
+  @override
+  String get kycDocFrontSubtitle => 'Clear photo or PDF document (Required)';
+
+  @override
+  String get kycDocBackTitle => '2. Identity Document - Back';
+
+  @override
+  String get kycDocBackSubtitle =>
+      'Photo of document back (Optional but recommended)';
+
+  @override
+  String get kycDocTypeCni => 'National Identity Card (ID)';
+
+  @override
+  String get kycDocTypePassport => 'Passport';
+
+  @override
+  String get kycDocTypeLicense => 'Driver\'s License';
+
+  @override
+  String get kycDocTypeResidence => 'Residence Permit';
+
+  @override
+  String get kycImportMethodTitle => 'Choose how to import your document:';
+
+  @override
+  String get kycImportMethodCamera => 'Take a photo';
+
+  @override
+  String get kycImportMethodCameraSub => 'Rear camera (clear framing)';
+
+  @override
+  String get kycImportMethodGallery => 'Choose an image';
+
+  @override
+  String get kycImportMethodGallerySub => 'From your gallery (JPG, PNG, WEBP)';
+
+  @override
+  String get kycImportMethodPdf => 'Import PDF document';
+
+  @override
+  String get kycImportMethodPdfSub => 'PDF file (official scan, max 10 MB)';
+
+  @override
+  String get kycSelfieStepTitle => '3. Verification Selfie';
+
+  @override
+  String get kycSelfieStepSubtitle =>
+      'Clear face photo taken with the front camera';
+
+  @override
+  String get kycSelfieSheetTitle => 'Take your Selfie';
+
+  @override
+  String get kycSelfieSheetSubtitle =>
+      'Position your face in the center, without sunglasses or hat:';
+
+  @override
+  String get kycSelfieCameraTitle => 'Take a selfie now';
+
+  @override
+  String get kycSelfieCameraSub => 'Front camera clear and centered';
+
+  @override
+  String get kycSelfieGalleryTitle => 'Choose a recent photo';
+
+  @override
+  String get kycSelfieGallerySub => 'From your photo gallery';
+
+  @override
+  String get kycSelfieAction => 'Take a selfie (Front camera)';
+
+  @override
+  String get kycSelfieActionSub => 'Tap to launch front camera';
+
+  @override
+  String get kycSelfieRetake => 'Retake';
+
+  @override
+  String get kycSelfieMirrorActive => 'Mirror enabled';
+
+  @override
+  String get kycSelfieMirrorToggle => 'Flip / Mirror';
+
+  @override
+  String get kycDocPdfLabel => 'PDF Document';
+
+  @override
+  String get kycDocPdfAccepted => 'PDF format accepted';
+
+  @override
+  String get kycDocPhotoOrPdf => 'Photo or PDF (JPG, PNG, PDF)';
+
+  @override
+  String get kycDocTapToUpload => 'Tap to upload document';
+
+  @override
+  String get kycDocChange => 'Change';
+
+  @override
+  String get kycUploadingTitle => 'Uploading in progress...';
+
+  @override
+  String get kycUploadStep1 => '1/3 - Preparing files and encryption...';
+
+  @override
+  String get kycUploadStep2 => '2/3 - Uploading identity document...';
+
+  @override
+  String get kycUploadStep3 => '3/3 - Validation and biometric verification...';
+
+  @override
+  String get kycSuccessTitle => 'Verification submitted successfully!';
+
+  @override
+  String get kycSuccessSubtitle =>
+      'Your KYC documents were submitted successfully.';
+
+  @override
+  String get kycMissingFront => 'Please provide the identity document (Front).';
+
+  @override
+  String get kycMissingSelfie => 'Please take a verification selfie.';
+
+  @override
+  String get kycPendingDialogTitle => 'Verification in progress';
+
+  @override
+  String get kycPendingDialogMessage =>
+      'Your identity documents are currently being reviewed by our team. This process usually takes between 24h and 48h. You will receive a notification once the review is completed.';
+
+  @override
+  String get kycVerifiedDialogTitle => 'Identity verified';
+
+  @override
+  String get kycVerifiedDialogMessage =>
+      'Your account is certified and your identity is validated. All features and limits are unlocked.';
+
+  @override
+  String get kycPendingPageTitle => 'Application under review';
+
+  @override
+  String get kycPendingPageSubtitle =>
+      'We are currently analyzing your documents and selfie. No further action is required from you at this time.';
+
+  @override
+  String get kycPendingEstimatedTime => 'Average review time: 24h to 48h';
+
+  @override
+  String get kycPendingUnderReviewBadge => 'Under review';
+
+  @override
+  String get kycPendingDocumentsSent =>
+      'Identity document and selfie submitted';
+
+  @override
+  String get kycBackToProfile => 'Back to profile';
+
+  @override
+  String get kycBackToHome => 'Back to home';
+
+  @override
+  String get kycRejectedNotice =>
+      'Your previous submission was rejected. Please ensure your documents are legible and submit again.';
+
+  @override
+  String get kycDocExpiryLabel => 'Document Expiration Date';
+
+  @override
+  String get kycDocExpiryHint => 'Select expiration date';
+
+  @override
+  String get kycDocExpiryRequired => 'Please provide document expiration date';
+
+  @override
+  String get kycDocExpiryInvalid =>
+      'The document is expired or the date is in the past';
+
+  @override
+  String get kycUpdateRequiredNotice =>
+      'Your KYC profile requires an update (expired document or information renewal). Your previous information has been pre-filled below.';
+
+  @override
+  String get kycExistingDocKept => 'Current saved document';
+
+  @override
+  String get kycReplaceDoc => 'Replace file';
+
+  @override
+  String get kycStatusExpired => 'Document Expired';
+
+  @override
+  String get kycStatusUpdateRequired => 'Update required';
+
+  @override
+  String get txStatusCompleted => 'Completed';
+
+  @override
+  String get txStatusPending => 'Pending';
+
+  @override
+  String get txStatusFailed => 'Failed';
+
+  @override
+  String get txStatusCancelled => 'Cancelled';
+
+  @override
+  String get withdrawSummaryTitle => 'Transaction Details';
+
+  @override
+  String get withdrawAmountRequested => 'Withdrawal Amount';
+
+  @override
+  String get withdrawFeesLabel => 'Withdrawal Fees';
+
+  @override
+  String get withdrawTotalDebited => 'Total Debited';
+
+  @override
+  String get withdrawRemainingBalance => 'Remaining balance after withdrawal';
+
+  @override
+  String get withdrawPremiumDiscountTag => 'Premium Discount -50%';
+
+  @override
+  String get withdrawFreeFeeHint =>
+      'Standard 3% fee (min 100 FCFA). Upgrade to Premium for 1.5%!';
+
+  @override
+  String get withdrawPremiumFeeHint =>
+      'Reduced Premium fee: 1.5% (min 100 FCFA) applied!';
+
+  @override
+  String get withdrawMinAmountError => 'Minimum withdrawal amount is 500 FCFA';
+
+  @override
+  String get withdrawMaxAmountError =>
+      'Maximum withdrawal amount per transaction is 50,000 FCFA';
+
+  @override
+  String get withdrawInsufficientFundsForFees =>
+      'Insufficient balance to cover amount and fees';
+
+  @override
+  String get walletPaymentMethod => 'Kauri Wallet';
+
+  @override
+  String walletPaymentSubtitle(Object balance) {
+    return 'Pay instantly with your balance ($balance)';
+  }
+
+  @override
+  String get walletInsufficientBalance =>
+      'Insufficient balance in your wallet to subscribe';
+
+  @override
+  String get walletSubscriptionSuccess =>
+      'Congratulations! Your Premium subscription is now active.';
+
+  @override
+  String get walletSubscriptionConfirmTitle => 'Pay with Wallet';
+
+  @override
+  String walletSubscriptionConfirmMessage(Object amount) {
+    return 'Do you want to debit $amount from your Kauri wallet to activate Premium subscription (1 month)?';
+  }
 }

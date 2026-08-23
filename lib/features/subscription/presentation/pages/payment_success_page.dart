@@ -37,12 +37,11 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
   }
 
   Future<void> _verifyPayment() async {
-    // If no ref provided, we can't verify, but maybe it was a direct success redirect?
-    // Assuming ref is required for verification.
-    if (widget.ref != null) {
+    final ref = widget.ref;
+    if (ref != null && ref.trim().isNotEmpty) {
       setState(() => _isLoading = true);
       final paymentService = getIt<PaymentService>();
-      final success = await paymentService.verifyTransaction(widget.ref!);
+      final success = await paymentService.verifyTransaction(ref.trim());
 
       if (mounted) {
         setState(() {
@@ -56,6 +55,8 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
             component: 'PaymentSuccessPage',
           );
           context.read<AuthBloc>().add(AuthRefreshUserRequested());
+          context.read<FintechBloc>().add(FetchWalletBalance());
+          context.read<FintechBloc>().add(FetchWalletTransactions());
         } else {
           getIt<LogService>().warning(
             'Échec vérification paiement: ${widget.ref}',
@@ -67,7 +68,7 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
       // Fallback if no ref (e.g. testing)
       setState(() {
         _isLoading = false;
-        _isVerified = true; // Optimistic or handle error
+        _isVerified = true;
       });
       context.read<AuthBloc>().add(AuthRefreshUserRequested());
       context.read<FintechBloc>().add(FetchWalletBalance());

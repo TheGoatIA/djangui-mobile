@@ -46,7 +46,9 @@ abstract class AuthRemoteDataSource {
     required String documentType,
     required String documentNumber,
     required String fullName,
+    String? documentExpiryDate,
     required String documentImageUrl,
+    String? documentBackImageUrl,
     required String selfieImageUrl,
   });
 }
@@ -368,14 +370,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String documentType,
     required String documentNumber,
     required String fullName,
+    String? documentExpiryDate,
     required String documentImageUrl,
+    String? documentBackImageUrl,
     required String selfieImageUrl,
   }) async {
     final response = await _apiService.submitKYC({
       'documentType': documentType,
       'documentNumber': documentNumber,
       'fullName': fullName,
+      if (documentExpiryDate != null && documentExpiryDate.isNotEmpty)
+        'documentExpiryDate': documentExpiryDate,
       'documentImageUrl': documentImageUrl,
+      if (documentBackImageUrl != null && documentBackImageUrl.isNotEmpty)
+        'documentBackImageUrl': documentBackImageUrl,
       'selfieImageUrl': selfieImageUrl,
     });
 

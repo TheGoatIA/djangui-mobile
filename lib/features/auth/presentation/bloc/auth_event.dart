@@ -166,15 +166,25 @@ class AuthSubmitKYCRequested extends AuthEvent {
   final String fullName;
   final String documentType;
   final String documentNumber;
-  final String docFilePath;
-  final String selfieFilePath;
+  final DateTime? expiryDate;
+  final String? docFilePath;
+  final String? docBackFilePath;
+  final String? selfieFilePath;
+  final String? existingDocUrl;
+  final String? existingDocBackUrl;
+  final String? existingSelfieUrl;
 
   const AuthSubmitKYCRequested({
     required this.fullName,
     required this.documentType,
     required this.documentNumber,
-    required this.docFilePath,
-    required this.selfieFilePath,
+    this.expiryDate,
+    this.docFilePath,
+    this.docBackFilePath,
+    this.selfieFilePath,
+    this.existingDocUrl,
+    this.existingDocBackUrl,
+    this.existingSelfieUrl,
   });
 
   @override
@@ -182,8 +192,13 @@ class AuthSubmitKYCRequested extends AuthEvent {
     fullName,
     documentType,
     documentNumber,
+    expiryDate,
     docFilePath,
+    docBackFilePath,
     selfieFilePath,
+    existingDocUrl,
+    existingDocBackUrl,
+    existingSelfieUrl,
   ];
 }
 

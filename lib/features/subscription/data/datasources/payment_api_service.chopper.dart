@@ -64,4 +64,11 @@ final class _$PaymentApiService extends PaymentApiService {
     final Request $request = Request('POST', $url, client.baseUrl);
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
+
+  @override
+  Future<Response<Map<String, dynamic>>> paySubscriptionWithWallet() {
+    final Uri $url = Uri.parse('/payments/pay/wallet');
+    final Request $request = Request('POST', $url, client.baseUrl);
+    return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
+  }
 }

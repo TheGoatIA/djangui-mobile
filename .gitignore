@@ -45,3 +45,9 @@ app.*.map.json
 /android/app/release
 
 .env
+
+# Variables de build (contiennent des URLs et config env-specific)
+dart_defines.dev.json
+dart_defines.prod.json
+dart_defines.staging.json
+!dart_defines.example.json

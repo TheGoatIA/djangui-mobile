@@ -4831,6 +4831,510 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Le montant de recharge est limité à 50 000 FCFA par transaction.'**
   String get rechargeLimitError;
+
+  /// No description provided for @kycDocInfoTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations du document'**
+  String get kycDocInfoTitle;
+
+  /// No description provided for @kycDocFrontTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'1. Pièce d\'identité - Recto (Face avant)'**
+  String get kycDocFrontTitle;
+
+  /// No description provided for @kycDocFrontSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo claire ou document PDF (Requis)'**
+  String get kycDocFrontSubtitle;
+
+  /// No description provided for @kycDocBackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'2. Pièce d\'identité - Verso (Face arrière)'**
+  String get kycDocBackTitle;
+
+  /// No description provided for @kycDocBackSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo du dos de la pièce (Facultatif mais conseillé)'**
+  String get kycDocBackSubtitle;
+
+  /// No description provided for @kycDocTypeCni.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carte Nationale d\'Identité (CNI)'**
+  String get kycDocTypeCni;
+
+  /// No description provided for @kycDocTypePassport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passeport'**
+  String get kycDocTypePassport;
+
+  /// No description provided for @kycDocTypeLicense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permis de conduire'**
+  String get kycDocTypeLicense;
+
+  /// No description provided for @kycDocTypeResidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre de séjour / Résident'**
+  String get kycDocTypeResidence;
+
+  /// No description provided for @kycImportMethodTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez le moyen d\'importer votre document :'**
+  String get kycImportMethodTitle;
+
+  /// No description provided for @kycImportMethodCamera.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre une photo'**
+  String get kycImportMethodCamera;
+
+  /// No description provided for @kycImportMethodCameraSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caméra arrière (cadrage net)'**
+  String get kycImportMethodCameraSub;
+
+  /// No description provided for @kycImportMethodGallery.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une image'**
+  String get kycImportMethodGallery;
+
+  /// No description provided for @kycImportMethodGallerySub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis votre galerie (JPG, PNG, WEBP)'**
+  String get kycImportMethodGallerySub;
+
+  /// No description provided for @kycImportMethodPdf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer un document PDF'**
+  String get kycImportMethodPdf;
+
+  /// No description provided for @kycImportMethodPdfSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier PDF (scan officiel, max 10 Mo)'**
+  String get kycImportMethodPdfSub;
+
+  /// No description provided for @kycSelfieStepTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'3. Selfie de vérification'**
+  String get kycSelfieStepTitle;
+
+  /// No description provided for @kycSelfieStepSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo nette de votre visage prise avec la caméra avant'**
+  String get kycSelfieStepSubtitle;
+
+  /// No description provided for @kycSelfieSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre votre Selfie'**
+  String get kycSelfieSheetTitle;
+
+  /// No description provided for @kycSelfieSheetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Positionnez votre visage bien au centre, sans lunettes de soleil ni chapeau :'**
+  String get kycSelfieSheetSubtitle;
+
+  /// No description provided for @kycSelfieCameraTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre un selfie maintenant'**
+  String get kycSelfieCameraTitle;
+
+  /// No description provided for @kycSelfieCameraSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caméra frontale nette et centrée'**
+  String get kycSelfieCameraSub;
+
+  /// No description provided for @kycSelfieGalleryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une photo récente'**
+  String get kycSelfieGalleryTitle;
+
+  /// No description provided for @kycSelfieGallerySub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis votre galerie photo'**
+  String get kycSelfieGallerySub;
+
+  /// No description provided for @kycSelfieAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre un selfie (Caméra avant)'**
+  String get kycSelfieAction;
+
+  /// No description provided for @kycSelfieActionSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez pour lancer la caméra avant'**
+  String get kycSelfieActionSub;
+
+  /// No description provided for @kycSelfieRetake.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre'**
+  String get kycSelfieRetake;
+
+  /// No description provided for @kycSelfieMirrorActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Miroir activé'**
+  String get kycSelfieMirrorActive;
+
+  /// No description provided for @kycSelfieMirrorToggle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inverser / Miroir'**
+  String get kycSelfieMirrorToggle;
+
+  /// No description provided for @kycDocPdfLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document PDF'**
+  String get kycDocPdfLabel;
+
+  /// No description provided for @kycDocPdfAccepted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format PDF accepté'**
+  String get kycDocPdfAccepted;
+
+  /// No description provided for @kycDocPhotoOrPdf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo ou PDF (JPG, PNG, PDF)'**
+  String get kycDocPhotoOrPdf;
+
+  /// No description provided for @kycDocTapToUpload.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez pour importer le document'**
+  String get kycDocTapToUpload;
+
+  /// No description provided for @kycDocChange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer'**
+  String get kycDocChange;
+
+  /// No description provided for @kycUploadingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléversement en cours...'**
+  String get kycUploadingTitle;
+
+  /// No description provided for @kycUploadStep1.
+  ///
+  /// In fr, this message translates to:
+  /// **'1/3 - Préparation des fichiers et chiffrement...'**
+  String get kycUploadStep1;
+
+  /// No description provided for @kycUploadStep2.
+  ///
+  /// In fr, this message translates to:
+  /// **'2/3 - Téléversement de la pièce d\'identité...'**
+  String get kycUploadStep2;
+
+  /// No description provided for @kycUploadStep3.
+  ///
+  /// In fr, this message translates to:
+  /// **'3/3 - Validation et vérification biométrique...'**
+  String get kycUploadStep3;
+
+  /// No description provided for @kycSuccessTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification validée avec succès !'**
+  String get kycSuccessTitle;
+
+  /// No description provided for @kycSuccessSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos documents KYC ont été soumis avec succès.'**
+  String get kycSuccessSubtitle;
+
+  /// No description provided for @kycMissingFront.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez fournir le document d\'identité (Recto).'**
+  String get kycMissingFront;
+
+  /// No description provided for @kycMissingSelfie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez prendre un selfie de vérification.'**
+  String get kycMissingSelfie;
+
+  /// No description provided for @kycPendingDialogTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification en cours'**
+  String get kycPendingDialogTitle;
+
+  /// No description provided for @kycPendingDialogMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos documents d\'identité sont actuellement en cours d\'examen par notre équipe. Ce processus prend généralement entre 24h et 48h. Vous recevrez une notification dès que la validation sera effectuée.'**
+  String get kycPendingDialogMessage;
+
+  /// No description provided for @kycVerifiedDialogTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identité vérifiée'**
+  String get kycVerifiedDialogTitle;
+
+  /// No description provided for @kycVerifiedDialogMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte est certifié et votre identité est validée. Toutes les limites et opérations sont débloquées.'**
+  String get kycVerifiedDialogMessage;
+
+  /// No description provided for @kycPendingPageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier en cours d\'examen'**
+  String get kycPendingPageTitle;
+
+  /// No description provided for @kycPendingPageSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous analysons actuellement vos documents et votre selfie. Vous n\'avez aucune action supplémentaire à effectuer.'**
+  String get kycPendingPageSubtitle;
+
+  /// No description provided for @kycPendingEstimatedTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Délai moyen de traitement : 24h à 48h'**
+  String get kycPendingEstimatedTime;
+
+  /// No description provided for @kycPendingUnderReviewBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Examen en cours'**
+  String get kycPendingUnderReviewBadge;
+
+  /// No description provided for @kycPendingDocumentsSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pièce d\'identité et selfie transmis'**
+  String get kycPendingDocumentsSent;
+
+  /// No description provided for @kycBackToProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour au profil'**
+  String get kycBackToProfile;
+
+  /// No description provided for @kycBackToHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour à l\'accueil'**
+  String get kycBackToHome;
+
+  /// No description provided for @kycRejectedNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre précédente soumission a été rejetée. Veuillez vérifier la netteté de vos documents et soumettre à nouveau.'**
+  String get kycRejectedNotice;
+
+  /// No description provided for @kycDocExpiryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date d\'expiration du document'**
+  String get kycDocExpiryLabel;
+
+  /// No description provided for @kycDocExpiryHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionner la date d\'expiration'**
+  String get kycDocExpiryHint;
+
+  /// No description provided for @kycDocExpiryRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez renseigner la date d\'expiration du document'**
+  String get kycDocExpiryRequired;
+
+  /// No description provided for @kycDocExpiryInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le document est expiré ou la date est dépassée'**
+  String get kycDocExpiryInvalid;
+
+  /// No description provided for @kycUpdateRequiredNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre dossier KYC nécessite une mise à jour (document expiré ou informations à renouveler). Vos précédentes informations ont été pré-remplies ci-dessous.'**
+  String get kycUpdateRequiredNotice;
+
+  /// No description provided for @kycExistingDocKept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document actuel enregistré'**
+  String get kycExistingDocKept;
+
+  /// No description provided for @kycReplaceDoc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplacer le fichier'**
+  String get kycReplaceDoc;
+
+  /// No description provided for @kycStatusExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document Expiré'**
+  String get kycStatusExpired;
+
+  /// No description provided for @kycStatusUpdateRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise à jour requise'**
+  String get kycStatusUpdateRequired;
+
+  /// No description provided for @txStatusCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réussie'**
+  String get txStatusCompleted;
+
+  /// No description provided for @txStatusPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get txStatusPending;
+
+  /// No description provided for @txStatusFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échouée'**
+  String get txStatusFailed;
+
+  /// No description provided for @txStatusCancelled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annulée'**
+  String get txStatusCancelled;
+
+  /// No description provided for @withdrawSummaryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détail de l\'opération'**
+  String get withdrawSummaryTitle;
+
+  /// No description provided for @withdrawAmountRequested.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant du retrait'**
+  String get withdrawAmountRequested;
+
+  /// No description provided for @withdrawFeesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais de retrait'**
+  String get withdrawFeesLabel;
+
+  /// No description provided for @withdrawTotalDebited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total débité'**
+  String get withdrawTotalDebited;
+
+  /// No description provided for @withdrawRemainingBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde restant après retrait'**
+  String get withdrawRemainingBalance;
+
+  /// No description provided for @withdrawPremiumDiscountTag.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduction Premium -50%'**
+  String get withdrawPremiumDiscountTag;
+
+  /// No description provided for @withdrawFreeFeeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais standards de 3% (min 100 FCFA). Passez à Premium pour bénéficier de 1.5% !'**
+  String get withdrawFreeFeeHint;
+
+  /// No description provided for @withdrawPremiumFeeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais réduits Premium de 1.5% (min 100 FCFA) appliqués !'**
+  String get withdrawPremiumFeeHint;
+
+  /// No description provided for @withdrawMinAmountError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant minimum de retrait est de 500 FCFA'**
+  String get withdrawMinAmountError;
+
+  /// No description provided for @withdrawMaxAmountError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant maximum par retrait est de 50 000 FCFA'**
+  String get withdrawMaxAmountError;
+
+  /// No description provided for @withdrawInsufficientFundsForFees.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde insuffisant pour couvrir le montant et les frais'**
+  String get withdrawInsufficientFundsForFees;
+
+  /// No description provided for @walletPaymentMethod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Portefeuille Kauri'**
+  String get walletPaymentMethod;
+
+  /// No description provided for @walletPaymentSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Payer instantanément avec votre solde ({balance})'**
+  String walletPaymentSubtitle(Object balance);
+
+  /// No description provided for @walletInsufficientBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde insuffisant dans votre portefeuille pour souscrire'**
+  String get walletInsufficientBalance;
+
+  /// No description provided for @walletSubscriptionSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Félicitations ! Votre abonnement Premium est maintenant actif.'**
+  String get walletSubscriptionSuccess;
+
+  /// No description provided for @walletSubscriptionConfirmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Payer avec le portefeuille'**
+  String get walletSubscriptionConfirmTitle;
+
+  /// No description provided for @walletSubscriptionConfirmMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous débiter {amount} de votre portefeuille Kauri pour activer l\'abonnement Premium (1 mois) ?'**
+  String walletSubscriptionConfirmMessage(Object amount);
 }
 
 class _AppLocalizationsDelegate

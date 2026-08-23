@@ -1,8 +1,9 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kauri/core/config/env_config.dart';
 import '../../../../core/network/network_info.dart';
+import '../../../../core/network/api_response_extensions.dart';
 import '../datasources/fintech_api_service.dart';
 import '../models/fintech_models.dart';
 import 'package:kauri/features/payments/domain/repositories/fintech_repository.dart';
@@ -25,9 +26,7 @@ class FintechRepositoryImpl implements FintechRepository {
         final balance = response.body!.data!['balance'] as num;
         return Right(balance.toDouble());
       }
-      return Left(
-        ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),
-      );
+      return Left(ServerFailure(response.errorMessage));
     } catch (e) {
       return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
@@ -43,9 +42,7 @@ class FintechRepositoryImpl implements FintechRepository {
       if (response.isSuccessful && response.body?.data != null) {
         return Right(response.body!.data!.transactions);
       }
-      return Left(
-        ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),
-      );
+      return Left(ServerFailure(response.errorMessage));
     } catch (e) {
       return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
@@ -82,12 +79,10 @@ class FintechRepositoryImpl implements FintechRepository {
       });
       if (response.isSuccessful && response.body?.data != null) {
         return Right(
-          response.body!.data!['message'] ?? 'Demande de retrait envoyée',
+          response.body!.data!['message'] ?? 'Demande de retrait envoyée avec succès',
         );
       }
-      return Left(
-        ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),
-      );
+      return Left(ServerFailure(response.errorMessage));
     } catch (e) {
       return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
@@ -102,10 +97,9 @@ class FintechRepositoryImpl implements FintechRepository {
       if (response.isSuccessful && response.body?.data != null) {
         final pdfUrl = response.body!.data!.pdfUrl;
         String finalPdfUrl = pdfUrl;
-        final baseUrlStr = dotenv.env['API_BASE_URL'];
-        if (baseUrlStr != null &&
-            (finalPdfUrl.contains('localhost') ||
-                finalPdfUrl.contains('127.0.0.1'))) {
+        final baseUrlStr = EnvConfig.apiBaseUrl;
+        if (finalPdfUrl.contains('localhost') ||
+            finalPdfUrl.contains('127.0.0.1')) {
           final uri = Uri.parse(baseUrlStr);
           finalPdfUrl = finalPdfUrl
               .replaceAll('localhost', uri.host)
@@ -113,9 +107,7 @@ class FintechRepositoryImpl implements FintechRepository {
         }
         return Right(finalPdfUrl);
       }
-      return Left(
-        ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),
-      );
+      return Left(ServerFailure(response.errorMessage));
     } catch (e) {
       return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
@@ -132,10 +124,9 @@ class FintechRepositoryImpl implements FintechRepository {
       if (response.isSuccessful && response.body?.data != null) {
         final pdfUrl = response.body!.data!.pdfUrl;
         String finalPdfUrl = pdfUrl;
-        final baseUrlStr = dotenv.env['API_BASE_URL'];
-        if (baseUrlStr != null &&
-            (finalPdfUrl.contains('localhost') ||
-                finalPdfUrl.contains('127.0.0.1'))) {
+        final baseUrlStr = EnvConfig.apiBaseUrl;
+        if (finalPdfUrl.contains('localhost') ||
+            finalPdfUrl.contains('127.0.0.1')) {
           final uri = Uri.parse(baseUrlStr);
           finalPdfUrl = finalPdfUrl
               .replaceAll('localhost', uri.host)
@@ -143,9 +134,7 @@ class FintechRepositoryImpl implements FintechRepository {
         }
         return Right(finalPdfUrl);
       }
-      return Left(
-        ServerFailure(response.error?.toString() ?? 'Erreur inconnue'),
-      );
+      return Left(ServerFailure(response.errorMessage));
     } catch (e) {
       return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }

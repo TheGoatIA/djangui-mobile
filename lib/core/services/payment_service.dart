@@ -166,4 +166,35 @@ class PaymentService {
       return false;
     }
   }
+
+  /// Paye l'abonnement Premium directement depuis le portefeuille Kauri.
+  Future<({bool success, String message})> paySubscriptionWithWallet() async {
+    try {
+      final response = await _apiService.paySubscriptionWithWallet();
+      if (response.isSuccessful && response.body != null) {
+        final message = response.body!['data']?['message'] as String? ??
+            response.body!['message'] as String? ??
+            'Abonnement activé avec succès';
+
+        _telemetry.recordEvent('business.payment.wallet_subscription', {
+          'provider': 'wallet',
+          'success': true,
+        });
+
+        return (success: true, message: message);
+      }
+
+      final errorMsg = response.body?['message'] as String? ??
+          response.error?.toString() ??
+          'Échec du paiement avec le portefeuille';
+      return (success: false, message: errorMsg);
+    } catch (e) {
+      getIt<LogService>().error(
+        'Erreur paiement abonnement via portefeuille',
+        component: 'PaymentService',
+        error: e,
+      );
+      return (success: false, message: e.toString());
+    }
+  }
 }

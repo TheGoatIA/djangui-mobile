@@ -12,6 +12,7 @@ import '../bloc/transactions_bloc.dart';
 import '../../../../core/utils/toast_utils.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/widgets/transaction_status_badge.dart';
 import '../../../../core/mixins/secure_screen_mixin.dart';
 
 // Converti en StatefulWidget pour appliquer SecureScreenMixin
@@ -172,6 +173,10 @@ class _TransactionDetailPageState extends State<TransactionDetailPage>
                               ),
                               textAlign: TextAlign.center,
                             ),
+                            const SizedBox(height: 12),
+                            TransactionStatusBadge(
+                              status: transaction.status,
+                            ),
                           ],
                         ),
                       ),
@@ -214,9 +219,11 @@ class _TransactionDetailPageState extends State<TransactionDetailPage>
                           ),
                         ),
                       ],
-                      const SizedBox(height: 32),
-
-                      Text(l10n.categoryDetails, style: AppTextStyles.h3),
+                      const SizedBox(height: 24),
+                      Text(
+                        l10n.categoryDetails,
+                        style: AppTextStyles.h2.copyWith(fontSize: 18),
+                      ),
                       const SizedBox(height: 16),
 
                       _InfoTile(

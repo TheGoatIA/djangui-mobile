@@ -17,6 +17,7 @@ import '../../../../core/utils/currency_helper.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/widgets/transaction_status_badge.dart';
 import '../../../../di/injection.dart';
 
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -100,7 +101,19 @@ class _DashboardViewState extends State<DashboardView> {
     final tutorialService = getIt<TutorialService>();
     if (!tutorialService.hasSeenTutorial('real_money_welcome')) {
       final user = context.read<AuthBloc>().state.authResponse?.user;
-      if (user != null && (user.country == 'CM' || user.currency == 'XAF')) {
+      // Server-driven: the admin can flip real-money mode on/off at any time
+      // (see SystemBloc's featureFlags, fetched at splash from GET /config/features).
+      // Falls back to EnvConfig.enableRealMoney (default: false) if the flags
+      // fetch itself fails — assume simulation mode, not real money, when unsure.
+      final featureFlags = context.read<SystemBloc>().state.featureFlags;
+      final isRealMoneyEnabled = featureFlags.featRealMoney.isEnabled;
+      // Same allowlist the server actually enforces (never a hardcoded
+      // country/currency literal here) — see the equivalent fix in
+      // app_router.dart. Otherwise this popup could tell a user real money
+      // has arrived for them while the server still rejects their deposits.
+      final isCountryAllowed =
+          user != null && featureFlags.realMoneyCountries.contains(user.country);
+      if (isRealMoneyEnabled && isCountryAllowed) {
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
         await showDialog(
@@ -1167,13 +1180,22 @@ class _DashboardViewState extends State<DashboardView> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          t.category,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              t.category,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            TransactionStatusBadge(
+                              status: t.status,
+                              compact: true,
+                            ),
+                          ],
                         ),
                       ],
                     ),

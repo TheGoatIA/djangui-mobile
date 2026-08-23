@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/network_info.dart';
+import '../../../../core/network/api_response_extensions.dart';
 import '../datasources/reports_api_service.dart';
 import '../../domain/repositories/reports_repository.dart';
 import '../models/reports_model.dart';
@@ -22,9 +23,7 @@ class ReportsRepositoryImpl implements ReportsRepository {
         if (response.isSuccessful && response.body?.data != null) {
           return Right(response.body!.data!);
         }
-        return Left(
-          ServerFailure(response.error?.toString() ?? 'Erreur serveur'),
-        );
+        return Left(ServerFailure(response.errorMessage));
       } catch (e) {
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
@@ -42,14 +41,7 @@ class ReportsRepositoryImpl implements ReportsRepository {
         if (response.isSuccessful && response.body?.data != null) {
           return Right(response.body!.data!);
         }
-        return Left(
-          ServerFailure(
-            ErrorMapper.safeMessage(
-              response.error ?? 'server_error',
-              backendMessage: response.error?.toString(),
-            ),
-          ),
-        );
+        return Left(ServerFailure(response.errorMessage));
       } catch (e) {
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
@@ -67,14 +59,7 @@ class ReportsRepositoryImpl implements ReportsRepository {
         if (response.isSuccessful && response.body?.data != null) {
           return Right(response.body!.data!);
         }
-        return Left(
-          ServerFailure(
-            ErrorMapper.safeMessage(
-              response.error ?? 'server_error',
-              backendMessage: response.error?.toString(),
-            ),
-          ),
-        );
+        return Left(ServerFailure(response.errorMessage));
       } catch (e) {
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
@@ -90,9 +75,7 @@ class ReportsRepositoryImpl implements ReportsRepository {
         if (response.isSuccessful && response.body?.data != null) {
           return Right(response.body!.data!);
         }
-        return Left(
-          ServerFailure(response.error?.toString() ?? 'Erreur serveur'),
-        );
+        return Left(ServerFailure(response.errorMessage));
       } catch (e) {
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }

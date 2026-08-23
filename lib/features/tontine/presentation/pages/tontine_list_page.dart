@@ -16,6 +16,7 @@ import '../../../../di/injection.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/widgets/cached_data_banner.dart';
 import '../../../../core/services/log_service.dart';
 
 /// Page listant les Tontines (épargne collective) de l'utilisateur.
@@ -128,7 +129,11 @@ class _TontineListPageState extends State<TontineListPage> {
               ),
             ],
           ),
-          body: BlocConsumer<TontineBloc, TontineState>(
+          body: Column(
+            children: [
+              const CachedDataBanner(),
+              Expanded(
+                child: BlocConsumer<TontineBloc, TontineState>(
             listenWhen: (previous, current) =>
                 current.status == TontineStatus.success &&
                 previous.status != TontineStatus.success,
@@ -183,6 +188,9 @@ class _TontineListPageState extends State<TontineListPage> {
                 ),
               );
             },
+                ),
+              ),
+            ],
           ),
           // Bouton pour créer une nouvelle tontine
           floatingActionButton: Showcase(

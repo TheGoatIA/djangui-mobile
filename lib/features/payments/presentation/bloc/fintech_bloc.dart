@@ -90,6 +90,8 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
             message: failure.message,
           ),
         );
+        add(FetchWalletBalance());
+        add(FetchWalletTransactions());
       },
       (message) {
         _analytics.logWithdrawalCompleted(
@@ -104,6 +106,8 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
             message: message,
           ),
         );
+        add(FetchWalletBalance());
+        add(FetchWalletTransactions());
       },
     );
   }

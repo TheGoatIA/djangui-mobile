@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kauri/core/config/env_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:kauri/di/injection.dart';
@@ -19,7 +19,7 @@ class LogService {
   Map<String, dynamic> _deviceMetadata = {};
 
   LogService() {
-    _endpoint = dotenv.env['API_LOGS_ENDPOINT'] ?? '';
+    _endpoint = EnvConfig.apiLogsEndpoint;
     _initMetadata();
   }
 

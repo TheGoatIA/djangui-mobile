@@ -15,7 +15,7 @@ import '../../../../core/constants/route_constants.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../di/injection.dart';
 // import 'dart:io';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kauri/core/config/env_config.dart';
 import '../../../auth/data/models/user_model.dart';
 import 'package:kauri/features/upload/domain/repositories/upload_repository.dart';
 import 'package:kauri/features/system/presentation/bloc/system_bloc.dart';
@@ -434,7 +434,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ? NetworkImage(avatarUrl)
                               : (avatarUrl.startsWith('/')
                                     ? NetworkImage(
-                                        '${dotenv.env['API_BASE_URL']?.replaceAll('/api/v1', '') ?? ''}$avatarUrl',
+                                        '${EnvConfig.apiBaseUrl.replaceAll('/api/v1', '')}$avatarUrl',
                                       )
                                     : MemoryImage(base64Decode(avatarUrl))))
                           as ImageProvider
@@ -653,22 +653,23 @@ class _ProfilePageState extends State<ProfilePage> {
 
             _buildSettingsTile(
               Icons.verified_user_outlined,
-              "Vérification d'identité (KYC)",
+              AppLocalizations.of(context)!.kycTitle,
               trailing: BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, state) {
+                  final l10n = AppLocalizations.of(context)!;
                   final kycLevel = state.authResponse?.user.kycLevel ?? 'none';
                   Color statusColor = Colors.orange;
-                  String statusText = "Non vérifié";
+                  String statusText = l10n.kycNotSubmitted;
 
                   if (kycLevel == 'verified') {
                     statusColor = Colors.green;
-                    statusText = "Vérifié";
+                    statusText = l10n.kycVerified;
                   } else if (kycLevel == 'pending') {
                     statusColor = Colors.blue;
-                    statusText = "En attente";
+                    statusText = l10n.kycPending;
                   } else if (kycLevel == 'rejected') {
                     statusColor = Colors.red;
-                    statusText = "Rejeté";
+                    statusText = l10n.kycRejected;
                   }
 
                   return Container(
@@ -691,7 +692,20 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
               ),
-              onTap: () => context.push(RouteConstants.kycSubmission),
+              onTap: () {
+                final kycLevel = context
+                        .read<AuthBloc>()
+                        .state
+                        .authResponse
+                        ?.user
+                        .kycLevel ??
+                    'none';
+                if (kycLevel == 'pending' || kycLevel == 'verified') {
+                  _showKycStatusDialog(context, kycLevel);
+                } else {
+                  context.push(RouteConstants.kycSubmission);
+                }
+              },
             ),
           ],
         ),
@@ -755,51 +769,7 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             ),
 
-            BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, authState) {
-                final isPremium =
-                    authState.authResponse?.user.isPremium ?? false;
-                return BlocBuilder<SettingsBloc, SettingsState>(
-                  builder: (context, settingsState) {
-                    return _buildSettingsTile(
-                      Icons.font_download_outlined,
-                      AppLocalizations.of(context)!.fontFamily,
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _getFontName(settingsState.fontFamily),
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          if (!isPremium) ...[
-                            const SizedBox(width: 4),
-                            const Icon(
-                              Icons.lock_outline,
-                              size: 14,
-                              color: Colors.orange,
-                            ),
-                          ],
-                        ],
-                      ),
-                      onTap: () {
-                        if (isPremium) {
-                          _showFontSelectionDialog(
-                            context,
-                            settingsState.fontFamily,
-                          );
-                        } else {
-                          context.push(RouteConstants.subscription);
-                        }
-                      },
-                    );
-                  },
-                );
-              },
-            ),
+
             BlocBuilder<AuthBloc, AuthState>(
               builder: (context, authState) {
                 final isPremium =
@@ -974,7 +944,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
@@ -984,8 +953,12 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ],
           ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(children: children),
+          child: Material(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(20),
+            clipBehavior: Clip.antiAlias,
+            child: Column(children: children),
+          ),
         ),
       ],
     );
@@ -1273,85 +1246,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _showFontSelectionDialog(BuildContext context, String currentFont) {
-    final l10n = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.fontFamily),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildFontOption(context, 'Outfit', l10n.classicFont, currentFont, (
-              val,
-            ) {
-              context.read<SettingsBloc>().add(FontChanged(val));
-              Navigator.pop(dialogContext);
-            }),
-            _buildFontOption(
-              context,
-              'Playfair Display',
-              l10n.elegantFont,
-              currentFont,
-              (val) {
-                context.read<SettingsBloc>().add(FontChanged(val));
-                Navigator.pop(dialogContext);
-              },
-            ),
-            _buildFontOption(context, 'Poppins', l10n.modernFont, currentFont, (
-              val,
-            ) {
-              context.read<SettingsBloc>().add(FontChanged(val));
-              Navigator.pop(dialogContext);
-            }),
-            _buildFontOption(
-              context,
-              'Roboto Mono',
-              l10n.technicalFont,
-              currentFont,
-              (val) {
-                context.read<SettingsBloc>().add(FontChanged(val));
-                Navigator.pop(dialogContext);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildFontOption(
-    BuildContext context,
-    String value,
-    String label,
-    String groupValue,
-    ValueChanged<String> onChanged,
-  ) {
-    final isSelected = value == groupValue;
-    return ListTile(
-      title: Text(label, style: TextStyle(fontFamily: value)),
-      leading: Icon(
-        isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-        color: isSelected
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-      onTap: () => onChanged(value),
-    );
-  }
-
-  String _getFontName(String family) {
-    switch (family) {
-      case 'Playfair Display':
-        return 'Playfair';
-      case 'Poppins':
-        return 'Poppins';
-      case 'Roboto Mono':
-        return 'Roboto Mono';
-      default:
-        return 'Outfit';
-    }
-  }
 
   Widget _buildPremiumBanner(BuildContext context) {
     return Container(
@@ -1888,6 +1783,64 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         );
       },
+    );
+  }
+
+  void _showKycStatusDialog(BuildContext context, String kycLevel) {
+    final l10n = AppLocalizations.of(context)!;
+    final isPending = kycLevel == 'pending';
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isPending
+                    ? Colors.blue.withValues(alpha: 0.1)
+                    : Colors.green.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isPending ? Icons.hourglass_top_rounded : Icons.verified_rounded,
+                color: isPending ? Colors.blue : Colors.green,
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                isPending
+                    ? l10n.kycPendingDialogTitle
+                    : l10n.kycVerifiedDialogTitle,
+                style: AppTextStyles.h3,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          isPending
+              ? l10n.kycPendingDialogMessage
+              : l10n.kycVerifiedDialogMessage,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.close),
+          ),
+        ],
+      ),
     );
   }
 }

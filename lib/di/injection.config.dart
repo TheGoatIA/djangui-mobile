@@ -332,6 +332,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i921.NotificationApiService>(),
       ),
     );
+    gh.lazySingleton<_i991.UploadRemoteDataSource>(
+      () => _i991.UploadRemoteDataSourceImpl(gh<_i242.UploadApiService>()),
+    );
     gh.lazySingleton<_i302.BudgetLocalDataSource>(
       () => _i302.BudgetLocalDataSourceImpl(gh<_i777.AppDatabase>()),
     );
@@ -422,9 +425,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i342.PaymentService>(
       () => _i342.PaymentService(gh<_i1020.PaymentApiService>()),
-    );
-    gh.lazySingleton<_i991.UploadRemoteDataSource>(
-      () => _i991.UploadRemoteDataSourceImpl(gh<_i240.AuthLocalDataSource>()),
     );
     gh.factory<_i376.SystemBloc>(
       () => _i376.SystemBloc(gh<_i608.SystemRepository>()),

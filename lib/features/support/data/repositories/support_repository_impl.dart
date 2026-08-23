@@ -1,27 +1,27 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
-import 'package:kauri/core/errors/failures.dart';
-import 'package:kauri/core/network/network_info.dart';
-import 'package:kauri/features/support/data/datasources/support_api_service.dart';
-import 'package:kauri/features/support/data/models/support_ticket_model.dart';
-import 'package:kauri/features/support/domain/repositories/support_repository.dart';
+import '../../../../core/errors/failures.dart';
+import '../../../../core/network/network_info.dart';
+import '../../../../core/network/api_response_extensions.dart';
+import '../datasources/support_api_service.dart';
+import '../models/support_ticket_model.dart';
+import '../../domain/repositories/support_repository.dart';
 import '../../../../core/services/log_service.dart';
-import '../../../../di/injection.dart';
 import 'package:kauri/core/error/error_mapper.dart';
+import 'package:kauri/di/injection.dart';
 
 @LazySingleton(as: SupportRepository)
 class SupportRepositoryImpl implements SupportRepository {
   final SupportApiService _apiService;
   final NetworkInfo _networkInfo;
+  final LogService _logger = getIt<LogService>();
 
   SupportRepositoryImpl(this._apiService, this._networkInfo);
-
-  LogService get _logger => getIt<LogService>();
 
   @override
   Future<Either<Failure, List<SupportTicketModel>>> getTickets() async {
     _logger.info(
-      'Récupération de mes tickets de support...',
+      'Récupération des tickets de support...',
       component: 'SupportRepository',
     );
     if (await _networkInfo.isConnected) {
@@ -39,9 +39,7 @@ class SupportRepositoryImpl implements SupportRepository {
             'Échec de la récupération des tickets (Serveur)',
             component: 'SupportRepository',
           );
-          return Left(
-            ServerFailure(response.error?.toString() ?? 'Server Error'),
-          );
+          return Left(ServerFailure(response.errorMessage));
         }
       } catch (e) {
         _logger.error(
@@ -88,9 +86,7 @@ class SupportRepositoryImpl implements SupportRepository {
             'Échec de la création du ticket (Serveur)',
             component: 'SupportRepository',
           );
-          return Left(
-            ServerFailure(response.error?.toString() ?? 'Server Error'),
-          );
+          return Left(ServerFailure(response.errorMessage));
         }
       } catch (e) {
         _logger.error(
@@ -134,9 +130,7 @@ class SupportRepositoryImpl implements SupportRepository {
             'Échec de l\'envoi de la réponse (Serveur)',
             component: 'SupportRepository',
           );
-          return Left(
-            ServerFailure(response.error?.toString() ?? 'Server Error'),
-          );
+          return Left(ServerFailure(response.errorMessage));
         }
       } catch (e) {
         _logger.error(

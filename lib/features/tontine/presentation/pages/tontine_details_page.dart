@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:kauri/l10n/app_localizations.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -13,12 +12,14 @@ import '../widgets/contribution_dialog.dart';
 import '../widgets/tontine_chat_tab.dart';
 import '../../domain/entities/tontine_entities.dart';
 import './create_tontine_page.dart';
+import 'package:kauri/core/config/env_config.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/share_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/widgets/cached_data_banner.dart';
 import '../../../../core/services/log_service.dart';
 
 class TontineDetailsPage extends StatefulWidget {
@@ -260,7 +261,11 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                       ),
                     ),
                   ),
-                  body: TabBarView(
+                  body: Column(
+                    children: [
+                      const CachedDataBanner(),
+                      Expanded(
+                        child: TabBarView(
                     controller: _tabController,
                     children: [
                       _buildOverviewTab(
@@ -286,6 +291,9 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                               .toList(),
                           state.selectedTontineMembers,
                         ),
+                    ],
+                        ),
+                      ),
                     ],
                   ),
                   floatingActionButton:
@@ -627,7 +635,6 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
 
         return Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -637,7 +644,11 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
               ),
             ],
           ),
-          child: ListTile(
+          child: Material(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            clipBehavior: Clip.antiAlias,
+            child: ListTile(
             contentPadding: const EdgeInsets.all(16),
             leading: CircleAvatar(
               radius: 24,
@@ -750,6 +761,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                   ),
               ],
             ),
+          ),
           ),
         ).animate().fadeIn(delay: (index * 50).ms).slideX();
       },
@@ -902,7 +914,6 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
 
                 return Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
@@ -912,9 +923,13 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                       ),
                     ],
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+                  child: Material(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(24),
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
                       ListTile(
                         contentPadding: const EdgeInsets.all(16),
                         leading: Container(
@@ -1040,6 +1055,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                           ),
                         ),
                     ],
+                  ),
                   ),
                 ).animate().fadeIn().slideY(begin: 0.2, end: 0);
               },
@@ -1206,8 +1222,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     final normalizedPath = path.replaceAll('\\', '/');
 
     // Get base URL
-    String baseUrl =
-        dotenv.env['API_BASE_URL'] ?? 'http://192.168.1.182:3000/api/v1';
+    String baseUrl = EnvConfig.apiBaseUrl;
 
     // Strip /api/v1 suffix if present to get root
     if (baseUrl.endsWith('/api/v1')) {

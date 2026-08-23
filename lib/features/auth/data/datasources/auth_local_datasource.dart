@@ -66,7 +66,12 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     _logger.d('💾 [AuthLocal] Clearing all tokens and user data');
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _refreshTokenKey);
-    // Clear all user-related data from tables
+    // A device can be shared between users (logout/login by different people) —
+    // every locally-cached table must be wiped here, not just the ones a given
+    // feature happened to have when this method was first written. Missing a
+    // table here means the next user to log in on this device can see the
+    // previous user's cached data (tontines, contributions, subscriptions...)
+    // until/unless a fresh sync happens to overwrite it.
     await _db.delete(_db.users).go();
     await _db.delete(_db.transactions).go();
     await _db.delete(_db.budgets).go();
@@ -75,6 +80,14 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     await _db.delete(_db.investments).go();
     await _db.delete(_db.chatMessages).go();
     await _db.delete(_db.syncRequests).go();
+    await _db.delete(_db.userSubscriptions).go();
+    await _db.delete(_db.userChallenges).go();
+    await _db.delete(_db.tontineContributions).go();
+    await _db.delete(_db.tontineMessages).go();
+    await _db.delete(_db.tontineMembers).go();
+    await _db.delete(_db.tontines).go();
+    await clearBiometricToken();
+    await clearLoginProvider();
   }
 
   @override

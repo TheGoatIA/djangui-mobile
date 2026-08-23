@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/constants/route_constants.dart';
 import '../di/injection.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
+import '../features/system/presentation/bloc/system_bloc.dart';
 import '../core/navigation/telemetry_route_observer.dart';
 import '../core/widgets/scaffold_with_navbar.dart';
 import '../core/widgets/custom_page_transition.dart';
@@ -134,7 +135,7 @@ final appRouter = GoRouter(
     final isAuthenticated = authState.status == AuthStatus.authenticated;
     final isKnownUnauthenticated =
         authState.status == AuthStatus.unauthenticated ||
-        authState.status == AuthStatus.error;
+        (authState.status == AuthStatus.error && authState.authResponse == null);
 
     // Garde d'authentification : un utilisateur non connecté ne doit jamais
     // atteindre un écran protégé (lien profond direct, état de navigation
@@ -147,13 +148,23 @@ final appRouter = GoRouter(
       return RouteConstants.login;
     }
 
-    // Geographic Restriction: Only Cameroon (CM) for financial services
+    // Geographic Restriction: real-money features only for the countries the
+    // server currently allows (FeatureFlagService.getRealMoneyCountries,
+    // admin-editable) — never a hardcoded literal here, which would drift
+    // from the real allowlist as soon as it's expanded/restricted server-side.
     final isFintechRoute =
         state.uri.path == RouteConstants.wallet ||
         state.uri.path == RouteConstants.kycSubmission;
 
-    if (isFintechRoute && user != null && user.country != 'CM') {
-      return RouteConstants.dashboard; // Redirect to dashboard if not in CM
+    if (isFintechRoute && user != null) {
+      final allowedCountries = context
+          .read<SystemBloc>()
+          .state
+          .featureFlags
+          .realMoneyCountries;
+      if (!allowedCountries.contains(user.country)) {
+        return RouteConstants.dashboard;
+      }
     }
 
     // Un utilisateur authentifié qui atterrit sur login/register/onboarding
@@ -447,7 +458,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.paymentSuccess,
       pageBuilder: (context, state) {
-        final ref = state.uri.queryParameters['ref'];
+        final ref = state.uri.queryParameters['ref'] ??
+            state.uri.queryParameters['reference'] ??
+            state.uri.queryParameters['trxref'] ??
+            state.uri.queryParameters['transaction_reference'];
         final status = state.uri.queryParameters['status'];
         return buildPageWithDefaultTransition(
           context: context,
@@ -459,7 +473,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.paymentFailure,
       pageBuilder: (context, state) {
-        final ref = state.uri.queryParameters['ref'];
+        final ref = state.uri.queryParameters['ref'] ??
+            state.uri.queryParameters['reference'] ??
+            state.uri.queryParameters['trxref'] ??
+            state.uri.queryParameters['transaction_reference'];
         final message = state.uri.queryParameters['message'];
         return buildPageWithDefaultTransition(
           context: context,

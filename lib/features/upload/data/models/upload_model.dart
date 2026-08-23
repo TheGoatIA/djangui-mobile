@@ -9,15 +9,25 @@ class UploadResponseModel extends Equatable {
   final String? avatarUrl;
   final String? documentUrl;
   final String? url;
+  final String? fileUrl;
+  final String? path;
 
-  const UploadResponseModel({this.avatarUrl, this.documentUrl, this.url});
+  const UploadResponseModel({
+    this.avatarUrl,
+    this.documentUrl,
+    this.url,
+    this.fileUrl,
+    this.path,
+  });
 
-  String get finalUrl => avatarUrl ?? documentUrl ?? url ?? '';
+  String get finalUrl =>
+      documentUrl ?? url ?? avatarUrl ?? fileUrl ?? path ?? '';
 
   factory UploadResponseModel.fromJson(Map<String, dynamic> json) =>
       _$UploadResponseModelFromJson(json);
   Map<String, dynamic> toJson() => _$UploadResponseModelToJson(this);
 
   @override
-  List<Object?> get props => [avatarUrl, url];
+  List<Object?> get props => [avatarUrl, documentUrl, url, fileUrl, path];
 }
+

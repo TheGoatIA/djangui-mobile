@@ -1,5 +1,5 @@
 import 'package:chopper/chopper.dart' hide HttpLoggingInterceptor;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kauri/core/config/env_config.dart';
 import 'package:kauri/core/network/tracing_http_client.dart';
 import 'package:kauri/features/ai_tools/data/models/ai_tools_model.dart';
 import 'package:kauri/features/auth/data/models/auth_response.dart';
@@ -42,8 +42,7 @@ class KauriApiClient {
   /// Crée et configure une instance de [ChopperClient].
   /// Inclut le décodage JSON automatique pour tous les modèles du projet.
   static ChopperClient create() {
-    final baseUrl =
-        dotenv.env['API_BASE_URL'] ?? 'https://api.kauri-app.com/api/v1';
+    final baseUrl = EnvConfig.apiBaseUrl;
 
     return ChopperClient(
       baseUrl: Uri.parse(baseUrl),

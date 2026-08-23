@@ -15,7 +15,9 @@ import '../../../../features/payments/presentation/bloc/fintech_bloc.dart';
 import '../../../../features/payments/presentation/bloc/fintech_event.dart';
 import '../../../../features/payments/presentation/bloc/fintech_state.dart';
 import '../../../../core/utils/toast_utils.dart';
-// import 'package:go_router/go_router.dart';
+import '../../../../core/utils/currency_helper.dart';
+import '../../../../core/constants/route_constants.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/services/tutorial_service.dart';
@@ -46,6 +48,7 @@ class _SubscriptionViewState extends State<SubscriptionView> {
       'Affichage de la page d\'abonnement.',
       component: 'SubscriptionPage',
     );
+    context.read<FintechBloc>().add(FetchWalletBalance());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -536,6 +539,8 @@ class _SubscriptionViewState extends State<SubscriptionView> {
     BuildContext context,
     ({double amount, String currency, String formattedPrice}) priceInfo,
   ) {
+    final l10n = AppLocalizations.of(context)!;
+
     getIt<LogService>().info(
       'Action: Affichage des options de paiement',
       component: 'SubscriptionPage',
@@ -544,43 +549,71 @@ class _SubscriptionViewState extends State<SubscriptionView> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.choosePaymentMethodTitle,
-              style: AppTextStyles.h3,
+      builder: (sheetContext) => BlocBuilder<FintechBloc, FintechState>(
+        builder: (ctx, fintechState) {
+          final walletBalance = fintechState.balance;
+          final formattedWalletBalance = CurrencyHelper.formatAmount(
+            walletBalance,
+            currencyCode: priceInfo.currency,
+          );
+
+          return Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
             ),
-            const SizedBox(height: 24),
-            _buildPaymentMethod(
-              context,
-              icon: Icons.phone_android,
-              title: 'NotchPay (${AppLocalizations.of(context)!.mobileMoney})',
-              subtitle: AppLocalizations.of(
-                context,
-              )!.mobileMoneyPlatforms(priceInfo.formattedPrice),
-              onTap: () => _initiatePayment(context, 'notchpay', priceInfo),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.choosePaymentMethodTitle,
+                  style: AppTextStyles.h3,
+                ),
+                const SizedBox(height: 24),
+                _buildPaymentMethod(
+                  context,
+                  icon: Icons.account_balance_wallet_rounded,
+                  title: l10n.walletPaymentMethod,
+                  subtitle: l10n.walletPaymentSubtitle(formattedWalletBalance),
+                  badge: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Instantané',
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.success,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  onTap: () => _payWithWallet(context, priceInfo),
+                ),
+                const SizedBox(height: 16),
+                _buildPaymentMethod(
+                  context,
+                  icon: Icons.phone_android,
+                  title: 'NotchPay (${l10n.mobileMoney})',
+                  subtitle: l10n.mobileMoneyPlatforms(priceInfo.formattedPrice),
+                  onTap: () => _initiatePayment(context, 'notchpay', priceInfo),
+                ),
+                const SizedBox(height: 16),
+                _buildPaymentMethod(
+                  context,
+                  icon: Icons.credit_card,
+                  title: 'Stripe (${l10n.bankCard})',
+                  subtitle: l10n.bankCardPlatforms(priceInfo.formattedPrice),
+                  onTap: () => _initiatePayment(context, 'stripe', priceInfo),
+                ),
+                const SizedBox(height: 24),
+              ],
             ),
-            const SizedBox(height: 16),
-            _buildPaymentMethod(
-              context,
-              icon: Icons.credit_card,
-              title: 'Stripe (${AppLocalizations.of(context)!.bankCard})',
-              subtitle: AppLocalizations.of(
-                context,
-              )!.bankCardPlatforms(priceInfo.formattedPrice),
-              onTap: () => _initiatePayment(context, 'stripe', priceInfo),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -591,9 +624,11 @@ class _SubscriptionViewState extends State<SubscriptionView> {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    Widget? badge,
   }) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -617,12 +652,21 @@ class _SubscriptionViewState extends State<SubscriptionView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (badge != null) ...[
+                        const SizedBox(width: 8),
+                        badge,
+                      ],
+                    ],
                   ),
+                  const SizedBox(height: 2),
                   Text(subtitle, style: AppTextStyles.bodySmall),
                 ],
               ),
@@ -635,6 +679,131 @@ class _SubscriptionViewState extends State<SubscriptionView> {
         ),
       ),
     );
+  }
+
+  Future<void> _payWithWallet(
+    BuildContext context,
+    ({double amount, String currency, String formattedPrice}) priceInfo,
+  ) async {
+    Navigator.pop(context); // Close bottom sheet
+    final l10n = AppLocalizations.of(context)!;
+    final currentBalance = context.read<FintechBloc>().state.balance;
+
+    getIt<LogService>().info(
+      'Action: Clic Paiement abonnement par Portefeuille Kauri',
+      component: 'SubscriptionPage',
+      metadata: {
+        'price': priceInfo.formattedPrice,
+        'amount': priceInfo.amount,
+        'walletBalance': currentBalance,
+      },
+    );
+
+    if (currentBalance < priceInfo.amount) {
+      if (!context.mounted) return;
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.walletPaymentMethod),
+          content: Text(
+            '${l10n.walletInsufficientBalance}.\n\n'
+            'Solde disponible : ${CurrencyHelper.formatAmount(currentBalance, currencyCode: priceInfo.currency)}\n'
+            'Requis : ${priceInfo.formattedPrice}',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                ctx.push(RouteConstants.wallet);
+              },
+              child: const Text('Recharger le portefeuille'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.walletSubscriptionConfirmTitle),
+        content: Text(
+          l10n.walletSubscriptionConfirmMessage(priceInfo.formattedPrice),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.confirmAction),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      final paymentService = getIt<PaymentService>();
+      final result = await paymentService.paySubscriptionWithWallet();
+
+      if (context.mounted) {
+        Navigator.pop(context); // Pop loading dialog
+
+        if (result.success) {
+          getIt<LogService>().info(
+            'Succès paiement abonnement par portefeuille',
+            component: 'SubscriptionPage',
+          );
+          context.read<AuthBloc>().add(AuthRefreshUserRequested());
+          context.read<FintechBloc>().add(FetchWalletBalance());
+          context.read<FintechBloc>().add(FetchWalletTransactions());
+
+          ToastUtils.showSuccess(
+            context,
+            l10n.walletSubscriptionSuccess,
+          );
+        } else {
+          getIt<LogService>().warning(
+            'Échec paiement abonnement par portefeuille: ${result.message}',
+            component: 'SubscriptionPage',
+          );
+          ToastUtils.showError(
+            context,
+            result.message,
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Pop loading dialog
+        getIt<LogService>().error(
+          'Exception paiement abonnement portefeuille',
+          component: 'SubscriptionPage',
+          error: e,
+        );
+        ToastUtils.showError(
+          context,
+          l10n.genericError,
+        );
+      }
+    }
   }
 
   Future<void> _initiatePayment(
