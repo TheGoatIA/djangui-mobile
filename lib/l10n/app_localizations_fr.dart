@@ -787,7 +787,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Kauri est une solution moderne pour gérer vos épargnes et tontines de manière autonome. Notre mission est de démocratiser la gestion financière grâce à la technologie.';
 
   @override
-  String get developedBy => 'Développé avec ❤️ par l\'équipe Kauri';
+  String get developedBy => 'Développé avec â¤ï¸ par l\'équipe Kauri';
 
   @override
   String get contact => 'Contact';
@@ -842,7 +842,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get premiumPlan => 'Premium';
 
   @override
-  String get premiumPrice => '2000 FCFA/mois';
+  String get premiumPrice => '2 000 FCFA/mois';
 
   @override
   String get premiumFeature1 => 'Budgets Illimités';
@@ -1492,7 +1492,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tutorialAddTransactionDesc =>
-      'Saisissez les détails pour garder un œil sur votre budget.';
+      'Saisissez les détails pour garder un Å“il sur votre budget.';
 
   @override
   String get tutorialAddGoalTitle => 'Nouvel Objectif';
@@ -1805,7 +1805,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get whatIsTontineDesc =>
-      'La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun 🇨🇲 et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.';
+      'La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun ðŸ‡¨ðŸ‡² et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.';
 
   @override
   String get tontineLifecycleTitle => 'Comprendre les Statuts';
@@ -1836,7 +1836,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get guideRotationDesc =>
-      '• Fixe : L\'ordre est prédéfini.\n• Aléatoire : La chance décide du gagnant.\n• Enchères/Score : Les membres les plus rigoureux ou ayant besoin de fonds sont prioritaires.';
+      'â€¢ Fixe : L\'ordre est prédéfini.\nâ€¢ Aléatoire : La chance décide du gagnant.\nâ€¢ Enchères/Score : Les membres les plus rigoureux ou ayant besoin de fonds sont prioritaires.';
 
   @override
   String get guideValidationTitle => 'IA & Factures';
@@ -1884,7 +1884,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tontineRestrictionCM =>
-      'La création et l\'adhésion aux tontines sont réservées aux utilisateurs au Cameroun 🇨🇲.';
+      'La création et l\'adhésion aux tontines sont réservées aux utilisateurs au Cameroun ðŸ‡¨ðŸ‡².';
 
   @override
   String get tontineStarted => 'Tontine démarrée avec succès';
@@ -2279,7 +2279,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get fintechOnlyCameroon =>
-      'Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun 🇨🇲.';
+      'Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun ðŸ‡¨ðŸ‡².';
 
   @override
   String get featureRestrictedCountry =>
@@ -2825,4 +2825,110 @@ class AppLocalizationsFr extends AppLocalizations {
   String walletSubscriptionConfirmMessage(Object amount) {
     return 'Voulez-vous débiter $amount de votre portefeuille Kauri pour activer l\'abonnement Premium (1 mois) ?';
   }
+
+  @override
+  String get otherTools => 'Autres outils';
+
+  @override
+  String get resellerGuideTitle => 'Guide Espace Revendeur';
+
+  @override
+  String get resellerGuideSubtitle =>
+      'Comment fonctionne la gestion des abonnements partagés ?';
+
+  @override
+  String get resellerGuideMasterTitle => '1. Comptes Maîtres (Vos abonnements)';
+
+  @override
+  String get resellerGuideMasterDesc =>
+      'Vous enregistrez ici vos comptes d\'origine (Netflix, Spotify, Canva...). Vous y définissez ce que vous payez au fournisseur et la date de renouvellement de votre abonnement.';
+
+  @override
+  String get resellerGuideSlotsTitle => '2. Profils & Slots Clients';
+
+  @override
+  String get resellerGuideSlotsDesc =>
+      'Chaque compte est découpé en slots (écrans/profils). Vous attribuez chaque slot à un client avec son nom, son numéro WhatsApp, son prix de revente et sa date de début.';
+
+  @override
+  String get resellerGuidePaymentTitle => '3. \'Marquer comme payé\'';
+
+  @override
+  String get resellerGuidePaymentDesc =>
+      'Quand votre client vous règle, cliquez sur son profil puis \'Marquer comme payé\'. Le système enregistre l\'historique et prolonge automatiquement son accès d\'un mois (le badge repasse au vert).';
+
+  @override
+  String get resellerGuideQuotasTitle => '4. Quotas par Forfait';
+
+  @override
+  String get resellerGuideQuotasFree =>
+      '• Forfait Gratuit : Jusqu\'à 2 comptes maîtres et 3 profils clients.';
+
+  @override
+  String get resellerGuideQuotasPremium =>
+      '• Forfait Premium : Jusqu\'à 3 comptes maîtres et 10 profils clients.';
+
+  @override
+  String get resellerGuideQuotasBusiness =>
+      '• Forfait Business : Comptes et profils illimités, exports comptables et statistiques avancées.';
+
+  @override
+  String get businessPlan => 'Business (Reseller Hub Pro)';
+
+  @override
+  String get businessPlanDesc =>
+      'La formule ultime pour gérer vos finances et votre activité de revendeur d\'abonnements.';
+
+  @override
+  String get businessFeatureResellerUnlimited =>
+      'Hub Revendeur : Comptes & Profils illimités';
+
+  @override
+  String get businessFeatureAutoReminders =>
+      'Relances & Rappels WhatsApp automatisés';
+
+  @override
+  String get businessFeatureAccountingExports =>
+      'Exports comptables & bilans en 1 clic';
+
+  @override
+  String get businessFeatureAdvancedStats =>
+      'Statistiques & prévisions financières avancées';
+
+  @override
+  String get businessFeatureVIPSupport => 'Support VIP dédié & prioritaire';
+
+  @override
+  String get upgradeToBusiness => 'Passer à Super Premium';
+
+  @override
+  String get currentBusinessPlan => 'Votre forfait Business actif';
+
+  @override
+  String get businessPrice => '5 000 FCFA/mois';
+
+  @override
+  String get businessFeature1 => 'Tout le forfait Premium inclus';
+
+  @override
+  String get businessFeature2 => 'Services & Comptes Maîtres Illimités';
+
+  @override
+  String get businessFeature3 => 'Slots & Profils Clients Illimités';
+
+  @override
+  String get businessFeature4 => 'Relances Automatiques WhatsApp / SMS / Push';
+
+  @override
+  String get businessFeature5 =>
+      'Coffre-fort d\'Identifiants Sécurisé (AES-256)';
+
+  @override
+  String get businessFeature6 => 'Exports Comptables & Fiscaux (CSV / Excel)';
+
+  @override
+  String get businessFeature7 => 'Tableau de Bord & MRR en Temps Réel';
+
+  @override
+  String get businessFeature8 => 'Support VIP Dédié 24/7';
 }

@@ -1,3 +1,4 @@
+﻿import 'package:kauri/features/reseller/data/datasources/reseller_api_service.dart';
 import 'package:chopper/chopper.dart' hide HttpLoggingInterceptor;
 import 'package:kauri/core/config/env_config.dart';
 import 'package:kauri/core/network/tracing_http_client.dart';
@@ -111,6 +112,7 @@ class KauriApiClient {
         AuthApiService.create(),
         FintechApiService.create(),
         PremiumApiService.create(),
+        ResellerApiService.create(),
       ],
       // Convertisseur d'erreur spécifique pour les retours 4xx/5xx ayant une structure JSON.
       errorConverter: JsonToTypeConverter({
@@ -120,3 +122,4 @@ class KauriApiClient {
     );
   }
 }
+

@@ -11,6 +11,7 @@ import '../../../../core/services/payment_service.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/subscription/data/models/payment_model.dart';
+import '../../../../features/subscription/data/models/plan_config_model.dart';
 import '../../../../features/payments/presentation/bloc/fintech_bloc.dart';
 import '../../../../features/payments/presentation/bloc/fintech_event.dart';
 import '../../../../features/payments/presentation/bloc/fintech_state.dart';
@@ -41,6 +42,9 @@ class SubscriptionView extends StatefulWidget {
 class _SubscriptionViewState extends State<SubscriptionView> {
   final GlobalKey _premiumPlanKey = GlobalKey();
 
+  Future<List<PlanConfigModel>>? _plansFuture;
+  String? _lastLanguage;
+
   @override
   void initState() {
     super.initState();
@@ -54,13 +58,21 @@ class _SubscriptionViewState extends State<SubscriptionView> {
     });
   }
 
+  void _loadPlans([String? forcedLanguage]) {
+    final language =
+        forcedLanguage ?? Localizations.localeOf(context).languageCode;
+    _lastLanguage = language;
+    _plansFuture = getIt<PaymentService>().getPlansConfig(language: language);
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     context.watch<TutorialService>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startTutorial();
-    });
+    final currentLanguage = Localizations.localeOf(context).languageCode;
+    if (_plansFuture == null || _lastLanguage != currentLanguage) {
+      _loadPlans(currentLanguage);
+    }
   }
 
   void _startTutorial() {
@@ -85,7 +97,15 @@ class _SubscriptionViewState extends State<SubscriptionView> {
       (AuthBloc bloc) => bloc.state.authResponse?.user,
     );
     final paymentService = getIt<PaymentService>();
-    final priceInfo = paymentService.getSubscriptionPrice(user?.country);
+    final fallbackPriceInfo = paymentService.getSubscriptionPrice(
+      user?.country,
+    );
+    final fallbackBusinessPriceInfo = paymentService
+        .getBusinessSubscriptionPrice(user?.country);
+    final userPlan = user?.subscription?.plan ?? 'free';
+    final isBusiness = user?.isBusiness ?? false;
+    final isPremiumOnly = (user?.isPremium ?? false) && !isBusiness;
+    final isFree = !(user?.isPremium ?? false);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -124,6 +144,9 @@ class _SubscriptionViewState extends State<SubscriptionView> {
               component: 'SubscriptionPage',
             );
             context.read<AuthBloc>().add(AuthRefreshUserRequested());
+            setState(() {
+              _loadPlans();
+            });
             await Future.delayed(const Duration(seconds: 1));
           },
           child: SingleChildScrollView(
@@ -151,53 +174,154 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                _buildPlanCard(
-                  context,
-                  title: AppLocalizations.of(context)!.freePlan,
-                  price: AppLocalizations.of(context)!.freePrice,
-                  features: [
-                    AppLocalizations.of(context)!.freeFeatureLimits,
-                    AppLocalizations.of(context)!.freeFeatureTracker,
-                    AppLocalizations.of(context)!.freeFeatureInput,
-                    AppLocalizations.of(context)!.freeFeatureTontine,
-                    AppLocalizations.of(context)!.freeFeatureAI,
-                    AppLocalizations.of(context)!.freeFeatureFees,
-                  ],
-                  isPremium: false,
-                  isCurrentPlan: !(user?.isPremium ?? false),
-                  onTap: (user?.isPremium ?? false)
-                      ? () => _confirmDowngrade(context)
-                      : null,
-                ),
-                const SizedBox(height: 24),
-                Showcase(
-                  key: _premiumPlanKey,
-                  title: AppLocalizations.of(
-                    context,
-                  )!.tutorialSubscriptionTitle,
-                  description: AppLocalizations.of(
-                    context,
-                  )!.tutorialSubscriptionDesc,
-                  child: _buildPlanCard(
-                    context,
-                    title: AppLocalizations.of(context)!.premiumPlan,
-                    price: priceInfo.formattedPrice,
-                    features: [
-                      AppLocalizations.of(context)!.premiumFeatureLimits,
-                      AppLocalizations.of(context)!.premiumFeatureInvest,
-                      AppLocalizations.of(context)!.premiumFeatureInput,
-                      AppLocalizations.of(context)!.premiumFeatureTontine,
-                      AppLocalizations.of(context)!.premiumFeatureAI,
-                      AppLocalizations.of(context)!.premiumFeatureFees,
-                      AppLocalizations.of(context)!.premiumFeaturePrevention,
-                    ],
-                    isPremium: true,
-                    isBestValue: true,
-                    isCurrentPlan: (user?.isPremium ?? false),
-                    onTap: !(user?.isPremium ?? false)
-                        ? () => _showPaymentOptions(context, priceInfo)
-                        : null,
-                  ),
+                FutureBuilder<List<PlanConfigModel>>(
+                  future: _plansFuture,
+                  builder: (context, snapshot) {
+                    final dynamicPlans = snapshot.data;
+                    if (dynamicPlans != null && dynamicPlans.isNotEmpty) {
+                      return Column(
+                        children: dynamicPlans.map((plan) {
+                          final priceInfo = plan.getPriceForCountry(
+                            user?.country,
+                          );
+                          final isCurrent =
+                              userPlan == plan.slug ||
+                              (plan.slug == 'free' && isFree) ||
+                              (plan.slug == 'premium' && isPremiumOnly) ||
+                              (plan.slug == 'business' && isBusiness);
+                          final isPlanPremium = plan.slug != 'free';
+
+                          Widget card = _buildPlanCard(
+                            context,
+                            title: plan.name,
+                            price: priceInfo.formattedPrice,
+                            features: plan.featureSummary,
+                            isPremium: isPlanPremium,
+                            isBestValue: plan.highlight,
+                            isCurrentPlan: isCurrent,
+                            categories: plan.categories,
+                            planDescription: plan.description,
+                            onTap: isCurrent
+                                ? null
+                                : (plan.slug == 'free'
+                                      ? () => _confirmDowngrade(context)
+                                      : () => _showPaymentOptions(
+                                          context,
+                                          priceInfo,
+                                          plan: plan.slug,
+                                        )),
+                          );
+
+                          if (plan.slug == 'premium') {
+                            card = Showcase(
+                              key: _premiumPlanKey,
+                              title: AppLocalizations.of(
+                                context,
+                              )!.tutorialSubscriptionTitle,
+                              description: AppLocalizations.of(
+                                context,
+                              )!.tutorialSubscriptionDesc,
+                              child: card,
+                            );
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 24),
+                            child: card,
+                          );
+                        }).toList(),
+                      );
+                    }
+
+                    // Fallback statique si l'API est en cours de chargement ou hors ligne
+                    return Column(
+                      children: [
+                        _buildPlanCard(
+                          context,
+                          title: AppLocalizations.of(context)!.freePlan,
+                          price: AppLocalizations.of(context)!.freePrice,
+                          features: [
+                            AppLocalizations.of(context)!.freeFeatureLimits,
+                            AppLocalizations.of(context)!.freeFeatureTracker,
+                            AppLocalizations.of(context)!.freeFeatureInput,
+                            AppLocalizations.of(context)!.freeFeatureTontine,
+                            AppLocalizations.of(context)!.freeFeatureAI,
+                            AppLocalizations.of(context)!.freeFeatureFees,
+                          ],
+                          isPremium: false,
+                          isCurrentPlan: isFree,
+                          onTap: !isFree
+                              ? () => _confirmDowngrade(context)
+                              : null,
+                        ),
+                        const SizedBox(height: 24),
+                        Showcase(
+                          key: _premiumPlanKey,
+                          title: AppLocalizations.of(
+                            context,
+                          )!.tutorialSubscriptionTitle,
+                          description: AppLocalizations.of(
+                            context,
+                          )!.tutorialSubscriptionDesc,
+                          child: _buildPlanCard(
+                            context,
+                            title: AppLocalizations.of(context)!.premiumPlan,
+                            price: fallbackPriceInfo.formattedPrice,
+                            features: [
+                              '5 Budgets & 5 Objectifs simultanés',
+                              '15 Scans OCR de reçus / mois',
+                              'Jusqu\'à 2 tontines créées (Participation libre)',
+                              'Coach IA Anne (50 requêtes / mois & 30j historique)',
+                              AppLocalizations.of(context)!.premiumFeatureFees,
+                              'Hub Revendeur : 3 comptes maîtres & 10 slots clients',
+                            ],
+                            isPremium: true,
+                            isCurrentPlan: isPremiumOnly,
+                            onTap: isFree
+                                ? () => _showPaymentOptions(
+                                    context,
+                                    fallbackPriceInfo,
+                                    plan: 'premium',
+                                  )
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        _buildPlanCard(
+                          context,
+                          title: AppLocalizations.of(context)!.businessPlan,
+                          price: fallbackBusinessPriceInfo.formattedPrice,
+                          features: [
+                            AppLocalizations.of(
+                              context,
+                            )!.businessFeatureResellerUnlimited,
+                            AppLocalizations.of(
+                              context,
+                            )!.businessFeatureAutoReminders,
+                            AppLocalizations.of(
+                              context,
+                            )!.businessFeatureAccountingExports,
+                            AppLocalizations.of(
+                              context,
+                            )!.businessFeatureAdvancedStats,
+                            AppLocalizations.of(
+                              context,
+                            )!.businessFeatureVIPSupport,
+                          ],
+                          isPremium: true,
+                          isBestValue: true,
+                          isCurrentPlan: isBusiness,
+                          onTap: !isBusiness
+                              ? () => _showPaymentOptions(
+                                  context,
+                                  fallbackBusinessPriceInfo,
+                                  plan: 'business',
+                                )
+                              : null,
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 48),
                 _buildHistorySection(context),
@@ -442,6 +566,8 @@ class _SubscriptionViewState extends State<SubscriptionView> {
     required bool isPremium,
     bool isBestValue = false,
     bool isCurrentPlan = false,
+    List<PlanFeatureCategory>? categories,
+    String? planDescription,
     VoidCallback? onTap,
   }) {
     return Container(
@@ -493,6 +619,15 @@ class _SubscriptionViewState extends State<SubscriptionView> {
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
+          if (planDescription != null && planDescription.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              planDescription,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           ...features.map(
             (f) => Padding(
@@ -510,7 +645,26 @@ class _SubscriptionViewState extends State<SubscriptionView> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          if (categories != null && categories.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton.icon(
+                onPressed: () => _showPlanDetailsModal(
+                  context,
+                  title: title,
+                  price: price,
+                  description: planDescription,
+                  categories: categories,
+                ),
+                icon: const Icon(Icons.list_alt_rounded, size: 18),
+                label: const Text(
+                  'Voir tous les détails & fonctionnalités',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
           if (isCurrentPlan)
             AppButton(
               text: AppLocalizations.of(context)!.currentPlan,
@@ -535,16 +689,183 @@ class _SubscriptionViewState extends State<SubscriptionView> {
     );
   }
 
+  void _showPlanDetailsModal(
+    BuildContext context, {
+    required String title,
+    required String price,
+    String? description,
+    required List<PlanFeatureCategory> categories,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (sheetCtx, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(title, style: AppTextStyles.h2),
+                          const SizedBox(height: 4),
+                          Text(
+                            price,
+                            style: AppTextStyles.h3.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: Colors.transparent),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
+                  itemCount: categories.length,
+                  itemBuilder: (context, catIdx) {
+                    final cat = categories[catIdx];
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text(
+                            cat.category,
+                            style: AppTextStyles.h3.copyWith(
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        ...cat.items.map((item) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: item.highlight
+                                  ? Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: 0.06)
+                                  : Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: item.highlight
+                                    ? Theme.of(context).colorScheme.primary
+                                          .withValues(alpha: 0.3)
+                                    : Theme.of(context).colorScheme.outline
+                                          .withValues(alpha: 0.2),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  item.included
+                                      ? Icons.check_circle_rounded
+                                      : Icons.remove_circle_outline_rounded,
+                                  color: item.included
+                                      ? AppColors.success
+                                      : Theme.of(context).colorScheme.outline,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    item.name,
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      fontWeight: item.highlight
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                                if (item.value != null) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      item.value!,
+                                      style: AppTextStyles.labelSmall.copyWith(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          );
+                        }),
+                        const SizedBox(height: 12),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showPaymentOptions(
     BuildContext context,
-    ({double amount, String currency, String formattedPrice}) priceInfo,
-  ) {
+    ({double amount, String currency, String formattedPrice}) priceInfo, {
+    String plan = 'premium',
+  }) {
     final l10n = AppLocalizations.of(context)!;
 
     getIt<LogService>().info(
       'Action: Affichage des options de paiement',
       component: 'SubscriptionPage',
-      metadata: {'price': priceInfo.formattedPrice},
+      metadata: {'price': priceInfo.formattedPrice, 'plan': plan},
     );
     showModalBottomSheet(
       context: context,
@@ -561,16 +882,15 @@ class _SubscriptionViewState extends State<SubscriptionView> {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(30),
+              ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  l10n.choosePaymentMethodTitle,
-                  style: AppTextStyles.h3,
-                ),
+                Text(l10n.choosePaymentMethodTitle, style: AppTextStyles.h3),
                 const SizedBox(height: 24),
                 _buildPaymentMethod(
                   context,
@@ -578,7 +898,10 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                   title: l10n.walletPaymentMethod,
                   subtitle: l10n.walletPaymentSubtitle(formattedWalletBalance),
                   badge: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.success.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
@@ -591,7 +914,7 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                       ),
                     ),
                   ),
-                  onTap: () => _payWithWallet(context, priceInfo),
+                  onTap: () => _payWithWallet(context, priceInfo, plan: plan),
                 ),
                 const SizedBox(height: 16),
                 _buildPaymentMethod(
@@ -599,7 +922,12 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                   icon: Icons.phone_android,
                   title: 'NotchPay (${l10n.mobileMoney})',
                   subtitle: l10n.mobileMoneyPlatforms(priceInfo.formattedPrice),
-                  onTap: () => _initiatePayment(context, 'notchpay', priceInfo),
+                  onTap: () => _initiatePayment(
+                    context,
+                    'notchpay',
+                    priceInfo,
+                    plan: plan,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _buildPaymentMethod(
@@ -607,7 +935,12 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                   icon: Icons.credit_card,
                   title: 'Stripe (${l10n.bankCard})',
                   subtitle: l10n.bankCardPlatforms(priceInfo.formattedPrice),
-                  onTap: () => _initiatePayment(context, 'stripe', priceInfo),
+                  onTap: () => _initiatePayment(
+                    context,
+                    'stripe',
+                    priceInfo,
+                    plan: plan,
+                  ),
                 ),
                 const SizedBox(height: 24),
               ],
@@ -660,10 +993,7 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      if (badge != null) ...[
-                        const SizedBox(width: 8),
-                        badge,
-                      ],
+                      if (badge != null) ...[const SizedBox(width: 8), badge],
                     ],
                   ),
                   const SizedBox(height: 2),
@@ -683,8 +1013,9 @@ class _SubscriptionViewState extends State<SubscriptionView> {
 
   Future<void> _payWithWallet(
     BuildContext context,
-    ({double amount, String currency, String formattedPrice}) priceInfo,
-  ) async {
+    ({double amount, String currency, String formattedPrice}) priceInfo, {
+    String plan = 'premium',
+  }) async {
     Navigator.pop(context); // Close bottom sheet
     final l10n = AppLocalizations.of(context)!;
     final currentBalance = context.read<FintechBloc>().state.balance;
@@ -696,6 +1027,7 @@ class _SubscriptionViewState extends State<SubscriptionView> {
         'price': priceInfo.formattedPrice,
         'amount': priceInfo.amount,
         'walletBalance': currentBalance,
+        'plan': plan,
       },
     );
 
@@ -754,14 +1086,12 @@ class _SubscriptionViewState extends State<SubscriptionView> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      builder: (ctx) => const Center(child: CircularProgressIndicator()),
     );
 
     try {
       final paymentService = getIt<PaymentService>();
-      final result = await paymentService.paySubscriptionWithWallet();
+      final result = await paymentService.paySubscriptionWithWallet(plan: plan);
 
       if (context.mounted) {
         Navigator.pop(context); // Pop loading dialog
@@ -775,19 +1105,13 @@ class _SubscriptionViewState extends State<SubscriptionView> {
           context.read<FintechBloc>().add(FetchWalletBalance());
           context.read<FintechBloc>().add(FetchWalletTransactions());
 
-          ToastUtils.showSuccess(
-            context,
-            l10n.walletSubscriptionSuccess,
-          );
+          ToastUtils.showSuccess(context, l10n.walletSubscriptionSuccess);
         } else {
           getIt<LogService>().warning(
             'Échec paiement abonnement par portefeuille: ${result.message}',
             component: 'SubscriptionPage',
           );
-          ToastUtils.showError(
-            context,
-            result.message,
-          );
+          ToastUtils.showError(context, result.message);
         }
       }
     } catch (e) {
@@ -798,10 +1122,7 @@ class _SubscriptionViewState extends State<SubscriptionView> {
           component: 'SubscriptionPage',
           error: e,
         );
-        ToastUtils.showError(
-          context,
-          l10n.genericError,
-        );
+        ToastUtils.showError(context, l10n.genericError);
       }
     }
   }
@@ -809,8 +1130,9 @@ class _SubscriptionViewState extends State<SubscriptionView> {
   Future<void> _initiatePayment(
     BuildContext context,
     String method,
-    ({double amount, String currency, String formattedPrice}) priceInfo,
-  ) async {
+    ({double amount, String currency, String formattedPrice}) priceInfo, {
+    String plan = 'premium',
+  }) async {
     Navigator.pop(context); // Close bottom sheet
 
     final paymentService = getIt<PaymentService>();
@@ -822,9 +1144,77 @@ class _SubscriptionViewState extends State<SubscriptionView> {
           'Action: Initialisation paiement via NotchPay',
           component: 'SubscriptionPage',
         );
+
+        final user = context.read<AuthBloc>().state.authResponse?.user;
+        String? phone = user?.phone;
+
+        if (phone == null || phone.trim().isEmpty) {
+          final phoneController = TextEditingController();
+          final formKey = GlobalKey<FormState>();
+
+          final enteredPhone = await showDialog<String>(
+            context: context,
+            builder: (dialogCtx) => AlertDialog(
+              title: const Text('Numéro Mobile Money'),
+              content: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Veuillez renseigner votre numéro de téléphone (Orange Money ou MTN MoMo) pour valider le paiement.',
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: phoneController,
+                      keyboardType: TextInputType.phone,
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Numéro de téléphone',
+                        hintText: '+237 6XX XX XX XX',
+                        prefixIcon: Icon(Icons.phone_android_rounded),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().length < 8) {
+                          return 'Numéro de téléphone invalide';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogCtx),
+                  child: const Text('Annuler'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    if (formKey.currentState?.validate() ?? false) {
+                      Navigator.pop(dialogCtx, phoneController.text.trim());
+                    }
+                  },
+                  child: const Text('Continuer'),
+                ),
+              ],
+            ),
+          );
+
+          if (enteredPhone == null || enteredPhone.trim().isEmpty) {
+            return;
+          }
+          phone = enteredPhone;
+        }
+
         url = await paymentService.initializeNotchPay(
           priceInfo.amount,
           currency: priceInfo.currency,
+          phone: phone,
+          plan: plan,
         );
       } else {
         getIt<LogService>().info(
@@ -834,6 +1224,7 @@ class _SubscriptionViewState extends State<SubscriptionView> {
         url = await paymentService.createStripeCheckout(
           priceInfo.amount,
           priceInfo.currency,
+          plan: plan,
         );
       }
 

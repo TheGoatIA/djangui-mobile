@@ -410,6 +410,10 @@ class _DashboardViewState extends State<DashboardView> {
               .animate(delay: 200.ms)
               .fade(duration: 500.ms)
               .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+      'other_tools': _buildOtherToolsCard(context, flags)
+          .animate(delay: 250.ms)
+          .fade(duration: 500.ms)
+          .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
       'recent_activities': Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -918,12 +922,6 @@ class _DashboardViewState extends State<DashboardView> {
         const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
-            final investmentsStatus = context
-                .read<SystemBloc>()
-                .getFeatureStatus(flags.featInvestments);
-            final insightsStatus = context.read<SystemBloc>().getFeatureStatus(
-              flags.aiInsights,
-            );
             final tontinesStatus = context.read<SystemBloc>().getFeatureStatus(
               flags.featTontines,
             );
@@ -943,25 +941,6 @@ class _DashboardViewState extends State<DashboardView> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      if (investmentsStatus != FeatureStatus.disabled)
-                        _buildActionItem(
-                          Icons.add_circle_outline,
-                          AppLocalizations.of(context)!.invest,
-                          Theme.of(context).colorScheme.primary,
-                          isUpdateRequired:
-                              investmentsStatus == FeatureStatus.updateRequired,
-                          onTap: () =>
-                              context.push('${RouteConstants.investments}/add'),
-                        ),
-                      if (insightsStatus != FeatureStatus.disabled)
-                        _buildActionItem(
-                          Icons.bar_chart_outlined,
-                          AppLocalizations.of(context)!.insights,
-                          Theme.of(context).colorScheme.secondary,
-                          isUpdateRequired:
-                              insightsStatus == FeatureStatus.updateRequired,
-                          onTap: () => context.push(RouteConstants.insights),
-                        ),
                       if (tontinesStatus != FeatureStatus.disabled)
                         _buildActionItem(
                           Icons.groups_outlined,
@@ -971,6 +950,12 @@ class _DashboardViewState extends State<DashboardView> {
                               tontinesStatus == FeatureStatus.updateRequired,
                           onTap: () => context.push(RouteConstants.tontines),
                         ),
+                      _buildActionItem(
+                        Icons.storefront_rounded,
+                        'Revendeur',
+                        AppColors.primary,
+                        onTap: () => context.push(RouteConstants.resellerHub),
+                      ),
                       if (subscriptionsStatus != FeatureStatus.disabled)
                         _buildActionItem(
                           Icons.receipt_long_outlined,
@@ -999,6 +984,135 @@ class _DashboardViewState extends State<DashboardView> {
           },
         ),
       ],
+    );
+  }
+
+  /// Construit la carte "Autres outils" pour regrouper Investir, Analyses, etc.
+  Widget _buildOtherToolsCard(BuildContext context, FeatureFlagModel flags) {
+    final investmentsStatus = context.read<SystemBloc>().getFeatureStatus(
+      flags.featInvestments,
+    );
+    final insightsStatus = context.read<SystemBloc>().getFeatureStatus(
+      flags.aiInsights,
+    );
+
+    final hasVisibleTools =
+        investmentsStatus != FeatureStatus.disabled ||
+        insightsStatus != FeatureStatus.disabled;
+
+    if (!hasVisibleTools) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.otherTools,
+            style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surfaceDark : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: AppShadows.card,
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.05),
+              ),
+            ),
+            child: Row(
+              children: [
+                if (investmentsStatus != FeatureStatus.disabled)
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        if (investmentsStatus == FeatureStatus.updateRequired) {
+                          _showUpdateRequiredDialog(context);
+                        } else {
+                          context.push('${RouteConstants.investments}/add');
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.trending_up_rounded,
+                              color: AppColors.primary,
+                              size: 26,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              AppLocalizations.of(context)!.invest,
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                if (investmentsStatus != FeatureStatus.disabled &&
+                    insightsStatus != FeatureStatus.disabled)
+                  const SizedBox(width: 12),
+                if (insightsStatus != FeatureStatus.disabled)
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        if (insightsStatus == FeatureStatus.updateRequired) {
+                          _showUpdateRequiredDialog(context);
+                        } else {
+                          context.push(RouteConstants.insights);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.insights_rounded,
+                              color: Colors.blue,
+                              size: 26,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              AppLocalizations.of(context)!.insights,
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1227,3 +1341,4 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 }
+

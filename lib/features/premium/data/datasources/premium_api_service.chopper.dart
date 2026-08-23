@@ -50,4 +50,14 @@ final class _$PremiumApiService extends PremiumApiService {
           $request,
         );
   }
+
+  @override
+  Future<Response<BaseResponse<List<dynamic>>>> getPlansConfig() {
+    final Uri $url = Uri.parse('/user-subscriptions/plans');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client
+        .send<BaseResponse<List<dynamic>>, BaseResponse<List<dynamic>>>(
+          $request,
+        );
+  }
 }

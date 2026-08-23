@@ -1,4 +1,4 @@
-import 'package:chopper/chopper.dart';
+﻿import 'package:chopper/chopper.dart';
 import 'package:kauri/core/constants/api_constants.dart';
 import 'package:kauri/core/network/models/base_response.dart';
 
@@ -19,4 +19,6 @@ abstract class PremiumApiService extends ChopperService {
 
   @GET(path: ApiConstants.premiumReport)
   Future<Response<BaseResponse<Map<String, dynamic>>>> getPremiumReport();
+  @GET(path: '/user-subscriptions/plans')
+  Future<Response<BaseResponse<List<dynamic>>>> getPlansConfig();
 }

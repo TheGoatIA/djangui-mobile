@@ -1583,7 +1583,7 @@ abstract class AppLocalizations {
   /// No description provided for @developedBy.
   ///
   /// In fr, this message translates to:
-  /// **'Développé avec ❤️ par l\'équipe Kauri'**
+  /// **'Développé avec â¤ï¸ par l\'équipe Kauri'**
   String get developedBy;
 
   /// No description provided for @contact.
@@ -1691,7 +1691,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumPrice.
   ///
   /// In fr, this message translates to:
-  /// **'2000 FCFA/mois'**
+  /// **'2 000 FCFA/mois'**
   String get premiumPrice;
 
   /// No description provided for @premiumFeature1.
@@ -2879,7 +2879,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialAddTransactionDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Saisissez les détails pour garder un œil sur votre budget.'**
+  /// **'Saisissez les détails pour garder un Å“il sur votre budget.'**
   String get tutorialAddTransactionDesc;
 
   /// No description provided for @tutorialAddGoalTitle.
@@ -3455,7 +3455,7 @@ abstract class AppLocalizations {
   /// No description provided for @whatIsTontineDesc.
   ///
   /// In fr, this message translates to:
-  /// **'La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun 🇨🇲 et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.'**
+  /// **'La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun ðŸ‡¨ðŸ‡² et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.'**
   String get whatIsTontineDesc;
 
   /// No description provided for @tontineLifecycleTitle.
@@ -3509,7 +3509,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideRotationDesc.
   ///
   /// In fr, this message translates to:
-  /// **'• Fixe : L\'ordre est prédéfini.\n• Aléatoire : La chance décide du gagnant.\n• Enchères/Score : Les membres les plus rigoureux ou ayant besoin de fonds sont prioritaires.'**
+  /// **'â€¢ Fixe : L\'ordre est prédéfini.\nâ€¢ Aléatoire : La chance décide du gagnant.\nâ€¢ Enchères/Score : Les membres les plus rigoureux ou ayant besoin de fonds sont prioritaires.'**
   String get guideRotationDesc;
 
   /// No description provided for @guideValidationTitle.
@@ -3593,7 +3593,7 @@ abstract class AppLocalizations {
   /// No description provided for @tontineRestrictionCM.
   ///
   /// In fr, this message translates to:
-  /// **'La création et l\'adhésion aux tontines sont réservées aux utilisateurs au Cameroun 🇨🇲.'**
+  /// **'La création et l\'adhésion aux tontines sont réservées aux utilisateurs au Cameroun ðŸ‡¨ðŸ‡².'**
   String get tontineRestrictionCM;
 
   /// No description provided for @tontineStarted.
@@ -4337,7 +4337,7 @@ abstract class AppLocalizations {
   /// No description provided for @fintechOnlyCameroon.
   ///
   /// In fr, this message translates to:
-  /// **'Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun 🇨🇲.'**
+  /// **'Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun ðŸ‡¨ðŸ‡².'**
   String get fintechOnlyCameroon;
 
   /// No description provided for @featureRestrictedCountry.
@@ -5335,6 +5335,192 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Voulez-vous débiter {amount} de votre portefeuille Kauri pour activer l\'abonnement Premium (1 mois) ?'**
   String walletSubscriptionConfirmMessage(Object amount);
+
+  /// No description provided for @otherTools.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres outils'**
+  String get otherTools;
+
+  /// No description provided for @resellerGuideTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Guide Espace Revendeur'**
+  String get resellerGuideTitle;
+
+  /// No description provided for @resellerGuideSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment fonctionne la gestion des abonnements partagés ?'**
+  String get resellerGuideSubtitle;
+
+  /// No description provided for @resellerGuideMasterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'1. Comptes Maîtres (Vos abonnements)'**
+  String get resellerGuideMasterTitle;
+
+  /// No description provided for @resellerGuideMasterDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous enregistrez ici vos comptes d\'origine (Netflix, Spotify, Canva...). Vous y définissez ce que vous payez au fournisseur et la date de renouvellement de votre abonnement.'**
+  String get resellerGuideMasterDesc;
+
+  /// No description provided for @resellerGuideSlotsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'2. Profils & Slots Clients'**
+  String get resellerGuideSlotsTitle;
+
+  /// No description provided for @resellerGuideSlotsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque compte est découpé en slots (écrans/profils). Vous attribuez chaque slot à un client avec son nom, son numéro WhatsApp, son prix de revente et sa date de début.'**
+  String get resellerGuideSlotsDesc;
+
+  /// No description provided for @resellerGuidePaymentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'3. \'Marquer comme payé\''**
+  String get resellerGuidePaymentTitle;
+
+  /// No description provided for @resellerGuidePaymentDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand votre client vous règle, cliquez sur son profil puis \'Marquer comme payé\'. Le système enregistre l\'historique et prolonge automatiquement son accès d\'un mois (le badge repasse au vert).'**
+  String get resellerGuidePaymentDesc;
+
+  /// No description provided for @resellerGuideQuotasTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'4. Quotas par Forfait'**
+  String get resellerGuideQuotasTitle;
+
+  /// No description provided for @resellerGuideQuotasFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Forfait Gratuit : Jusqu\'à 2 comptes maîtres et 3 profils clients.'**
+  String get resellerGuideQuotasFree;
+
+  /// No description provided for @resellerGuideQuotasPremium.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Forfait Premium : Jusqu\'à 3 comptes maîtres et 10 profils clients.'**
+  String get resellerGuideQuotasPremium;
+
+  /// No description provided for @resellerGuideQuotasBusiness.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Forfait Business : Comptes et profils illimités, exports comptables et statistiques avancées.'**
+  String get resellerGuideQuotasBusiness;
+
+  /// No description provided for @businessPlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Business (Reseller Hub Pro)'**
+  String get businessPlan;
+
+  /// No description provided for @businessPlanDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La formule ultime pour gérer vos finances et votre activité de revendeur d\'abonnements.'**
+  String get businessPlanDesc;
+
+  /// No description provided for @businessFeatureResellerUnlimited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hub Revendeur : Comptes & Profils illimités'**
+  String get businessFeatureResellerUnlimited;
+
+  /// No description provided for @businessFeatureAutoReminders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relances & Rappels WhatsApp automatisés'**
+  String get businessFeatureAutoReminders;
+
+  /// No description provided for @businessFeatureAccountingExports.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exports comptables & bilans en 1 clic'**
+  String get businessFeatureAccountingExports;
+
+  /// No description provided for @businessFeatureAdvancedStats.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statistiques & prévisions financières avancées'**
+  String get businessFeatureAdvancedStats;
+
+  /// No description provided for @businessFeatureVIPSupport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Support VIP dédié & prioritaire'**
+  String get businessFeatureVIPSupport;
+
+  /// No description provided for @upgradeToBusiness.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer à Super Premium'**
+  String get upgradeToBusiness;
+
+  /// No description provided for @currentBusinessPlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre forfait Business actif'**
+  String get currentBusinessPlan;
+
+  /// No description provided for @businessPrice.
+  ///
+  /// In fr, this message translates to:
+  /// **'5 000 FCFA/mois'**
+  String get businessPrice;
+
+  /// No description provided for @businessFeature1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout le forfait Premium inclus'**
+  String get businessFeature1;
+
+  /// No description provided for @businessFeature2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Services & Comptes Maîtres Illimités'**
+  String get businessFeature2;
+
+  /// No description provided for @businessFeature3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Slots & Profils Clients Illimités'**
+  String get businessFeature3;
+
+  /// No description provided for @businessFeature4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relances Automatiques WhatsApp / SMS / Push'**
+  String get businessFeature4;
+
+  /// No description provided for @businessFeature5.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coffre-fort d\'Identifiants Sécurisé (AES-256)'**
+  String get businessFeature5;
+
+  /// No description provided for @businessFeature6.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exports Comptables & Fiscaux (CSV / Excel)'**
+  String get businessFeature6;
+
+  /// No description provided for @businessFeature7.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tableau de Bord & MRR en Temps Réel'**
+  String get businessFeature7;
+
+  /// No description provided for @businessFeature8.
+  ///
+  /// In fr, this message translates to:
+  /// **'Support VIP Dédié 24/7'**
+  String get businessFeature8;
 }
 
 class _AppLocalizationsDelegate

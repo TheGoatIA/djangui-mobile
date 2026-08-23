@@ -125,14 +125,22 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
                     style: AppTextStyles.h1,
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    _isVerified
-                        ? 'Votre abonnement Premium a été activé avec succès.\nProfitez de toutes les fonctionnalités !'
-                        : 'Nous n\'avons pas pu confirmer votre paiement.\nVeuillez contacter le support si vous avez été débité.',
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  Builder(
+                    builder: (context) {
+                      final user = context.watch<AuthBloc>().state.authResponse?.user;
+                      final isBusiness = user?.isBusiness ?? false;
+                      final planLabel = isBusiness ? 'Super Premium (Business)' : 'Premium';
+
+                      return Text(
+                        _isVerified
+                            ? 'Votre abonnement $planLabel a été activé avec succès.\nProfitez de toutes vos fonctionnalités exclusives !'
+                            : 'Nous n\'avons pas pu confirmer votre paiement.\nVeuillez contacter le support si vous avez été débité.',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      );
+                    },
                   ),
                   if (widget.ref != null) ...[
                     const SizedBox(height: 24),

@@ -1,4 +1,4 @@
-/// Définition des constantes de navigation (Routes) du projet.
+﻿/// Définition des constantes de navigation (Routes) du projet.
 /// Ce fichier centralise tous les noms et chemins de routes pour GoRouter.
 class RouteConstants {
   /// Écran d'accueil dynamique (Splash Screen).
@@ -69,6 +69,9 @@ class RouteConstants {
 
   /// Écran de gestion de l'abonnement Premium.
   static const String subscription = '/subscription';
+
+  /// Espace Revendeur d'abonnements partagés
+  static const String resellerHub = '/reseller';
 
   /// Page d'informations sur l'application.
   static const String about = '/about';

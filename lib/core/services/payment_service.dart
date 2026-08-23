@@ -5,6 +5,8 @@ import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:kauri/core/services/log_service.dart';
 
+import 'package:kauri/features/subscription/data/models/plan_config_model.dart';
+
 /// Service gérant les opérations de paiement et d'abonnement.
 ///
 /// Interagit avec l'API pour récupérer l'historique, initialiser des paiements
@@ -15,6 +17,29 @@ class PaymentService {
   TelemetryService get _telemetry => getIt<TelemetryService>();
 
   PaymentService(this._apiService);
+
+  /// Récupère la liste dynamique des forfaits configurés depuis l'API backend.
+  Future<List<PlanConfigModel>> getPlansConfig({String language = 'fr'}) async {
+    try {
+      final response = await _apiService.getPlansConfig();
+      if (response.isSuccessful && response.body != null) {
+        final data = response.body!['data'] as List?;
+        if (data != null && data.isNotEmpty) {
+          return data
+              .map((e) => PlanConfigModel.fromJson(e as Map<String, dynamic>, language: language))
+              .toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      getIt<LogService>().error(
+        'Erreur récupération forfaits dynamiques',
+        component: 'PaymentService',
+        error: e,
+      );
+      return [];
+    }
+  }
 
   /// Récupère l'historique des paiements effectués par l'utilisateur.
   Future<List<PaymentModel>> getPaymentHistory({
@@ -66,14 +91,51 @@ class PaymentService {
     }
   }
 
+  /// Retourne les détails du tarif Super Premium (Business / Hub Revendeur).
+  ({double amount, String currency, String formattedPrice})
+  getBusinessSubscriptionPrice(String? countryCode) {
+    switch (countryCode) {
+      case 'FR':
+      case 'BE':
+      case 'DE':
+      case 'IT':
+      case 'ES':
+        return (amount: 12.0, currency: 'EUR', formattedPrice: '12 € / mois');
+      case 'US':
+      case 'CA':
+      case 'GB':
+        return (amount: 15.0, currency: 'USD', formattedPrice: '15 \$ / month');
+      case 'CM':
+      default:
+        return (
+          amount: 5000.0,
+          currency: 'XAF',
+          formattedPrice: '5000 FCFA / mois',
+        );
+    }
+  }
+
   /// Initialise une transaction via NotchPay (préféré pour l'Afrique de l'Ouest/Centrale).
   /// Retourne l'URL de paiement vers laquelle rediriger l'utilisateur.
-  Future<String?> initializeNotchPay(double amount, {String? currency}) async {
-    final response = await _apiService.initializeNotchPay({
+  Future<String?> initializeNotchPay(
+    double amount, {
+    String? currency,
+    String? phone,
+    String? plan,
+  }) async {
+    final body = <String, dynamic>{
       'amount': amount,
       'currency': currency ?? 'XAF',
       'type': 'subscription',
-    });
+    };
+    if (phone != null && phone.trim().isNotEmpty) {
+      body['phone'] = phone.trim();
+    }
+    if (plan != null && plan.trim().isNotEmpty) {
+      body['plan'] = plan.trim();
+    }
+
+    final response = await _apiService.initializeNotchPay(body);
 
     if (response.isSuccessful && response.body != null) {
       final data = response.body!['data'] as Map<String, dynamic>?;
@@ -84,6 +146,7 @@ class PaymentService {
         'provider': 'notchpay',
         'amount': amount,
         'currency': currency ?? 'XAF',
+        'plan': plan ?? 'premium',
         'success': url != null,
       });
 
@@ -99,12 +162,21 @@ class PaymentService {
 
   /// Initialise une transaction via Stripe Checkout.
   /// Retourne l'URL de paiement générée par Stripe.
-  Future<String?> createStripeCheckout(double amount, String currency) async {
-    final response = await _apiService.createStripeCheckout({
+  Future<String?> createStripeCheckout(
+    double amount,
+    String currency, {
+    String? plan,
+  }) async {
+    final body = <String, dynamic>{
       'amount': amount,
       'currency': currency,
       'type': 'subscription',
-    });
+    };
+    if (plan != null && plan.trim().isNotEmpty) {
+      body['plan'] = plan.trim();
+    }
+
+    final response = await _apiService.createStripeCheckout(body);
 
     if (response.isSuccessful && response.body != null) {
       final data = response.body!['data'] as Map<String, dynamic>?;
@@ -115,6 +187,7 @@ class PaymentService {
         'provider': 'stripe',
         'amount': amount,
         'currency': currency,
+        'plan': plan ?? 'premium',
         'success': url != null,
       });
 
@@ -168,9 +241,13 @@ class PaymentService {
   }
 
   /// Paye l'abonnement Premium directement depuis le portefeuille Kauri.
-  Future<({bool success, String message})> paySubscriptionWithWallet() async {
+  Future<({bool success, String message})> paySubscriptionWithWallet({
+    String? plan,
+  }) async {
     try {
-      final response = await _apiService.paySubscriptionWithWallet();
+      final response = await _apiService.paySubscriptionWithWallet(
+        body: plan != null ? {'plan': plan} : null,
+      );
       if (response.isSuccessful && response.body != null) {
         final message = response.body!['data']?['message'] as String? ??
             response.body!['message'] as String? ??
@@ -178,6 +255,7 @@ class PaymentService {
 
         _telemetry.recordEvent('business.payment.wallet_subscription', {
           'provider': 'wallet',
+          'plan': plan ?? 'premium',
           'success': true,
         });
 

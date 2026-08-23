@@ -29,7 +29,12 @@ abstract class PaymentApiService extends ChopperService {
   Future<Response<Map<String, dynamic>>> cancelSubscription();
 
   @POST(path: ApiConstants.paySubscriptionWallet)
-  Future<Response<Map<String, dynamic>>> paySubscriptionWithWallet();
+  Future<Response<Map<String, dynamic>>> paySubscriptionWithWallet({
+    @Body() Map<String, dynamic>? body,
+  });
+
+  @GET(path: ApiConstants.subscriptionPlans)
+  Future<Response<Map<String, dynamic>>> getPlansConfig();
 
   static PaymentApiService create(ChopperClient client) =>
       _$PaymentApiService(client);

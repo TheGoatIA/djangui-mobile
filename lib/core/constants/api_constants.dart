@@ -208,6 +208,9 @@ class ApiConstants {
   /// Gestion des abonnements récurrents détectés (Netflix, Spotify, etc.).
   static const String subscriptions = '/subscriptions';
 
+  /// Configuration dynamique et tarifs des forfaits Kauri (Free, Premium, Business).
+  static const String subscriptionPlans = '/subscriptions/plans';
+
   /// Détection automatique d'abonnements via les données SMS.
   static const String subscriptionsDetect = '/subscriptions/detect';
 

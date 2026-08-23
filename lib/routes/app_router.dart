@@ -1,3 +1,4 @@
+import '../features/reseller/presentation/pages/reseller_hub_page.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -398,7 +399,15 @@ final appRouter = GoRouter(
         state: state,
         child: const InsightsPage(),
       ),
-    ),
+    ),      GoRoute(
+        path: RouteConstants.resellerHub,
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: const ResellerHubPage(),
+        ),
+      ),
+
     GoRoute(
       path: RouteConstants.subscription,
       pageBuilder: (context, state) => buildPageWithDefaultTransition(
@@ -618,6 +627,14 @@ final appRouter = GoRouter(
         context: context,
         state: state,
         child: const KYCSubmissionPage(),
+      ),
+    ),
+    GoRoute(
+      path: RouteConstants.resellerHub,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const ResellerHubPage(),
       ),
     ),
   ],

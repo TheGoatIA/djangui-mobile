@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
@@ -1279,19 +1279,20 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      AppLocalizations.of(context)!.upgradeToPremium,
-                      style: const TextStyle(
+                    const Text(
+                      'Forfaits Kauri & Revendeur Hub',
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    const SizedBox(height: 4),
                     Text(
-                      AppLocalizations.of(context)!.premiumBannerDescription,
+                      'Passez à Premium (2 000 FCFA) ou lancez votre activité Revendeur (5 000 FCFA) avec outils et marges dédiés.',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 14,
+                        fontSize: 13,
                       ),
                     ),
                   ],
@@ -1311,7 +1312,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(AppLocalizations.of(context)!.discoverOffers),
+              child: const Text('Découvrir les Forfaits & Tarifs', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -1844,3 +1845,4 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
+

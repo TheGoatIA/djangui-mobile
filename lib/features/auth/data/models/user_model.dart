@@ -74,6 +74,13 @@ class UserModel {
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
   String get fullName => '$firstName $lastName';
+
+  bool get isBusiness =>
+      subscription?.plan == 'business' &&
+      subscription?.status == 'active' &&
+      (subscription?.endDate == null || subscription!.endDate!.isAfter(DateTime.now()));
+
+  String get currentPlan => subscription?.plan ?? 'free';
 }
 
 @JsonSerializable()
