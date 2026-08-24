@@ -34,6 +34,7 @@ import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'features/support/presentation/bloc/support_bloc.dart';
 import 'features/system/presentation/bloc/system_bloc.dart';
 import 'features/tontine/presentation/bloc/tontine_bloc.dart';
+import 'features/tontine/presentation/bloc/tontine_event.dart';
 import 'features/user_subscriptions/presentation/bloc/subscription_bloc.dart';
 import 'features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:kauri/features/payments/presentation/bloc/fintech_bloc.dart';
@@ -153,17 +154,23 @@ void _initSecurity() {
   );
 
   final callback = ThreatCallback(
-    onAppIntegrity: () => _handleThreat('App Integrity Compromised'),
-    onObfuscationIssues: () => _handleThreat('Obfuscation Issues'),
-    onDebug: () => _handleThreat('Debugging Detected'),
-    onDeviceBinding: () => _handleThreat('Device Binding Failed'),
-    onDeviceID: () => _handleThreat('Device ID Spoofing'),
-    onHooks: () => _handleThreat('Hooks Detected'),
-    onPrivilegedAccess: () => _handleThreat('Root/Jailbreak Detected'),
+    onAppIntegrity: () =>
+        _handleThreat('App Integrity Compromised', isFatal: true),
+    onObfuscationIssues: () =>
+        _handleThreat('Obfuscation Issues', isFatal: true),
+    onDebug: () => _handleThreat('Debugging Detected', isFatal: true),
+    onDeviceBinding: () =>
+        _handleThreat('Device Binding Warning', isFatal: false),
+    onDeviceID: () => _handleThreat('Device ID Spoofing', isFatal: true),
+    onHooks: () => _handleThreat('Hooks Detected', isFatal: true),
+    onPrivilegedAccess: () =>
+        _handleThreat('Root/Jailbreak Detected', isFatal: true),
     onSecureHardwareNotAvailable: () =>
-        _handleThreat('Secure Hardware Not Available'),
-    onSimulator: () => _handleThreat('Simulator/Emulator Detected'),
-    onUnofficialStore: () => _handleThreat('Unofficial Store Install'),
+        _handleThreat('Secure Hardware Not Available', isFatal: false),
+    onSimulator: () =>
+        _handleThreat('Simulator/Emulator Detected', isFatal: true),
+    onUnofficialStore: () =>
+        _handleThreat('Unofficial Store Install', isFatal: false),
   );
 
   Talsec.instance.attachListener(callback);
@@ -178,11 +185,18 @@ void _initSecurity() {
   }
 }
 
-void _handleThreat(String threat) {
+void _handleThreat(String threat, {bool isFatal = true}) {
   final logger = getIt<LogService>();
-  logger.warning('SECURITY THREAT DETECTED: $threat', component: 'Security');
-  if (kReleaseMode) {
-    // In production, force close the app to protect financial data
+  logger.warning(
+    'SECURITY THREAT DETECTED: $threat (fatal: $isFatal)',
+    component: 'Security',
+  );
+  getIt<TelemetryService>().recordEvent('security.threat', {
+    'threat': threat,
+    'fatal': isFatal,
+  });
+  if (kReleaseMode && isFatal) {
+    // In production, force close the app to protect financial data on critical threats
     exit(0);
   }
 }
@@ -204,6 +218,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   DateTime? _sessionStartTime;
+  DateTime? _backgroundedAt;
 
   @override
   void initState() {
@@ -218,14 +233,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  /// Observe les changements d'état de l'application pour gérer les sessions analytiques.
-  @override
+  /// Observe les changements d'état de l'application pour gérer les sessions analytiques et l'auto-verrouillage.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final telemetry = getIt<TelemetryService>();
 
     if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
         state == AppLifecycleState.detached) {
+      _backgroundedAt = DateTime.now();
       getIt<AnalyticsManager>().endCurrentSession();
 
       // Telemetry: Session Duration (Prometheus Gauge)
@@ -248,6 +264,22 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     } else if (state == AppLifecycleState.resumed) {
       getIt<AnalyticsManager>().startNewSession();
       _sessionStartTime = DateTime.now();
+
+      // Verrouillage automatique par inactivité (K-02) : au-delà de 2 minutes
+      // en arrière-plan, on force une reconnexion complète (PIN/biométrie/mot
+      // de passe) plutôt qu'une simple revalidation silencieuse du token —
+      // AuthCheckRequested ne fait que confirmer une session déjà valide et ne
+      // protège donc pas un appareil déverrouillé laissé sans surveillance.
+      if (_backgroundedAt != null) {
+        final elapsed = DateTime.now().difference(_backgroundedAt!);
+        _backgroundedAt = null;
+        if (elapsed > const Duration(minutes: 2)) {
+          final authBloc = getIt<AuthBloc>();
+          if (authBloc.state.status == AuthStatus.authenticated) {
+            authBloc.add(AuthLogoutRequested());
+          }
+        }
+      }
 
       // Refresh financial data when returning to the app (e.g., after a payment)
       if (mounted) {
@@ -315,8 +347,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             },
             listener: (context, authState) {
               if (authState.status == AuthStatus.unauthenticated) {
-                // Vider les données utilisateur en mémoire lors de la déconnexion
+                // Vider l'ensemble des données utilisateur en mémoire lors de la déconnexion
                 getIt<FintechBloc>().add(ClearFintechData());
+                getIt<TransactionsBloc>().add(ResetTransactionsStatus());
+                getIt<GoalsBloc>().add(ResetGoalsStatus());
+                getIt<BudgetsBloc>().add(ResetBudgetsStatus());
+                getIt<ChallengesBloc>().add(const ResetChallengesRequested());
+                getIt<TontineBloc>().add(const ResetTontineRequested());
+                getIt<SubscriptionBloc>().add(
+                  const ResetSubscriptionRequested(),
+                );
+                getIt<DashboardBloc>().add(const ResetDashboardRequested());
               } else {
                 // Rafraîchir les données pour le nouveau compte / pays
                 getIt<DashboardBloc>().add(GetDashboardDataRequested());

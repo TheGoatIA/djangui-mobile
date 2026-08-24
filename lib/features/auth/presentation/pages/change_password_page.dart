@@ -6,6 +6,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
 import '../bloc/auth_bloc.dart';
+import '../../../../core/utils/password_validator.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -115,15 +116,11 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           setState(() => _obscureNew = !_obscureNew),
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return l10n.requiredField;
-                    }
-                    if (value.length < 6) {
-                      return l10n.passwordTooShort;
-                    }
-                    return null;
-                  },
+                  validator: (value) => PasswordValidator.validate(
+                    value,
+                    emptyError: l10n.requiredField,
+                    complexityError: l10n.passwordTooShort,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(

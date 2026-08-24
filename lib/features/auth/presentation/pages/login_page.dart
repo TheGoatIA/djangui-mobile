@@ -210,6 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                                               await localAuth.authenticate(
                                                 localizedReason:
                                                     'Veuillez vous authentifier pour vous connecter',
+                                                biometricOnly: true,
                                               );
 
                                           if (didAuthenticate) {

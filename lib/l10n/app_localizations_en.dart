@@ -181,7 +181,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterPasswordError => 'Please enter your password';
 
   @override
-  String get passwordLengthError => 'Password must be at least 6 characters';
+  String get passwordLengthError =>
+      'Password must be at least 8 characters, with 1 uppercase, 1 lowercase, 1 number and 1 special character';
 
   @override
   String get genericError => 'An error occurred';
@@ -1150,7 +1151,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updatePassword => 'Update Password';
 
   @override
-  String get passwordTooShort => 'Password must be at least 6 characters';
+  String get passwordTooShort =>
+      'Password must be at least 8 characters, with 1 uppercase, 1 lowercase, 1 number and 1 special character';
 
   @override
   String get noSessionsFound => 'No active sessions found';

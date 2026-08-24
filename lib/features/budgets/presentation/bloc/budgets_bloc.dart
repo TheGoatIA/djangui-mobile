@@ -1,3 +1,4 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../data/models/budget_model.dart';
@@ -18,10 +19,13 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
 
   BudgetsBloc(this._budgetRepository) : super(BudgetsState.initial()) {
     on<GetBudgetsRequested>(_onGetBudgetsRequested);
-    on<AddBudgetRequested>(_onAddBudgetRequested);
-    on<DeleteBudgetRequested>(_onDeleteBudgetRequested);
-    on<UpdateBudgetRequested>(_onUpdateBudgetRequested);
-    on<GenerateAutoBudgetRequested>(_onGenerateAutoBudgetRequested);
+    on<AddBudgetRequested>(_onAddBudgetRequested, transformer: droppable());
+    on<DeleteBudgetRequested>(_onDeleteBudgetRequested, transformer: droppable());
+    on<UpdateBudgetRequested>(_onUpdateBudgetRequested, transformer: droppable());
+    on<GenerateAutoBudgetRequested>(
+      _onGenerateAutoBudgetRequested,
+      transformer: droppable(),
+    );
     on<ClearAutoBudgetResponse>(_onClearAutoBudgetResponse);
     on<ResetBudgetsStatus>(_onResetBudgetsStatus);
   }
@@ -30,7 +34,7 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
     ResetBudgetsStatus event,
     Emitter<BudgetsState> emit,
   ) {
-    emit(state.copyWith(status: BudgetsStatus.initial));
+    emit(BudgetsState.initial());
   }
 
   void _onClearAutoBudgetResponse(

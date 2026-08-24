@@ -249,7 +249,16 @@ class SyncService {
     } else if (request.action == 'contribute') {
       final id = payload['id'] as String;
       final amount = (payload['amount'] as num).toDouble();
-      await _goalRemoteDataSource.contributeToGoal(id, amount);
+      // Réutilise la même clé à chaque tentative de rejeu (K-17) : évite
+      // qu'une contribution déjà traitée par le serveur (accusé perdu avant
+      // la suppression locale de la file) soit appliquée une seconde fois.
+      final idempotencyKey = payload['idempotencyKey'] as String?;
+      await _goalRemoteDataSource.contributeToGoal(
+        id,
+        amount,
+        note: payload['note'] as String?,
+        idempotencyKey: idempotencyKey,
+      );
     }
   }
 

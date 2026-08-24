@@ -19,6 +19,7 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 class AddBudgetPage extends StatefulWidget {
   final BudgetModel? budget;
@@ -44,7 +45,8 @@ class _CategoryRowItem {
   }
 }
 
-class _AddBudgetPageState extends State<AddBudgetPage> {
+class _AddBudgetPageState extends State<AddBudgetPage>
+    with WidgetsBindingObserver, SecureScreenMixin<AddBudgetPage> {
   final _formKey = GlobalKey<FormState>();
   final List<_CategoryRowItem> _categoryItems = [];
 

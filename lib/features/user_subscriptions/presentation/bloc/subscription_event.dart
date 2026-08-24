@@ -35,3 +35,7 @@ class DeleteSubscriptionRequested extends SubscriptionEvent {
 }
 
 class DetectSubscriptionsRequested extends SubscriptionEvent {}
+
+class ResetSubscriptionRequested extends SubscriptionEvent {
+  const ResetSubscriptionRequested();
+}

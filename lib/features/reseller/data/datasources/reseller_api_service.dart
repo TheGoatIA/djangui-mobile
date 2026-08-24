@@ -12,7 +12,10 @@ abstract class ResellerApiService extends ChopperService {
   Future<Response<BaseResponse<Map<String, dynamic>>>> getDashboardStats();
 
   @GET(path: '/reseller/accounts')
-  Future<Response<BaseListResponse<Map<String, dynamic>>>> getAccounts();
+  Future<Response<BaseListResponse<Map<String, dynamic>>>> getAccounts({
+    @Query('page') int page = 1,
+    @Query('limit') int limit = 20,
+  });
 
   @POST(path: '/reseller/accounts')
   Future<Response<BaseResponse<Map<String, dynamic>>>> createAccount(

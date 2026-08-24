@@ -13,6 +13,14 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
   DashboardBloc(this._reportsRepository) : super(DashboardState.initial()) {
     on<GetDashboardDataRequested>(_onGetDashboardDataRequested);
+    on<ResetDashboardRequested>(_onResetDashboardRequested);
+  }
+
+  void _onResetDashboardRequested(
+    ResetDashboardRequested event,
+    Emitter<DashboardState> emit,
+  ) {
+    emit(DashboardState.initial());
   }
 
   Future<void> _onGetDashboardDataRequested(

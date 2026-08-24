@@ -36,6 +36,12 @@ class AppTextField extends StatelessWidget {
   /// Alignement du texte.
   final TextAlign textAlign;
 
+  /// Active les suggestions du clavier (désactivé par défaut pour les mots de passe)
+  final bool? enableSuggestions;
+
+  /// Active l'autocorrection (désactivé par défaut pour les mots de passe)
+  final bool? autocorrect;
+
   /// Fonction de validation des données.
   final String? Function(String?)? validator;
 
@@ -51,6 +57,8 @@ class AppTextField extends StatelessWidget {
     this.suffix,
     this.maxLines = 1,
     this.textAlign = TextAlign.start,
+    this.enableSuggestions,
+    this.autocorrect,
     this.validator,
   });
 
@@ -68,6 +76,8 @@ class AppTextField extends StatelessWidget {
           controller: controller,
           obscureText: isPassword,
           keyboardType: keyboardType,
+          enableSuggestions: enableSuggestions ?? !isPassword,
+          autocorrect: autocorrect ?? !isPassword,
           maxLines: maxLines,
           textAlign: textAlign,
           validator: validator,

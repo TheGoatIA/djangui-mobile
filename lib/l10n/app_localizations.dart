@@ -437,7 +437,7 @@ abstract class AppLocalizations {
   /// No description provided for @passwordLengthError.
   ///
   /// In fr, this message translates to:
-  /// **'Le mot de passe doit contenir au moins 6 caractères'**
+  /// **'Le mot de passe doit contenir au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial'**
   String get passwordLengthError;
 
   /// No description provided for @genericError.
@@ -2279,7 +2279,7 @@ abstract class AppLocalizations {
   /// No description provided for @passwordTooShort.
   ///
   /// In fr, this message translates to:
-  /// **'Le mot de passe doit faire au moins 6 caractères'**
+  /// **'Le mot de passe doit contenir au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial'**
   String get passwordTooShort;
 
   /// No description provided for @noSessionsFound.

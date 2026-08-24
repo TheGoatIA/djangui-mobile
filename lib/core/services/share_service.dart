@@ -37,11 +37,46 @@ class ShareService {
   }
 
   /// Décode les données d'objectif reçues via un jeton Base64 issu d'un lien profond.
+  ///
+  /// Le lien n'est pas signé cryptographiquement (nécessiterait un aller-retour
+  /// serveur) — l'utilisateur doit toujours confirmer explicitement l'import
+  /// avant qu'un objectif ne soit créé. Cette validation défensive (K-28)
+  /// vise uniquement à rejeter des données manifestement malformées ou
+  /// absurdes avant qu'elles n'atteignent l'écran d'aperçu.
   GoalModel? parseGoalFromToken(String token) {
     try {
+      // Borne de taille avant décodage : un lien légitime encode un seul
+      // objectif, pas un payload arbitrairement volumineux.
+      if (token.isEmpty || token.length > 8000) return null;
+
       final jsonString = utf8.decode(base64Decode(token));
       final jsonMap = jsonDecode(jsonString);
-      return GoalModel.fromJson(jsonMap);
+      if (jsonMap is! Map<String, dynamic>) return null;
+
+      final goal = GoalModel.fromJson(jsonMap);
+
+      final name = goal.name.trim();
+      if (name.isEmpty || name.length > 200) return null;
+
+      if (!goal.targetAmount.isFinite ||
+          goal.targetAmount <= 0 ||
+          goal.targetAmount > 1e12) {
+        return null;
+      }
+      if (!goal.currentAmount.isFinite ||
+          goal.currentAmount < 0 ||
+          goal.currentAmount > goal.targetAmount) {
+        return null;
+      }
+
+      final now = DateTime.now();
+      final tenYears = const Duration(days: 365 * 10);
+      if (goal.deadline.isBefore(now.subtract(const Duration(days: 1))) ||
+          goal.deadline.isAfter(now.add(tenYears))) {
+        return null;
+      }
+
+      return goal;
     } catch (e) {
       return null;
     }

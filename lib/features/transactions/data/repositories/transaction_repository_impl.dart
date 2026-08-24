@@ -111,15 +111,17 @@ class TransactionRepositoryImpl implements TransactionRepository {
         );
         return Right(remoteTransaction);
       } catch (e) {
+        // Rollback de l'écriture optimiste locale en cas de rejet synchrone du serveur (K-16)
+        await _localDataSource.deleteTransaction(transaction.id);
         _logger.error(
-          'Échec de la création de la transaction sur le serveur',
+          'Échec de la création de la transaction sur le serveur - rollback local effectué',
           error: e,
           component: 'TransactionRepository',
         );
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
-      // Offline: Queue it
+      // Offline: Queue it with unique idempotency key (K-17)
       _logger.info(
         'Mode hors-ligne: Transaction ajoutée à la file d\'attente de synchronisation.',
         component: 'TransactionRepository',

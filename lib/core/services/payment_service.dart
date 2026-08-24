@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/analytics/events.dart';
 import 'package:kauri/features/subscription/data/datasources/payment_api_service.dart';
 import 'package:kauri/features/subscription/data/models/payment_model.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
@@ -144,7 +145,7 @@ class PaymentService {
       // Telemetry: Payment Initialized
       _telemetry.recordEvent('business.payment.init', {
         'provider': 'notchpay',
-        'amount': amount,
+        'amount_range': AnalyticsAmountRange.fromAmount(amount),
         'currency': currency ?? 'XAF',
         'plan': plan ?? 'premium',
         'success': url != null,
@@ -155,7 +156,10 @@ class PaymentService {
     getIt<LogService>().warning(
       'Échec initialisation NotchPay',
       component: 'PaymentService',
-      metadata: {'amount': amount, 'response': response.body},
+      metadata: {
+        'amount_range': AnalyticsAmountRange.fromAmount(amount),
+        'response': response.body,
+      },
     );
     return null;
   }
@@ -185,7 +189,7 @@ class PaymentService {
       // Telemetry: Payment Initialized
       _telemetry.recordEvent('business.payment.init', {
         'provider': 'stripe',
-        'amount': amount,
+        'amount_range': AnalyticsAmountRange.fromAmount(amount),
         'currency': currency,
         'plan': plan ?? 'premium',
         'success': url != null,

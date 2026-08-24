@@ -51,3 +51,16 @@ dart_defines.dev.json
 dart_defines.prod.json
 dart_defines.staging.json
 !dart_defines.example.json
+
+# Signing Keys & Credentials (K-22)
+*.keystore
+*.jks
+key.properties
+*.p12
+*.mobileprovision
+*.cer
+GoogleService-Info.plist
+google-services.json
+!android/app/google-services.example.json
+!ios/Runner/GoogleService-Info.example.plist
+

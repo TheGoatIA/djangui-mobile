@@ -75,8 +75,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage>
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 actions: [
-                  if (transaction.source == 'manual' ||
-                      transaction.source == 'cash')
+                  if (transaction.isMutable)
                     IconButton(
                       icon: const Icon(
                         Icons.delete_outline,

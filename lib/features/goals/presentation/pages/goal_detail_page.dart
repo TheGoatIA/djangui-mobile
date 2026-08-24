@@ -19,11 +19,20 @@ import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../payments/presentation/bloc/fintech_bloc.dart';
 import '../../../payments/presentation/bloc/fintech_event.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
-class GoalDetailPage extends StatelessWidget {
+class GoalDetailPage extends StatefulWidget {
   final String goalId;
 
   const GoalDetailPage({super.key, required this.goalId});
+
+  @override
+  State<GoalDetailPage> createState() => _GoalDetailPageState();
+}
+
+class _GoalDetailPageState extends State<GoalDetailPage>
+    with WidgetsBindingObserver, SecureScreenMixin<GoalDetailPage> {
+  String get goalId => widget.goalId;
 
   @override
   Widget build(BuildContext context) {

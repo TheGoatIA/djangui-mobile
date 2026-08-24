@@ -1,6 +1,8 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/repositories/challenge_repository.dart';
+import 'package:kauri/core/analytics/events.dart';
 import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
@@ -17,12 +19,29 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
   ChallengesBloc(this._challengeRepository) : super(ChallengesState.initial()) {
     on<GetChallengesRequested>(_onGetChallengesRequested);
     on<GetUserChallengesRequested>(_onGetUserChallengesRequested);
-    on<JoinChallengeRequested>(_onJoinChallengeRequested);
-    on<ValidateWeekRequested>(_onValidateWeekRequested);
-    on<UnjoinChallengeRequested>(_onUnjoinChallengeRequested);
-    on<SkipWeekRequested>(_onSkipWeekRequested);
-    on<PostponeDeadlineRequested>(_onPostponeDeadlineRequested);
-    on<RedeemChallengeRequested>(_onRedeemChallengeRequested);
+    on<JoinChallengeRequested>(_onJoinChallengeRequested, transformer: droppable());
+    on<ValidateWeekRequested>(_onValidateWeekRequested, transformer: droppable());
+    on<UnjoinChallengeRequested>(
+      _onUnjoinChallengeRequested,
+      transformer: droppable(),
+    );
+    on<SkipWeekRequested>(_onSkipWeekRequested, transformer: droppable());
+    on<PostponeDeadlineRequested>(
+      _onPostponeDeadlineRequested,
+      transformer: droppable(),
+    );
+    on<RedeemChallengeRequested>(
+      _onRedeemChallengeRequested,
+      transformer: droppable(),
+    );
+    on<ResetChallengesRequested>(_onResetChallengesRequested);
+  }
+
+  void _onResetChallengesRequested(
+    ResetChallengesRequested event,
+    Emitter<ChallengesState> emit,
+  ) {
+    emit(ChallengesState.initial());
   }
 
   Future<void> _onGetChallengesRequested(
@@ -180,7 +199,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
         _telemetry.recordEvent('challenge.validated', {
           'user_challenge.id': event.userChallengeId,
           'week.number': event.weekNumber,
-          'amount': event.amount,
+          'amount_range': AnalyticsAmountRange.fromAmount(event.amount),
         });
         emit(state.copyWith(status: ChallengesStatus.success));
         add(GetUserChallengesRequested());
@@ -293,7 +312,9 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
         );
         _telemetry.recordEvent('challenge.redeem', {
           'id': event.userChallengeId,
-          'amount': redeemModel.redeemedAmount,
+          'amount_range': AnalyticsAmountRange.fromAmount(
+            redeemModel.redeemedAmount,
+          ),
         });
         emit(state.copyWith(status: ChallengesStatus.success));
 

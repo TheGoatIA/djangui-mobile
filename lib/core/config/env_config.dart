@@ -1,4 +1,4 @@
-﻿/// Configuration de l'environnement via dart-define.
+/// Configuration de l'environnement via dart-define.
 ///
 /// Les valeurs sont injectees a la compilation via:
 ///   flutter build apk --dart-define-from-file=dart_defines.dev.json
@@ -17,7 +17,7 @@ class EnvConfig {
   /// Endpoint OTEL pour la telemetrie.
   static const String otelEndpoint = String.fromEnvironment(
     'OTEL_ENDPOINT',
-    defaultValue: 'http://10.0.2.2:4318/v1/traces',
+    defaultValue: '',
   );
 
   /// Endpoint distant pour l'envoi des logs applicatifs (Graylog/ELK).

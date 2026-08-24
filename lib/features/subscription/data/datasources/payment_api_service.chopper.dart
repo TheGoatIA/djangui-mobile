@@ -70,7 +70,8 @@ final class _$PaymentApiService extends PaymentApiService {
     Map<String, dynamic>? body,
   }) {
     final Uri $url = Uri.parse('/payments/pay/wallet');
-    final Request $request = Request('POST', $url, client.baseUrl, body: body);
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
     return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
   }
 

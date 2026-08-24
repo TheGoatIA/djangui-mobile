@@ -81,3 +81,7 @@ class RedeemChallengeRequested extends ChallengesEvent {
   @override
   List<Object?> get props => [userChallengeId];
 }
+
+class ResetChallengesRequested extends ChallengesEvent {
+  const ResetChallengesRequested();
+}

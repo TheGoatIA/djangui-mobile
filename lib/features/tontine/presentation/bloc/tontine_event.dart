@@ -150,3 +150,7 @@ class ToggleAutoDebitRequested extends TontineEvent {
   @override
   List<Object?> get props => [tontineId, enabled];
 }
+
+class ResetTontineRequested extends TontineEvent {
+  const ResetTontineRequested();
+}

@@ -65,14 +65,17 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
         }
       }
     } else {
-      // Fallback if no ref (e.g. testing)
-      setState(() {
-        _isLoading = false;
-        _isVerified = true;
-      });
-      context.read<AuthBloc>().add(AuthRefreshUserRequested());
-      context.read<FintechBloc>().add(FetchWalletBalance());
-      context.read<FintechBloc>().add(FetchWalletTransactions());
+      // Pas de référence de transaction fournie : impossible de valider le paiement (K-18)
+      getIt<LogService>().warning(
+        'Tentative d\'accès à PaymentSuccessPage sans référence de transaction.',
+        component: 'PaymentSuccessPage',
+      );
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isVerified = false;
+        });
+      }
     }
   }
 

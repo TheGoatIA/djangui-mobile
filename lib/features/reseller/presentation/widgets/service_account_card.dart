@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../data/models/reseller_models.dart';
@@ -7,6 +7,7 @@ class ServiceAccountCard extends StatelessWidget {
   final ResellerAccountModel account;
   final VoidCallback onTap;
   final VoidCallback onUnlockVault;
+  final VoidCallback? onDeleteAccount;
   final Function(ResellerSlotModel)? onSlotTap;
 
   const ServiceAccountCard({
@@ -14,6 +15,7 @@ class ServiceAccountCard extends StatelessWidget {
     required this.account,
     required this.onTap,
     required this.onUnlockVault,
+    this.onDeleteAccount,
     this.onSlotTap,
   });
 
@@ -62,23 +64,38 @@ class ServiceAccountCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: (isProfitable ? AppColors.primary : Colors.red)
-                      .withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  isProfitable
-                      ? '+${account.netMargin.toStringAsFixed(0)} ${account.billingCurrency}'
-                      : '${account.netMargin.toStringAsFixed(0)} ${account.billingCurrency}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: isProfitable ? AppColors.primary : Colors.red,
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: (isProfitable ? AppColors.primary : Colors.red)
+                          .withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      isProfitable
+                          ? '+${account.netMargin.toStringAsFixed(0)} ${account.billingCurrency}'
+                          : '${account.netMargin.toStringAsFixed(0)} ${account.billingCurrency}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isProfitable ? AppColors.primary : Colors.red,
+                      ),
+                    ),
                   ),
-                ),
+                  if (onDeleteAccount != null) ...[
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.redAccent),
+                      tooltip: 'Supprimer le compte maître',
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                      onPressed: onDeleteAccount,
+                    ),
+                  ],
+                ],
               ),
             ],
           ),

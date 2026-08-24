@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../core/utils/password_validator.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   final String token;
@@ -96,12 +97,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           _isPasswordVisible = !_isPasswordVisible;
                         }),
                       ),
-                      validator: (value) {
-                        if (value == null || value.length < 6) {
-                          return l10n.passwordLengthError;
-                        }
-                        return null;
-                      },
+                      validator: (value) => PasswordValidator.validate(
+                        value,
+                        emptyError: l10n.enterPasswordError,
+                        complexityError: l10n.passwordLengthError,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     AppTextField(

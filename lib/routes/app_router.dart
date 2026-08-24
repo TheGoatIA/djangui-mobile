@@ -1,5 +1,5 @@
-import '../features/reseller/presentation/pages/reseller_hub_page.dart';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -60,6 +60,7 @@ import '../features/user_subscriptions/data/models/subscription_model.dart';
 import '../features/payments/presentation/pages/wallet/wallet_dashboard_page.dart';
 import '../features/auth/presentation/pages/account_suspended_page.dart';
 import '../features/auth/presentation/pages/kyc/kyc_submission_page.dart';
+import '../features/reseller/presentation/pages/reseller_hub_page.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
@@ -103,7 +104,7 @@ const _publicRoutePaths = <String>{
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: RouteConstants.splash,
-  debugLogDiagnostics: true,
+  debugLogDiagnostics: kDebugMode,
   observers: [TelemetryRouteObserver()],
   refreshListenable: GoRouterRefreshStream(getIt<AuthBloc>().stream),
   redirect: (context, state) {
@@ -399,15 +400,15 @@ final appRouter = GoRouter(
         state: state,
         child: const InsightsPage(),
       ),
-    ),      GoRoute(
-        path: RouteConstants.resellerHub,
-        pageBuilder: (context, state) => buildPageWithDefaultTransition(
-          context: context,
-          state: state,
-          child: const ResellerHubPage(),
-        ),
+    ),
+    GoRoute(
+      path: RouteConstants.resellerHub,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const ResellerHubPage(),
       ),
-
+    ),
     GoRoute(
       path: RouteConstants.subscription,
       pageBuilder: (context, state) => buildPageWithDefaultTransition(
@@ -627,14 +628,6 @@ final appRouter = GoRouter(
         context: context,
         state: state,
         child: const KYCSubmissionPage(),
-      ),
-    ),
-    GoRoute(
-      path: RouteConstants.resellerHub,
-      pageBuilder: (context, state) => buildPageWithDefaultTransition(
-        context: context,
-        state: state,
-        child: const ResellerHubPage(),
       ),
     ),
   ],

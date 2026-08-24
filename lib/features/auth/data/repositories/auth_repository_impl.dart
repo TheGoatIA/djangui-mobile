@@ -403,8 +403,17 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> logout() async {
     try {
-      // 1. Call remote logout if needed (optional)
-      // await _remoteDataSource.logout();
+      // 1. Revoke server session first (best-effort, 5s timeout)
+      try {
+        final refresh = await _localDataSource.getRefreshToken();
+        if (refresh != null && refresh.isNotEmpty) {
+          await _remoteDataSource
+              .logout(refresh)
+              .timeout(const Duration(seconds: 5));
+        }
+      } catch (e) {
+        debugPrint('⚠️ [AuthRepository] Server logout failed (proceeding with local cleanup): $e');
+      }
 
       // 2. Clear local storage
       await _localDataSource.clearTokens();

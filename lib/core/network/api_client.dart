@@ -50,6 +50,7 @@ class KauriApiClient {
       client: TracingHttpClient(),
       interceptors: [
         AuthInterceptor(),
+        IdempotencyKeyInterceptor(),
         HttpLoggingInterceptor(),
         RemoteLoggingInterceptor(),
       ],

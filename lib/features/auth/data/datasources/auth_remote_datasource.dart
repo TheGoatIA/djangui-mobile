@@ -42,6 +42,7 @@ abstract class AuthRemoteDataSource {
   Future<void> logConnection(ConnectionRequest request);
   Future<CountryChangeRequestModel> requestCountryChange(String countryCode);
   Future<void> updateLanguage(String languageCode);
+  Future<void> logout([String? refreshToken]);
   Future<Map<String, dynamic>> submitKYC({
     required String documentType,
     required String documentNumber,
@@ -59,6 +60,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final AuthLocalDataSource _localDataSource;
 
   AuthRemoteDataSourceImpl(this._apiService, this._localDataSource);
+
+  @override
+  Future<void> logout([String? refreshToken]) async {
+    try {
+      await _apiService.logout();
+    } catch (e) {
+      debugPrint('⚠️ [AuthRemoteDataSource] Remote logout error: $e');
+    }
+  }
 
   @override
   Future<AuthResponse> firebaseLogin(String idToken, {String? country}) async {
@@ -106,9 +116,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<AuthResponse> register(RegisterRequest request) async {
-    debugPrint(
-      '🌐 [AuthRemoteDataSource] Registering user with: ${request.toJson()}',
-    );
+    debugPrint('🌐 [AuthRemoteDataSource] Registering user: ${request.email}');
     final response = await _apiService.register(request);
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;

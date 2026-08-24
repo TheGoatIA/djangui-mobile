@@ -1,3 +1,4 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/repositories/tontine_repository.dart';
 import 'tontine_event.dart';
@@ -20,21 +21,33 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
   TontineBloc(this._repository) : super(const TontineState()) {
     on<TontinesLoadRequested>(_onTontinesLoadRequested);
     on<TontineDetailsLoadRequested>(_onTontineDetailsLoadRequested);
-    on<CreateTontineRequested>(_onCreateTontineRequested);
-    on<JoinTontineRequested>(_onJoinTontineRequested);
-    on<ContributeToTontineRequested>(_onContributeToTontineRequested);
+    on<CreateTontineRequested>(_onCreateTontineRequested, transformer: droppable());
+    on<JoinTontineRequested>(_onJoinTontineRequested, transformer: droppable());
+    on<ContributeToTontineRequested>(
+      _onContributeToTontineRequested,
+      transformer: droppable(),
+    );
     on<TontineMessagesLoadRequested>(_onTontineMessagesLoadRequested);
     on<SendTontineMessageRequested>(_onSendTontineMessageRequested);
     on<TontineContributionsLoadRequested>(_onTontineContributionsLoadRequested);
     on<ValidateTontineContributionRequested>(
       _onValidateTontineContributionRequested,
+      transformer: droppable(),
     );
-    on<StartTontineRequested>(_onStartTontineRequested);
+    on<StartTontineRequested>(_onStartTontineRequested, transformer: droppable());
     on<TontineRemoveMemberRequested>(_onTontineRemoveMemberRequested);
-    on<DeleteTontineRequested>(_onDeleteTontineRequested);
-    on<UpdateTontineRequested>(_onUpdateTontineRequested);
-    on<RotateTurnRequested>(_onRotateTurnRequested);
+    on<DeleteTontineRequested>(_onDeleteTontineRequested, transformer: droppable());
+    on<UpdateTontineRequested>(_onUpdateTontineRequested, transformer: droppable());
+    on<RotateTurnRequested>(_onRotateTurnRequested, transformer: droppable());
     on<ToggleAutoDebitRequested>(_onToggleAutoDebitRequested);
+    on<ResetTontineRequested>(_onResetTontineRequested);
+  }
+
+  void _onResetTontineRequested(
+    ResetTontineRequested event,
+    Emitter<TontineState> emit,
+  ) {
+    emit(const TontineState());
   }
 
   Future<void> _onTontinesLoadRequested(

@@ -12,23 +12,24 @@ Ce document explique comment déployer l'application mobile Kauri (Flutter) et s
 - Placez-les respectivement dans `android/app/` et `ios/Runner/`.
 
 ### 2. Build & Déploiement Android
-- **Signature** : Créez un fichier `key.properties` dans `android/` avec le chemin de votre keystore, le mot de passe et l'alias.
-- **Build APK** :
+- **Signature** : Créez un fichier `key.properties` dans `android/` avec le chemin de votre keystore, le mot de passe et l'alias (ne jamais committer ce fichier).
+- **Build APK (Release avec Obfuscation - K-19)** :
   ```bash
-  flutter build apk --release
+  flutter build apk --release --obfuscate --split-debug-info=build/symbols/android
   ```
-- **Build App Bundle** (pour le Play Store) :
+- **Build App Bundle (Play Store avec Obfuscation - K-19)** :
   ```bash
-  flutter build appbundle --release
+  flutter build appbundle --release --obfuscate --split-debug-info=build/symbols/android
   ```
 
 ### 3. Build & Déploiement iOS
 - Ouvrez `ios/Runner.xcworkspace` dans Xcode.
 - Configurez « Signing & Capabilities » avec votre équipe de développeurs Apple.
-- **Build IPA** :
+- **Build IPA (Release avec Obfuscation - K-19)** :
   ```bash
-  flutter build ipa --release
+  flutter build ipa --release --obfuscate --split-debug-info=build/symbols/ios
   ```
+- Conservez l'archive de symboles `build/symbols/` pour la désanonymisation des traces de crash dans Firebase Crashlytics.
 - Téléchargez via Transporter ou Xcode vers App Store Connect.
 
 ---

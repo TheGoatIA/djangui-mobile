@@ -8,7 +8,12 @@ abstract class GoalRemoteDataSource {
   Future<List<GoalModel>> getGoals();
   Future<GoalModel> createGoal(GoalModel goal);
   Future<void> deleteGoal(String id);
-  Future<GoalModel> contributeToGoal(String id, double amount, {String? note});
+  Future<GoalModel> contributeToGoal(
+    String id,
+    double amount, {
+    String? note,
+    String? idempotencyKey,
+  });
   Future<GoalModel> redeemGoal(String id, {double? amount});
 }
 
@@ -65,10 +70,15 @@ class GoalRemoteDataSourceImpl implements GoalRemoteDataSource {
     String id,
     double amount, {
     String? note,
+    String? idempotencyKey,
   }) async {
     final response = await _apiService.contributeToGoal(id, {
       'amount': amount,
       if (note != null) 'note': note,
+      // Rejeu stable de la file hors-ligne (K-17) : le serveur lit ce champ
+      // en repli si l'en-tête Idempotency-Key n'est pas fourni (voir
+      // djangui-api/src/middleware/idempotency.ts).
+      if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
     });
     if (!response.isSuccessful || response.body?.data == null) {
       throw Exception(response.body?.message ?? 'Failed to contribute');

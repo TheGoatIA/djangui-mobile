@@ -183,7 +183,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get passwordLengthError =>
-      'Le mot de passe doit contenir au moins 6 caractères';
+      'Le mot de passe doit contenir au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial';
 
   @override
   String get genericError => 'Une erreur est survenue';
@@ -1158,7 +1158,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get passwordTooShort =>
-      'Le mot de passe doit faire au moins 6 caractères';
+      'Le mot de passe doit contenir au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial';
 
   @override
   String get noSessionsFound => 'Aucune session active trouvée';

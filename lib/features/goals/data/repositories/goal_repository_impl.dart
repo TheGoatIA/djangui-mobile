@@ -12,6 +12,7 @@ import '../models/goal_model.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
 import 'package:kauri/core/error/error_mapper.dart';
+import 'package:uuid/uuid.dart';
 
 @LazySingleton(as: GoalRepository)
 class GoalRepositoryImpl implements GoalRepository {
@@ -242,7 +243,14 @@ class GoalRepositoryImpl implements GoalRepository {
             SyncRequestsCompanion.insert(
               table: 'goals',
               action: 'contribute',
-              payload: jsonEncode({'id': id, 'amount': amount, 'note': note}),
+              // Clé générée une seule fois ici et réutilisée à chaque
+              // tentative de rejeu par SyncService (K-17).
+              payload: jsonEncode({
+                'id': id,
+                'amount': amount,
+                'note': note,
+                'idempotencyKey': const Uuid().v4(),
+              }),
             ),
           );
 

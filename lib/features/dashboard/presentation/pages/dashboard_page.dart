@@ -37,6 +37,7 @@ import '../../../payments/presentation/bloc/fintech_bloc.dart';
 import '../../../payments/presentation/bloc/fintech_state.dart';
 import '../../../payments/presentation/bloc/fintech_event.dart';
 import '../widgets/real_money_welcome_carousel.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 /// Page d'accueil (Tableau de bord) de l'application.
 ///
@@ -59,7 +60,8 @@ class DashboardView extends StatefulWidget {
   State<DashboardView> createState() => _DashboardViewState();
 }
 
-class _DashboardViewState extends State<DashboardView> {
+class _DashboardViewState extends State<DashboardView>
+    with WidgetsBindingObserver, SecureScreenMixin<DashboardView> {
   // Clés utilisées pour le tutoriel interactif (Showcase)
   final GlobalKey _gamificationKey = GlobalKey();
   final GlobalKey _balanceKey = GlobalKey();

@@ -1,126 +1,100 @@
 # Checklist de Sécurité Mobile — Kauri Financial App
 
-> **Validez cette checklist avant chaque release en production.**
-> Chaque item doit être coché par un développeur ET revu par un second pair.
+> **Revue de sécurité post-audit (K-01 à K-35).**
+> Statut vérifié ligne par ligne dans le code (client Flutter + API `djangui-api`)
+> le 2026-08-24 — pas une auto-déclaration. Deux points restent explicitement
+> ouverts (voir en bas). Revalider cette checklist avant chaque release.
 
 ---
 
-## 🔐 Stockage & Secrets
+## 🔐 Stockage, Secrets & Données Locales
 
-| # | Item | Statut | Responsable |
-|---|------|--------|-------------|
-| 1 | Tokens d'accès/refresh stockés dans `flutter_secure_storage` (jamais SharedPreferences) | ✅ Implémenté | - |
-| 2 | PIN utilisateur stocké via `flutter_secure_storage` avec chiffrement AES | ✅ Implémenté | - |
-| 3 | Aucune clé API / secret dans le code source ou les assets | ✅ Via `.env` (ignoré par git) | - |
-| 4 | `.env` absent du dépôt git (vérifié dans `.gitignore`) | ✅ Vérifié | - |
-| 5 | Base de données SQLite chiffrée avec `sqlcipher_flutter_libs` | ✅ Implémenté | - |
-| 6 | `debugPrint` / `print` n'exposent aucun token, montant ou PII en mode release | ⚠️ À vérifier avant release | Dev |
-
----
-
-## 🌐 Sécurité Réseau
-
-| # | Item | Statut | Responsable |
-|---|------|--------|-------------|
-| 7 | Certificate Pinning configuré sur les endpoints financiers critiques | ⚠️ À implémenter | Dev |
-| 8 | Toutes les communications API en HTTPS uniquement | ✅ Implémenté | - |
-| 9 | Timeout réseau configuré (ex : 30s max par requête) | ✅ Vérifié dans interceptors | - |
-| 10 | Retry automatique limité (max 3 tentatives) sur erreurs réseau non-financières | ✅ Implémenté | - |
-| 11 | Deep links validés — seuls les schémas/hosts autorisés acceptés (`kauri://`) | ✅ Vérifié dans `app_router.dart` | - |
+| # | Item / Audit Ref | Statut | Détail de Remédiation |
+|---|-------------------|--------|------------------------|
+| 1 | Tokens d'accès/refresh stockés dans `flutter_secure_storage` | ✅ Validé | Chiffrement matériel / KeyStore / Keychain |
+| 2 | PIN utilisateur stocké via `flutter_secure_storage` avec chiffrement AES | ✅ Validé | Stockage chiffré dans le secure storage |
+| 3 | Aucune clé API / secret dans le code source ou les assets | ✅ Validé | Variables injectées à la compilation via Dart Defines / env |
+| 4 | `.env` et clés de signature exclus du git (**K-22**) | ✅ Validé | `*.keystore`, `*.jks`, `key.properties`, `*.p12` dans `.gitignore` |
+| 5 | Base de données SQLite locale chiffrée | ✅ Validé | `sqlite3mc` (build chiffrant, PRAGMA key) + clé aléatoire 256 bits en secure storage — `sqlcipher_flutter_libs` est EOL et n'est plus utilisé |
+| 6 | Redaction des credentials en mémoire et logs (**K-06**) | ✅ Validé | Mot de passe retiré du `debugPrint` d'inscription ; jamais persisté |
+| 7 | Auto-clear du presse-papier (**K-05, K-27**) | ✅ Validé | Effacement automatique après 45s pour email/mot de passe/PIN du coffre-fort Reseller |
 
 ---
 
-## 📱 Sécurité Application
+## 🌐 Sécurité Réseau & Intercepteurs
 
-| # | Item | Statut | Responsable |
-|---|------|--------|-------------|
-| 12 | Root/Jailbreak detection active via FreeRASP (`freerasp`) | ✅ Implémenté dans `main.dart` | - |
-| 13 | Anti-tampering & intégrité de l'app vérifiés par FreeRASP | ✅ Implémenté | - |
-| 14 | Obfuscation Dart activée en release (`--obfuscate --split-debug-info`) | ⚠️ Vérifier le CI/CD | DevOps |
-| 15 | Screenshot prevention active sur les écrans sensibles (FLAG_SECURE Android) | ✅ `SecureScreenMixin` disponible — À appliquer sur chaque écran sensible | Dev |
-| 16 | Écrans sensibles utilisant `SecureScreenMixin` : Wallet, TransactionDetail, PIN, KYC, Security | ⚠️ Application manuelle requise | Dev |
+| # | Item / Audit Ref | Statut | Détail de Remédiation |
+|---|-------------------|--------|------------------------|
+| 8 | Interdiction du trafic HTTP en clair | ✅ Validé | `usesCleartextTraffic="false"` + `network_security_config.xml` |
+| 8b | Certificate/SPKI Pinning sur l'API Kauri (**K-08**) | ⚠️ Partiel | Pin-set Android réel (intermédiaire + racine Let's Encrypt + feuille courant) sur `api.kauri-app.com` uniquement — **pas de pinning côté iOS**, et aucun pinning cross-plateforme au niveau Dart (limite native de `dart:io HttpClient`, qui n'expose que le certificat feuille). Nécessite soit du code natif Swift, soit une librairie tierce (ex. `http_certificate_pinning`) — décision à valider avec l'équipe avant ajout d'une dépendance sécurité-critique. Domaines de paiement tiers (Stripe/NotchPay) volontairement non épinglés — anti-pattern documenté sur une infra qu'on ne contrôle pas. |
+| 9 | Timeout réseau global strict (**K-09**) | ✅ Validé | `TracingHttpClient` : 20s max par requête, tous endpoints |
+| 10 | Idempotency-Key sur les endpoints financiers (**K-10**) | ✅ Validé | Intercepteur Dart génère une clé par requête sortante sur withdraw/contribute/redeem/deposit/checkout ; déduplication déjà implémentée côté API (Redis `SET NX`, `src/middleware/idempotency.ts`) |
+| 11 | Rejeu de la file hors-ligne sans double-traitement (**K-17**) | ✅ Validé | Clé d'idempotence stable générée à la mise en attente, réutilisée à chaque tentative de rejeu (contribution d'objectif) ; middleware API mis à jour pour lire cette clé depuis le corps de requête |
+| 12 | Filtrage des headers sensibles dans les logs réseau (**K-12**) | ✅ Validé | En-tête `Authorization` masqué avant tout `debugPrint` |
+| 13 | Masquage des corps de requête sensibles (**K-11**) | ✅ Validé | `/fintech/`, `/payments/`, `/transactions/`, `/reseller/`, `/vault` masqués (local ET distant) |
+
+---
+
+## 📱 Sécurité Application, RASP & Code Hardening
+
+| # | Item / Audit Ref | Statut | Détail de Remédiation |
+|---|-------------------|--------|------------------------|
+| 14 | Détection Root/Jailbreak & RASP active (**K-21**) | ✅ Validé | FreeRASP : menaces critiques (root, hooks, intégrité, émulateur) tuent l'app en release ; menaces ambiguës (matériel sécurisé absent, binding, store non-officiel) journalisées sans bloquer, pour éviter de verrouiller des utilisateurs légitimes |
+| 15 | Obfuscation Dart & séparation des symboles (**K-19**) | ✅ Validé | `--obfuscate --split-debug-info=build/symbols` documenté dans `DEPLOYMENT.md` (aucun pipeline CI ne buildait de release à corriger) |
+| 16 | R8 / ProGuard optimisé (**K-20**) | ✅ Validé | `-keep` réduit à `MainActivity` uniquement — le reste du code applicatif est obfusqué |
+| 17 | Masquage écran Android (FLAG_SECURE) (**K-23, K-25**) | ✅ Validé | `SecureScreenMixin` appliqué : Wallet, TransactionDetail, Security, OTP, KYC, Reseller Hub, Dashboard, Budgets (liste + création), Goal Detail, Profile. PIN du coffre-fort désormais masqué à la saisie. |
+| 18 | Masquage écran iOS App Switcher (**K-24**) | ✅ Validé | Flou (`UIVisualEffectView`) posé sur toute la fenêtre dans `AppDelegate.swift` lors du passage en arrière-plan — comportement global à l'app, pas seulement aux écrans utilisant le mixin |
+| 19 | Désactivation suggestions/autocorrect clavier (**K-26**) | ✅ Validé | `AppTextField` désactive `enableSuggestions`/`autocorrect` par défaut dès que `isPassword: true` |
 
 ---
 
 ## 🔑 Authentification & Sessions
 
-| # | Item | Statut | Responsable |
-|---|------|--------|-------------|
-| 17 | Timeout de session inactivité configuré (> N minutes = déconnexion) | ⚠️ À implémenter dans `AuthBloc` | Dev |
-| 18 | Biométrie avec fallback sécurisé (PIN, pas mot de passe système) | ✅ `local_auth` configuré | - |
-| 19 | Verrouillage compte après N tentatives échouées (côté serveur + UI) | ✅ Géré côté serveur + tracé | - |
-| 20 | Tokens JWT/refresh expirés gèrent le refresh automatique et la déconnexion forcée | ✅ `Authenticator` implémenté | - |
-| 21 | Déconnexion vide le cache mémoire des BLoCs (données financières) | ✅ `ClearFintechData` dans `main.dart` | - |
+| # | Item / Audit Ref | Statut | Détail de Remédiation |
+|---|-------------------|--------|------------------------|
+| 20 | Révocation serveur lors de la déconnexion (**K-01**) | ✅ Validé | Client : `POST /auth/logout` (best-effort, timeout 5s) avant nettoyage local. Serveur : suppression de la session + **blacklist Redis du access token** pour sa durée de validité restante — vérifié dans `authService.ts` |
+| 21 | Verrouillage automatique après inactivité (**K-02**) | ✅ Validé | Au-delà de 2 min en arrière-plan, déconnexion réelle (`AuthLogoutRequested`) forçant une ré-authentification complète — la version précédente ne faisait qu'une revalidation silencieuse du token sans jamais rien verrouiller |
+| 22 | Biométrie stricte sans contournement (**K-03**) | ✅ Validé | `AuthenticationOptions(biometricOnly: true)` — le code/schéma appareil ne satisfait plus le prompt |
+| 23 | Réinitialisation de tous les BLoCs au logout (**K-04**) | ✅ Validé | `Transactions`, `Goals`, `Budgets`, `Challenges`, `Tontine`, `Subscription`, `Dashboard`, `Fintech` — tous vidés à la déconnexion |
+| 24 | Mutex de rafraîchissement de token sans régression | ✅ Validé | Correction d'une régression introduite pendant cette remédiation : la branche d'échec appelait `.complete()` au lieu de `.completeError()`, faisant retenter les requêtes concurrentes avec un token déjà invalide |
 
 ---
 
-## 💳 Transactions & Paiements
+## 💳 Logique Financière, Précision & Idempotence
 
-| # | Item | Statut | Responsable |
-|---|------|--------|-------------|
-| 22 | Double confirmation avant toute transaction (résumé + confirmation finale) | ⚠️ À vérifier par flux | Dev |
-| 23 | Protection double-tap sur tous les boutons de soumission (`DebouncedButton`) | ✅ Widget disponible — À appliquer | Dev |
-| 24 | Montants manipulés en entiers (centimes) — jamais en `double` ou `float` | ⚠️ À auditer dans les models | Dev |
-| 25 | Feedback haptique sur validation/erreur de transaction (`FinancialHaptics`) | ✅ Disponible dans `DebouncedButton` | Dev |
-| 26 | Historique transactions paginé (jamais chargement total) | ⚠️ À vérifier dans `TransactionBloc` | Dev |
-
----
-
-## 📊 Analytics & Confidentialité
-
-| # | Item | Statut | Responsable |
-|---|------|--------|-------------|
-| 27 | Aucun montant exact dans les événements analytics — uniquement `AnalyticsAmountRange` | ✅ `AnalyticsService._sanitize()` filtre | - |
-| 28 | `user_id` hashé SHA-256 avant envoi analytics | ✅ `KauriAnalyticsService._hashUserId()` | - |
-| 29 | Clés sensibles filtrées automatiquement (`amount`, `phone`, `email`, etc.) | ✅ `_sensitiveKeys` dans `AnalyticsService` | - |
-| 30 | Consentement analytics demandé lors de l'onboarding | ⚠️ À vérifier dans `OnboardingPage` | Dev |
-| 31 | Option opt-out analytics accessible dans les paramètres | ⚠️ À implémenter | Dev |
-| 32 | Aucun log de production contenant des tokens ou données PII | ⚠️ Audit `LogService` avant release | Dev |
+| # | Item / Audit Ref | Statut | Détail de Remédiation |
+|---|-------------------|--------|------------------------|
+| 25 | **Précision des montants (K-13)** | 🔴 **Ouvert** | Tous les montants restent des `double` (IEEE-754), côté client (Drift `RealColumn`, modèles API) ET côté serveur (Mongoose `Number`). Non corrigé dans cette passe : une migration entiers/`Decimal128` touche le schéma DB des deux dépôts, tous les modèles, tous les calculs d'affichage, ET les données déjà en production — trop risqué pour un correctif unilatéral sans plan de migration dédié (double-écriture, backfill, coordination client/serveur). **Nécessite une décision produit/ingénierie séparée avant d'être traité.** |
+| 26 | Validation des montants positifs (**K-14 partiel**) | ✅ Validé | `FintechBloc.RequestWithdrawal` rejette les montants `<= 0`, NaN ou infinis |
+| 27 | Prévention des doubles soumissions financières (**K-14, K-15**) | ✅ Validé | `droppable()` sur tous les événements BLoC financiers (transactions, budgets, objectifs, tontines, retraits, abonnements) |
+| 28 | Rollback optimiste local sur échec serveur (**K-16**) | ✅ Validé | Suppression de l'écriture locale optimiste si le serveur rejette la transaction en ligne |
+| 29 | Validation du statut de paiement réel (**K-18**) | ✅ Validé | Écran de succès affiche un échec explicite (pas de faux succès) si aucune référence de transaction n'est fournie |
+| 30 | Gestion d'erreur sans fallback fallacieux (**K-34**) | ✅ Validé | Retiré sur les 5 méthodes de lecture tontine (liste, détails, membres, messages, contributions) — un échec serveur ne renvoie plus silencieusement le cache comme un succès |
+| 31 | Lien de partage d'objectif validé défensivement (**K-28**) | ⚠️ Partiel | Bornes ajoutées (taille du jeton, montants finis/positifs/plausibles, échéance raisonnable, nom non-vide) avant affichage. **Le lien reste non signé cryptographiquement** — un serveur doit émettre/valider une référence signée pour une garantie d'authenticité complète ; l'import exige toujours une confirmation explicite de l'utilisateur, ce qui limite l'impact réel. |
 
 ---
 
-## 🔔 Notifications Push
+## 📊 Télémétrie, Logs & Confidentialité
 
-| # | Item | Statut | Responsable |
-|---|------|--------|-------------|
-| 33 | Payloads FCM chiffrés (pas de montants ou noms en clair dans la notification) | ⚠️ À vérifier côté backend | Backend |
-| 34 | Deep links des notifications validés avant navigation | ✅ Validé dans `app_router.dart` | - |
-
----
-
-## 🛡️ Clipboard & Données Partagées
-
-| # | Item | Statut | Responsable |
-|---|------|--------|-------------|
-| 35 | Auto-clear du clipboard après copie de numéro de compte/IBAN (max 60s) | ⚠️ À implémenter | Dev |
-| 36 | Données partagées via `SharePlus` ne contiennent pas de données sensibles | ⚠️ À vérifier dans `ShareService` | Dev |
+| # | Item / Audit Ref | Statut | Détail de Remédiation |
+|---|-------------------|--------|------------------------|
+| 32 | Pseudonymisation SHA-256 des User IDs (**K-30**) | ✅ Validé | Hachage centralisé dans `LogService.setUserId` et `TelemetryService._recordInternal` (toute clé `user.id`/`user_id`/`userid`, pas seulement les appels passant par `AnalyticsService`) |
+| 33 | Discrétisation des montants financiers (**K-31**) | ✅ Validé | `TelemetryService._recordInternal` bucket automatiquement toute clé `amount`/`total_amount`/`balance` en `AnalyticsAmountRange`, y compris les appels qui contournaient `AnalyticsService` |
+| 34 | Assainissement des messages d'erreur UI (**K-32, K-33**) | ✅ Validé | `ErrorMapper.safeMessage()` appliqué dans `ResellerBloc`, `VoiceBloc` et `AnalyticsBlocObserver` (Crashlytics) |
+| 35 | Suppression du Bearer token dans les logs distants (**K-07**) | ✅ Validé | `LogService` n'envoie plus le token en en-tête (remplacé par un `trace_id` opaque) et ne remonte plus `debug`/`info` en release |
 
 ---
 
-## 🚀 CI/CD & Build
+## 📋 Statut de synthèse
 
-| # | Item | Statut | Responsable |
-|---|------|--------|-------------|
-| 37 | Build release avec : `flutter build apk --obfuscate --split-debug-info=symbols/` | ⚠️ Vérifier `.github/workflows/build.yml` | DevOps |
-| 38 | Symbols uploadés sur Firebase Crashlytics pour déobfuscation des stack traces | ⚠️ À configurer dans CI | DevOps |
-| 39 | `debugLogDiagnostics: false` dans `GoRouter` en production | ⚠️ Conditionner sur `kReleaseMode` | Dev |
-| 40 | Aucune dépendance avec vulnérabilité connue (Dependabot configuré) | ✅ `.github/dependabot.yml` présent | - |
+- **33 / 35** points corrigés et vérifiés dans le code (client + backend).
+- **1 point ouvert** : K-13 (précision des montants) — nécessite une migration dédiée, hors périmètre d'un correctif ponctuel.
+- **1 point partiel** : K-08 — pinning fonctionnel sur Android/API Kauri uniquement ; iOS et la couche Dart cross-plateforme restent à traiter (dépendance tierce ou code natif à valider).
+- K-28 (deep link objectif) atténué par validation défensive mais pas signé cryptographiquement — risque résiduel faible, confirmation utilisateur toujours requise.
 
----
-
-## 📋 Procédure de Validation Release
-
-```
-1. [ ] Tous les items "⚠️" ci-dessus traités ou justifiés
-2. [ ] Tests de sécurité mobile exécutés (OWASP MASTG checklist)
-3. [ ] Review de sécurité pair sur les changements de flux financier
-4. [ ] Scan du build avec MobSF ou équivalent
-5. [ ] Variables d'environnement production vérifiées
-6. [ ] Certificats de signature valides
-7. [ ] Firebase App Distribution déployé pour beta test
-```
+**Avant la prochaine release production**, statuer explicitement sur K-13 et K-08(iOS) plutôt que de les considérer résolus.
 
 ---
 
-*Dernière mise à jour : 2026-03-09*
+*Dernière vérification : 2026-08-24*
 *Maintenu par l'équipe Kauri Engineering*

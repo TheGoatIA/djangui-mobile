@@ -29,9 +29,21 @@ final class _$ResellerApiService extends ResellerApiService {
   }
 
   @override
-  Future<Response<BaseListResponse<Map<String, dynamic>>>> getAccounts() {
+  Future<Response<BaseListResponse<Map<String, dynamic>>>> getAccounts({
+    int page = 1,
+    int limit = 20,
+  }) {
     final Uri $url = Uri.parse('/reseller/accounts');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+    };
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
     return client
         .send<BaseListResponse<Map<String, dynamic>>, Map<String, dynamic>>(
           $request,

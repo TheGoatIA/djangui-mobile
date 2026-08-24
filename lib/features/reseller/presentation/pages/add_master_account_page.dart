@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 
@@ -9,7 +10,8 @@ class AddMasterAccountPage extends StatefulWidget {
   State<AddMasterAccountPage> createState() => _AddMasterAccountPageState();
 }
 
-class _AddMasterAccountPageState extends State<AddMasterAccountPage> {
+class _AddMasterAccountPageState extends State<AddMasterAccountPage>
+    with WidgetsBindingObserver, SecureScreenMixin<AddMasterAccountPage> {
   final _formKey = GlobalKey<FormState>();
   final _serviceNameController = TextEditingController();
   final _billingCostController = TextEditingController();
@@ -192,6 +194,7 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage> {
               AppTextField(
                 controller: _pinController,
                 label: 'Code PIN principal (optionnel)',
+                isPassword: true,
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 32),

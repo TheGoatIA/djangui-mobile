@@ -103,23 +103,13 @@ class TontineRepositoryImpl implements TontineRepository {
           );
           return Right(remoteModels.map(_mapModelToEntity).toList());
         }
-        if (localModels.isNotEmpty) {
-          _logger.warning(
-            'Échec serveur (getTontines), fallback sur le cache.',
-            component: 'TontineRepository',
-          );
-          return Right(localModels.map(_mapModelToEntity).toList());
-        }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        if (localModels.isNotEmpty) {
-          _logger.error(
-            'Erreur technique (getTontines), fallback sur le cache.',
-            error: e,
-            component: 'TontineRepository',
-          );
-          return Right(localModels.map(_mapModelToEntity).toList());
-        }
+        _logger.error(
+          'Erreur technique lors de la récupération des tontines.',
+          error: e,
+          component: 'TontineRepository',
+        );
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
@@ -155,14 +145,12 @@ class TontineRepositoryImpl implements TontineRepository {
           );
           return Right(_mapModelToEntity(remoteModel));
         }
-        if (localModel != null) return Right(_mapModelToEntity(localModel));
         _logger.warning(
           'Échec serveur (getTontineDetails)',
           component: 'TontineRepository',
         );
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        if (localModel != null) return Right(_mapModelToEntity(localModel));
         _logger.error(
           'Erreur technique (getTontineDetails)',
           error: e,
@@ -343,14 +331,8 @@ class TontineRepositoryImpl implements TontineRepository {
           await _localDataSource.saveTontineMembers(id, remoteMembers);
           return Right(remoteMembers.map(_mapMemberModelToEntity).toList());
         }
-        if (localMembers.isNotEmpty) {
-          return Right(localMembers.map(_mapMemberModelToEntity).toList());
-        }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        if (localMembers.isNotEmpty) {
-          return Right(localMembers.map(_mapMemberModelToEntity).toList());
-        }
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
@@ -472,14 +454,8 @@ class TontineRepositoryImpl implements TontineRepository {
           await _localDataSource.saveTontineMessages(id, remoteMessages);
           return Right(remoteMessages.map(_mapMessageModelToEntity).toList());
         }
-        if (localMessages.isNotEmpty) {
-          return Right(localMessages.map(_mapMessageModelToEntity).toList());
-        }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        if (localMessages.isNotEmpty) {
-          return Right(localMessages.map(_mapMessageModelToEntity).toList());
-        }
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
@@ -576,18 +552,8 @@ class TontineRepositoryImpl implements TontineRepository {
             remoteContributions.map(_mapContributionModelToEntity).toList(),
           );
         }
-        if (localContributions.isNotEmpty) {
-          return Right(
-            localContributions.map(_mapContributionModelToEntity).toList(),
-          );
-        }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
-        if (localContributions.isNotEmpty) {
-          return Right(
-            localContributions.map(_mapContributionModelToEntity).toList(),
-          );
-        }
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {

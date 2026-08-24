@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/glass_card.dart';
@@ -34,7 +35,21 @@ class _ResellerHubView extends StatefulWidget {
   State<_ResellerHubView> createState() => _ResellerHubViewState();
 }
 
-class _ResellerHubViewState extends State<_ResellerHubView> {
+class _ResellerHubViewState extends State<_ResellerHubView>
+    with WidgetsBindingObserver, SecureScreenMixin<_ResellerHubView> {
+  void _copySensitiveData(BuildContext context, String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$label copié (effacement automatique dans 45s)')),
+    );
+    Future.delayed(const Duration(seconds: 45), () async {
+      final current = await Clipboard.getData(Clipboard.kTextPlain);
+      if (current?.text == text) {
+        Clipboard.setData(const ClipboardData(text: ''));
+      }
+    });
+  }
+
   void _openWhatsApp(String phone, String clientName, String serviceName) async {
     final cleanPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
     final message = "Bonjour $clientName 👋, rappel de renouvellement pour votre profil sur $serviceName. Merci !";
@@ -106,12 +121,7 @@ class _ResellerHubViewState extends State<_ResellerHubView> {
                       subtitle: Text(email),
                       trailing: IconButton(
                         icon: const Icon(Icons.copy_rounded),
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: email));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Email copié')),
-                          );
-                        },
+                        onPressed: () => _copySensitiveData(context, email, 'Email'),
                       ),
                     ),
                     ListTile(
@@ -127,12 +137,7 @@ class _ResellerHubViewState extends State<_ResellerHubView> {
                           ),
                           IconButton(
                             icon: const Icon(Icons.copy_rounded),
-                            onPressed: () {
-                              Clipboard.setData(ClipboardData(text: password));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Mot de passe copié')),
-                              );
-                            },
+                            onPressed: () => _copySensitiveData(context, password, 'Mot de passe'),
                           ),
                         ],
                       ),
@@ -143,12 +148,7 @@ class _ResellerHubViewState extends State<_ResellerHubView> {
                       subtitle: Text(pin),
                       trailing: IconButton(
                         icon: const Icon(Icons.copy_rounded),
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: pin));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Code PIN copié')),
-                          );
-                        },
+                        onPressed: () => _copySensitiveData(context, pin, 'Code PIN'),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -250,6 +250,33 @@ class _ResellerHubViewState extends State<_ResellerHubView> {
               context.read<ResellerBloc>().add(DeleteSlotRequested(slot.id));
             },
             child: const Text('Retirer & Libérer'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteMasterAccount(BuildContext context, ResellerAccountModel account) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Supprimer ${account.serviceName} ?'),
+        content: Text(
+          'Êtes-vous sûr de vouloir supprimer ce compte maître "${account.serviceName}" ?\n\n'
+          '⚠️ Tous les profils/slots associés (${account.slots.length} profil(s)) et les accès du coffre-fort seront définitivement supprimés.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.read<ResellerBloc>().add(DeleteMasterAccountRequested(account.id));
+            },
+            child: const Text('Supprimer définitivement'),
           ),
         ],
       ),
@@ -621,6 +648,7 @@ class _ResellerHubViewState extends State<_ResellerHubView> {
                             },
                             onUnlockVault: () => _showVaultDialog(context, account),
                             onSlotTap: (slot) => _showSlotActions(context, account, slot),
+                            onDeleteAccount: () => _confirmDeleteMasterAccount(context, account),
                           ),
                         )),
                 ],

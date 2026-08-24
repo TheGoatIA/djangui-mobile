@@ -1,3 +1,4 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../data/models/goal_model.dart';
@@ -18,15 +19,21 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
 
   GoalsBloc(this._goalRepository) : super(GoalsState.initial()) {
     on<GetGoalsRequested>(_onGetGoalsRequested);
-    on<AddGoalRequested>(_onAddGoalRequested);
-    on<DeleteGoalRequested>(_onDeleteGoalRequested);
-    on<UpdateGoalAmountRequested>(_onUpdateGoalAmountRequested);
-    on<RedeemGoalRequested>(_onRedeemGoalRequested);
+    on<AddGoalRequested>(_onAddGoalRequested, transformer: droppable());
+    on<DeleteGoalRequested>(_onDeleteGoalRequested, transformer: droppable());
+    on<UpdateGoalAmountRequested>(
+      _onUpdateGoalAmountRequested,
+      transformer: droppable(),
+    );
+    on<RedeemGoalRequested>(
+      _onRedeemGoalRequested,
+      transformer: droppable(),
+    );
     on<ResetGoalsStatus>(_onResetGoalsStatus);
   }
 
   void _onResetGoalsStatus(ResetGoalsStatus event, Emitter<GoalsState> emit) {
-    emit(state.copyWith(status: GoalsStatus.initial));
+    emit(GoalsState.initial());
   }
 
   Future<void> _onGetGoalsRequested(

@@ -25,6 +25,7 @@ import '../../../../di/injection.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 /// Page listant les budgets mensuels de l'utilisateur.
 ///
@@ -66,7 +67,8 @@ class BudgetListView extends StatefulWidget {
   State<BudgetListView> createState() => _BudgetListViewState();
 }
 
-class _BudgetListViewState extends State<BudgetListView> {
+class _BudgetListViewState extends State<BudgetListView>
+    with WidgetsBindingObserver, SecureScreenMixin<BudgetListView> {
   // Clés utilisées pour le tutoriel interactif.
   final _listKey = GlobalKey();
   final _addKey = GlobalKey();

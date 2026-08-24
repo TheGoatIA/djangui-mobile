@@ -40,7 +40,9 @@ class TracingHttpClient extends http.BaseClient {
     request.headers['traceparent'] = traceParent;
 
     try {
-      final response = await _inner.send(request);
+      final response = await _inner.send(request).timeout(
+        const Duration(seconds: 20),
+      );
 
       // Record Status
       span.setAttribute(

@@ -26,6 +26,7 @@ import '../../../../core/services/tutorial_service.dart';
 import 'package:showcaseview/showcaseview.dart';
 // import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 /// Page de profil de l'utilisateur regroupant ses informations et les paramètres de l'application.
 ///
@@ -42,7 +43,8 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage>
+    with WidgetsBindingObserver, SecureScreenMixin<ProfilePage> {
   // Clés utilisées pour le tutoriel interactif guidant l'utilisateur sur son profil.
   final GlobalKey _resetTutorialsKey = GlobalKey();
   final ImagePicker _picker = ImagePicker();
