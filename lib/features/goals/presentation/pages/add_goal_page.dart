@@ -11,7 +11,7 @@ import '../bloc/goals_bloc.dart';
 import '../bloc/goals_event.dart';
 import '../bloc/goals_state.dart';
 import '../../data/models/goal_model.dart';
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
@@ -74,9 +74,18 @@ class _AddGoalPageState extends State<AddGoalPage> {
     if (ModalRoute.of(context)?.isCurrent != true) return;
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       tutorialService.startTutorial(context, 'add_goal', [
-        _nameKey,
-        _amountKey,
+        TutorialStep(
+          targetKey: _nameKey,
+          title: l10n.tutorialGoalNameFieldTitle,
+          description: l10n.tutorialGoalNameFieldDesc,
+        ),
+        TutorialStep(
+          targetKey: _amountKey,
+          title: l10n.tutorialGoalAmountFieldTitle,
+          description: l10n.tutorialGoalAmountFieldDesc,
+        ),
       ]);
     });
   }
@@ -234,14 +243,8 @@ class _AddGoalPageState extends State<AddGoalPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Showcase(
+                    KeyedSubtree(
                       key: _nameKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialGoalNameFieldTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialGoalNameFieldDesc,
                       child: AppTextField(
                         controller: _nameController,
                         label: AppLocalizations.of(context)!.goalNameLabel,
@@ -349,14 +352,8 @@ class _AddGoalPageState extends State<AddGoalPage> {
                     const SizedBox(height: 20),
                     _buildStrategyDropdown(),
                     const SizedBox(height: 20),
-                    Showcase(
+                    KeyedSubtree(
                       key: _amountKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialGoalAmountFieldTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialGoalAmountFieldDesc,
                       child: AppTextField(
                         controller: _amountController,
                         label: AppLocalizations.of(context)!.targetAmountLabel,

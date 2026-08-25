@@ -163,6 +163,65 @@ class AppLocalizationsFr extends AppLocalizations {
   String get next => 'Suivant';
 
   @override
+  String get tutorialFinish => 'Compris';
+
+  @override
+  String get replayOnboarding => 'Revoir l\'introduction';
+
+  @override
+  String get replayOnboardingDesc =>
+      'Revoir les écrans de bienvenue — les trois pages vues lors de votre tout premier lancement de l\'application.';
+
+  @override
+  String get tutorialGoalContributeTitle => 'Alimentez cet objectif';
+
+  @override
+  String get tutorialGoalContributeDesc =>
+      'Ajoutez de l\'argent quand vous le souhaitez, ou récupérez votre épargne une fois prête.';
+
+  @override
+  String get tutorialTontineContributeTitle => 'Effectuez votre contribution';
+
+  @override
+  String get tutorialTontineContributeDesc =>
+      'Déposez ici la preuve de paiement pour ce tour — le créateur la valide avant qu\'elle ne compte.';
+
+  @override
+  String get tutorialTontineTurnTitle => 'Suivez la rotation';
+
+  @override
+  String get tutorialTontineTurnDesc =>
+      'Voyez à qui c\'est le tour de recevoir la cagnotte et combien de membres ont déjà payé.';
+
+  @override
+  String get tutorialCreateTontineRulesTitle => 'Définissez les règles';
+
+  @override
+  String get tutorialCreateTontineRulesDesc =>
+      'Choisissez le mode de rotation des paiements et de validation des contributions — non modifiables une fois que des membres ont rejoint.';
+
+  @override
+  String get tutorialResellerVaultTitle => 'Votre coffre-fort sécurisé';
+
+  @override
+  String get tutorialResellerVaultDesc =>
+      'Les identifiants des comptes maîtres sont stockés ici. Appuyez pour les révéler uniquement quand vous en avez besoin.';
+
+  @override
+  String get tutorialResellerAddAccountTitle => 'Ajoutez un compte maître';
+
+  @override
+  String get tutorialResellerAddAccountDesc =>
+      'Enregistrez un compte de streaming que vous revendez — suivez ses profils, sa facturation et sa marge au même endroit.';
+
+  @override
+  String get tutorialSecurityBiometricTitle => 'Sécurisez votre compte';
+
+  @override
+  String get tutorialSecurityBiometricDesc =>
+      'Activez ici la connexion biométrique pour que vous seul puissiez accéder à votre argent, même si quelqu\'un a votre téléphone.';
+
+  @override
   String get welcomeBack => 'Bon retour !';
 
   @override

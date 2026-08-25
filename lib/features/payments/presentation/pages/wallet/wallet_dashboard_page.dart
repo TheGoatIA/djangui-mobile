@@ -17,7 +17,7 @@ import 'package:kauri/core/widgets/debounced_button.dart';
 import 'package:kauri/core/utils/currency_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
-import 'package:showcaseview/showcaseview.dart';
+import 'package:kauri/core/widgets/tutorial/tutorial_step.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:kauri/core/services/tutorial_service.dart';
 import 'package:go_router/go_router.dart';
@@ -65,7 +65,14 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
     if (ModalRoute.of(context)?.isCurrent != true) return;
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
-      tutorialService.startTutorial(context, 'wallet_recharge', [_rechargeKey]);
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'wallet_recharge', [
+        TutorialStep(
+          targetKey: _rechargeKey,
+          title: l10n.tutorialWalletRechargeTitle,
+          description: l10n.tutorialWalletRechargeDesc,
+        ),
+      ]);
     });
   }
 
@@ -512,12 +519,8 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
     return Row(
       children: [
         Expanded(
-          child: Showcase(
+          child: KeyedSubtree(
             key: _rechargeKey,
-            title: AppLocalizations.of(context)!.tutorialWalletRechargeTitle,
-            description: AppLocalizations.of(
-              context,
-            )!.tutorialWalletRechargeDesc,
             child: _buildActionBtn(
               icon: Icons.add_circle_outline,
               label: AppLocalizations.of(context)!.recharge,

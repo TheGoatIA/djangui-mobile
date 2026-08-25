@@ -163,6 +163,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get next => 'Next';
 
   @override
+  String get tutorialFinish => 'Got it';
+
+  @override
+  String get replayOnboarding => 'Replay Introduction';
+
+  @override
+  String get replayOnboardingDesc =>
+      'Watch the welcome screens again — the three slides you saw the very first time you opened the app.';
+
+  @override
+  String get tutorialGoalContributeTitle => 'Add to this goal';
+
+  @override
+  String get tutorialGoalContributeDesc =>
+      'Add money whenever you like, or redeem what you\'ve saved once you\'re ready.';
+
+  @override
+  String get tutorialTontineContributeTitle => 'Make your contribution';
+
+  @override
+  String get tutorialTontineContributeDesc =>
+      'Upload proof of payment here for this round — the creator validates it before it counts.';
+
+  @override
+  String get tutorialTontineTurnTitle => 'Track the rotation';
+
+  @override
+  String get tutorialTontineTurnDesc =>
+      'See whose turn it is to receive the pot, and how many members have already paid.';
+
+  @override
+  String get tutorialCreateTontineRulesTitle => 'Set the rules';
+
+  @override
+  String get tutorialCreateTontineRulesDesc =>
+      'Choose how payouts rotate and how contributions get validated — these can\'t be changed once members start joining.';
+
+  @override
+  String get tutorialResellerVaultTitle => 'Your secure vault';
+
+  @override
+  String get tutorialResellerVaultDesc =>
+      'Master account credentials are stored here. Tap to reveal them only when you need to.';
+
+  @override
+  String get tutorialResellerAddAccountTitle => 'Add a master account';
+
+  @override
+  String get tutorialResellerAddAccountDesc =>
+      'Register a streaming account you\'re reselling — track its slots, billing, and margin from one place.';
+
+  @override
+  String get tutorialSecurityBiometricTitle => 'Secure your account';
+
+  @override
+  String get tutorialSecurityBiometricDesc =>
+      'Turn on biometric login here so only you can access your money, even if someone has your phone.';
+
+  @override
   String get welcomeBack => 'Welcome Back!';
 
   @override

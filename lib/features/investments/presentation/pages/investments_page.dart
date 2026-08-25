@@ -13,7 +13,7 @@ import '../bloc/investments_bloc.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/utils/currency_helper.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../core/services/log_service.dart';
 
@@ -78,9 +78,16 @@ class _InvestmentsViewState extends State<InvestmentsView> {
       if (!mounted) return;
       final authState = context.read<AuthBloc>().state;
       final isPremium = authState.authResponse?.user.isPremium ?? false;
+      final l10n = AppLocalizations.of(context)!;
 
       if (!isPremium) {
-        tutorialService.startTutorial(context, 'investments', [_premiumKey]);
+        tutorialService.startTutorial(context, 'investments', [
+          TutorialStep(
+            targetKey: _premiumKey,
+            title: l10n.tutorialSubscriptionTitle,
+            description: l10n.tutorialSubscriptionDesc,
+          ),
+        ]);
         return;
       }
       final hasInvestments = context
@@ -89,8 +96,17 @@ class _InvestmentsViewState extends State<InvestmentsView> {
           .investments
           .isNotEmpty;
       tutorialService.startTutorial(context, 'investments', [
-        if (hasInvestments) _listKey,
-        _addKey,
+        if (hasInvestments)
+          TutorialStep(
+            targetKey: _listKey,
+            title: l10n.tutorialInvestmentsTitle,
+            description: l10n.tutorialInvestmentsDesc,
+          ),
+        TutorialStep(
+          targetKey: _addKey,
+          title: l10n.tutorialAddInvestmentTitle,
+          description: l10n.tutorialAddInvestmentDesc,
+        ),
       ]);
     });
   }
@@ -126,10 +142,8 @@ class _InvestmentsViewState extends State<InvestmentsView> {
           appBar: AppBar(
             title: Text(l10n.myInvestments),
             actions: [
-              Showcase(
+              KeyedSubtree(
                 key: _addKey,
-                title: l10n.tutorialAddInvestmentTitle,
-                description: l10n.tutorialAddInvestmentDesc,
                 child: IconButton(
                   icon: const Icon(Icons.add),
                   onPressed: () =>
@@ -173,14 +187,8 @@ class _InvestmentsViewState extends State<InvestmentsView> {
                           ),
                         ),
                         const SizedBox(height: 32),
-                        Showcase(
+                        KeyedSubtree(
                           key: _premiumKey,
-                          title: AppLocalizations.of(
-                            context,
-                          )!.tutorialSubscriptionTitle,
-                          description: AppLocalizations.of(
-                            context,
-                          )!.tutorialSubscriptionDesc,
                           child: AppButton(
                             text: AppLocalizations.of(
                               context,
@@ -260,14 +268,8 @@ class _InvestmentsViewState extends State<InvestmentsView> {
                       );
 
                       if (index == 0) {
-                        return Showcase(
+                        return KeyedSubtree(
                           key: _listKey,
-                          title: AppLocalizations.of(
-                            context,
-                          )!.tutorialInvestmentsTitle,
-                          description: AppLocalizations.of(
-                            context,
-                          )!.tutorialInvestmentsDesc,
                           child: dismissible,
                         );
                       }

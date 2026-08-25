@@ -17,7 +17,7 @@ import '../../../budgets/presentation/bloc/budgets_state.dart';
 import '../../../../core/constants/app_categories.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
@@ -105,9 +105,19 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           .featureFlags
           .featScanUpload
           .isEnabled;
+      final l10n = AppLocalizations.of(context)!;
       tutorialService.startTutorial(context, 'add_transaction', [
-        if (showScanStep) _scanKey,
-        _amountKey,
+        if (showScanStep)
+          TutorialStep(
+            targetKey: _scanKey,
+            title: l10n.tutorialOCRTitle,
+            description: l10n.tutorialOCRDesc,
+          ),
+        TutorialStep(
+          targetKey: _amountKey,
+          title: l10n.tutorialAddTransactionTitle,
+          description: l10n.tutorialAddTransactionDesc,
+        ),
       ]);
     });
   }
@@ -419,12 +429,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         ),
                       );
                     }
-                    return Showcase(
+                    return KeyedSubtree(
                       key: _scanKey,
-                      title: AppLocalizations.of(context)!.tutorialOCRTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialOCRDesc,
                       child: IconButton(
                         icon: const Icon(Icons.qr_code_scanner),
                         onPressed: _onScanReceipt,
@@ -471,14 +477,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     const SizedBox(height: 24),
 
                     // Champ Montant
-                    Showcase(
+                    KeyedSubtree(
                       key: _amountKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialAddTransactionTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialAddTransactionDesc,
                       child: AppTextField(
                         controller: _amountController,
                         label: AppLocalizations.of(context)!.amountLabel,

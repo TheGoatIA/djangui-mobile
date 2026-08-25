@@ -13,7 +13,7 @@ import '../../../../core/services/share_service.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/utils/currency_helper.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
@@ -79,7 +79,19 @@ class _GoalListViewState extends State<GoalListView> {
     }
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
-      tutorialService.startTutorial(context, 'goals', [_listKey, _addKey]);
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'goals', [
+        TutorialStep(
+          targetKey: _listKey,
+          title: l10n.tutorialGoalsTitle,
+          description: l10n.tutorialGoalsDesc,
+        ),
+        TutorialStep(
+          targetKey: _addKey,
+          title: l10n.tutorialAddGoalTitle,
+          description: l10n.tutorialAddGoalDesc,
+        ),
+      ]);
     });
   }
 
@@ -128,10 +140,8 @@ class _GoalListViewState extends State<GoalListView> {
                 // État vide
                 if (state.goals.isEmpty) {
                   return Center(
-                    child: Showcase(
+                    child: KeyedSubtree(
                       key: _listKey,
-                      title: l10n.tutorialGoalsTitle,
-                      description: l10n.tutorialGoalsDesc,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -177,10 +187,8 @@ class _GoalListViewState extends State<GoalListView> {
 
                       // Le premier élément est mis en avant par le tutoriel
                       if (index == 0) {
-                        return Showcase(
+                        return KeyedSubtree(
                           key: _listKey,
-                          title: l10n.tutorialGoalsTitle,
-                          description: l10n.tutorialGoalsDesc,
                           child: goalWidget,
                         );
                       }
@@ -192,10 +200,8 @@ class _GoalListViewState extends State<GoalListView> {
               },
             ),
           ),
-          floatingActionButton: Showcase(
+          floatingActionButton: KeyedSubtree(
             key: _addKey,
-            title: l10n.tutorialAddGoalTitle,
-            description: l10n.tutorialAddGoalDesc,
             child: FloatingActionButton(
               heroTag: 'goals_fab',
               onPressed: () async {

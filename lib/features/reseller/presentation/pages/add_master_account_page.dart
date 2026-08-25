@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/mixins/secure_screen_mixin.dart';
+import '../../../../core/services/tutorial_service.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
+import '../../../../di/injection.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class AddMasterAccountPage extends StatefulWidget {
   const AddMasterAccountPage({super.key});
@@ -22,9 +27,40 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
 
   String _selectedCurrency = 'XAF';
   DateTime _nextRenewalDate = DateTime.now().add(const Duration(days: 30));
+  final GlobalKey _vaultKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTutorial());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTutorial());
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (tutorialService.hasSeenTutorial('add_master_account')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      tutorialService.startTutorial(context, 'add_master_account', [
+        TutorialStep(
+          targetKey: _vaultKey,
+          title: AppLocalizations.of(context)!.tutorialResellerVaultTitle,
+          description: AppLocalizations.of(context)!.tutorialResellerVaultDesc,
+        ),
+      ]);
+    });
+  }
 
   @override
   void dispose() {
+    getIt<TutorialService>().cancelActiveTutorial(context);
     _serviceNameController.dispose();
     _billingCostController.dispose();
     _maxSlotsController.dispose();
@@ -171,31 +207,39 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
               ),
               const SizedBox(height: 24),
 
-              const Text(
-                'Coffre-fort Sécurisé (Chiffré AES-256)',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const Text(
-                'Vos accès sont stockés de manière chiffrée et restent privés.',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 12),
-              AppTextField(
-                controller: _emailController,
-                label: 'Email / Identifiant du compte',
-              ),
-              const SizedBox(height: 12),
-              AppTextField(
-                controller: _passwordController,
-                label: 'Mot de passe maître',
-                isPassword: true,
-              ),
-              const SizedBox(height: 12),
-              AppTextField(
-                controller: _pinController,
-                label: 'Code PIN principal (optionnel)',
-                isPassword: true,
-                keyboardType: TextInputType.number,
+              KeyedSubtree(
+                key: _vaultKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Coffre-fort Sécurisé (Chiffré AES-256)',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const Text(
+                      'Vos accès sont stockés de manière chiffrée et restent privés.',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 12),
+                    AppTextField(
+                      controller: _emailController,
+                      label: 'Email / Identifiant du compte',
+                    ),
+                    const SizedBox(height: 12),
+                    AppTextField(
+                      controller: _passwordController,
+                      label: 'Mot de passe maître',
+                      isPassword: true,
+                    ),
+                    const SizedBox(height: 12),
+                    AppTextField(
+                      controller: _pinController,
+                      label: 'Code PIN principal (optionnel)',
+                      isPassword: true,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 32),
 

@@ -20,7 +20,7 @@ import '../../../../core/utils/currency_helper.dart';
 import '../../../../core/constants/route_constants.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 
 class SubscriptionPage extends StatelessWidget {
@@ -81,7 +81,14 @@ class _SubscriptionViewState extends State<SubscriptionView> {
     if (ModalRoute.of(context)?.isCurrent != true) return;
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
-      tutorialService.startTutorial(context, 'subscription', [_premiumPlanKey]);
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'subscription', [
+        TutorialStep(
+          targetKey: _premiumPlanKey,
+          title: l10n.tutorialSubscriptionTitle,
+          description: l10n.tutorialSubscriptionDesc,
+        ),
+      ]);
     });
   }
 
@@ -213,14 +220,8 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                           );
 
                           if (plan.slug == 'premium') {
-                            card = Showcase(
+                            card = KeyedSubtree(
                               key: _premiumPlanKey,
-                              title: AppLocalizations.of(
-                                context,
-                              )!.tutorialSubscriptionTitle,
-                              description: AppLocalizations.of(
-                                context,
-                              )!.tutorialSubscriptionDesc,
                               child: card,
                             );
                           }
@@ -255,14 +256,8 @@ class _SubscriptionViewState extends State<SubscriptionView> {
                               : null,
                         ),
                         const SizedBox(height: 24),
-                        Showcase(
+                        KeyedSubtree(
                           key: _premiumPlanKey,
-                          title: AppLocalizations.of(
-                            context,
-                          )!.tutorialSubscriptionTitle,
-                          description: AppLocalizations.of(
-                            context,
-                          )!.tutorialSubscriptionDesc,
                           child: _buildPlanCard(
                             context,
                             title: AppLocalizations.of(context)!.premiumPlan,

@@ -44,7 +44,6 @@ import 'package:kauri/features/voice/presentation/bloc/voice_bloc.dart';
 import 'features/analytics/presentation/manager/analytics_manager.dart';
 import 'core/analytics/analytics_service.dart';
 import 'core/analytics/analytics_bloc_observer.dart';
-import 'package:showcaseview/showcaseview.dart';
 
 /// Point d'entrée principal de l'application Kauri.
 ///
@@ -380,10 +379,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             },
             child: ChangeNotifierProvider.value(
               value: getIt<TutorialService>(),
-              child: ShowCaseWidget(
-                enableAutoScroll: true,
-                onFinish: () =>
-                    getIt<TutorialService>().completeActiveTutorial(),
+              child: Builder(
                 builder: (context) {
                   final authState = context.watch<AuthBloc>().state;
                   final isPremium =

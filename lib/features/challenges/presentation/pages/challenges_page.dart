@@ -12,7 +12,7 @@ import 'package:kauri/features/challenges/presentation/widgets/challenge_detail_
 import 'package:kauri/l10n/app_localizations.dart';
 import 'package:kauri/core/theme/app_shadows.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import 'package:kauri/core/widgets/tutorial/tutorial_step.dart';
 import 'package:kauri/core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
@@ -76,7 +76,14 @@ class _ChallengesViewState extends State<ChallengesView> {
     }
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
-      tutorialService.startTutorial(context, 'challenges', [_listKey]);
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'challenges', [
+        TutorialStep(
+          targetKey: _listKey,
+          title: l10n.tutorialChallengesTitle,
+          description: l10n.tutorialChallengesDesc,
+        ),
+      ]);
     });
   }
 
@@ -224,10 +231,8 @@ class _ChallengesViewState extends State<ChallengesView> {
                       );
 
                       if (index == 0) {
-                        return Showcase(
+                        return KeyedSubtree(
                           key: _listKey,
-                          title: l10n.tutorialChallengesTitle,
-                          description: l10n.tutorialChallengesDesc,
                           child: widget,
                         );
                       }

@@ -10,7 +10,7 @@ import '../../data/models/chat_message_model.dart';
 import 'package:intl/intl.dart';
 import '../../../../l10n/app_localizations.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -70,7 +70,14 @@ class _CoachChatViewState extends State<CoachChatView> {
     if (ModalRoute.of(context)?.isCurrent != true) return;
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
-      tutorialService.startTutorial(context, 'coach', [_inputKey]);
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'coach', [
+        TutorialStep(
+          targetKey: _inputKey,
+          title: l10n.tutorialCoachInputTitle,
+          description: l10n.tutorialCoachInputDesc,
+        ),
+      ]);
     });
   }
 
@@ -210,10 +217,8 @@ class _CoachChatViewState extends State<CoachChatView> {
                 ),
               ),
               // Zone de saisie mise en avant par le tutoriel le cas échéant
-              Showcase(
+              KeyedSubtree(
                 key: _inputKey,
-                title: l10n.tutorialCoachInputTitle,
-                description: l10n.tutorialCoachInputDesc,
                 child: _buildInputArea(context),
               ),
             ],

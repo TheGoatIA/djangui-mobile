@@ -398,6 +398,108 @@ abstract class AppLocalizations {
   /// **'Suivant'**
   String get next;
 
+  /// No description provided for @tutorialFinish.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compris'**
+  String get tutorialFinish;
+
+  /// No description provided for @replayOnboarding.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revoir l\'introduction'**
+  String get replayOnboarding;
+
+  /// No description provided for @replayOnboardingDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revoir les écrans de bienvenue — les trois pages vues lors de votre tout premier lancement de l\'application.'**
+  String get replayOnboardingDesc;
+
+  /// No description provided for @tutorialGoalContributeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alimentez cet objectif'**
+  String get tutorialGoalContributeTitle;
+
+  /// No description provided for @tutorialGoalContributeDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez de l\'argent quand vous le souhaitez, ou récupérez votre épargne une fois prête.'**
+  String get tutorialGoalContributeDesc;
+
+  /// No description provided for @tutorialTontineContributeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effectuez votre contribution'**
+  String get tutorialTontineContributeTitle;
+
+  /// No description provided for @tutorialTontineContributeDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déposez ici la preuve de paiement pour ce tour — le créateur la valide avant qu\'elle ne compte.'**
+  String get tutorialTontineContributeDesc;
+
+  /// No description provided for @tutorialTontineTurnTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivez la rotation'**
+  String get tutorialTontineTurnTitle;
+
+  /// No description provided for @tutorialTontineTurnDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voyez à qui c\'est le tour de recevoir la cagnotte et combien de membres ont déjà payé.'**
+  String get tutorialTontineTurnDesc;
+
+  /// No description provided for @tutorialCreateTontineRulesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Définissez les règles'**
+  String get tutorialCreateTontineRulesTitle;
+
+  /// No description provided for @tutorialCreateTontineRulesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez le mode de rotation des paiements et de validation des contributions — non modifiables une fois que des membres ont rejoint.'**
+  String get tutorialCreateTontineRulesDesc;
+
+  /// No description provided for @tutorialResellerVaultTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre coffre-fort sécurisé'**
+  String get tutorialResellerVaultTitle;
+
+  /// No description provided for @tutorialResellerVaultDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les identifiants des comptes maîtres sont stockés ici. Appuyez pour les révéler uniquement quand vous en avez besoin.'**
+  String get tutorialResellerVaultDesc;
+
+  /// No description provided for @tutorialResellerAddAccountTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez un compte maître'**
+  String get tutorialResellerAddAccountTitle;
+
+  /// No description provided for @tutorialResellerAddAccountDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrez un compte de streaming que vous revendez — suivez ses profils, sa facturation et sa marge au même endroit.'**
+  String get tutorialResellerAddAccountDesc;
+
+  /// No description provided for @tutorialSecurityBiometricTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sécurisez votre compte'**
+  String get tutorialSecurityBiometricTitle;
+
+  /// No description provided for @tutorialSecurityBiometricDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activez ici la connexion biométrique pour que vous seul puissiez accéder à votre argent, même si quelqu\'un a votre téléphone.'**
+  String get tutorialSecurityBiometricDesc;
+
   /// No description provided for @welcomeBack.
   ///
   /// In fr, this message translates to:

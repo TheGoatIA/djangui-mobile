@@ -13,6 +13,8 @@ import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/services/telemetry_service.dart';
 import 'package:kauri/core/services/log_service.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 
 class CreateTontinePage extends StatefulWidget {
   final Tontine? tontine;
@@ -44,6 +46,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
   String _currency = 'XAF';
   String _rotationMode = 'fixed';
   String _validationMode = 'ia_only';
+  final GlobalKey _rulesKey = GlobalKey();
 
   bool get _isEditing => widget.tontine != null;
 
@@ -93,6 +96,29 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
         }
       }
     }
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (tutorialService.hasSeenTutorial('create_tontine')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'create_tontine', [
+        TutorialStep(
+          targetKey: _rulesKey,
+          title: l10n.tutorialCreateTontineRulesTitle,
+          description: l10n.tutorialCreateTontineRulesDesc,
+        ),
+      ]);
+    });
+  }
+
+  @override
+  void dispose() {
+    getIt<TutorialService>().cancelActiveTutorial(context);
+    super.dispose();
   }
 
   @override
@@ -187,6 +213,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                       if (_currentStep < 3) {
                         if (_formKey.currentState!.validate()) {
                           setState(() => _currentStep++);
+                          if (_currentStep == 1) _startTutorial();
                         }
                       } else {
                         _submit();
@@ -306,27 +333,30 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                               },
                             ),
                             const SizedBox(height: 16),
-                            DropdownButtonFormField<String>(
-                              initialValue: _rotationMode,
-                              decoration: InputDecoration(
-                                labelText: l10n.rotationMode,
+                            KeyedSubtree(
+                              key: _rulesKey,
+                              child: DropdownButtonFormField<String>(
+                                initialValue: _rotationMode,
+                                decoration: InputDecoration(
+                                  labelText: l10n.rotationMode,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: 'fixed',
+                                    child: Text(l10n.manualRotation),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'random',
+                                    child: Text(l10n.randomRotation),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'auction',
+                                    child: Text(l10n.trustScoreRotation),
+                                  ),
+                                ],
+                                onChanged: (v) =>
+                                    setState(() => _rotationMode = v!),
                               ),
-                              items: [
-                                DropdownMenuItem(
-                                  value: 'fixed',
-                                  child: Text(l10n.manualRotation),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'random',
-                                  child: Text(l10n.randomRotation),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'auction',
-                                  child: Text(l10n.trustScoreRotation),
-                                ),
-                              ],
-                              onChanged: (v) =>
-                                  setState(() => _rotationMode = v!),
                             ),
                             const SizedBox(height: 16),
                             DropdownButtonFormField<String>(

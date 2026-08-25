@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/services/success_animation_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
+import 'package:kauri/core/widgets/tutorial/tutorial_overlay.dart';
+import 'package:kauri/core/widgets/tutorial/tutorial_step.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:injectable/injectable.dart';
-import 'package:showcaseview/showcaseview.dart';
 
-/// Service gérant l'état d'affichage des tutoriels et visites guidées (Showcase).
+/// Service gérant l'état d'affichage des tutoriels et visites guidées.
 ///
 /// Toutes les pages doivent démarrer leurs tutoriels via [startTutorial] et
 /// libérer leur séquence via [cancelActiveTutorial] dans `dispose()`, plutôt
-/// que d'appeler directement `ShowCaseWidget.of(context)` : cela garantit
-/// qu'une clé n'est jamais marquée comme "vue" tant que l'utilisateur ne l'a
-/// pas réellement terminée, et qu'on n'a jamais deux séquences qui se
-/// chevauchent (il n'existe qu'un seul [ShowCaseWidget] racine dans l'app).
+/// que de piloter directement l'overlay : cela garantit qu'une clé n'est
+/// jamais marquée comme "vue" tant que l'utilisateur ne l'a pas réellement
+/// terminée, et qu'on n'a jamais deux séquences qui se chevauchent (une seule
+/// séquence active à la fois, quel que soit l'écran).
 @lazySingleton
 class TutorialService extends ChangeNotifier {
   final SharedPreferences _prefs;
@@ -23,8 +25,8 @@ class TutorialService extends ChangeNotifier {
   bool _tutorialInProgress = false;
   String? _activeTutorialKey;
 
-  /// Vrai si une séquence de showcase est en cours d'affichage quelque part
-  /// dans l'app (il n'y a qu'un ShowCaseWidget racine, donc une seule à la fois).
+  /// Vrai si une séquence de tutoriel est en cours d'affichage quelque part
+  /// dans l'app (une seule à la fois).
   bool get isTutorialInProgress => _tutorialInProgress;
 
   /// Vérifie si le tutoriel associé à la clé [key] a déjà été consulté.
@@ -32,48 +34,52 @@ class TutorialService extends ChangeNotifier {
     return _prefs.getBool('$_kPrefix$key') ?? false;
   }
 
-  /// Démarre la séquence de showcase [targets] pour la clé [key] si elle n'a
-  /// pas déjà été vue et qu'aucune autre séquence n'est en cours.
+  /// Démarre la séquence [steps] pour la clé [key] si elle n'a pas déjà été
+  /// vue et qu'aucune autre séquence n'est en cours.
   ///
-  /// [targets] doit contenir uniquement les clés des [Showcase] réellement
-  /// construits dans l'arbre au moment de l'appel (ex : ne pas inclure une
-  /// clé cachée derrière un feature flag désactivé ou un état de chargement),
-  /// sinon la séquence reste bloquée indéfiniment sur cette étape.
+  /// [steps] doit contenir uniquement les étapes dont la cible est réellement
+  /// construite dans l'arbre au moment de l'appel (ex : ne pas inclure une
+  /// étape cachée derrière un feature flag désactivé ou un état de
+  /// chargement) — une cible introuvable est simplement sautée plutôt que de
+  /// bloquer la séquence, mais autant ne pas la lister du tout.
   ///
   /// Retourne `true` si la séquence a effectivement démarré.
   bool startTutorial(
     BuildContext context,
     String key,
-    List<GlobalKey> targets,
+    List<TutorialStep> steps,
   ) {
-    if (targets.isEmpty || hasSeenTutorial(key) || _tutorialInProgress) {
+    if (steps.isEmpty || hasSeenTutorial(key) || _tutorialInProgress) {
       return false;
     }
     _tutorialInProgress = true;
     _activeTutorialKey = key;
-    ShowCaseWidget.of(context).startShowCase(targets);
+    TutorialOverlayController.show(
+      context,
+      steps: steps,
+      onFinish: () => _onSequenceEnded(seen: true),
+      onSkip: () => _onSequenceEnded(seen: false),
+    );
     return true;
   }
 
-  /// À relier au `onFinish` du [ShowCaseWidget] racine (lib/main.dart).
-  /// Marque la séquence active comme vue uniquement quand l'utilisateur est
-  /// allé jusqu'au bout, pour ne jamais "brûler" un tutoriel qui n'a pas pu
-  /// s'afficher correctement.
-  Future<void> completeActiveTutorial() async {
+  Future<void> _onSequenceEnded({required bool seen}) async {
     _tutorialInProgress = false;
     final key = _activeTutorialKey;
     _activeTutorialKey = null;
     if (key == null) return;
-    await markTutorialAsSeen(key);
+    if (seen) {
+      await markTutorialAsSeen(key);
+      // Petit moment de satisfaction à la fin d'une séquence complétée.
+      getIt<SuccessAnimationService>().showSuccess();
+    }
   }
 
   /// À appeler depuis `dispose()` des pages qui démarrent un tutoriel, pour
   /// fermer proprement l'overlay et libérer le verrou [isTutorialInProgress]
   /// si l'utilisateur quitte la page avant d'avoir terminé la séquence.
   void cancelActiveTutorial(BuildContext context) {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    TutorialOverlayController.hide();
     _tutorialInProgress = false;
     _activeTutorialKey = null;
   }

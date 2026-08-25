@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/mixins/secure_screen_mixin.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/glass_card.dart';
@@ -22,7 +25,8 @@ class ResellerHubPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<ResellerBloc>()..add(FetchResellerDashboardRequested()),
+      create: (_) =>
+          getIt<ResellerBloc>()..add(FetchResellerDashboardRequested()),
       child: const _ResellerHubView(),
     );
   }
@@ -37,6 +41,45 @@ class _ResellerHubView extends StatefulWidget {
 
 class _ResellerHubViewState extends State<_ResellerHubView>
     with WidgetsBindingObserver, SecureScreenMixin<_ResellerHubView> {
+  final GlobalKey _addAccountKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTutorial());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTutorial());
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (tutorialService.hasSeenTutorial('reseller_hub')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      tutorialService.startTutorial(context, 'reseller_hub', [
+        TutorialStep(
+          targetKey: _addAccountKey,
+          title: AppLocalizations.of(context)!.tutorialResellerAddAccountTitle,
+          description: AppLocalizations.of(
+            context,
+          )!.tutorialResellerAddAccountDesc,
+        ),
+      ]);
+    });
+  }
+
+  @override
+  void dispose() {
+    getIt<TutorialService>().cancelActiveTutorial(context);
+    super.dispose();
+  }
+
   void _copySensitiveData(BuildContext context, String text, String label) {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
@@ -50,10 +93,17 @@ class _ResellerHubViewState extends State<_ResellerHubView>
     });
   }
 
-  void _openWhatsApp(String phone, String clientName, String serviceName) async {
+  void _openWhatsApp(
+    String phone,
+    String clientName,
+    String serviceName,
+  ) async {
     final cleanPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
-    final message = "Bonjour $clientName 👋, rappel de renouvellement pour votre profil sur $serviceName. Merci !";
-    final uri = Uri.parse("https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}");
+    final message =
+        "Bonjour $clientName 👋, rappel de renouvellement pour votre profil sur $serviceName. Merci !";
+    final uri = Uri.parse(
+      "https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}",
+    );
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
@@ -87,7 +137,9 @@ class _ResellerHubViewState extends State<_ResellerHubView>
           return StatefulBuilder(
             builder: (context, setModalState) => Material(
               color: colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -96,7 +148,10 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.shield_rounded, color: AppColors.primary),
+                        const Icon(
+                          Icons.shield_rounded,
+                          color: AppColors.primary,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -121,7 +176,8 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                       subtitle: Text(email),
                       trailing: IconButton(
                         icon: const Icon(Icons.copy_rounded),
-                        onPressed: () => _copySensitiveData(context, email, 'Email'),
+                        onPressed: () =>
+                            _copySensitiveData(context, email, 'Email'),
                       ),
                     ),
                     ListTile(
@@ -132,12 +188,21 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: Icon(obscure ? Icons.visibility_rounded : Icons.visibility_off_rounded),
-                            onPressed: () => setModalState(() => obscure = !obscure),
+                            icon: Icon(
+                              obscure
+                                  ? Icons.visibility_rounded
+                                  : Icons.visibility_off_rounded,
+                            ),
+                            onPressed: () =>
+                                setModalState(() => obscure = !obscure),
                           ),
                           IconButton(
                             icon: const Icon(Icons.copy_rounded),
-                            onPressed: () => _copySensitiveData(context, password, 'Mot de passe'),
+                            onPressed: () => _copySensitiveData(
+                              context,
+                              password,
+                              'Mot de passe',
+                            ),
                           ),
                         ],
                       ),
@@ -148,7 +213,8 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                       subtitle: Text(pin),
                       trailing: IconButton(
                         icon: const Icon(Icons.copy_rounded),
-                        onPressed: () => _copySensitiveData(context, pin, 'Code PIN'),
+                        onPressed: () =>
+                            _copySensitiveData(context, pin, 'Code PIN'),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -162,7 +228,11 @@ class _ResellerHubViewState extends State<_ResellerHubView>
     );
   }
 
-  void _showSlotActions(BuildContext context, ResellerAccountModel account, ResellerSlotModel slot) {
+  void _showSlotActions(
+    BuildContext context,
+    ResellerAccountModel account,
+    ResellerSlotModel slot,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -191,31 +261,76 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
+              const SizedBox(height: 4),
+              Builder(
+                builder: (context) {
+                  Color dateColor = colorScheme.onSurfaceVariant;
+                  if (slot.status == 'due_soon') dateColor = Colors.orange;
+                  if (slot.status == 'overdue' || slot.status == 'blocked') {
+                    dateColor = Colors.red;
+                  }
+                  final isPast = slot.currentPeriodEnd.isBefore(DateTime.now());
+                  return Row(
+                    children: [
+                      Icon(Icons.event_outlined, size: 15, color: dateColor),
+                      const SizedBox(width: 6),
+                      Text(
+                        (isPast ? 'Échu le ' : 'Prochain paiement : ') +
+                            DateFormat(
+                              'dd/MM/yyyy',
+                            ).format(slot.currentPeriodEnd),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: dateColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
               const SizedBox(height: 16),
               ListTile(
-                leading: const Icon(Icons.chat_bubble_outline, color: Colors.green),
+                leading: const Icon(
+                  Icons.chat_bubble_outline,
+                  color: Colors.green,
+                ),
                 title: const Text('Relancer sur WhatsApp'),
                 subtitle: Text(slot.clientPhone),
                 onTap: () {
                   Navigator.pop(ctx);
-                  _openWhatsApp(slot.clientPhone, slot.clientName, account.serviceName);
+                  _openWhatsApp(
+                    slot.clientPhone,
+                    slot.clientName,
+                    account.serviceName,
+                  );
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.check_circle_outline, color: AppColors.primary),
+                leading: const Icon(
+                  Icons.check_circle_outline,
+                  color: AppColors.primary,
+                ),
                 title: const Text('Marquer comme payé (Renouveler)'),
                 subtitle: const Text('Prolonge l\'accès d\'un mois'),
                 onTap: () {
                   Navigator.pop(ctx);
-                  context.read<ResellerBloc>().add(RecordSlotPaymentRequested(
-                    slot.id,
-                    {'amount': slot.price, 'paymentMethod': 'cash'},
-                  ));
+                  context.read<ResellerBloc>().add(
+                    RecordSlotPaymentRequested(slot.id, {
+                      'amount': slot.price,
+                      'paymentMethod': 'cash',
+                    }),
+                  );
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.person_remove_outlined, color: Colors.red),
-                title: const Text('Libérer le profil (Retirer le client)', style: TextStyle(color: Colors.red)),
+                leading: const Icon(
+                  Icons.person_remove_outlined,
+                  color: Colors.red,
+                ),
+                title: const Text(
+                  'Libérer le profil (Retirer le client)',
+                  style: TextStyle(color: Colors.red),
+                ),
                 subtitle: const Text('Rend ce profil à nouveau disponible'),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -229,7 +344,11 @@ class _ResellerHubViewState extends State<_ResellerHubView>
     );
   }
 
-  void _confirmRemoveSlot(BuildContext context, ResellerAccountModel account, ResellerSlotModel slot) {
+  void _confirmRemoveSlot(
+    BuildContext context,
+    ResellerAccountModel account,
+    ResellerSlotModel slot,
+  ) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -256,7 +375,10 @@ class _ResellerHubViewState extends State<_ResellerHubView>
     );
   }
 
-  void _confirmDeleteMasterAccount(BuildContext context, ResellerAccountModel account) {
+  void _confirmDeleteMasterAccount(
+    BuildContext context,
+    ResellerAccountModel account,
+  ) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -274,7 +396,9 @@ class _ResellerHubViewState extends State<_ResellerHubView>
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
               Navigator.pop(ctx);
-              context.read<ResellerBloc>().add(DeleteMasterAccountRequested(account.id));
+              context.read<ResellerBloc>().add(
+                DeleteMasterAccountRequested(account.id),
+              );
             },
             child: const Text('Supprimer définitivement'),
           ),
@@ -320,7 +444,11 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                       color: AppColors.primary.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.menu_book_rounded, color: AppColors.primary, size: 24),
+                    child: const Icon(
+                      Icons.menu_book_rounded,
+                      color: AppColors.primary,
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -329,11 +457,15 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                       children: [
                         Text(
                           l10n.resellerGuideTitle,
-                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         Text(
                           l10n.resellerGuideSubtitle,
-                          style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),
@@ -368,7 +500,9 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                   color: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.06),
+                    color: isDark
+                        ? Colors.white12
+                        : Colors.black.withValues(alpha: 0.06),
                   ),
                 ),
                 child: Column(
@@ -376,20 +510,36 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.stars_rounded, color: Colors.amber, size: 18),
+                        const Icon(
+                          Icons.stars_rounded,
+                          color: Colors.amber,
+                          size: 18,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           l10n.resellerGuideQuotasTitle,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text(l10n.resellerGuideQuotasFree, style: const TextStyle(fontSize: 12, height: 1.4)),
+                    Text(
+                      l10n.resellerGuideQuotasFree,
+                      style: const TextStyle(fontSize: 12, height: 1.4),
+                    ),
                     const SizedBox(height: 4),
-                    Text(l10n.resellerGuideQuotasPremium, style: const TextStyle(fontSize: 12, height: 1.4)),
+                    Text(
+                      l10n.resellerGuideQuotasPremium,
+                      style: const TextStyle(fontSize: 12, height: 1.4),
+                    ),
                     const SizedBox(height: 4),
-                    Text(l10n.resellerGuideQuotasBusiness, style: const TextStyle(fontSize: 12, height: 1.4)),
+                    Text(
+                      l10n.resellerGuideQuotasBusiness,
+                      style: const TextStyle(fontSize: 12, height: 1.4),
+                    ),
                   ],
                 ),
               ),
@@ -400,7 +550,9 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   onPressed: () => Navigator.pop(ctx),
                   child: const Text('Compris !'),
@@ -414,7 +566,12 @@ class _ResellerHubViewState extends State<_ResellerHubView>
     );
   }
 
-  Widget _buildGuideSection(BuildContext context, IconData icon, String title, String description) {
+  Widget _buildGuideSection(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String description,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -426,12 +583,19 @@ class _ResellerHubViewState extends State<_ResellerHubView>
             children: [
               Text(
                 title,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
                 description,
-                style: const TextStyle(fontSize: 12, color: Colors.grey, height: 1.35),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                  height: 1.35,
+                ),
               ),
             ],
           ),
@@ -445,15 +609,12 @@ class _ResellerHubViewState extends State<_ResellerHubView>
     return BlocConsumer<ResellerBloc, ResellerState>(
       listener: (context, state) {
         if (state is ResellerActionSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         } else if (state is ResellerError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
       },
@@ -461,7 +622,10 @@ class _ResellerHubViewState extends State<_ResellerHubView>
         if (state is ResellerLoading && state is! ResellerLoaded) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Espace Revendeur', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: const Text(
+                'Espace Revendeur',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               elevation: 0,
             ),
             body: const Center(child: CircularProgressIndicator()),
@@ -484,7 +648,10 @@ class _ResellerHubViewState extends State<_ResellerHubView>
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Espace Revendeur', style: TextStyle(fontWeight: FontWeight.bold)),
+            title: const Text(
+              'Espace Revendeur',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             elevation: 0,
             actions: [
               IconButton(
@@ -495,14 +662,18 @@ class _ResellerHubViewState extends State<_ResellerHubView>
               IconButton(
                 icon: const Icon(Icons.refresh),
                 onPressed: () {
-                  context.read<ResellerBloc>().add(FetchResellerDashboardRequested());
+                  context.read<ResellerBloc>().add(
+                    FetchResellerDashboardRequested(),
+                  );
                 },
               ),
             ],
           ),
           body: RefreshIndicator(
             onRefresh: () async {
-              context.read<ResellerBloc>().add(FetchResellerDashboardRequested());
+              context.read<ResellerBloc>().add(
+                FetchResellerDashboardRequested(),
+              );
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -513,7 +684,9 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                   // KPI Financial Card
                   GlassCard(
                     color: AppColors.primary.withValues(alpha: 0.08),
-                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.25),
+                    ),
                     borderRadius: 20,
                     padding: const EdgeInsets.all(18),
                     child: Column(
@@ -526,7 +699,10 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                               children: [
                                 const Text(
                                   'Chiffre d\'Affaires Mensuel (MRR)',
-                                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
@@ -540,9 +716,14 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                               ],
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.15),
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.15,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -576,26 +757,38 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                     children: [
                       const Text(
                         'Comptes & Slots Actifs',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          final accountData = await Navigator.push<Map<String, dynamic>>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const AddMasterAccountPage(),
+                      KeyedSubtree(
+                        key: _addAccountKey,
+                        child: ElevatedButton.icon(
+                          onPressed: () async {
+                            final accountData =
+                                await Navigator.push<Map<String, dynamic>>(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const AddMasterAccountPage(),
+                                  ),
+                                );
+                            if (accountData != null && context.mounted) {
+                              context.read<ResellerBloc>().add(
+                                CreateMasterAccountRequested(accountData),
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.add, size: 16),
+                          label: const Text('Nouveau Compte'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          );
-                          if (accountData != null && context.mounted) {
-                            context.read<ResellerBloc>().add(CreateMasterAccountRequested(accountData));
-                          }
-                        },
-                        icon: const Icon(Icons.add, size: 16),
-                        label: const Text('Nouveau Compte'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
                         ),
                       ),
                     ],
@@ -609,48 +802,64 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                         padding: const EdgeInsets.symmetric(vertical: 40),
                         child: Column(
                           children: [
-                            Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey.shade400),
+                            Icon(
+                              Icons.inventory_2_outlined,
+                              size: 48,
+                              color: Colors.grey.shade400,
+                            ),
                             const SizedBox(height: 12),
                             const Text(
                               'Aucun compte maître enregistré',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                             ),
                             const SizedBox(height: 6),
                             const Text(
                               'Ajoutez vos comptes d\'abonnements partagés pour commencer à gérer vos profils clients.',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 13, color: Colors.grey),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
                             ),
                           ],
                         ),
                       ),
                     )
                   else
-                    ...accounts.map((account) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: ServiceAccountCard(
-                            account: account,
-                            onTap: () async {
-                              final slotData = await Navigator.push<Map<String, dynamic>>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => AddSlotPage(
-                                    accountId: account.id,
-                                    serviceName: account.serviceName,
+                    ...accounts.map(
+                      (account) => Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: ServiceAccountCard(
+                          account: account,
+                          onTap: () async {
+                            final slotData =
+                                await Navigator.push<Map<String, dynamic>>(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => AddSlotPage(
+                                      accountId: account.id,
+                                      serviceName: account.serviceName,
+                                    ),
                                   ),
-                                ),
-                              );
-                              if (slotData != null && context.mounted) {
-                                context.read<ResellerBloc>().add(
-                                  AddSlotToAccountRequested(account.id, slotData),
                                 );
-                              }
-                            },
-                            onUnlockVault: () => _showVaultDialog(context, account),
-                            onSlotTap: (slot) => _showSlotActions(context, account, slot),
-                            onDeleteAccount: () => _confirmDeleteMasterAccount(context, account),
-                          ),
-                        )),
+                            if (slotData != null && context.mounted) {
+                              context.read<ResellerBloc>().add(
+                                AddSlotToAccountRequested(account.id, slotData),
+                              );
+                            }
+                          },
+                          onUnlockVault: () =>
+                              _showVaultDialog(context, account),
+                          onSlotTap: (slot) =>
+                              _showSlotActions(context, account, slot),
+                          onDeleteAccount: () =>
+                              _confirmDeleteMasterAccount(context, account),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

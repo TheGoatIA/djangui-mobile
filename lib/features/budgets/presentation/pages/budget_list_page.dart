@@ -19,7 +19,7 @@ import '../../data/models/auto_budget_response.dart';
 import '../../../../core/theme/app_shadows.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
@@ -118,10 +118,24 @@ class _BudgetListViewState extends State<BudgetListView>
           .featureFlags
           .aiBudgetGeneration
           .isEnabled;
+      final l10n = AppLocalizations.of(context)!;
       tutorialService.startTutorial(context, 'budgets', [
-        if (showAnneStep) _anneKey,
-        _listKey,
-        _addKey,
+        if (showAnneStep)
+          TutorialStep(
+            targetKey: _anneKey,
+            title: l10n.tutorialAnneTitle,
+            description: l10n.tutorialAnneDesc,
+          ),
+        TutorialStep(
+          targetKey: _listKey,
+          title: l10n.tutorialBudgetsTitle,
+          description: l10n.tutorialBudgetsDesc,
+        ),
+        TutorialStep(
+          targetKey: _addKey,
+          title: l10n.tutorialAddBudgetTitle,
+          description: l10n.tutorialAddBudgetDesc,
+        ),
       ]);
     });
   }
@@ -144,10 +158,8 @@ class _BudgetListViewState extends State<BudgetListView>
               if (!systemState.featureFlags.aiBudgetGeneration.isEnabled) {
                 return const SizedBox.shrink();
               }
-              return Showcase(
+              return KeyedSubtree(
                 key: _anneKey,
-                title: AppLocalizations.of(context)!.tutorialAnneTitle,
-                description: AppLocalizations.of(context)!.tutorialAnneDesc,
                 child: TextButton.icon(
                   onPressed: () {
                     getIt<LogService>().info(
@@ -207,12 +219,8 @@ class _BudgetListViewState extends State<BudgetListView>
             // État vide
             if (state.budgets.isEmpty) {
               return Center(
-                child: Showcase(
+                child: KeyedSubtree(
                   key: _listKey,
-                  title: AppLocalizations.of(context)!.tutorialBudgetsTitle,
-                  description: AppLocalizations.of(
-                    context,
-                  )!.tutorialBudgetsDesc,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -256,14 +264,7 @@ class _BudgetListViewState extends State<BudgetListView>
 
                   // Le premier élément est mis en avant par le tutoriel
                   if (index == 0) {
-                    return Showcase(
-                      key: _listKey,
-                      title: AppLocalizations.of(context)!.tutorialBudgetsTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialBudgetsDesc,
-                      child: budgetWidget,
-                    );
+                    return KeyedSubtree(key: _listKey, child: budgetWidget);
                   }
 
                   return budgetWidget;
@@ -274,10 +275,8 @@ class _BudgetListViewState extends State<BudgetListView>
         ),
       ),
       // Bouton pour créer un nouveau budget mensuel
-      floatingActionButton: Showcase(
+      floatingActionButton: KeyedSubtree(
         key: _addKey,
-        title: AppLocalizations.of(context)!.tutorialAddBudgetTitle,
-        description: AppLocalizations.of(context)!.tutorialAddBudgetDesc,
         child: FloatingActionButton(
           heroTag: 'budgets_fab',
           onPressed: () async {

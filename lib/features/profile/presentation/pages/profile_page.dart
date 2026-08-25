@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
@@ -9,6 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/pages/onboarding_page.dart';
 import '../../../../features/settings/presentation/bloc/settings_bloc.dart';
 import '../../../gamification/presentation/widgets/badges_list.dart';
 import '../../../../core/constants/route_constants.dart';
@@ -23,7 +24,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../notifications/presentation/bloc/notifications_bloc.dart';
 import '../../../../core/services/tutorial_service.dart';
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 // import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../core/mixins/secure_screen_mixin.dart';
@@ -93,11 +94,29 @@ class _ProfilePageState extends State<ProfilePage>
           .featureFlags
           .featSubscriptions
           .isEnabled;
+      final l10n = AppLocalizations.of(context)!;
       tutorialService.startTutorial(context, 'profile', [
-        _profileHeaderKey,
-        _settingsKey,
-        if (showPremiumStep) _premiumKey,
-        _resetTutorialsKey,
+        TutorialStep(
+          targetKey: _profileHeaderKey,
+          title: l10n.tutorialProfileTitle,
+          description: l10n.tutorialProfileDesc,
+        ),
+        TutorialStep(
+          targetKey: _settingsKey,
+          title: l10n.tutorialSettingsSectionTitle,
+          description: l10n.tutorialSettingsSectionDesc,
+        ),
+        if (showPremiumStep)
+          TutorialStep(
+            targetKey: _premiumKey,
+            title: l10n.tutorialSubscriptionTitle,
+            description: l10n.tutorialSubscriptionDesc,
+          ),
+        TutorialStep(
+          targetKey: _resetTutorialsKey,
+          title: l10n.resetTutorials,
+          description: l10n.resetTutorialsDesc,
+        ),
       ]);
     });
   }
@@ -324,14 +343,8 @@ class _ProfilePageState extends State<ProfilePage>
                   child: Column(
                     children: [
                       // Section En-tête (Avatar + Nom)
-                      Showcase(
+                      KeyedSubtree(
                         key: _profileHeaderKey,
-                        title: AppLocalizations.of(
-                          context,
-                        )!.tutorialProfileTitle,
-                        description: AppLocalizations.of(
-                          context,
-                        )!.tutorialProfileDesc,
                         child: _buildProfileHeader(
                           context,
                           name,
@@ -357,14 +370,8 @@ class _ProfilePageState extends State<ProfilePage>
                           if (user != null && !user.isPremium) {
                             return Column(
                               children: [
-                                Showcase(
+                                KeyedSubtree(
                                   key: _premiumKey,
-                                  title: AppLocalizations.of(
-                                    context,
-                                  )!.tutorialSubscriptionTitle,
-                                  description: AppLocalizations.of(
-                                    context,
-                                  )!.tutorialSubscriptionDesc,
                                   child: _buildPremiumBanner(context),
                                 ),
                                 const SizedBox(height: 24),
@@ -373,14 +380,8 @@ class _ProfilePageState extends State<ProfilePage>
                           } else if (user != null && user.isPremium) {
                             return Column(
                               children: [
-                                Showcase(
+                                KeyedSubtree(
                                   key: _premiumKey,
-                                  title: AppLocalizations.of(
-                                    context,
-                                  )!.tutorialSubscriptionTitle,
-                                  description: AppLocalizations.of(
-                                    context,
-                                  )!.tutorialSubscriptionDesc,
                                   child: _buildPremiumStatusCard(context, user),
                                 ),
                                 const SizedBox(height: 24),
@@ -390,17 +391,10 @@ class _ProfilePageState extends State<ProfilePage>
                           return const SizedBox.shrink();
                         },
                       ),
-                      // Section des paramètres (Réglages)
-                      Showcase(
-                        key: _settingsKey,
-                        title: AppLocalizations.of(
-                          context,
-                        )!.tutorialSettingsSectionTitle,
-                        description: AppLocalizations.of(
-                          context,
-                        )!.tutorialSettingsSectionDesc,
-                        child: _buildSettingsSection(context),
-                      ),
+                      // Section des paramètres (Réglages) — la cible du
+                      // tutoriel est portée par le premier groupe interne,
+                      // pas par toute la section (voir _buildSettingsSection).
+                      _buildSettingsSection(context),
                       const SizedBox(height: 32),
                       // Bouton de déconnexion
                     ],
@@ -489,227 +483,239 @@ class _ProfilePageState extends State<ProfilePage>
   Widget _buildSettingsSection(BuildContext context) {
     return Column(
       children: [
-        _buildSettingsGroup(
-          context,
-          title: AppLocalizations.of(context)!.sectionAccount,
-          children: [
-            BlocBuilder<SystemBloc, SystemState>(
-              builder: (context, systemState) {
-                if (!systemState.featureFlags.featNotifications.isEnabled) {
-                  return const SizedBox.shrink();
-                }
-                return BlocBuilder<NotificationsBloc, NotificationsState>(
-                  builder: (context, state) {
-                    return _buildSettingsTile(
-                      Icons.notifications_outlined,
-                      AppLocalizations.of(context)!.notifications,
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (state.unreadCount > 0)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                state.unreadCount.toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+        // Cible du tutoriel volontairement limitée au premier groupe
+        // ("Compte") plutôt qu'à toute la section réglages : cette dernière
+        // empile plusieurs groupes (Apparence, Aide, Informations…) et
+        // dépasse largement la hauteur de l'écran, ce qui rendait la carte
+        // d'explication — et ses boutons Passer/Suivant — inatteignable.
+        KeyedSubtree(
+          key: _settingsKey,
+          child: _buildSettingsGroup(
+            context,
+            title: AppLocalizations.of(context)!.sectionAccount,
+            children: [
+              BlocBuilder<SystemBloc, SystemState>(
+                builder: (context, systemState) {
+                  if (!systemState.featureFlags.featNotifications.isEnabled) {
+                    return const SizedBox.shrink();
+                  }
+                  return BlocBuilder<NotificationsBloc, NotificationsState>(
+                    builder: (context, state) {
+                      return _buildSettingsTile(
+                        Icons.notifications_outlined,
+                        AppLocalizations.of(context)!.notifications,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (state.unreadCount > 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  state.unreadCount.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.chevron_right,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                        ],
-                      ),
-                      onTap: () => context.push(RouteConstants.notifications),
-                    );
-                  },
-                );
-              },
-            ),
-
-            BlocBuilder<SystemBloc, SystemState>(
-              builder: (context, systemState) {
-                if (!systemState.featureFlags.featNotifications.isEnabled) {
-                  return const SizedBox.shrink();
-                }
-                return BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    final currentFrequency =
-                        state
-                            .authResponse
-                            ?.user
-                            .preferences
-                            ?.notificationFrequency ??
-                        'medium';
-
-                    return _buildSettingsTile(
-                      Icons.notification_important_outlined,
-                      AppLocalizations.of(context)!.notificationFrequency,
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _getNotificationFrequencyName(
-                              context,
-                              currentFrequency,
-                            ),
-                            style: AppTextStyles.bodyMedium.copyWith(
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.chevron_right,
                               color: Theme.of(
                                 context,
                               ).colorScheme.onSurfaceVariant,
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.chevron_right,
+                          ],
+                        ),
+                        onTap: () => context.push(RouteConstants.notifications),
+                      );
+                    },
+                  );
+                },
+              ),
+
+              BlocBuilder<SystemBloc, SystemState>(
+                builder: (context, systemState) {
+                  if (!systemState.featureFlags.featNotifications.isEnabled) {
+                    return const SizedBox.shrink();
+                  }
+                  return BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      final currentFrequency =
+                          state
+                              .authResponse
+                              ?.user
+                              .preferences
+                              ?.notificationFrequency ??
+                          'medium';
+
+                      return _buildSettingsTile(
+                        Icons.notification_important_outlined,
+                        AppLocalizations.of(context)!.notificationFrequency,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _getNotificationFrequencyName(
+                                context,
+                                currentFrequency,
+                              ),
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.chevron_right,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ),
+                        onTap: () => _showNotificationFrequencySelectionDialog(
+                          context,
+                          currentFrequency,
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+
+              _buildSettingsTile(
+                Icons.security_outlined,
+                AppLocalizations.of(context)!.security,
+                onTap: () => context.push(RouteConstants.security),
+              ),
+
+              BlocBuilder<SystemBloc, SystemState>(
+                builder: (context, systemState) {
+                  if (!systemState.featureFlags.authPhone.isEnabled) {
+                    return const SizedBox.shrink();
+                  }
+                  return _buildSettingsTile(
+                    Icons.phone_android_outlined,
+                    AppLocalizations.of(context)!.phoneNumber,
+                    trailing: BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, state) {
+                        final phone = state.authResponse?.user.phone;
+                        return Text(
+                          phone ?? '',
+                          style: AppTextStyles.bodyMedium.copyWith(
                             color: Theme.of(
                               context,
                             ).colorScheme.onSurfaceVariant,
                           ),
-                        ],
-                      ),
-                      onTap: () => _showNotificationFrequencySelectionDialog(
-                        context,
-                        currentFrequency,
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-
-            _buildSettingsTile(
-              Icons.security_outlined,
-              AppLocalizations.of(context)!.security,
-              onTap: () => context.push(RouteConstants.security),
-            ),
-
-            BlocBuilder<SystemBloc, SystemState>(
-              builder: (context, systemState) {
-                if (!systemState.featureFlags.authPhone.isEnabled) {
-                  return const SizedBox.shrink();
-                }
-                return _buildSettingsTile(
-                  Icons.phone_android_outlined,
-                  AppLocalizations.of(context)!.phoneNumber,
-                  trailing: BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      final phone = state.authResponse?.user.phone;
-                      return Text(
-                        phone ?? '',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                        );
+                      },
+                    ),
+                    onTap: () {
+                      getIt<LogService>().info(
+                        'Navigation vers la connexion par téléphone',
+                        component: 'ProfilePage',
                       );
+                      context.push(RouteConstants.phoneLogin, extra: true);
                     },
-                  ),
-                  onTap: () {
-                    getIt<LogService>().info(
-                      'Navigation vers la connexion par téléphone',
-                      component: 'ProfilePage',
-                    );
-                    context.push(RouteConstants.phoneLogin, extra: true);
-                  },
-                );
-              },
-            ),
-
-            _buildSettingsTile(
-              Icons.public_outlined,
-              AppLocalizations.of(context)!.countryLabel,
-              trailing: BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  final country = state.authResponse?.user.country;
-                  return Text(
-                    country ?? AppLocalizations.of(context)!.notSet,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
                   );
                 },
               ),
-              onTap: () {
-                final country = context
-                    .read<AuthBloc>()
-                    .state
-                    .authResponse
-                    ?.user
-                    .country;
-                _showCountrySelectionDialog(context, country ?? 'CM');
-              },
-            ),
 
-            _buildSettingsTile(
-              Icons.verified_user_outlined,
-              AppLocalizations.of(context)!.kycTitle,
-              trailing: BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  final l10n = AppLocalizations.of(context)!;
-                  final kycLevel = state.authResponse?.user.kycLevel ?? 'none';
-                  Color statusColor = Colors.orange;
-                  String statusText = l10n.kycNotSubmitted;
-
-                  if (kycLevel == 'verified') {
-                    statusColor = Colors.green;
-                    statusText = l10n.kycVerified;
-                  } else if (kycLevel == 'pending') {
-                    statusColor = Colors.blue;
-                    statusText = l10n.kycPending;
-                  } else if (kycLevel == 'rejected') {
-                    statusColor = Colors.red;
-                    statusText = l10n.kycRejected;
-                  }
-
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      statusText,
-                      style: TextStyle(
-                        color: statusColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+              _buildSettingsTile(
+                Icons.public_outlined,
+                AppLocalizations.of(context)!.countryLabel,
+                trailing: BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    final country = state.authResponse?.user.country;
+                    return Text(
+                      country ?? AppLocalizations.of(context)!.notSet,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                    ),
-                  );
+                    );
+                  },
+                ),
+                onTap: () {
+                  final country = context
+                      .read<AuthBloc>()
+                      .state
+                      .authResponse
+                      ?.user
+                      .country;
+                  _showCountrySelectionDialog(context, country ?? 'CM');
                 },
               ),
-              onTap: () {
-                final kycLevel = context
-                        .read<AuthBloc>()
-                        .state
-                        .authResponse
-                        ?.user
-                        .kycLevel ??
-                    'none';
-                if (kycLevel == 'pending' || kycLevel == 'verified') {
-                  _showKycStatusDialog(context, kycLevel);
-                } else {
-                  context.push(RouteConstants.kycSubmission);
-                }
-              },
-            ),
-          ],
+
+              _buildSettingsTile(
+                Icons.verified_user_outlined,
+                AppLocalizations.of(context)!.kycTitle,
+                trailing: BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    final l10n = AppLocalizations.of(context)!;
+                    final kycLevel =
+                        state.authResponse?.user.kycLevel ?? 'none';
+                    Color statusColor = Colors.orange;
+                    String statusText = l10n.kycNotSubmitted;
+
+                    if (kycLevel == 'verified') {
+                      statusColor = Colors.green;
+                      statusText = l10n.kycVerified;
+                    } else if (kycLevel == 'pending') {
+                      statusColor = Colors.blue;
+                      statusText = l10n.kycPending;
+                    } else if (kycLevel == 'rejected') {
+                      statusColor = Colors.red;
+                      statusText = l10n.kycRejected;
+                    }
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        statusText,
+                        style: TextStyle(
+                          color: statusColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                onTap: () {
+                  final kycLevel =
+                      context
+                          .read<AuthBloc>()
+                          .state
+                          .authResponse
+                          ?.user
+                          .kycLevel ??
+                      'none';
+                  if (kycLevel == 'pending' || kycLevel == 'verified') {
+                    _showKycStatusDialog(context, kycLevel);
+                  } else {
+                    context.push(RouteConstants.kycSubmission);
+                  }
+                },
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 24),
         _buildSettingsGroup(
@@ -770,7 +776,6 @@ class _ProfilePageState extends State<ProfilePage>
                 );
               },
             ),
-
 
             BlocBuilder<AuthBloc, AuthState>(
               builder: (context, authState) {
@@ -897,14 +902,21 @@ class _ProfilePageState extends State<ProfilePage>
               },
             ),
 
-            Showcase(
+            KeyedSubtree(
               key: _resetTutorialsKey,
-              title: AppLocalizations.of(context)!.resetTutorials,
-              description: AppLocalizations.of(context)!.resetTutorialsDesc,
               child: _buildSettingsTile(
                 Icons.restart_alt_outlined,
                 AppLocalizations.of(context)!.resetTutorials,
                 onTap: () => _resetTutorials(context),
+              ),
+            ),
+            _buildSettingsTile(
+              Icons.movie_creation_outlined,
+              AppLocalizations.of(context)!.replayOnboarding,
+              onTap: () => Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(
+                  builder: (_) => const OnboardingPage(isReplay: true),
+                ),
               ),
             ),
           ],
@@ -1248,8 +1260,6 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-
-
   Widget _buildPremiumBanner(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1314,7 +1324,10 @@ class _ProfilePageState extends State<ProfilePage>
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Découvrir les Forfaits & Tarifs', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Découvrir les Forfaits & Tarifs',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],
@@ -1808,7 +1821,9 @@ class _ProfilePageState extends State<ProfilePage>
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                isPending ? Icons.hourglass_top_rounded : Icons.verified_rounded,
+                isPending
+                    ? Icons.hourglass_top_rounded
+                    : Icons.verified_rounded,
                 color: isPending ? Colors.blue : Colors.green,
                 size: 28,
               ),
@@ -1847,4 +1862,3 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 }
-

@@ -22,7 +22,7 @@ import '../../../../core/widgets/transaction_status_badge.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/utils/toast_utils.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
@@ -95,9 +95,18 @@ class _TransactionListViewState extends State<TransactionListView> {
     if (ModalRoute.of(context)?.isCurrent != true) return;
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       tutorialService.startTutorial(context, 'transactions', [
-        _listKey,
-        _addKey,
+        TutorialStep(
+          targetKey: _listKey,
+          title: l10n.tutorialTransactionsTitle,
+          description: l10n.tutorialTransactionsDesc,
+        ),
+        TutorialStep(
+          targetKey: _addKey,
+          title: l10n.tutorialAddTransactionTitle,
+          description: l10n.tutorialAddTransactionDesc,
+        ),
       ]);
     });
   }
@@ -158,12 +167,8 @@ class _TransactionListViewState extends State<TransactionListView> {
 
           if (state.transactions.isEmpty) {
             return Center(
-              child: Showcase(
+              child: KeyedSubtree(
                 key: _listKey,
-                title: AppLocalizations.of(context)!.tutorialTransactionsTitle,
-                description: AppLocalizations.of(
-                  context,
-                )!.tutorialTransactionsDesc,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -228,14 +233,8 @@ class _TransactionListViewState extends State<TransactionListView> {
                   final widget = _TransactionItem(transaction: transaction);
 
                   if (index == 0) {
-                    return Showcase(
+                    return KeyedSubtree(
                       key: _listKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialTransactionsTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialTransactionsDesc,
                       child: widget,
                     );
                   }
@@ -247,10 +246,8 @@ class _TransactionListViewState extends State<TransactionListView> {
           );
         },
       ),
-      floatingActionButton: Showcase(
+      floatingActionButton: KeyedSubtree(
         key: _addKey,
-        title: AppLocalizations.of(context)!.tutorialAddTransactionTitle,
-        description: AppLocalizations.of(context)!.tutorialAddTransactionDesc,
         child: FloatingActionButton(
           heroTag: 'transactions_fab',
           onPressed: () async {

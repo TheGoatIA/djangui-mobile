@@ -21,6 +21,8 @@ import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/widgets/cached_data_banner.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 
 class TontineDetailsPage extends StatefulWidget {
   final String tontineId;
@@ -37,6 +39,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
   int _currentIndex = 0;
   bool _isLoadingDialogShowing = false;
   String _validationFilter = 'pending';
+  final GlobalKey _contributeKey = GlobalKey();
 
   @override
   void initState() {
@@ -70,8 +73,32 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     }
   }
 
+  void _startTutorial(String tontineStatus) {
+    final tutorialService = getIt<TutorialService>();
+    if (tutorialService.hasSeenTutorial('tontine_details')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    final status = tontineStatus.toLowerCase();
+    if (_currentIndex == 2 ||
+        status == 'completed' ||
+        status.contains('suspended')) {
+      return;
+    }
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'tontine_details', [
+        TutorialStep(
+          targetKey: _contributeKey,
+          title: l10n.tutorialTontineContributeTitle,
+          description: l10n.tutorialTontineContributeDesc,
+        ),
+      ]);
+    });
+  }
+
   @override
   void dispose() {
+    getIt<TutorialService>().cancelActiveTutorial(context);
     _tabController.dispose();
     super.dispose();
   }
@@ -167,6 +194,10 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                     body: Center(child: Text(l10n.genericError)),
                   );
                 }
+
+                WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => _startTutorial(tontine.status),
+                );
 
                 final isCreator = tontine.creatorId == currentUserId;
                 final tabCount = isCreator ? 4 : 3;
@@ -301,11 +332,14 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                           tontine.status.toLowerCase() == 'completed' ||
                           tontine.status.toLowerCase().contains('suspended')
                       ? null
-                      : FloatingActionButton.extended(
-                          onPressed: () =>
-                              _showContributionDialog(context, tontine.id),
-                          label: Text(l10n.contribute),
-                          icon: const Icon(Icons.add_a_photo_outlined),
+                      : KeyedSubtree(
+                          key: _contributeKey,
+                          child: FloatingActionButton.extended(
+                            onPressed: () =>
+                                _showContributionDialog(context, tontine.id),
+                            label: Text(l10n.contribute),
+                            icon: const Icon(Icons.add_a_photo_outlined),
+                          ),
                         ),
                 );
               },

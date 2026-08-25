@@ -20,6 +20,8 @@ import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../payments/presentation/bloc/fintech_bloc.dart';
 import '../../../payments/presentation/bloc/fintech_event.dart';
 import '../../../../core/mixins/secure_screen_mixin.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 
 class GoalDetailPage extends StatefulWidget {
   final String goalId;
@@ -33,6 +35,44 @@ class GoalDetailPage extends StatefulWidget {
 class _GoalDetailPageState extends State<GoalDetailPage>
     with WidgetsBindingObserver, SecureScreenMixin<GoalDetailPage> {
   String get goalId => widget.goalId;
+
+  final GlobalKey _contributeKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTutorial());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTutorial());
+  }
+
+  @override
+  void dispose() {
+    getIt<TutorialService>().cancelActiveTutorial(context);
+    super.dispose();
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (tutorialService.hasSeenTutorial('goal_detail')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'goal_detail', [
+        TutorialStep(
+          targetKey: _contributeKey,
+          title: l10n.tutorialGoalContributeTitle,
+          description: l10n.tutorialGoalContributeDesc,
+        ),
+      ]);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -193,12 +233,15 @@ class _GoalDetailPageState extends State<GoalDetailPage>
                           const SizedBox(height: 32),
                           _buildAutoSaveSection(context, goal),
                           const SizedBox(height: 48),
-                          AppButton(
-                            text: goal.type == 'debt'
-                                ? l10n.repaymentAction
-                                : l10n.addSavingsAction,
-                            onPressed: () =>
-                                _showContributionDialog(context, goal),
+                          KeyedSubtree(
+                            key: _contributeKey,
+                            child: AppButton(
+                              text: goal.type == 'debt'
+                                  ? l10n.repaymentAction
+                                  : l10n.addSavingsAction,
+                              onPressed: () =>
+                                  _showContributionDialog(context, goal),
+                            ),
                           ),
                           if (goal.currentAmount > 0) ...[
                             const SizedBox(height: 12),

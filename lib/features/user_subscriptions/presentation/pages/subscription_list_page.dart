@@ -9,7 +9,7 @@ import '../../../../core/utils/currency_helper.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/subscription_bloc.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
@@ -70,10 +70,23 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
     if (ModalRoute.of(context)?.isCurrent != true) return;
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       tutorialService.startTutorial(context, 'subscriptions', [
-        _detectKey,
-        _listKey,
-        _addKey,
+        TutorialStep(
+          targetKey: _detectKey,
+          title: l10n.tutorialDetectSubscriptionTitle,
+          description: l10n.tutorialDetectSubscriptionDesc,
+        ),
+        TutorialStep(
+          targetKey: _listKey,
+          title: l10n.tutorialSubscriptionListTitle,
+          description: l10n.tutorialSubscriptionListDesc,
+        ),
+        TutorialStep(
+          targetKey: _addKey,
+          title: l10n.tutorialAddSubscriptionTitle,
+          description: l10n.tutorialAddSubscriptionDesc,
+        ),
       ]);
     });
   }
@@ -117,10 +130,8 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
                   title: Text(l10n.mySubscriptions),
                   actions: [
                     // Bouton de détection automatique "Magique"
-                    Showcase(
+                    KeyedSubtree(
                       key: _detectKey,
-                      title: l10n.tutorialDetectSubscriptionTitle,
-                      description: l10n.tutorialDetectSubscriptionDesc,
                       child: IconButton(
                         onPressed: () {
                           getIt<AnalyticsManager>().trackEvent(
@@ -155,10 +166,8 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
 
                       // Affichage si aucun abonnement n'est enregistré
                       if (state.subscriptions.isEmpty) {
-                        return Showcase(
+                        return KeyedSubtree(
                           key: _listKey,
-                          title: l10n.tutorialSubscriptionListTitle,
-                          description: l10n.tutorialSubscriptionListDesc,
                           child: SingleChildScrollView(
                             physics: const AlwaysScrollableScrollPhysics(),
                             padding: EdgeInsets.only(
@@ -186,11 +195,8 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
                                     ),
                                   ),
                                   const SizedBox(height: 24),
-                                  Showcase(
+                                  KeyedSubtree(
                                     key: _addKey,
-                                    title: l10n.tutorialAddSubscriptionTitle,
-                                    description:
-                                        l10n.tutorialAddSubscriptionDesc,
                                     child: ElevatedButton.icon(
                                       onPressed: () => context.push(
                                         '${RouteConstants.userSubscriptions}/add',
@@ -207,10 +213,8 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
                       }
 
                       // Liste des abonnements actifs
-                      return Showcase(
+                      return KeyedSubtree(
                         key: _listKey,
-                        title: l10n.tutorialSubscriptionListTitle,
-                        description: l10n.tutorialSubscriptionListDesc,
                         child: ListView.builder(
                           physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.all(20),
@@ -345,10 +349,8 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
                 ),
                 // Bouton flottant pour l'ajout rapide
                 floatingActionButton: state.subscriptions.isNotEmpty
-                    ? Showcase(
+                    ? KeyedSubtree(
                         key: _addKey,
-                        title: l10n.tutorialAddSubscriptionTitle,
-                        description: l10n.tutorialAddSubscriptionDesc,
                         child: FloatingActionButton(
                           onPressed: () => context.push(
                             '${RouteConstants.userSubscriptions}/add',

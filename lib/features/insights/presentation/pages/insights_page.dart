@@ -14,7 +14,7 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/theme/app_shadows.dart';
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../../core/utils/currency_helper.dart';
@@ -86,10 +86,23 @@ class _InsightsViewState extends State<InsightsView> {
     // dès que l'état passe à `success`.
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       tutorialService.startTutorial(context, 'insights', [
-        _periodKey,
-        _aiReportKey,
-        _chartsKey,
+        TutorialStep(
+          targetKey: _periodKey,
+          title: l10n.tutorialInsightsTitle,
+          description: l10n.tutorialInsightsDesc,
+        ),
+        TutorialStep(
+          targetKey: _aiReportKey,
+          title: l10n.tutorialAiReportTitle,
+          description: l10n.tutorialAiReportDesc,
+        ),
+        TutorialStep(
+          targetKey: _chartsKey,
+          title: l10n.tutorialChartsTitle,
+          description: l10n.tutorialChartsDesc,
+        ),
       ]);
     });
   }
@@ -139,26 +152,20 @@ class _InsightsViewState extends State<InsightsView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Showcase(
+                      KeyedSubtree(
                         key: _periodKey,
-                        title: l10n.tutorialInsightsTitle,
-                        description: l10n.tutorialInsightsDesc,
                         child: _buildPeriodSelector(context, state.period),
                       ),
                       const SizedBox(height: 24),
-                      Showcase(
+                      KeyedSubtree(
                         key: _aiReportKey,
-                        title: l10n.tutorialAiReportTitle,
-                        description: l10n.tutorialAiReportDesc,
                         child: _buildAINarrativeCard(context),
                       ),
                       const SizedBox(height: 32),
                       _buildSectionTitle(l10n.spendingDistribution),
                       const SizedBox(height: 16),
-                      Showcase(
+                      KeyedSubtree(
                         key: _chartsKey,
-                        title: l10n.tutorialChartsTitle,
-                        description: l10n.tutorialChartsDesc,
                         child: _buildPieChartCard(state.distribution, context),
                       ),
                       const SizedBox(height: 32),

@@ -6,7 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 
 import '../../../../core/constants/route_constants.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -168,16 +168,34 @@ class _DashboardViewState extends State<DashboardView>
       final isCameroon =
           context.read<AuthBloc>().state.authResponse?.user.country == 'CM';
 
-      final keys = <GlobalKey>[
+      final l10n = AppLocalizations.of(context)!;
+      final steps = <TutorialStep>[
         if (order.contains('gamification') && flags.featGamification.isEnabled)
-          _gamificationKey,
+          TutorialStep(
+            targetKey: _gamificationKey,
+            title: l10n.tutorialGamificationTitle,
+            description: l10n.tutorialGamificationDesc,
+          ),
         if (order.contains('balance') && isCameroon) ...[
-          _balanceKey,
-          _incomeKey,
+          TutorialStep(
+            targetKey: _balanceKey,
+            title: l10n.tutorialBalanceCardTitle,
+            description: l10n.tutorialBalanceCardDesc,
+          ),
+          TutorialStep(
+            targetKey: _incomeKey,
+            title: l10n.tutorialIncomeTitle,
+            description: l10n.tutorialIncomeDesc,
+            shape: const CircleBorder(),
+          ),
         ],
-        _quickActionsKey,
+        TutorialStep(
+          targetKey: _quickActionsKey,
+          title: l10n.tutorialQuickActionsTitle,
+          description: l10n.tutorialQuickActionsDesc,
+        ),
       ];
-      tutorialService.startTutorial(context, 'dashboard_v2', keys);
+      tutorialService.startTutorial(context, 'dashboard_v2', steps);
     });
   }
 
@@ -347,12 +365,8 @@ class _DashboardViewState extends State<DashboardView>
   ) {
     final Map<String, Widget> widgetMap = {
       'gamification': flags.featGamification.isEnabled
-          ? Showcase(
+          ? KeyedSubtree(
               key: _gamificationKey,
-              title: AppLocalizations.of(context)!.tutorialGamificationTitle,
-              description: AppLocalizations.of(
-                context,
-              )!.tutorialGamificationDesc,
               child: const GamificationHeader(),
             )
           : const SizedBox.shrink(),
@@ -365,14 +379,8 @@ class _DashboardViewState extends State<DashboardView>
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Showcase(
+                    child: KeyedSubtree(
                       key: _balanceKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialBalanceCardTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialBalanceCardDesc,
                       child: GestureDetector(
                         onTap: () async {
                           await context.push(RouteConstants.wallet);
@@ -401,12 +409,8 @@ class _DashboardViewState extends State<DashboardView>
                 .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad)
           : const SizedBox.shrink(),
       'quick_actions':
-          Showcase(
+          KeyedSubtree(
                 key: _quickActionsKey,
-                title: AppLocalizations.of(context)!.tutorialQuickActionsTitle,
-                description: AppLocalizations.of(
-                  context,
-                )!.tutorialQuickActionsDesc,
                 child: _buildQuickActions(context, flags),
               )
               .animate(delay: 200.ms)
@@ -828,15 +832,9 @@ class _DashboardViewState extends State<DashboardView>
       ],
     );
 
-    // Intégration du Showcase si c'est la section Revenus
+    // Cible du tutoriel si c'est la section Revenus
     if (isIncome) {
-      return Showcase(
-        key: _incomeKey,
-        title: AppLocalizations.of(context)!.tutorialIncomeTitle,
-        description: AppLocalizations.of(context)!.tutorialIncomeDesc,
-        targetShapeBorder: const CircleBorder(),
-        child: content,
-      );
+      return KeyedSubtree(key: _incomeKey, child: content);
     }
 
     return content;

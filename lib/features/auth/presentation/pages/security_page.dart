@@ -12,6 +12,8 @@ import '../../domain/repositories/auth_repository.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../core/mixins/secure_screen_mixin.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
@@ -27,6 +29,7 @@ class _SecurityPageState extends State<SecurityPage>
   List<BiometricType>? _availableBiometrics;
   bool _isPasswordProvider = false;
   bool _isLoadingProvider = true;
+  final GlobalKey _biometricKey = GlobalKey();
 
   @override
   void initState() {
@@ -37,6 +40,37 @@ class _SecurityPageState extends State<SecurityPage>
     );
     _checkBiometrics();
     _checkLoginProvider();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTutorial());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTutorial());
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (tutorialService.hasSeenTutorial('security')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'security', [
+        TutorialStep(
+          targetKey: _biometricKey,
+          title: l10n.tutorialSecurityBiometricTitle,
+          description: l10n.tutorialSecurityBiometricDesc,
+        ),
+      ]);
+    });
+  }
+
+  @override
+  void dispose() {
+    getIt<TutorialService>().cancelActiveTutorial(context);
+    super.dispose();
   }
 
   Future<void> _checkLoginProvider() async {
@@ -163,7 +197,9 @@ class _SecurityPageState extends State<SecurityPage>
               const SizedBox(height: 12),
               BlocBuilder<SettingsBloc, SettingsState>(
                 builder: (context, state) {
-                  return SwitchListTile(
+                  return KeyedSubtree(
+                    key: _biometricKey,
+                    child: SwitchListTile(
                     secondary: Icon(
                       _getBiometricIcon(),
                       color: Theme.of(context).colorScheme.primary,
@@ -215,6 +251,7 @@ class _SecurityPageState extends State<SecurityPage>
                             );
                           },
                     activeThumbColor: Theme.of(context).colorScheme.primary,
+                    ),
                   );
                 },
               ),

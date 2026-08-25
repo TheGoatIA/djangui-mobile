@@ -10,7 +10,7 @@ import '../bloc/budgets_state.dart';
 import '../../data/models/budget_model.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/constants/app_categories.dart';
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
@@ -99,9 +99,18 @@ class _AddBudgetPageState extends State<AddBudgetPage>
     if (ModalRoute.of(context)?.isCurrent != true) return;
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       tutorialService.startTutorial(context, 'add_budget', [
-        _categoryKey,
-        _amountKey,
+        TutorialStep(
+          targetKey: _categoryKey,
+          title: l10n.tutorialBudgetCategoryFieldTitle,
+          description: l10n.tutorialBudgetCategoryFieldDesc,
+        ),
+        TutorialStep(
+          targetKey: _amountKey,
+          title: l10n.tutorialBudgetAmountFieldTitle,
+          description: l10n.tutorialBudgetAmountFieldDesc,
+        ),
       ]);
     });
   }
@@ -432,12 +441,8 @@ class _AddBudgetPageState extends State<AddBudgetPage>
                                 children: [
                                   Expanded(
                                     child: index == 0
-                                        ? Showcase(
+                                        ? KeyedSubtree(
                                             key: _categoryKey,
-                                            title: l10n
-                                                .tutorialBudgetCategoryFieldTitle,
-                                            description: l10n
-                                                .tutorialBudgetCategoryFieldDesc,
                                             child: _buildCategoryInput(item),
                                           )
                                         : _buildCategoryInput(item),
@@ -456,12 +461,8 @@ class _AddBudgetPageState extends State<AddBudgetPage>
                               ),
                               const SizedBox(height: 10),
                               index == 0
-                                  ? Showcase(
+                                  ? KeyedSubtree(
                                       key: _amountKey,
-                                      title:
-                                          l10n.tutorialBudgetAmountFieldTitle,
-                                      description:
-                                          l10n.tutorialBudgetAmountFieldDesc,
                                       child: _buildAmountField(item),
                                     )
                                   : _buildAmountField(item),
