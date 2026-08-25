@@ -400,7 +400,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   return MaterialApp.router(
                     title: 'Kauri',
                     debugShowCheckedModeBanner: false,
-                    theme: AppTheme.lightTheme(effectiveFontFamily),
+                    theme: switch (effectiveThemeType) {
+                      AppThemeType.champagnePearl =>
+                        AppTheme.champagnePearlTheme(effectiveFontFamily),
+                      _ => AppTheme.lightTheme(effectiveFontFamily),
+                    },
                     darkTheme: switch (effectiveThemeType) {
                       AppThemeType.obsidianGold => AppTheme.obsidianGoldTheme(
                         effectiveFontFamily,
@@ -415,6 +419,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                         effectiveFontFamily,
                       ),
                       AppThemeType.midnightRoyal => AppTheme.midnightRoyalTheme(
+                        effectiveFontFamily,
+                      ),
+                      AppThemeType.roseVelvet => AppTheme.roseVelvetTheme(
+                        effectiveFontFamily,
+                      ),
+                      AppThemeType.rubyEmber => AppTheme.rubyEmberTheme(
+                        effectiveFontFamily,
+                      ),
+                      AppThemeType.oceanAbyss => AppTheme.oceanAbyssTheme(
+                        effectiveFontFamily,
+                      ),
+                      AppThemeType.cyberNeon => AppTheme.cyberNeonTheme(
                         effectiveFontFamily,
                       ),
                       _ => AppTheme.darkTheme(effectiveFontFamily),

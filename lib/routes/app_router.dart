@@ -567,10 +567,17 @@ final appRouter = GoRouter(
           name: RouteConstants.tontineDetailsNamed,
           pageBuilder: (context, state) {
             final id = state.pathParameters['id']!;
+            final extra = state.extra;
+            final initialTabIndex = extra is Map
+                ? extra['initialTabIndex'] as int?
+                : null;
             return buildPageWithDefaultTransition(
               context: context,
               state: state,
-              child: TontineDetailsPage(tontineId: id),
+              child: TontineDetailsPage(
+                tontineId: id,
+                initialTabIndex: initialTabIndex ?? 0,
+              ),
             );
           },
         ),

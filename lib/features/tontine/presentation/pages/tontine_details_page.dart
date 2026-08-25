@@ -26,7 +26,12 @@ import '../../../../core/widgets/tutorial/tutorial_step.dart';
 
 class TontineDetailsPage extends StatefulWidget {
   final String tontineId;
-  const TontineDetailsPage({super.key, required this.tontineId});
+  final int initialTabIndex;
+  const TontineDetailsPage({
+    super.key,
+    required this.tontineId,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<TontineDetailsPage> createState() => _TontineDetailsPageState();
@@ -36,7 +41,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
 
-  int _currentIndex = 0;
+  late int _currentIndex;
   bool _isLoadingDialogShowing = false;
   String _validationFilter = 'pending';
   final GlobalKey _contributeKey = GlobalKey();
@@ -44,7 +49,12 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _currentIndex = widget.initialTabIndex.clamp(0, 2);
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: _currentIndex,
+    );
     _tabController.addListener(_handleTabSelection);
 
     context.read<TontineBloc>().add(
@@ -132,6 +142,13 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
 
             return BlocConsumer<TontineBloc, TontineState>(
               listener: (context, state) {
+                // `status` is only ever touched by explicit user actions
+                // (start/rotate/validate/pay/update/delete/...) — loading the
+                // tontine's details/members to display the page uses the
+                // separate `isLoadingDetails` flag instead (see
+                // TontineBloc._onTontineDetailsLoadRequested), so this
+                // dialog+toast (meant for "you just did something") can no
+                // longer misfire on a plain navigation into a tontine.
                 if (state.status == TontineStatus.loading &&
                     state.selectedTontine != null) {
                   if (!_isLoadingDialogShowing) {
@@ -180,8 +197,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                 }
               },
               builder: (context, state) {
-                if (state.status == TontineStatus.loading &&
-                    state.selectedTontine == null) {
+                if (state.isLoadingDetails && state.selectedTontine == null) {
                   return const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
                   );
@@ -205,7 +221,11 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                 if (_tabController.length != tabCount) {
                   _tabController.removeListener(_handleTabSelection);
                   _tabController.dispose();
-                  _tabController = TabController(length: tabCount, vsync: this);
+                  _tabController = TabController(
+                    length: tabCount,
+                    vsync: this,
+                    initialIndex: _currentIndex.clamp(0, tabCount - 1),
+                  );
                   _tabController.addListener(_handleTabSelection);
                 }
 
@@ -357,16 +377,26 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     List<TontineMember> members,
   ) {
     final l10n = AppLocalizations.of(context)!;
-    final isCreator =
-        tontine.creatorId ==
-        context.read<AuthBloc>().state.authResponse?.user.id;
+    final currentUserId = context.read<AuthBloc>().state.authResponse?.user.id;
+    final isCreator = tontine.creatorId == currentUserId;
     final isPending = tontine.status.toLowerCase() == 'pending';
+    final myMember = members.cast<TontineMember?>().firstWhere(
+      (m) => m?.userId == currentUserId,
+      orElse: () => null,
+    );
+    final socialFundEnabled = tontine.socialFund['enabled'] == true;
+    final showSocialFundBanner =
+        socialFundEnabled && myMember != null && !myMember.hasPaidSocialFund;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (showSocialFundBanner) ...[
+            _buildSocialFundBanner(context, tontine),
+            const SizedBox(height: 24),
+          ],
           if (isCreator && isPending) ...[
             ElevatedButton.icon(
               onPressed: () => _confirmStartTontine(context, tontine.id),
@@ -454,6 +484,72 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                 ),
               ).animate().fadeIn().slideX();
             }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSocialFundBanner(BuildContext context, dynamic tontine) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final amount = tontine.socialFund['amount'] ?? 0;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.tertiaryContainer,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.tertiary.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.volunteer_activism_outlined,
+            color: theme.colorScheme.onTertiaryContainer,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.socialFundPaymentRequired,
+                  style: AppTextStyles.h3.copyWith(
+                    fontSize: 16,
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${l10n.socialFundPaymentDescription} ($amount ${tontine.currency})',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    getIt<AnalyticsManager>().trackEvent(
+                      feature: 'Tontine',
+                      action: 'pay_social_fund',
+                      details: {'tontine_id': tontine.id},
+                    );
+                    context.read<TontineBloc>().add(
+                      PaySocialFundRequested(tontine.id),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.tertiary,
+                    foregroundColor: theme.colorScheme.onTertiary,
+                  ),
+                  child: Text(l10n.paySocialFundNow),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -572,6 +668,40 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                 ),
               ],
             ),
+            if (tontine.turnSummary?.currentBeneficiaryName != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: colorScheme.onPrimary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.emoji_events_outlined,
+                      color: colorScheme.onPrimary,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '${l10n.turnBeneficiaryLabel} : ${tontine.turnSummary!.currentBeneficiaryName}',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: colorScheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -696,9 +826,27 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                 ),
               ),
             ),
-            title: Text(
-              member.displayName,
-              style: AppTextStyles.h3.copyWith(fontSize: 16),
+            title: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    member.displayName,
+                    style: AppTextStyles.h3.copyWith(fontSize: 16),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (member.id == tontine.turnSummary?.currentBeneficiaryId) ...[
+                  const SizedBox(width: 6),
+                  Tooltip(
+                    message: l10n.turnBeneficiaryLabel,
+                    child: const Icon(
+                      Icons.emoji_events,
+                      size: 18,
+                      color: Colors.amber,
+                    ),
+                  ),
+                ],
+              ],
             ),
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 4),
@@ -714,6 +862,23 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                     '${member.parts} ${member.parts > 1 ? "parts" : "part"}',
                     style: AppTextStyles.bodySmall,
                   ),
+                  if (tontine.socialFund['enabled'] == true) ...[
+                    const SizedBox(width: 8),
+                    Tooltip(
+                      message: member.hasPaidSocialFund
+                          ? l10n.socialFundPaidLabel
+                          : l10n.socialFundUnpaidLabel,
+                      child: Icon(
+                        member.hasPaidSocialFund
+                            ? Icons.volunteer_activism
+                            : Icons.volunteer_activism_outlined,
+                        size: 16,
+                        color: member.hasPaidSocialFund
+                            ? Colors.green
+                            : Colors.grey,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -1029,6 +1194,9 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                             ),
                           ),
                         ),
+                      if (contribution.aiAnalysis != null &&
+                          (contribution.aiAnalysis as Map).isNotEmpty)
+                        _buildAiAnalysisCard(context, contribution.aiAnalysis),
                       if (contribution.validationStatus == 'pending' &&
                           context
                                   .read<TontineBloc>()
@@ -1099,6 +1267,81 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     );
   }
 
+  Widget _buildAiAnalysisCard(BuildContext context, Map<String, dynamic> analysis) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final detectedAmount = analysis['detectedAmount'];
+    final detectedRef = analysis['detectedRef'];
+    final detectedDateRaw = analysis['detectedDate'];
+    final confidence = analysis['confidence'];
+
+    String? detectedDateText;
+    if (detectedDateRaw != null) {
+      final parsed = DateTime.tryParse(detectedDateRaw.toString());
+      if (parsed != null) {
+        detectedDateText = DateFormat.yMMMMd('fr').format(parsed);
+      }
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.auto_awesome,
+                size: 16,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                l10n.tontineAiAnalysisTitle,
+                style: AppTextStyles.bodySmall.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (detectedAmount != null)
+            _buildAiAnalysisRow(l10n.tontineAiDetectedAmount, '$detectedAmount'),
+          if (detectedRef != null && detectedRef.toString().isNotEmpty)
+            _buildAiAnalysisRow(l10n.tontineAiDetectedRef, '$detectedRef'),
+          if (detectedDateText != null)
+            _buildAiAnalysisRow(l10n.tontineAiDetectedDate, detectedDateText),
+          if (confidence != null)
+            _buildAiAnalysisRow(
+              l10n.tontineAiConfidence,
+              '${((confidence is num ? confidence : 0) * 100).toStringAsFixed(0)}%',
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAiAnalysisRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: AppTextStyles.bodySmall),
+          Text(
+            value,
+            style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _validateContribution(BuildContext context, String id, bool approve) {
     getIt<AnalyticsManager>().trackEvent(
       feature: 'Tontine',
@@ -1110,6 +1353,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     );
     context.read<TontineBloc>().add(
       ValidateTontineContributionRequested(
+        tontineId: widget.tontineId,
         contributionId: id,
         status: approve ? 'creator_validated' : 'rejected',
       ),

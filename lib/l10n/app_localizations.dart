@@ -1160,6 +1160,120 @@ abstract class AppLocalizations {
   /// **'Détails par Catégorie'**
   String get categoryDetails;
 
+  /// No description provided for @forecastSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévision de solde (30 jours)'**
+  String get forecastSectionTitle;
+
+  /// No description provided for @forecastCriticalAlertPrefix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alerte :'**
+  String get forecastCriticalAlertPrefix;
+
+  /// No description provided for @forecastInsightsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que Kauri observe'**
+  String get forecastInsightsLabel;
+
+  /// No description provided for @forecastUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévision indisponible pour le moment.'**
+  String get forecastUnavailable;
+
+  /// No description provided for @healthScoreHistoryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évolution de votre santé financière'**
+  String get healthScoreHistoryTitle;
+
+  /// No description provided for @healthScoreHistoryEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenez le mois prochain pour voir apparaître votre courbe d\'évolution.'**
+  String get healthScoreHistoryEmpty;
+
+  /// No description provided for @autoBudgetNoIncomeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseignez votre revenu mensuel dans votre profil pour obtenir un budget recommandé personnalisé.'**
+  String get autoBudgetNoIncomeHint;
+
+  /// No description provided for @autoBudgetNeeds.
+  ///
+  /// In fr, this message translates to:
+  /// **'Besoins essentiels (50%)'**
+  String get autoBudgetNeeds;
+
+  /// No description provided for @autoBudgetWants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envies (30%)'**
+  String get autoBudgetWants;
+
+  /// No description provided for @autoBudgetSavings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne (20%)'**
+  String get autoBudgetSavings;
+
+  /// No description provided for @autoBudgetActualSpent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépensé ce mois-ci : {spent} sur un revenu de {income}'**
+  String autoBudgetActualSpent(String spent, String income);
+
+  /// No description provided for @premiumReportReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Rapport de {month} est prêt !'**
+  String premiumReportReady(String month);
+
+  /// No description provided for @premiumReportPreparing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Rapport de {month} arrive bientôt...'**
+  String premiumReportPreparing(String month);
+
+  /// No description provided for @premiumReportShareAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager mon rapport'**
+  String get premiumReportShareAction;
+
+  /// No description provided for @reportPdfKeyInsights.
+  ///
+  /// In fr, this message translates to:
+  /// **'Points clés'**
+  String get reportPdfKeyInsights;
+
+  /// No description provided for @reportPdfRecommendations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommandations de Kauri'**
+  String get reportPdfRecommendations;
+
+  /// No description provided for @reportPdfGeneratedOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Généré par Kauri le {date}'**
+  String reportPdfGeneratedOn(String date);
+
+  /// No description provided for @reportPdfGenerating.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation du PDF...'**
+  String get reportPdfGenerating;
+
+  /// No description provided for @reportPdfError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de générer le PDF du rapport.'**
+  String get reportPdfError;
+
   /// No description provided for @weekly.
   ///
   /// In fr, this message translates to:
@@ -1183,6 +1297,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucune donnée disponible'**
   String get noDataAvailable;
+
+  /// No description provided for @insightsLoadErrorBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de mettre à jour vos analyses. Les données affichées peuvent être obsolètes.'**
+  String get insightsLoadErrorBanner;
+
+  /// No description provided for @financialHealthScoreLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score de santé financière'**
+  String get financialHealthScoreLabel;
 
   /// No description provided for @orContinueWith.
   ///
@@ -1634,6 +1760,36 @@ abstract class AppLocalizations {
   /// **'L\'analyse IA est temporairement indisponible'**
   String get aiAnalysisUnavailable;
 
+  /// No description provided for @tontineAiAnalysisTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse IA du reçu'**
+  String get tontineAiAnalysisTitle;
+
+  /// No description provided for @tontineAiDetectedAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant détecté'**
+  String get tontineAiDetectedAmount;
+
+  /// No description provided for @tontineAiDetectedRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'Référence détectée'**
+  String get tontineAiDetectedRef;
+
+  /// No description provided for @tontineAiDetectedDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date détectée'**
+  String get tontineAiDetectedDate;
+
+  /// No description provided for @tontineAiConfidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance de l\'IA'**
+  String get tontineAiConfidence;
+
   /// No description provided for @countryLabel.
   ///
   /// In fr, this message translates to:
@@ -1717,6 +1873,132 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Choisir depuis la galerie'**
   String get chooseFromGallery;
+
+  /// No description provided for @avatarOptionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de profil'**
+  String get avatarOptionsTitle;
+
+  /// No description provided for @generateAvatarWithAi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Générer avec l\'IA'**
+  String get generateAvatarWithAi;
+
+  /// No description provided for @generateAvatarWithAiDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez un avatar unique à partir d\'un style, en quelques secondes.'**
+  String get generateAvatarWithAiDesc;
+
+  /// No description provided for @aiAvatarStyleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un style'**
+  String get aiAvatarStyleLabel;
+
+  /// No description provided for @aiAvatarRefinementHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez des détails (optionnel)'**
+  String get aiAvatarRefinementHint;
+
+  /// No description provided for @aiAvatarGenerateButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Générer mon avatar'**
+  String get aiAvatarGenerateButton;
+
+  /// No description provided for @aiAvatarGenerating.
+  ///
+  /// In fr, this message translates to:
+  /// **'Génération en cours...'**
+  String get aiAvatarGenerating;
+
+  /// No description provided for @aiAvatarSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvel avatar généré avec succès !'**
+  String get aiAvatarSuccess;
+
+  /// No description provided for @aiAvatarStyleProfessional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Professionnel'**
+  String get aiAvatarStyleProfessional;
+
+  /// No description provided for @aiAvatarStyleIllustrated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Illustré'**
+  String get aiAvatarStyleIllustrated;
+
+  /// No description provided for @aiAvatarStyleCyberpunk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cyberpunk'**
+  String get aiAvatarStyleCyberpunk;
+
+  /// No description provided for @aiAvatarStyleMinimalist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Minimaliste'**
+  String get aiAvatarStyleMinimalist;
+
+  /// No description provided for @aiAvatarStyleFantasy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fantaisie'**
+  String get aiAvatarStyleFantasy;
+
+  /// No description provided for @aiAvatarStyleWatercolor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aquarelle'**
+  String get aiAvatarStyleWatercolor;
+
+  /// No description provided for @aiAvatarStyleCartoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cartoon'**
+  String get aiAvatarStyleCartoon;
+
+  /// No description provided for @aiAvatarPreviewHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu — vous pouvez le régénérer ou modifier vos réglages avant de l\'appliquer.'**
+  String get aiAvatarPreviewHint;
+
+  /// No description provided for @aiAvatarUseButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser cet avatar'**
+  String get aiAvatarUseButton;
+
+  /// No description provided for @aiAvatarApplying.
+  ///
+  /// In fr, this message translates to:
+  /// **'Application en cours...'**
+  String get aiAvatarApplying;
+
+  /// No description provided for @aiAvatarRegenerateButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régénérer'**
+  String get aiAvatarRegenerateButton;
+
+  /// No description provided for @aiAvatarEditButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get aiAvatarEditButton;
+
+  /// No description provided for @avatarViewerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de profil'**
+  String get avatarViewerTitle;
 
   /// No description provided for @receiptScannedSuccess.
   ///
@@ -3290,6 +3572,12 @@ abstract class AppLocalizations {
   /// **'Mode de rotation'**
   String get rotationMode;
 
+  /// No description provided for @rotationModeLockedHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne peut plus être modifié après la création'**
+  String get rotationModeLockedHint;
+
   /// No description provided for @manualRotation.
   ///
   /// In fr, this message translates to:
@@ -3422,6 +3710,12 @@ abstract class AppLocalizations {
   /// **'Contributeurs'**
   String get contributors;
 
+  /// No description provided for @turnBeneficiaryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bénéficiaire de ce tour'**
+  String get turnBeneficiaryLabel;
+
   /// No description provided for @noMembersFound.
   ///
   /// In fr, this message translates to:
@@ -3445,6 +3739,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Tapez un message...'**
   String get typeAMessage;
+
+  /// No description provided for @recordingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintenez pour enregistrer...'**
+  String get recordingHint;
+
+  /// No description provided for @micPermissionDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permission microphone refusée. Activez-la dans les paramètres.'**
+  String get micPermissionDenied;
+
+  /// No description provided for @recordingTooShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement trop court.'**
+  String get recordingTooShort;
+
+  /// No description provided for @voiceNoteFallbackLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note vocale'**
+  String get voiceNoteFallbackLabel;
+
+  /// No description provided for @voiceNotePlaybackError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de lire cette note vocale.'**
+  String get voiceNotePlaybackError;
 
   /// No description provided for @successContribution.
   ///
@@ -3611,19 +3935,19 @@ abstract class AppLocalizations {
   /// No description provided for @guideRotationDesc.
   ///
   /// In fr, this message translates to:
-  /// **'â€¢ Fixe : L\'ordre est prédéfini.\nâ€¢ Aléatoire : La chance décide du gagnant.\nâ€¢ Enchères/Score : Les membres les plus rigoureux ou ayant besoin de fonds sont prioritaires.'**
+  /// **'â€¢ Fixe : L\'ordre est prédéfini.\nâ€¢ Aléatoire : La chance décide du gagnant.'**
   String get guideRotationDesc;
 
   /// No description provided for @guideValidationTitle.
   ///
   /// In fr, this message translates to:
-  /// **'IA & Factures'**
+  /// **'Vérification assistée par IA'**
   String get guideValidationTitle;
 
   /// No description provided for @guideValidationDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Envoyez une capture de votre reçu NotchPay/Mobile Money dans le chat. Notre IA valide la preuve en temps réel pour confirmer votre tour.'**
+  /// **'Envoyez une capture de votre reçu NotchPay/Mobile Money dans le chat. Notre IA lit le montant et la référence pour aider le créateur de la tontine à confirmer votre cotisation.'**
   String get guideValidationDesc;
 
   /// No description provided for @guideSocialFundTitle.
@@ -3727,6 +4051,42 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Activer le fonds social'**
   String get enableSocialFund;
+
+  /// No description provided for @socialFundPaymentRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds social requis'**
+  String get socialFundPaymentRequired;
+
+  /// No description provided for @socialFundPaymentDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Payez votre part unique du fonds social avant le démarrage de la tontine.'**
+  String get socialFundPaymentDescription;
+
+  /// No description provided for @paySocialFundNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Payer maintenant'**
+  String get paySocialFundNow;
+
+  /// No description provided for @socialFundPaidConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds social payé avec succès !'**
+  String get socialFundPaidConfirmation;
+
+  /// No description provided for @socialFundPaidLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds social payé'**
+  String get socialFundPaidLabel;
+
+  /// No description provided for @socialFundUnpaidLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds social non payé'**
+  String get socialFundUnpaidLabel;
 
   /// No description provided for @sanctions.
   ///
@@ -4129,6 +4489,48 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Royal de Minuit'**
   String get midnightRoyalThemeLabel;
+
+  /// No description provided for @roseVelvetThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Velours Rose'**
+  String get roseVelvetThemeLabel;
+
+  /// No description provided for @rubyEmberThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Braise Rubis'**
+  String get rubyEmberThemeLabel;
+
+  /// No description provided for @oceanAbyssThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abysse Océanique'**
+  String get oceanAbyssThemeLabel;
+
+  /// No description provided for @cyberNeonThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Néon Cyber'**
+  String get cyberNeonThemeLabel;
+
+  /// No description provided for @champagnePearlThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nacre Champagne'**
+  String get champagnePearlThemeLabel;
+
+  /// No description provided for @standardThemesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'STANDARD'**
+  String get standardThemesLabel;
+
+  /// No description provided for @premiumThemesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'PREMIUM'**
+  String get premiumThemesLabel;
 
   /// No description provided for @fontFamily.
   ///
@@ -5401,6 +5803,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Solde insuffisant pour couvrir le montant et les frais'**
   String get withdrawInsufficientFundsForFees;
+
+  /// No description provided for @withdrawInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitement de votre retrait...'**
+  String get withdrawInProgress;
+
+  /// No description provided for @withdrawInProgressHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez patienter, ne fermez pas l\'application.'**
+  String get withdrawInProgressHint;
 
   /// No description provided for @walletPaymentMethod.
   ///

@@ -30,16 +30,22 @@ class JoinTontineRequested extends TontineEvent {
   final String inviteCode;
   final String displayName;
   final int parts;
-  final Map<String, dynamic> payoutDetails;
   const JoinTontineRequested({
     required this.inviteCode,
     required this.displayName,
     required this.parts,
-    required this.payoutDetails,
   });
 
   @override
-  List<Object?> get props => [inviteCode, displayName, parts, payoutDetails];
+  List<Object?> get props => [inviteCode, displayName, parts];
+}
+
+class PaySocialFundRequested extends TontineEvent {
+  final String tontineId;
+  const PaySocialFundRequested(this.tontineId);
+
+  @override
+  List<Object?> get props => [tontineId];
 }
 
 class StartTontineRequested extends TontineEvent {
@@ -82,6 +88,20 @@ class SendTontineMessageRequested extends TontineEvent {
   List<Object?> get props => [tontineId, content];
 }
 
+class SendTontineVoiceMessageRequested extends TontineEvent {
+  final String tontineId;
+  final File audioFile;
+  final int durationSeconds;
+  const SendTontineVoiceMessageRequested({
+    required this.tontineId,
+    required this.audioFile,
+    required this.durationSeconds,
+  });
+
+  @override
+  List<Object?> get props => [tontineId, audioFile, durationSeconds];
+}
+
 class TontineContributionsLoadRequested extends TontineEvent {
   final String tontineId;
   const TontineContributionsLoadRequested(this.tontineId);
@@ -91,15 +111,17 @@ class TontineContributionsLoadRequested extends TontineEvent {
 }
 
 class ValidateTontineContributionRequested extends TontineEvent {
+  final String tontineId;
   final String contributionId;
   final String status;
   const ValidateTontineContributionRequested({
+    required this.tontineId,
     required this.contributionId,
     required this.status,
   });
 
   @override
-  List<Object?> get props => [contributionId, status];
+  List<Object?> get props => [tontineId, contributionId, status];
 }
 
 class TontineRemoveMemberRequested extends TontineEvent {

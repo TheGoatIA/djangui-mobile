@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:chopper/chopper.dart';
 import 'package:logger/logger.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
@@ -143,13 +144,35 @@ class KauriAuthenticator extends Authenticator {
       return null;
     }
 
-    // Traitement pour les suspensions (403 Forbidden - Security Policy)
+    // Traitement pour les suspensions (403 Forbidden - Security Policy).
+    // Un 403 seul ne veut pas dire "compte suspendu" : c'est aussi le code
+    // renvoye par premiumOnly ("cette fonctionnalite est reservee aux
+    // membres Premium") et par restrictTo (acces reserve a un role). Sans
+    // distinction, un simple mur Premium declenchait a tort l'ecran bloquant
+    // "compte suspendu, contactez le support" — on ne verifie donc que le
+    // code d'erreur explicite ACCOUNT_DEACTIVATED pose par protect() cote
+    // backend pour une vraie desactivation de compte.
     if (response.statusCode == 403) {
-      logger.e(
-        '[Authenticator] 403 Forbidden detecte sur $requestUrl. Suspension probable.',
-      );
-      // On peut ajouter un evenement specifique au bloc pour afficher une popup bloquante
-      getIt<AuthBloc>().add(AuthAccountSuspended());
+      String? code;
+      try {
+        final body = response.body;
+        final decoded = body is String ? jsonDecode(body) : body;
+        if (decoded is Map) code = decoded['code'] as String?;
+      } catch (_) {
+        // Corps non-JSON ou vide — on traite prudemment comme "pas une
+        // suspension de compte" plutot que d'escalader par defaut.
+      }
+
+      if (code == 'ACCOUNT_DEACTIVATED') {
+        logger.e(
+          '[Authenticator] Compte desactive detecte sur $requestUrl.',
+        );
+        getIt<AuthBloc>().add(AuthAccountSuspended());
+      } else {
+        logger.w(
+          '[Authenticator] 403 Forbidden sur $requestUrl (acces refuse a cette ressource, pas une suspension de compte).',
+        );
+      }
       return null;
     }
 

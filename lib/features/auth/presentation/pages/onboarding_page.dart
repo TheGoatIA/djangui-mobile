@@ -11,13 +11,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../di/injection.dart';
 
 class OnboardingPage extends StatefulWidget {
-  /// Vrai quand l'écran est rouvert volontairement depuis les Réglages par un
-  /// utilisateur déjà connecté ("Revoir l'introduction") plutôt qu'au premier
-  /// lancement : dans ce cas, Passer/Terminer referment simplement l'écran au
-  /// lieu d'écrire `hasSeenOnboarding` et de naviguer vers /login.
-  final bool isReplay;
-
-  const OnboardingPage({super.key, this.isReplay = false});
+  const OnboardingPage({super.key});
 
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
@@ -66,10 +60,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Future<void> _completeOnboarding() async {
-    if (widget.isReplay) {
-      Navigator.of(context).pop();
-      return;
-    }
     final router = GoRouter.of(context);
     final prefs = getIt<SharedPreferences>();
     await prefs.setBool('hasSeenOnboarding', true);

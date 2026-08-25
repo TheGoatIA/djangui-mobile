@@ -360,4 +360,153 @@ class AppTheme {
       ),
     );
   }
+
+  /// Retourne le thème exclusif "Velours Rose" pour les membres Premium.
+  static ThemeData roseVelvetTheme([String? fontFamily]) {
+    final base = darkTheme(fontFamily);
+    return base.copyWith(
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.roseVelvetAccent,
+        onPrimary: Colors.white,
+        secondary: AppColors.roseVelvetSecondary,
+        onSecondary: AppColors.roseVelvetDeep,
+        surface: AppColors.roseVelvetSurface,
+        onSurface: Colors.white,
+        outline: AppColors.roseVelvetAccent.withValues(alpha: 0.25),
+      ),
+      scaffoldBackgroundColor: AppColors.roseVelvetDeep,
+      cardTheme: base.cardTheme.copyWith(
+        color: AppColors.roseVelvetSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.roseVelvetAccent, width: 0.5),
+        ),
+      ),
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: AppColors.roseVelvetDeep,
+      ),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        backgroundColor: AppColors.roseVelvetDeep,
+      ),
+    );
+  }
+
+  /// Retourne le thème exclusif "Braise Rubis" pour les membres Premium.
+  static ThemeData rubyEmberTheme([String? fontFamily]) {
+    final base = darkTheme(fontFamily);
+    return base.copyWith(
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.rubyAccent,
+        onPrimary: Colors.white,
+        secondary: AppColors.rubySecondary,
+        onSecondary: AppColors.rubyBlack,
+        surface: AppColors.rubySurface,
+        onSurface: Colors.white,
+        outline: AppColors.rubyAccent.withValues(alpha: 0.25),
+      ),
+      scaffoldBackgroundColor: AppColors.rubyBlack,
+      cardTheme: base.cardTheme.copyWith(
+        color: AppColors.rubySurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.rubyAccent, width: 0.5),
+        ),
+      ),
+      appBarTheme: base.appBarTheme.copyWith(backgroundColor: AppColors.rubyBlack),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        backgroundColor: AppColors.rubyBlack,
+      ),
+    );
+  }
+
+  /// Retourne le thème exclusif "Abysse Océanique" pour les membres Premium.
+  static ThemeData oceanAbyssTheme([String? fontFamily]) {
+    final base = darkTheme(fontFamily);
+    return base.copyWith(
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.abyssAccent,
+        onPrimary: AppColors.abyssDeep,
+        secondary: AppColors.abyssSecondary,
+        onSecondary: Colors.white,
+        surface: AppColors.abyssSurface,
+        onSurface: Colors.white,
+        outline: AppColors.abyssAccent.withValues(alpha: 0.25),
+      ),
+      scaffoldBackgroundColor: AppColors.abyssDeep,
+      cardTheme: base.cardTheme.copyWith(
+        color: AppColors.abyssSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.abyssAccent, width: 0.5),
+        ),
+      ),
+      appBarTheme: base.appBarTheme.copyWith(backgroundColor: AppColors.abyssDeep),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        backgroundColor: AppColors.abyssDeep,
+      ),
+    );
+  }
+
+  /// Retourne le thème exclusif "Néon Cyber" pour les membres Premium.
+  static ThemeData cyberNeonTheme([String? fontFamily]) {
+    final base = darkTheme(fontFamily);
+    return base.copyWith(
+      colorScheme: ColorScheme.dark(
+        primary: AppColors.cyberMagenta,
+        onPrimary: Colors.white,
+        secondary: AppColors.cyberCyan,
+        onSecondary: AppColors.cyberVoid,
+        surface: AppColors.cyberSurface,
+        onSurface: Colors.white,
+        outline: AppColors.cyberCyan.withValues(alpha: 0.3),
+      ),
+      scaffoldBackgroundColor: AppColors.cyberVoid,
+      cardTheme: base.cardTheme.copyWith(
+        color: AppColors.cyberSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.cyberMagenta, width: 0.5),
+        ),
+      ),
+      appBarTheme: base.appBarTheme.copyWith(backgroundColor: AppColors.cyberVoid),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        backgroundColor: AppColors.cyberVoid,
+      ),
+    );
+  }
+
+  /// Retourne le thème exclusif "Nacre Champagne" pour les membres Premium —
+  /// le seul thème premium en mode clair, pour ceux qui veulent un look
+  /// distinctif sans passer par le mode sombre.
+  static ThemeData champagnePearlTheme([String? fontFamily]) {
+    final base = lightTheme(fontFamily);
+    return base.copyWith(
+      colorScheme: ColorScheme.light(
+        primary: AppColors.pearlAccent,
+        onPrimary: Colors.white,
+        secondary: AppColors.pearlSecondary,
+        onSecondary: Colors.white,
+        surface: AppColors.pearlSurface,
+        onSurface: AppColors.pearlSecondary,
+        outline: AppColors.pearlAccent.withValues(alpha: 0.3),
+      ),
+      scaffoldBackgroundColor: AppColors.pearlBackground,
+      cardTheme: base.cardTheme.copyWith(
+        color: AppColors.pearlSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: AppColors.pearlAccent.withValues(alpha: 0.4),
+            width: 0.5,
+          ),
+        ),
+      ),
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: AppColors.pearlBackground,
+      ),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        backgroundColor: AppColors.pearlBackground,
+      ),
+    );
+  }
 }

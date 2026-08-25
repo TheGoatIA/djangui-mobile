@@ -37,6 +37,10 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
   bool _showAllTransactions = false;
   final GlobalKey _rechargeKey = GlobalKey();
   bool _isAwaitingPaymentReturn = false;
+  // Tracked locally (rather than derived purely from state) so the popup is
+  // popped exactly once and before any success/error feedback is shown for
+  // the same state transition — see the FintechBloc listener below.
+  bool _isWithdrawDialogShowing = false;
 
   @override
   void initState() {
@@ -145,6 +149,64 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
         ),
         BlocListener<FintechBloc, FintechState>(
           listener: (context, state) {
+            // Popup de chargement pendant le retrait : ouvert dès que le bloc
+            // signale le début du traitement, refermé dès qu'il se termine —
+            // toujours AVANT d'afficher le résultat (snackbar/dialogue
+            // ci-dessous), pour ne jamais empiler les deux dialogues.
+            if (!_isWithdrawDialogShowing && state.isProcessingWithdrawal) {
+              _isWithdrawDialogShowing = true;
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => PopScope(
+                  canPop: false,
+                  child: AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    content: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.withdrawInProgress,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.withdrawInProgressHint,
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            } else if (_isWithdrawDialogShowing &&
+                !state.isProcessingWithdrawal) {
+              _isWithdrawDialogShowing = false;
+              Navigator.of(context, rootNavigator: true).pop();
+            }
+
             if (state.status == FintechStatus.withdrawalSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

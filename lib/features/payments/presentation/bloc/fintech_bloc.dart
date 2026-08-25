@@ -83,7 +83,12 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
       amount: event.amount,
       provider: event.provider,
     );
-    emit(state.copyWith(status: FintechStatus.loading));
+    emit(
+      state.copyWith(
+        status: FintechStatus.loading,
+        isProcessingWithdrawal: true,
+      ),
+    );
     final result = await _repository.requestPayout(
       amount: event.amount,
       phoneNumber: event.phoneNumber,
@@ -99,6 +104,7 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
           state.copyWith(
             status: FintechStatus.withdrawalError,
             message: failure.message,
+            isProcessingWithdrawal: false,
           ),
         );
         add(FetchWalletBalance());
@@ -115,6 +121,7 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
           state.copyWith(
             status: FintechStatus.withdrawalSuccess,
             message: message,
+            isProcessingWithdrawal: false,
           ),
         );
         add(FetchWalletBalance());

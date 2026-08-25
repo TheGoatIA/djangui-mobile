@@ -241,6 +241,9 @@ class TontineMessages extends Table {
   TextColumn get tontineId => text()();
   TextColumn get senderId => text()();
   TextColumn get content => text()();
+  TextColumn get type => text().withDefault(const Constant('text'))();
+  TextColumn get audioUrl => text().nullable()();
+  IntColumn get audioDuration => integer().nullable()();
   DateTimeColumn get createdAt => dateTime()();
 
   @override
@@ -263,6 +266,78 @@ class TontineContributions extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+// Singleton row (fixed id) caching the last dashboard report fetched — there
+// is only ever one, per logged-in user, so a single-row table is simpler
+// than a list-shaped one for this.
+class DashboardReports extends Table {
+  IntColumn get id => integer().withDefault(const Constant(1))();
+  RealColumn get walletBalance => real()();
+  RealColumn get monthlyIncome => real()();
+  RealColumn get totalSpent => real()();
+  RealColumn get savingsRate => real()();
+  TextColumn get currency => text().withDefault(const Constant('XAF'))();
+  TextColumn get budgetHealth => text().nullable()(); // JSON
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Un cache par période ('weekly'/'monthly'/'yearly') : changer de sélecteur
+// dans Insights doit pouvoir repeindre instantanément depuis un cache déjà
+// vu pour cette période, sans écraser celui des deux autres.
+class SpendingAnalysisCache extends Table {
+  TextColumn get period => text()();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {period};
+}
+
+class SavingsTrendCache extends Table {
+  TextColumn get period => text()();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {period};
+}
+
+// Le rapport narratif IA n'est jamais paramétré par période (toujours centré
+// sur le mois calendaire courant côté backend) — une seule ligne suffit,
+// même convention que DashboardReports.
+class NarrativeReportCache extends Table {
+  IntColumn get id => integer().withDefault(const Constant(1))();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Prévision de solde à 30 jours — même convention à ligne unique : une seule
+// prévision à la fois par utilisateur, régénérée en écrasant la précédente.
+class ForecastCache extends Table {
+  IntColumn get id => integer().withDefault(const Constant(1))();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Historique du score de santé financière (une liste de points, pas une
+// période individuelle) — ligne unique contenant tout l'historique connu.
+class HealthScoreHistoryCache extends Table {
+  IntColumn get id => integer().withDefault(const Constant(1))();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(
   tables: [
     Users,
@@ -279,13 +354,19 @@ class TontineContributions extends Table {
     TontineMembers,
     TontineMessages,
     TontineContributions,
+    DashboardReports,
+    SpendingAnalysisCache,
+    SavingsTrendCache,
+    NarrativeReportCache,
+    ForecastCache,
+    HealthScoreHistoryCache,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 24;
 
   @override
   MigrationStrategy get migration {
@@ -319,6 +400,23 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(tontineMembers);
           await m.createTable(tontineMessages);
           await m.createTable(tontineContributions);
+        }
+        if (from < 21) {
+          await m.addColumn(tontineMessages, tontineMessages.type);
+          await m.addColumn(tontineMessages, tontineMessages.audioUrl);
+          await m.addColumn(tontineMessages, tontineMessages.audioDuration);
+        }
+        if (from < 22) {
+          await m.createTable(dashboardReports);
+        }
+        if (from < 23) {
+          await m.createTable(spendingAnalysisCache);
+          await m.createTable(savingsTrendCache);
+          await m.createTable(narrativeReportCache);
+        }
+        if (from < 24) {
+          await m.createTable(forecastCache);
+          await m.createTable(healthScoreHistoryCache);
         }
       },
       beforeOpen: (details) async {

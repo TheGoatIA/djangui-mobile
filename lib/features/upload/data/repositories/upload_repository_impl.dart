@@ -31,6 +31,42 @@ class UploadRepositoryImpl implements UploadRepository {
   }
 
   @override
+  Future<Either<Failure, UploadResponseModel>> generateAvatar(
+    String style,
+    String? refinement,
+  ) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final result = await _remoteDataSource.generateAvatar(
+          style,
+          refinement,
+        );
+        return Right(result);
+      } catch (e) {
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, UploadResponseModel>> applyGeneratedAvatar(
+    String avatarUrl,
+  ) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final result = await _remoteDataSource.applyGeneratedAvatar(avatarUrl);
+        return Right(result);
+      } catch (e) {
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, UploadResponseModel>> uploadReceipt(
     String filePath,
   ) async {

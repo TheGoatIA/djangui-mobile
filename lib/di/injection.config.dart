@@ -155,6 +155,8 @@ import 'package:kauri/features/premium/presentation/bloc/premium_bloc.dart'
     as _i325;
 import 'package:kauri/features/reports/data/datasources/reports_api_service.dart'
     as _i158;
+import 'package:kauri/features/reports/data/datasources/reports_local_datasource.dart'
+    as _i515;
 import 'package:kauri/features/reports/data/repositories/reports_repository_impl.dart'
     as _i423;
 import 'package:kauri/features/reports/domain/repositories/reports_repository.dart'
@@ -286,6 +288,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i158.ReportsApiService>(
       () => registerModule.reportsApiService,
     );
+    gh.lazySingleton<_i158.ForecastApiService>(
+      () => registerModule.forecastApiService,
+    );
     gh.lazySingleton<_i33.SystemApiService>(
       () => registerModule.systemApiService,
     );
@@ -347,6 +352,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i680.TransactionLocalDataSource>(
       () => _i680.TransactionLocalDataSourceImpl(gh<_i777.AppDatabase>()),
     );
+    gh.lazySingleton<_i515.ReportsLocalDataSource>(
+      () => _i515.ReportsLocalDataSourceImpl(gh<_i777.AppDatabase>()),
+    );
     gh.lazySingleton<_i895.ChallengeLocalDataSource>(
       () => _i895.ChallengeLocalDataSourceImpl(gh<_i777.AppDatabase>()),
     );
@@ -399,12 +407,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.lazySingleton<_i760.ReportsRepository>(
-      () => _i423.ReportsRepositoryImpl(
-        gh<_i158.ReportsApiService>(),
-        gh<_i935.NetworkInfo>(),
-      ),
-    );
     gh.lazySingleton<_i534.TransactionRemoteDataSource>(
       () => _i534.TransactionRemoteDataSourceImpl(
         gh<_i982.TransactionApiService>(),
@@ -454,12 +456,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i725.PaymentBloc>(
       () => _i725.PaymentBloc(gh<_i593.PaymentRepository>()),
-    );
-    gh.factory<_i570.DashboardBloc>(
-      () => _i570.DashboardBloc(gh<_i760.ReportsRepository>()),
-    );
-    gh.factory<_i717.InsightsBloc>(
-      () => _i717.InsightsBloc(gh<_i760.ReportsRepository>()),
     );
     gh.lazySingleton<_i116.BudgetRepository>(
       () => _i136.BudgetRepositoryImpl(
@@ -560,6 +556,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i946.GoalsBloc>(
       () => _i946.GoalsBloc(gh<_i751.GoalRepository>()),
     );
+    gh.lazySingleton<_i760.ReportsRepository>(
+      () => _i423.ReportsRepositoryImpl(
+        gh<_i158.ReportsApiService>(),
+        gh<_i158.ForecastApiService>(),
+        gh<_i935.NetworkInfo>(),
+        gh<_i515.ReportsLocalDataSource>(),
+      ),
+    );
     gh.lazySingleton<_i375.ChallengeRepository>(
       () => _i380.ChallengeRepositoryImpl(
         gh<_i836.ChallengeRemoteDataSource>(),
@@ -579,6 +583,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i714.TransactionsBloc>(
       () => _i714.TransactionsBloc(gh<_i245.TransactionRepository>()),
+    );
+    gh.factory<_i570.DashboardBloc>(
+      () => _i570.DashboardBloc(gh<_i760.ReportsRepository>()),
+    );
+    gh.factory<_i717.InsightsBloc>(
+      () => _i717.InsightsBloc(gh<_i760.ReportsRepository>()),
     );
     gh.factory<_i111.SupportBloc>(
       () => _i111.SupportBloc(gh<_i810.SupportRepository>()),

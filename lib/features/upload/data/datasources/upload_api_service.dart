@@ -22,6 +22,16 @@ abstract class UploadApiService extends ChopperService {
     @PartFile('avatar') MultipartFile file,
   );
 
+  @POST(path: '/avatar/generate')
+  Future<Response<BaseResponse<UploadResponseModel>>> generateAvatar(
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST(path: '/avatar/apply')
+  Future<Response<BaseResponse<UploadResponseModel>>> applyGeneratedAvatar(
+    @Body() Map<String, dynamic> body,
+  );
+
   @POST(path: '/document')
   @Multipart()
   Future<Response<BaseResponse<UploadResponseModel>>> uploadDocument(

@@ -40,12 +40,9 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
   final _gracePeriodController = TextEditingController(text: '24');
   final _absenceFeeController = TextEditingController(text: '0');
 
-  final List<Map<String, String>> _escrowAccounts = [];
-
   String _frequency = 'monthly';
   String _currency = 'XAF';
   String _rotationMode = 'fixed';
-  String _validationMode = 'ia_only';
   final GlobalKey _rulesKey = GlobalKey();
 
   bool get _isEditing => widget.tontine != null;
@@ -83,18 +80,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
           .toString();
       _frequency = tontine.frequency;
       _rotationMode = tontine.rotationMode;
-      _validationMode = tontine.validationMode;
       _startDate = tontine.startDate ?? _startDate;
-      if (tontine.escrowDetails != null) {
-        for (var account in tontine.escrowDetails!) {
-          _escrowAccounts.add({
-            'type': account['type']?.toString() ?? '',
-            'provider': account['provider']?.toString() ?? '',
-            'accountNumber': account['accountNumber']?.toString() ?? '',
-            'accountName': account['accountName']?.toString() ?? '',
-          });
-        }
-      }
     }
   }
 
@@ -147,7 +133,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
 
         return BlocListener<TontineBloc, TontineState>(
           listener: (context, state) {
-            if (state.status == TontineStatus.success && _currentStep == 3) {
+            if (state.status == TontineStatus.success && _currentStep == 2) {
               getIt<AnalyticsManager>().trackEvent(
                 feature: 'Tontine',
                 action: 'create',
@@ -210,7 +196,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                     type: StepperType.vertical,
                     currentStep: _currentStep,
                     onStepContinue: () {
-                      if (_currentStep < 3) {
+                      if (_currentStep < 2) {
                         if (_formKey.currentState!.validate()) {
                           setState(() => _currentStep++);
                           if (_currentStep == 1) _startTutorial();
@@ -339,6 +325,9 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                                 initialValue: _rotationMode,
                                 decoration: InputDecoration(
                                   labelText: l10n.rotationMode,
+                                  helperText: _isEditing
+                                      ? l10n.rotationModeLockedHint
+                                      : null,
                                 ),
                                 items: [
                                   DropdownMenuItem(
@@ -349,33 +338,11 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                                     value: 'random',
                                     child: Text(l10n.randomRotation),
                                   ),
-                                  DropdownMenuItem(
-                                    value: 'auction',
-                                    child: Text(l10n.trustScoreRotation),
-                                  ),
                                 ],
-                                onChanged: (v) =>
-                                    setState(() => _rotationMode = v!),
+                                onChanged: _isEditing
+                                    ? null
+                                    : (v) => setState(() => _rotationMode = v!),
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            DropdownButtonFormField<String>(
-                              initialValue: _validationMode,
-                              decoration: InputDecoration(
-                                labelText: l10n.validationMode,
-                              ),
-                              items: [
-                                DropdownMenuItem(
-                                  value: 'ia_only',
-                                  child: Text(l10n.aiOnlyValidation),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'ia_plus_manual',
-                                  child: Text(l10n.creatorOnlyValidation),
-                                ),
-                              ],
-                              onChanged: (v) =>
-                                  setState(() => _validationMode = v!),
                             ),
                             const SizedBox(height: 24),
                             Text(
@@ -443,53 +410,8 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                         ),
                       ),
                       Step(
-                        title: Text(l10n.paymentAccounts),
-                        isActive: _currentStep >= 2,
-                        content: Column(
-                          children: [
-                            if (_escrowAccounts.isEmpty)
-                              Text(l10n.noAccountsAdded)
-                            else
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: _escrowAccounts.length,
-                                itemBuilder: (context, index) {
-                                  final account = _escrowAccounts[index];
-                                  return ListTile(
-                                    leading: Icon(
-                                      account['type'] == 'mobile_money'
-                                          ? Icons.phone_android
-                                          : Icons.account_balance,
-                                    ),
-                                    title: Text(account['provider']!),
-                                    subtitle: Text(
-                                      "${account['accountNumber']} - ${account['accountName']}",
-                                    ),
-                                    trailing: IconButton(
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        color: Colors.red,
-                                      ),
-                                      onPressed: () => setState(
-                                        () => _escrowAccounts.removeAt(index),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            const SizedBox(height: 16),
-                            ElevatedButton.icon(
-                              onPressed: _showAddAccountDialog,
-                              icon: const Icon(Icons.add),
-                              label: Text(l10n.addAccount),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Step(
                         title: Text(l10n.summary),
-                        isActive: _currentStep >= 3,
+                        isActive: _currentStep >= 2,
                         content: BlocBuilder<TontineBloc, TontineState>(
                           builder: (context, state) {
                             if (state.status == TontineStatus.loading) {
@@ -516,14 +438,6 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                                 _buildSummaryItem(
                                   l10n.rotationMode,
                                   _rotationMode,
-                                ),
-                                _buildSummaryItem(
-                                  l10n.validationMode,
-                                  _validationMode,
-                                ),
-                                _buildSummaryItem(
-                                  l10n.paymentAccounts,
-                                  '${_escrowAccounts.length}',
                                 ),
                               ],
                             );
@@ -554,83 +468,6 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
     );
   }
 
-  void _showAddAccountDialog() {
-    String type = 'mobile_money';
-    final providerController = TextEditingController();
-    final numberController = TextEditingController();
-    final nameController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        final l10n = AppLocalizations.of(context)!;
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text(l10n.addAccount),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<String>(
-                    initialValue: type,
-                    items: [
-                      DropdownMenuItem(
-                        value: 'mobile_money',
-                        child: Text(l10n.mobileMoney),
-                      ),
-                      DropdownMenuItem(
-                        value: 'bank',
-                        child: Text(l10n.bankCard),
-                      ),
-                    ],
-                    onChanged: (v) => setState(() => type = v!),
-                    decoration: InputDecoration(labelText: l10n.accountType),
-                  ),
-                  TextField(
-                    controller: providerController,
-                    decoration: InputDecoration(labelText: l10n.provider),
-                  ),
-                  TextField(
-                    controller: numberController,
-                    decoration: InputDecoration(labelText: l10n.accountNumber),
-                    keyboardType: TextInputType.number,
-                  ),
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(labelText: l10n.accountName),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(l10n.cancel),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (providerController.text.isNotEmpty &&
-                        numberController.text.isNotEmpty) {
-                      this.setState(() {
-                        _escrowAccounts.add({
-                          'type': type,
-                          'provider': providerController.text,
-                          'accountNumber': numberController.text,
-                          'accountName': nameController.text,
-                        });
-                      });
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: Text(l10n.add),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
   void _submit() {
     final params = {
       'name': _nameController.text,
@@ -638,8 +475,10 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
       'contributionAmount': double.parse(_amountController.text),
       'totalParts': int.parse(_partsController.text),
       'currency': _currency,
-      'rotationMode': _rotationMode,
-      'validationMode': _validationMode,
+      // rotationMode is immutable server-side once a tontine is created — the
+      // backend rejects the whole update request (400) if this key is even
+      // present, so it must only ever be sent on creation.
+      if (!_isEditing) 'rotationMode': _rotationMode,
       'startDate': _startDate.toIso8601String(),
       'socialFund': {
         'enabled': _isSocialFundEnabled,
@@ -652,7 +491,6 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
         'gracePeriodHours': int.parse(_gracePeriodController.text),
         'absenceFee': double.parse(_absenceFeeController.text),
       },
-      'escrowDetails': _escrowAccounts,
     };
 
     final frictionDuration = DateTime.now().difference(_enteredAt).inSeconds;

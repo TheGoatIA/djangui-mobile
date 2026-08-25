@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -9,7 +10,6 @@ import '../../../../core/theme/app_colors.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/pages/onboarding_page.dart';
 import '../../../../features/settings/presentation/bloc/settings_bloc.dart';
 import '../../../gamification/presentation/widgets/badges_list.dart';
 import '../../../../core/constants/route_constants.dart';
@@ -179,6 +179,417 @@ class _ProfilePageState extends State<ProfilePage>
         );
       }
     }
+  }
+
+  static const List<(String, IconData)> _aiAvatarStyleKeys = [
+    ('professional', Icons.business_center_outlined),
+    ('cartoon', Icons.emoji_emotions_outlined),
+    ('illustrated', Icons.brush_outlined),
+    ('cyberpunk', Icons.bolt_outlined),
+    ('minimalist', Icons.hexagon_outlined),
+    ('fantasy', Icons.auto_awesome_outlined),
+    ('watercolor', Icons.water_drop_outlined),
+  ];
+
+  String _aiAvatarStyleLabel(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'professional':
+        return l10n.aiAvatarStyleProfessional;
+      case 'cartoon':
+        return l10n.aiAvatarStyleCartoon;
+      case 'illustrated':
+        return l10n.aiAvatarStyleIllustrated;
+      case 'cyberpunk':
+        return l10n.aiAvatarStyleCyberpunk;
+      case 'minimalist':
+        return l10n.aiAvatarStyleMinimalist;
+      case 'fantasy':
+        return l10n.aiAvatarStyleFantasy;
+      case 'watercolor':
+        return l10n.aiAvatarStyleWatercolor;
+      default:
+        return key;
+    }
+  }
+
+  /// Propose de choisir une image depuis la galerie ou de générer un avatar
+  /// via IA (Premium) — point d'entrée unique remplaçant l'ancien accès direct
+  /// à la galerie.
+  void _showAvatarOptions(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final isPremium =
+        context.read<AuthBloc>().state.authResponse?.user.isPremium ?? false;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(l10n.avatarOptionsTitle, style: AppTextStyles.h3),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: Text(l10n.chooseFromGallery),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickImage();
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.auto_awesome,
+                  color: isPremium
+                      ? AppColors.secondary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                title: Text(l10n.generateAvatarWithAi),
+                subtitle: Text(
+                  l10n.generateAvatarWithAiDesc,
+                  style: AppTextStyles.bodySmall,
+                ),
+                trailing: isPremium
+                    ? null
+                    : const Icon(
+                        Icons.lock_outline,
+                        size: 18,
+                        color: Colors.orange,
+                      ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  if (isPremium) {
+                    _showAiAvatarGeneratorSheet(context);
+                  } else {
+                    context.push(RouteConstants.subscription);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Sélection d'un style + description optionnelle, génération de l'avatar
+  /// via IA (Premium uniquement, déjà vérifié par l'appelant), puis
+  /// prévisualisation avant application : le résultat n'est PAS encore le
+  /// nouvel avatar de l'utilisateur (voir `AvatarGenerationService.generate`
+  /// côté backend, qui ne fait plus qu'uploader un aperçu) — l'utilisateur
+  /// peut régénérer ou revenir modifier ses réglages avant de confirmer via
+  /// `applyGeneratedAvatar`.
+  void _showAiAvatarGeneratorSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    String selectedStyle = _aiAvatarStyleKeys.first.$1;
+    final refinementController = TextEditingController();
+    bool isGenerating = false;
+    bool isApplying = false;
+    String? previewUrl;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (sheetContext, setSheetState) {
+          Future<void> runGenerate() async {
+            setSheetState(() => isGenerating = true);
+            final uploadRepo = getIt<UploadRepository>();
+            final result = await uploadRepo.generateAvatar(
+              selectedStyle,
+              refinementController.text,
+            );
+            result.fold(
+              (failure) {
+                setSheetState(() => isGenerating = false);
+                ScaffoldMessenger.of(sheetContext).showSnackBar(
+                  SnackBar(
+                    content: Text(failure.message),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              },
+              (response) {
+                setSheetState(() {
+                  isGenerating = false;
+                  previewUrl = response.finalUrl;
+                });
+              },
+            );
+          }
+
+          Future<void> runApply() async {
+            final url = previewUrl;
+            if (url == null) return;
+            setSheetState(() => isApplying = true);
+            final uploadRepo = getIt<UploadRepository>();
+            final result = await uploadRepo.applyGeneratedAvatar(url);
+            result.fold(
+              (failure) {
+                setSheetState(() => isApplying = false);
+                ScaffoldMessenger.of(sheetContext).showSnackBar(
+                  SnackBar(
+                    content: Text(failure.message),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              },
+              (response) {
+                Navigator.pop(sheetContext);
+                if (mounted) {
+                  context.read<AuthBloc>().add(AuthRefreshUserRequested());
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.aiAvatarSuccess),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                }
+              },
+            );
+          }
+
+          final isPreviewing = previewUrl != null;
+
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+            ),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(28),
+                ),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant
+                              .withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    Text(l10n.generateAvatarWithAi, style: AppTextStyles.h2),
+                    const SizedBox(height: 16),
+                    if (isPreviewing) ...[
+                      Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.network(
+                            previewUrl!,
+                            width: 220,
+                            height: 220,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, progress) {
+                              if (progress == null) return child;
+                              return const SizedBox(
+                                width: 220,
+                                height: 220,
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stack) =>
+                                const SizedBox(
+                                  width: 220,
+                                  height: 220,
+                                  child: Icon(Icons.broken_image_outlined),
+                                ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.aiAvatarPreviewHint,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: (isGenerating || isApplying)
+                                  ? null
+                                  : () =>
+                                        setSheetState(() => previewUrl = null),
+                              child: Text(l10n.aiAvatarEditButton),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: (isGenerating || isApplying)
+                                  ? null
+                                  : runGenerate,
+                              icon: isGenerating
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.refresh, size: 18),
+                              label: Text(l10n.aiAvatarRegenerateButton),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: (isGenerating || isApplying)
+                              ? null
+                              : runApply,
+                          icon: isApplying
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.check),
+                          label: Text(
+                            isApplying
+                                ? l10n.aiAvatarApplying
+                                : l10n.aiAvatarUseButton,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      Text(
+                        l10n.aiAvatarStyleLabel,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: _aiAvatarStyleKeys.map((entry) {
+                          final (key, icon) = entry;
+                          final selected = key == selectedStyle;
+                          return ChoiceChip(
+                            selected: selected,
+                            avatar: Icon(
+                              icon,
+                              size: 18,
+                              color: selected
+                                  ? Theme.of(context).colorScheme.onPrimary
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                            ),
+                            label: Text(_aiAvatarStyleLabel(l10n, key)),
+                            onSelected: isGenerating
+                                ? null
+                                : (_) =>
+                                      setSheetState(() => selectedStyle = key),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: refinementController,
+                        enabled: !isGenerating,
+                        maxLength: 200,
+                        maxLines: 2,
+                        decoration: InputDecoration(
+                          hintText: l10n.aiAvatarRefinementHint,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: isGenerating ? null : runGenerate,
+                          icon: isGenerating
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.auto_awesome),
+                          label: Text(
+                            isGenerating
+                                ? l10n.aiAvatarGenerating
+                                : l10n.aiAvatarGenerateButton,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   /// Affiche une boîte de dialogue pour modifier les informations de base du profil.
@@ -410,42 +821,75 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// Résout la chaîne `avatarUrl` (URL http absolue, chemin relatif à l'API,
+  /// ou base64 legacy) en `ImageProvider` affichable — logique partagée entre
+  /// le petit avatar de l'en-tête et la visionneuse plein écran.
+  ImageProvider _resolveAvatarImage(String avatarUrl) {
+    if (avatarUrl.startsWith('http')) return NetworkImage(avatarUrl);
+    if (avatarUrl.startsWith('/')) {
+      return NetworkImage(
+        '${EnvConfig.apiBaseUrl.replaceAll('/api/v1', '')}$avatarUrl',
+      );
+    }
+    return MemoryImage(base64Decode(avatarUrl));
+  }
+
+  /// Ouvre la photo de profil en plein écran, zoomable — distinct du tap sur
+  /// le badge appareil photo qui, lui, ouvre les options de changement.
+  void _openAvatarViewer(BuildContext context, String avatarUrl) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.black,
+        pageBuilder: (_, _, _) =>
+            _AvatarViewerPage(imageProvider: _resolveAvatarImage(avatarUrl)),
+        transitionsBuilder: (_, animation, _, child) =>
+            FadeTransition(opacity: animation, child: child),
+      ),
+    );
+  }
+
   Widget _buildProfileHeader(
     BuildContext context,
     String name,
     String email,
     String? avatarUrl,
   ) {
+    final hasAvatar = avatarUrl != null && avatarUrl.isNotEmpty;
     return Column(
       children: [
-        GestureDetector(
-          onTap: _pickImage,
-          child: Stack(
-            children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty)
-                    ? (avatarUrl.startsWith('http')
-                              ? NetworkImage(avatarUrl)
-                              : (avatarUrl.startsWith('/')
-                                    ? NetworkImage(
-                                        '${EnvConfig.apiBaseUrl.replaceAll('/api/v1', '')}$avatarUrl',
-                                      )
-                                    : MemoryImage(base64Decode(avatarUrl))))
-                          as ImageProvider
-                    : null,
-                child: (avatarUrl == null || avatarUrl.isEmpty)
-                    ? Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      )
-                    : null,
+        Stack(
+          children: [
+            GestureDetector(
+              // Photo présente : le tap l'agrandit (rien à changer par
+              // défaut). Pas de photo : rien à agrandir, le tap ouvre
+              // directement les options pour en définir une.
+              onTap: hasAvatar
+                  ? () => _openAvatarViewer(context, avatarUrl)
+                  : () => _showAvatarOptions(context),
+              child: Hero(
+                tag: 'profile-avatar',
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  backgroundImage: hasAvatar
+                      ? _resolveAvatarImage(avatarUrl)
+                      : null,
+                  child: !hasAvatar
+                      ? Icon(
+                          Icons.person,
+                          size: 50,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        )
+                      : null,
+                ),
               ),
-              Positioned(
-                bottom: 0,
-                right: 0,
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: () => _showAvatarOptions(context),
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
@@ -465,8 +909,8 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         Text(name, style: AppTextStyles.h3),
@@ -910,15 +1354,6 @@ class _ProfilePageState extends State<ProfilePage>
                 onTap: () => _resetTutorials(context),
               ),
             ),
-            _buildSettingsTile(
-              Icons.movie_creation_outlined,
-              AppLocalizations.of(context)!.replayOnboarding,
-              onTap: () => Navigator.of(context, rootNavigator: true).push(
-                MaterialPageRoute(
-                  builder: (_) => const OnboardingPage(isReplay: true),
-                ),
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 24),
@@ -1120,141 +1555,152 @@ class _ProfilePageState extends State<ProfilePage>
     return mode.getLabel(AppLocalizations.of(context)!);
   }
 
+  static const List<AppThemeType> _standardThemes = [
+    AppThemeType.light,
+    AppThemeType.dark,
+    AppThemeType.system,
+  ];
+
+  static const List<AppThemeType> _premiumThemes = [
+    AppThemeType.obsidianGold,
+    AppThemeType.polarNight,
+    AppThemeType.sunsetGlow,
+    AppThemeType.emeraldForest,
+    AppThemeType.midnightRoyal,
+    AppThemeType.roseVelvet,
+    AppThemeType.rubyEmber,
+    AppThemeType.oceanAbyss,
+    AppThemeType.cyberNeon,
+    AppThemeType.champagnePearl,
+  ];
+
   void _showThemeSelectionDialog(
     BuildContext context,
     AppThemeType currentMode,
   ) {
     final user = context.read<AuthBloc>().state.authResponse?.user;
     final isPremium = user?.isPremium ?? false;
+    final l10n = AppLocalizations.of(context)!;
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.theme),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildThemeOption(
-              context,
-              AppThemeType.light,
-              currentMode,
-              AppThemeType.light.getLabel(AppLocalizations.of(context)!),
-              (value) {
-                context.read<SettingsBloc>().add(ThemeChanged(value!));
-                Navigator.pop(dialogContext);
-              },
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => DraggableScrollableSheet(
+        initialChildSize: 0.82,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(28),
             ),
-            _buildThemeOption(
-              context,
-              AppThemeType.dark,
-              currentMode,
-              AppThemeType.dark.getLabel(AppLocalizations.of(context)!),
-              (value) {
-                context.read<SettingsBloc>().add(ThemeChanged(value!));
-                Navigator.pop(dialogContext);
-              },
-            ),
-            _buildThemeOption(
-              context,
-              AppThemeType.system,
-              currentMode,
-              AppThemeType.system.getLabel(AppLocalizations.of(context)!),
-              (value) {
-                context.read<SettingsBloc>().add(ThemeChanged(value!));
-                Navigator.pop(dialogContext);
-              },
-            ),
-            const Divider(),
-            _buildThemeOption(
-              context,
-              AppThemeType.obsidianGold,
-              currentMode,
-              AppThemeType.obsidianGold.getLabel(AppLocalizations.of(context)!),
-              (value) {
-                if (isPremium) {
-                  context.read<SettingsBloc>().add(ThemeChanged(value!));
-                  Navigator.pop(dialogContext);
-                } else {
-                  Navigator.pop(dialogContext);
-                  context.push(RouteConstants.subscription);
-                }
-              },
-              isPremiumOnly: true,
-              isPremium: isPremium,
-            ),
-            _buildThemeOption(
-              context,
-              AppThemeType.polarNight,
-              currentMode,
-              AppThemeType.polarNight.getLabel(AppLocalizations.of(context)!),
-              (value) {
-                if (isPremium) {
-                  context.read<SettingsBloc>().add(ThemeChanged(value!));
-                  Navigator.pop(dialogContext);
-                } else {
-                  Navigator.pop(dialogContext);
-                  context.push(RouteConstants.subscription);
-                }
-              },
-              isPremiumOnly: true,
-              isPremium: isPremium,
-            ),
-            _buildThemeOption(
-              context,
-              AppThemeType.sunsetGlow,
-              currentMode,
-              AppThemeType.sunsetGlow.getLabel(AppLocalizations.of(context)!),
-              (value) {
-                if (isPremium) {
-                  context.read<SettingsBloc>().add(ThemeChanged(value!));
-                  Navigator.pop(dialogContext);
-                } else {
-                  Navigator.pop(dialogContext);
-                  context.push(RouteConstants.subscription);
-                }
-              },
-              isPremiumOnly: true,
-              isPremium: isPremium,
-            ),
-            _buildThemeOption(
-              context,
-              AppThemeType.emeraldForest,
-              currentMode,
-              AppThemeType.emeraldForest.getLabel(
-                AppLocalizations.of(context)!,
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-              (value) {
-                if (isPremium) {
-                  context.read<SettingsBloc>().add(ThemeChanged(value!));
-                  Navigator.pop(dialogContext);
-                } else {
-                  Navigator.pop(dialogContext);
-                  context.push(RouteConstants.subscription);
-                }
-              },
-              isPremiumOnly: true,
-              isPremium: isPremium,
-            ),
-            _buildThemeOption(
-              context,
-              AppThemeType.midnightRoyal,
-              currentMode,
-              AppThemeType.midnightRoyal.getLabel(
-                AppLocalizations.of(context)!,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 12, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(l10n.theme, style: AppTextStyles.h2),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(sheetContext),
+                    ),
+                  ],
+                ),
               ),
-              (value) {
-                if (isPremium) {
-                  context.read<SettingsBloc>().add(ThemeChanged(value!));
-                  Navigator.pop(dialogContext);
-                } else {
-                  Navigator.pop(dialogContext);
-                  context.push(RouteConstants.subscription);
-                }
-              },
-              isPremiumOnly: true,
-              isPremium: isPremium,
-            ),
-          ],
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
+                  children: [
+                    Text(
+                      l10n.standardThemesLabel,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _standardThemes.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.85,
+                          ),
+                      itemBuilder: (context, index) => _buildThemeCard(
+                        context,
+                        sheetContext,
+                        _standardThemes[index],
+                        currentMode,
+                        isPremium,
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.workspace_premium,
+                          size: 16,
+                          color: AppColors.secondary,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          l10n.premiumThemesLabel,
+                          style: AppTextStyles.bodySmall.copyWith(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                            color: AppColors.secondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _premiumThemes.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 1.35,
+                          ),
+                      itemBuilder: (context, index) => _buildThemeCard(
+                        context,
+                        sheetContext,
+                        _premiumThemes[index],
+                        currentMode,
+                        isPremium,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1421,29 +1867,113 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Widget _buildThemeOption(
+  Widget _buildThemeCard(
     BuildContext context,
-    AppThemeType mode,
-    AppThemeType groupValue,
-    String label,
-    ValueChanged<AppThemeType?> onChanged, {
-    bool isPremiumOnly = false,
-    bool isPremium = false,
-  }) {
-    final isSelected = mode == groupValue;
-    return ListTile(
-      title: Text(label),
-      leading: Icon(
-        isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-        color: isSelected
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onSurfaceVariant,
+    BuildContext sheetContext,
+    AppThemeType type,
+    AppThemeType currentMode,
+    bool isPremium,
+  ) {
+    final isSelected = type == currentMode;
+    final isLocked = type.isPremiumOnly && !isPremium;
+    final colors = type.previewColors;
+    final isLightSwatch = type == AppThemeType.light ||
+        type == AppThemeType.champagnePearl ||
+        type == AppThemeType.system;
+    final labelColor = isLightSwatch ? Colors.black87 : Colors.white;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.pop(sheetContext);
+        if (isLocked) {
+          context.push(RouteConstants.subscription);
+        } else {
+          context.read<SettingsBloc>().add(ThemeChanged(type));
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            colors: colors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.transparent,
+            width: 3,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)
+                  : Colors.black.withValues(alpha: 0.12),
+              blurRadius: isSelected ? 16 : 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            if (isLocked)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.45),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.lock_outline,
+                    size: 13,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            else if (isSelected)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Icon(
+                  Icons.check_circle,
+                  color: labelColor,
+                  size: 20,
+                  shadows: const [
+                    Shadow(color: Colors.black38, blurRadius: 4),
+                  ],
+                ),
+              ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Text(
+                  type.getLabel(AppLocalizations.of(context)!),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: labelColor,
+                    fontWeight: FontWeight.bold,
+                    shadows: isLightSwatch
+                        ? null
+                        : const [Shadow(color: Colors.black38, blurRadius: 4)],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-      trailing: isPremiumOnly && !isPremium
-          ? const Icon(Icons.lock_outline, size: 18, color: Colors.orange)
-          : null,
-      onTap: () => onChanged(mode),
-    );
+    ).animate().fadeIn(duration: 250.ms).scale(
+          begin: const Offset(0.92, 0.92),
+          curve: Curves.easeOut,
+        );
   }
 
   void _showLanguageSelectionDialog(
@@ -1858,6 +2388,41 @@ class _ProfilePageState extends State<ProfilePage>
             child: Text(l10n.close),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Visionneuse plein écran de la photo de profil, zoomable (pincer pour
+/// zoomer via `InteractiveViewer`). Ouverte depuis un tap sur l'avatar
+/// lui-même — le badge appareil photo séparé reste dédié au changement.
+class _AvatarViewerPage extends StatelessWidget {
+  const _AvatarViewerPage({required this.imageProvider});
+
+  final ImageProvider imageProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          AppLocalizations.of(context)!.avatarViewerTitle,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+      body: Center(
+        child: Hero(
+          tag: 'profile-avatar',
+          child: InteractiveViewer(
+            minScale: 1,
+            maxScale: 4,
+            child: Image(image: imageProvider, fit: BoxFit.contain),
+          ),
+        ),
       ),
     );
   }

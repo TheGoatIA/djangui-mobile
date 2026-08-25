@@ -86,6 +86,10 @@ abstract class RegisterModule {
       ReportsApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
+  ForecastApiService get forecastApiService =>
+      ForecastApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
   SystemApiService get systemApiService =>
       SystemApiService.create(getIt<ChopperClient>());
 

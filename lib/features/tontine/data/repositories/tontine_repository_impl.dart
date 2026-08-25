@@ -121,6 +121,12 @@ class TontineRepositoryImpl implements TontineRepository {
   }
 
   @override
+  Future<Either<Failure, List<Tontine>>> getCachedTontines() async {
+    final localModels = await _localDataSource.getTontines();
+    return Right(localModels.map(_mapModelToEntity).toList());
+  }
+
+  @override
   Future<Either<Failure, Tontine>> getTontineDetails(String id) async {
     _logger.info(
       'Récupération des détails de la tontine: $id',
@@ -222,7 +228,6 @@ class TontineRepositoryImpl implements TontineRepository {
     String inviteCode, {
     required String displayName,
     required int parts,
-    required Map<String, dynamic> payoutDetails,
   }) async {
     _logger.info(
       'Tentative de rejoindre une tontine (Code: $inviteCode)',
@@ -234,7 +239,6 @@ class TontineRepositoryImpl implements TontineRepository {
           'inviteCode': inviteCode,
           'displayName': displayName,
           'parts': parts,
-          'payoutDetails': payoutDetails,
         });
         if (response.isSuccessful && response.body?.data != null) {
           final member = response.body!.data!;
@@ -438,6 +442,14 @@ class TontineRepositoryImpl implements TontineRepository {
   }
 
   @override
+  Future<Either<Failure, List<TontineMessage>>> getCachedTontineMessages(
+    String id,
+  ) async {
+    final localMessages = await _localDataSource.getTontineMessages(id);
+    return Right(localMessages.map(_mapMessageModelToEntity).toList());
+  }
+
+  @override
   Future<Either<Failure, List<TontineMessage>>> getTontineMessages(
     String id,
   ) async {
@@ -519,10 +531,84 @@ class TontineRepositoryImpl implements TontineRepository {
             db.SyncRequestsCompanion.insert(
               table: 'tontines',
               action: 'send_message',
-              payload: jsonEncode({'tontineId': id, 'content': content}),
+              payload: jsonEncode({
+                'tontineId': id,
+                'content': content,
+                'tempId': tempMessage.id,
+              }),
             ),
           );
       return Right(_mapMessageModelToEntity(tempMessage));
+    }
+  }
+
+  @override
+  Future<Either<Failure, TontineMessage>> sendVoiceMessage(
+    String tontineId,
+    File audioFile,
+    int durationSeconds,
+  ) async {
+    // Voice notes are online-only, like proof-image uploads (contribute()) — a
+    // recorded file can't be safely queued for later sync (the temp file may not
+    // survive until reconnection), so there is no offline fallback here.
+    if (!await _networkInfo.isConnected) {
+      _logger.warning(
+        'Impossible d\'envoyer une note vocale hors-ligne.',
+        component: 'TontineRepository',
+      );
+      return Left(NetworkFailure());
+    }
+
+    final tempMessage = TontineMessageModel(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      tontineId: tontineId,
+      senderId: 'me',
+      content: '🎤 Note vocale',
+      type: 'audio',
+      audioUrl: null,
+      audioDuration: durationSeconds,
+      createdAt: DateTime.now(),
+    );
+    await _localDataSource.saveTontineMessage(tempMessage);
+
+    try {
+      final multipartFile = await MultipartFile.fromPath(
+        'audio',
+        audioFile.path,
+        contentType: MediaType('audio', 'mp4'),
+      );
+      final response = await _apiService.sendVoiceMessage(
+        tontineId,
+        audioFile: multipartFile,
+        duration: durationSeconds.toString(),
+      );
+      if (response.isSuccessful && response.body?.data != null) {
+        final remoteMessage = response.body!.data!;
+        await _localDataSource.deleteTontineMessage(tempMessage.id);
+        await _localDataSource.saveTontineMessage(remoteMessage);
+        _logger.info(
+          'Note vocale envoyée avec succès.',
+          component: 'TontineRepository',
+        );
+        return Right(_mapMessageModelToEntity(remoteMessage));
+      }
+      await _localDataSource.deleteTontineMessage(tempMessage.id);
+      return Left(ServerFailure(_getErrorMessage(response.error)));
+    } catch (e) {
+      await _localDataSource.deleteTontineMessage(tempMessage.id);
+      _logger.error(
+        'Erreur technique (sendVoiceMessage)',
+        error: e,
+        component: 'TontineRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+    } finally {
+      // The recorded file is only ever needed for this one upload attempt
+      // (there is no retry path for a failed voice-note send) — clean it up
+      // either way so temp recordings don't accumulate on device storage.
+      try {
+        if (audioFile.existsSync()) audioFile.deleteSync();
+      } catch (_) {}
     }
   }
 
@@ -568,14 +654,17 @@ class TontineRepositoryImpl implements TontineRepository {
 
   @override
   Future<Either<Failure, TontineContribution>> validateContribution(
+    String tontineId,
     String id,
     String status,
   ) async {
     if (await _networkInfo.isConnected) {
       try {
-        final response = await _apiService.validateContribution(id, {
-          'status': status,
-        });
+        final response = await _apiService.validateContribution(
+          tontineId,
+          id,
+          {'decision': status == 'creator_validated' ? 'approve' : 'reject'},
+        );
         if (response.isSuccessful && response.body?.data != null) {
           return Right(_mapContributionModelToEntity(response.body!.data!));
         }
@@ -640,6 +729,23 @@ class TontineRepositoryImpl implements TontineRepository {
   }
 
   @override
+  Future<Either<Failure, TontineMember>> paySocialFund(String tontineId) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final response = await _apiService.paySocialFund(tontineId);
+        if (response.isSuccessful && response.body?.data != null) {
+          return Right(_mapMemberModelToEntity(response.body!.data!));
+        }
+        return Left(ServerFailure(_getErrorMessage(response.error)));
+      } catch (e) {
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, TontineMember>> toggleAutoDebit({
     required String tontineId,
     required String memberId,
@@ -677,7 +783,6 @@ class TontineRepositoryImpl implements TontineRepository {
       rotationMode: model.rotationMode,
       validationMode: model.validationMode,
       sanctions: model.sanctions,
-      escrowDetails: model.escrowDetails,
       socialFund: model.socialFund,
       status: model.status,
       inviteCode: model.inviteCode,
@@ -695,6 +800,9 @@ class TontineRepositoryImpl implements TontineRepository {
               expectedAmount: model.turnSummary!.expectedAmount,
               contributorsCount: model.turnSummary!.contributorsCount,
               totalMembers: model.turnSummary!.totalMembers,
+              currentBeneficiaryId: model.turnSummary!.currentBeneficiaryId,
+              currentBeneficiaryName:
+                  model.turnSummary!.currentBeneficiaryName,
             )
           : null,
     );
@@ -710,7 +818,6 @@ class TontineRepositoryImpl implements TontineRepository {
       trustScore: model.trustScore,
       hasPaidSocialFund: model.hasPaidSocialFund,
       autoDebitEnabled: model.autoDebitEnabled,
-      payoutDetails: model.payoutDetails,
     );
   }
 
@@ -736,6 +843,9 @@ class TontineRepositoryImpl implements TontineRepository {
       tontineId: model.tontineId,
       senderId: model.senderId,
       content: model.content,
+      type: model.type,
+      audioUrl: model.audioUrl,
+      audioDuration: model.audioDuration,
       createdAt: model.createdAt,
     );
   }

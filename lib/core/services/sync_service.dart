@@ -18,6 +18,7 @@ import 'package:kauri/features/budgets/data/datasources/budget_remote_datasource
 import 'package:kauri/features/budgets/data/datasources/budget_local_datasource.dart';
 import 'package:kauri/features/budgets/data/models/budget_model.dart';
 import 'package:kauri/features/tontine/data/datasources/tontine_api_service.dart';
+import 'package:kauri/features/tontine/data/datasources/tontine_local_datasource.dart';
 import 'package:kauri/features/goals/data/models/goal_model.dart';
 import 'package:kauri/features/auth/domain/repositories/auth_repository.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -313,6 +314,13 @@ class SyncService {
       final tontineId = payload['tontineId'] as String;
       final content = payload['content'] as String;
       await _tontineApiService.sendMessage(tontineId, {'content': content});
+      // The optimistic "temp_" row is only removed once the send is
+      // confirmed here — otherwise it lingers in the local cache forever and
+      // can resurface as a duplicate the next time the app goes offline.
+      final tempId = payload['tempId'] as String?;
+      if (tempId != null) {
+        await getIt<TontineLocalDataSource>().deleteTontineMessage(tempId);
+      }
     }
   }
 }

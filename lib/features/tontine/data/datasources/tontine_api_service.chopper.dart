@@ -138,6 +138,29 @@ final class _$TontineApiService extends TontineApiService {
   }
 
   @override
+  Future<Response<BaseResponse<TontineMessageModel>>> sendVoiceMessage(
+    String id, {
+    required MultipartFile audioFile,
+    required String duration,
+  }) {
+    final Uri $url = Uri.parse('/tontines/${id}/messages');
+    final List<PartValue> $parts = <PartValue>[
+      PartValue<String>('duration', duration),
+      PartValueFile<MultipartFile>('audio', audioFile),
+    ];
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      parts: $parts,
+      multipart: true,
+    );
+    return client.send<BaseResponse<TontineMessageModel>, TontineMessageModel>(
+      $request,
+    );
+  }
+
+  @override
   Future<Response<BaseListResponse<TontineContributionModel>>> getContributions(
     String id,
   ) {
@@ -151,12 +174,20 @@ final class _$TontineApiService extends TontineApiService {
 
   @override
   Future<Response<BaseResponse<TontineContributionModel>>> validateContribution(
+    String tontineId,
     String id,
     Map<String, dynamic> body,
   ) {
-    final Uri $url = Uri.parse('/tontines/contributions/${id}/validate');
+    final Uri $url = Uri.parse(
+      '/tontines/${tontineId}/contributions/${id}/validate',
+    );
     final $body = body;
-    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    final Request $request = Request(
+      'PATCH',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client
         .send<BaseResponse<TontineContributionModel>, TontineContributionModel>(
           $request,
@@ -210,6 +241,15 @@ final class _$TontineApiService extends TontineApiService {
       client.baseUrl,
       body: $body,
     );
+    return client.send<BaseResponse<TontineMemberModel>, TontineMemberModel>(
+      $request,
+    );
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineMemberModel>>> paySocialFund(String id) {
+    final Uri $url = Uri.parse('/tontines/${id}/social-fund/pay');
+    final Request $request = Request('POST', $url, client.baseUrl);
     return client.send<BaseResponse<TontineMemberModel>, TontineMemberModel>(
       $request,
     );

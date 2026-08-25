@@ -567,6 +567,73 @@ class AppLocalizationsFr extends AppLocalizations {
   String get categoryDetails => 'Détails par Catégorie';
 
   @override
+  String get forecastSectionTitle => 'Prévision de solde (30 jours)';
+
+  @override
+  String get forecastCriticalAlertPrefix => 'Alerte :';
+
+  @override
+  String get forecastInsightsLabel => 'Ce que Kauri observe';
+
+  @override
+  String get forecastUnavailable => 'Prévision indisponible pour le moment.';
+
+  @override
+  String get healthScoreHistoryTitle => 'Évolution de votre santé financière';
+
+  @override
+  String get healthScoreHistoryEmpty =>
+      'Revenez le mois prochain pour voir apparaître votre courbe d\'évolution.';
+
+  @override
+  String get autoBudgetNoIncomeHint =>
+      'Renseignez votre revenu mensuel dans votre profil pour obtenir un budget recommandé personnalisé.';
+
+  @override
+  String get autoBudgetNeeds => 'Besoins essentiels (50%)';
+
+  @override
+  String get autoBudgetWants => 'Envies (30%)';
+
+  @override
+  String get autoBudgetSavings => 'Épargne (20%)';
+
+  @override
+  String autoBudgetActualSpent(String spent, String income) {
+    return 'Dépensé ce mois-ci : $spent sur un revenu de $income';
+  }
+
+  @override
+  String premiumReportReady(String month) {
+    return 'Votre Rapport de $month est prêt !';
+  }
+
+  @override
+  String premiumReportPreparing(String month) {
+    return 'Votre Rapport de $month arrive bientôt...';
+  }
+
+  @override
+  String get premiumReportShareAction => 'Partager mon rapport';
+
+  @override
+  String get reportPdfKeyInsights => 'Points clés';
+
+  @override
+  String get reportPdfRecommendations => 'Recommandations de Kauri';
+
+  @override
+  String reportPdfGeneratedOn(String date) {
+    return 'Généré par Kauri le $date';
+  }
+
+  @override
+  String get reportPdfGenerating => 'Préparation du PDF...';
+
+  @override
+  String get reportPdfError => 'Impossible de générer le PDF du rapport.';
+
+  @override
   String get weekly => 'Hebdomadaire';
 
   @override
@@ -577,6 +644,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noDataAvailable => 'Aucune donnée disponible';
+
+  @override
+  String get insightsLoadErrorBanner =>
+      'Impossible de mettre à jour vos analyses. Les données affichées peuvent être obsolètes.';
+
+  @override
+  String get financialHealthScoreLabel => 'Score de santé financière';
 
   @override
   String get orContinueWith => 'Ou continuer avec';
@@ -818,6 +892,21 @@ class AppLocalizationsFr extends AppLocalizations {
       'L\'analyse IA est temporairement indisponible';
 
   @override
+  String get tontineAiAnalysisTitle => 'Analyse IA du reçu';
+
+  @override
+  String get tontineAiDetectedAmount => 'Montant détecté';
+
+  @override
+  String get tontineAiDetectedRef => 'Référence détectée';
+
+  @override
+  String get tontineAiDetectedDate => 'Date détectée';
+
+  @override
+  String get tontineAiConfidence => 'Confiance de l\'IA';
+
+  @override
   String get countryLabel => 'Pays';
 
   @override
@@ -862,6 +951,71 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get chooseFromGallery => 'Choisir depuis la galerie';
+
+  @override
+  String get avatarOptionsTitle => 'Photo de profil';
+
+  @override
+  String get generateAvatarWithAi => 'Générer avec l\'IA';
+
+  @override
+  String get generateAvatarWithAiDesc =>
+      'Créez un avatar unique à partir d\'un style, en quelques secondes.';
+
+  @override
+  String get aiAvatarStyleLabel => 'Choisissez un style';
+
+  @override
+  String get aiAvatarRefinementHint => 'Ajoutez des détails (optionnel)';
+
+  @override
+  String get aiAvatarGenerateButton => 'Générer mon avatar';
+
+  @override
+  String get aiAvatarGenerating => 'Génération en cours...';
+
+  @override
+  String get aiAvatarSuccess => 'Nouvel avatar généré avec succès !';
+
+  @override
+  String get aiAvatarStyleProfessional => 'Professionnel';
+
+  @override
+  String get aiAvatarStyleIllustrated => 'Illustré';
+
+  @override
+  String get aiAvatarStyleCyberpunk => 'Cyberpunk';
+
+  @override
+  String get aiAvatarStyleMinimalist => 'Minimaliste';
+
+  @override
+  String get aiAvatarStyleFantasy => 'Fantaisie';
+
+  @override
+  String get aiAvatarStyleWatercolor => 'Aquarelle';
+
+  @override
+  String get aiAvatarStyleCartoon => 'Cartoon';
+
+  @override
+  String get aiAvatarPreviewHint =>
+      'Aperçu — vous pouvez le régénérer ou modifier vos réglages avant de l\'appliquer.';
+
+  @override
+  String get aiAvatarUseButton => 'Utiliser cet avatar';
+
+  @override
+  String get aiAvatarApplying => 'Application en cours...';
+
+  @override
+  String get aiAvatarRegenerateButton => 'Régénérer';
+
+  @override
+  String get aiAvatarEditButton => 'Modifier';
+
+  @override
+  String get avatarViewerTitle => 'Photo de profil';
 
   @override
   String get receiptScannedSuccess => 'Reçu scanné avec succès';
@@ -1726,6 +1880,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rotationMode => 'Mode de rotation';
 
   @override
+  String get rotationModeLockedHint =>
+      'Ne peut plus être modifié après la création';
+
+  @override
   String get manualRotation => 'Manuel';
 
   @override
@@ -1793,6 +1951,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get contributors => 'Contributeurs';
 
   @override
+  String get turnBeneficiaryLabel => 'Bénéficiaire de ce tour';
+
+  @override
   String get noMembersFound => 'Aucun membre trouvé';
 
   @override
@@ -1803,6 +1964,22 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get typeAMessage => 'Tapez un message...';
+
+  @override
+  String get recordingHint => 'Maintenez pour enregistrer...';
+
+  @override
+  String get micPermissionDenied =>
+      'Permission microphone refusée. Activez-la dans les paramètres.';
+
+  @override
+  String get recordingTooShort => 'Enregistrement trop court.';
+
+  @override
+  String get voiceNoteFallbackLabel => 'Note vocale';
+
+  @override
+  String get voiceNotePlaybackError => 'Impossible de lire cette note vocale.';
 
   @override
   String get successContribution => 'Cotisation envoyée avec succès';
@@ -1895,14 +2072,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get guideRotationDesc =>
-      'â€¢ Fixe : L\'ordre est prédéfini.\nâ€¢ Aléatoire : La chance décide du gagnant.\nâ€¢ Enchères/Score : Les membres les plus rigoureux ou ayant besoin de fonds sont prioritaires.';
+      'â€¢ Fixe : L\'ordre est prédéfini.\nâ€¢ Aléatoire : La chance décide du gagnant.';
 
   @override
-  String get guideValidationTitle => 'IA & Factures';
+  String get guideValidationTitle => 'Vérification assistée par IA';
 
   @override
   String get guideValidationDesc =>
-      'Envoyez une capture de votre reçu NotchPay/Mobile Money dans le chat. Notre IA valide la preuve en temps réel pour confirmer votre tour.';
+      'Envoyez une capture de votre reçu NotchPay/Mobile Money dans le chat. Notre IA lit le montant et la référence pour aider le créateur de la tontine à confirmer votre cotisation.';
 
   @override
   String get guideSocialFundTitle => 'Solidarité : Fonds Social';
@@ -1959,6 +2136,25 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get enableSocialFund => 'Activer le fonds social';
+
+  @override
+  String get socialFundPaymentRequired => 'Fonds social requis';
+
+  @override
+  String get socialFundPaymentDescription =>
+      'Payez votre part unique du fonds social avant le démarrage de la tontine.';
+
+  @override
+  String get paySocialFundNow => 'Payer maintenant';
+
+  @override
+  String get socialFundPaidConfirmation => 'Fonds social payé avec succès !';
+
+  @override
+  String get socialFundPaidLabel => 'Fonds social payé';
+
+  @override
+  String get socialFundUnpaidLabel => 'Fonds social non payé';
 
   @override
   String get sanctions => 'Sanctions';
@@ -2172,6 +2368,27 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get midnightRoyalThemeLabel => 'Royal de Minuit';
+
+  @override
+  String get roseVelvetThemeLabel => 'Velours Rose';
+
+  @override
+  String get rubyEmberThemeLabel => 'Braise Rubis';
+
+  @override
+  String get oceanAbyssThemeLabel => 'Abysse Océanique';
+
+  @override
+  String get cyberNeonThemeLabel => 'Néon Cyber';
+
+  @override
+  String get champagnePearlThemeLabel => 'Nacre Champagne';
+
+  @override
+  String get standardThemesLabel => 'STANDARD';
+
+  @override
+  String get premiumThemesLabel => 'PREMIUM';
 
   @override
   String get fontFamily => 'Police d\'écriture';
@@ -2860,6 +3077,13 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get withdrawInsufficientFundsForFees =>
       'Solde insuffisant pour couvrir le montant et les frais';
+
+  @override
+  String get withdrawInProgress => 'Traitement de votre retrait...';
+
+  @override
+  String get withdrawInProgressHint =>
+      'Veuillez patienter, ne fermez pas l\'application.';
 
   @override
   String get walletPaymentMethod => 'Portefeuille Kauri';

@@ -59,6 +59,30 @@ final class _$UploadApiService extends UploadApiService {
   }
 
   @override
+  Future<Response<BaseResponse<UploadResponseModel>>> generateAvatar(
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/upload/avatar/generate');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<UploadResponseModel>, UploadResponseModel>(
+      $request,
+    );
+  }
+
+  @override
+  Future<Response<BaseResponse<UploadResponseModel>>> applyGeneratedAvatar(
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/upload/avatar/apply');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<UploadResponseModel>, UploadResponseModel>(
+      $request,
+    );
+  }
+
+  @override
   Future<Response<BaseResponse<UploadResponseModel>>> uploadDocument(
     MultipartFile file,
   ) {

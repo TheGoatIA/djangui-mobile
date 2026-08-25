@@ -9,6 +9,8 @@ import 'package:kauri/core/network/api_response_extensions.dart';
 
 abstract class UploadRemoteDataSource {
   Future<UploadResponseModel> uploadAvatar(String filePath);
+  Future<UploadResponseModel> generateAvatar(String style, String? refinement);
+  Future<UploadResponseModel> applyGeneratedAvatar(String avatarUrl);
   Future<UploadResponseModel> uploadReceipt(String filePath);
   Future<UploadResponseModel> uploadDocument(String filePath);
 }
@@ -57,6 +59,27 @@ class UploadRemoteDataSourceImpl implements UploadRemoteDataSource {
       contentType: _getMediaType(filePath),
     );
     return _unwrap(await _apiService.uploadAvatar(file));
+  }
+
+  @override
+  Future<UploadResponseModel> generateAvatar(
+    String style,
+    String? refinement,
+  ) async {
+    return _unwrap(
+      await _apiService.generateAvatar({
+        'style': style,
+        if (refinement != null && refinement.trim().isNotEmpty)
+          'refinement': refinement.trim(),
+      }),
+    );
+  }
+
+  @override
+  Future<UploadResponseModel> applyGeneratedAvatar(String avatarUrl) async {
+    return _unwrap(
+      await _apiService.applyGeneratedAvatar({'avatarUrl': avatarUrl}),
+    );
   }
 
   @override

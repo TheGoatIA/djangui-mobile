@@ -19,6 +19,11 @@ class FintechState extends Equatable {
   final FintechStatus status;
   final String? message;
   final String? downloadingReceiptId;
+  // Distinct from `status` (which `FetchWalletBalance`/`FetchWalletTransactions`
+  // also drive through `loading`/`success`, concurrently with a withdrawal
+  // in flight) so the UI can show a withdrawal-specific loading popup without
+  // it flickering on/off from unrelated background balance/transaction refreshes.
+  final bool isProcessingWithdrawal;
 
   const FintechState({
     this.balance = 0.0,
@@ -26,6 +31,7 @@ class FintechState extends Equatable {
     this.status = FintechStatus.initial,
     this.message,
     this.downloadingReceiptId,
+    this.isProcessingWithdrawal = false,
   });
 
   FintechState copyWith({
@@ -35,6 +41,7 @@ class FintechState extends Equatable {
     String? message,
     String? downloadingReceiptId,
     bool clearDownloadingReceiptId = false,
+    bool? isProcessingWithdrawal,
   }) {
     return FintechState(
       balance: balance ?? this.balance,
@@ -44,6 +51,8 @@ class FintechState extends Equatable {
       downloadingReceiptId: clearDownloadingReceiptId
           ? null
           : (downloadingReceiptId ?? this.downloadingReceiptId),
+      isProcessingWithdrawal:
+          isProcessingWithdrawal ?? this.isProcessingWithdrawal,
     );
   }
 
@@ -54,5 +63,6 @@ class FintechState extends Equatable {
     status,
     message,
     downloadingReceiptId,
+    isProcessingWithdrawal,
   ];
 }

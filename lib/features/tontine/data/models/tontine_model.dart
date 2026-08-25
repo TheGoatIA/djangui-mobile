@@ -14,7 +14,6 @@ class TontineModel {
   final String rotationMode;
   final String validationMode;
   final Map<String, dynamic> sanctions;
-  final List<Map<String, dynamic>>? escrowDetails;
   final Map<String, dynamic> socialFund;
   final String status;
   final String inviteCode;
@@ -39,7 +38,6 @@ class TontineModel {
     required this.rotationMode,
     required this.validationMode,
     required this.sanctions,
-    this.escrowDetails,
     required this.socialFund,
     required this.status,
     required this.inviteCode,
@@ -72,7 +70,6 @@ class TontineMemberModel {
   final bool hasPaidSocialFund;
   @JsonKey(name: 'isAutoDebitEnabled')
   final bool autoDebitEnabled;
-  final Map<String, dynamic>? payoutDetails;
 
   TontineMemberModel({
     required this.id,
@@ -83,7 +80,6 @@ class TontineMemberModel {
     required this.trustScore,
     required this.hasPaidSocialFund,
     this.autoDebitEnabled = false,
-    this.payoutDetails,
   });
 
   factory TontineMemberModel.fromJson(Map<String, dynamic> json) =>
@@ -132,6 +128,10 @@ class TontineMessageModel {
   @JsonKey(fromJson: _idFromMapOrString)
   final String senderId;
   final String content;
+  @JsonKey(defaultValue: 'text')
+  final String type;
+  final String? audioUrl;
+  final int? audioDuration;
   final DateTime createdAt;
 
   TontineMessageModel({
@@ -139,6 +139,9 @@ class TontineMessageModel {
     required this.tontineId,
     required this.senderId,
     required this.content,
+    this.type = 'text',
+    this.audioUrl,
+    this.audioDuration,
     required this.createdAt,
   });
 
@@ -153,12 +156,16 @@ class TurnSummaryModel {
   final double expectedAmount;
   final int contributorsCount;
   final int totalMembers;
+  final String? currentBeneficiaryId;
+  final String? currentBeneficiaryName;
 
   TurnSummaryModel({
     required this.collectedAmount,
     required this.expectedAmount,
     required this.contributorsCount,
     required this.totalMembers,
+    this.currentBeneficiaryId,
+    this.currentBeneficiaryName,
   });
 
   factory TurnSummaryModel.fromJson(Map<String, dynamic> json) =>

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -5,6 +6,8 @@ import 'package:injectable/injectable.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../di/injection.dart';
+import '../../routes/app_router.dart';
+import '../constants/route_constants.dart';
 import 'log_service.dart';
 
 /// Service gérant les notifications push (Firebase Messaging) et locales.
@@ -33,7 +36,10 @@ class NotificationService {
           iOS: initializationSettingsIOS,
         );
 
-    await _localNotifications.initialize(initializationSettings);
+    await _localNotifications.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: _onLocalNotificationTapped,
+    );
 
     // Configuration de Firebase Messaging
     final FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -61,6 +67,7 @@ class NotificationService {
           id: message.hashCode,
           title: message.notification!.title ?? 'Kauri',
           body: message.notification!.body ?? '',
+          data: message.data,
         );
       }
     });
@@ -71,6 +78,69 @@ class NotificationService {
     FirebaseMessaging.instance.onTokenRefresh.listen((_) {
       syncFcmToken();
     });
+
+    // Tap sur une notification alors que l'app était en arrière-plan (pas tuée).
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+
+    // Tap sur une notification ayant lancé l'app depuis un état tué (cold start).
+    // Différé au frame suivant : le routeur (appRouter) doit être monté avant
+    // qu'on puisse naviguer, ce qui n'est pas encore le cas à cet instant précis
+    // (cet `initialize()` s'exécute avant `runApp()`).
+    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _handleNotificationTap(initialMessage);
+      });
+    }
+  }
+
+  /// Tap sur une notification FCM (app en arrière-plan ou lancée depuis l'état tué).
+  void _handleNotificationTap(RemoteMessage message) {
+    getIt<LogService>().info(
+      'Notification ouverte par l\'utilisateur (FCM)',
+      component: 'NotificationService',
+      metadata: {'data': message.data},
+    );
+    _navigateForNotificationData(message.data);
+  }
+
+  /// Tap sur une notification locale (affichée pendant que l'app était au premier plan).
+  void _onLocalNotificationTapped(NotificationResponse response) {
+    final payload = response.payload;
+    if (payload == null || payload.isEmpty) return;
+    try {
+      final decoded = jsonDecode(payload) as Map<String, dynamic>;
+      final data = decoded.map((key, value) => MapEntry(key, value.toString()));
+      getIt<LogService>().info(
+        'Notification ouverte par l\'utilisateur (locale)',
+        component: 'NotificationService',
+        metadata: {'data': data},
+      );
+      _navigateForNotificationData(data);
+    } catch (e) {
+      getIt<LogService>().error(
+        'Échec de décodage du payload de notification locale',
+        component: 'NotificationService',
+        error: e,
+      );
+    }
+  }
+
+  /// Navigue vers l'écran concerné par une notification, à partir de son `data`.
+  /// Seules les notifications de tontine (`type` préfixé `TONTINE_`) portent
+  /// aujourd'hui un `tontineId` exploitable pour un deep-link.
+  void _navigateForNotificationData(Map<String, dynamic> data) {
+    final type = data['type']?.toString();
+    final tontineId = data['tontineId']?.toString();
+    if (type == null || tontineId == null || !type.startsWith('TONTINE_')) {
+      return;
+    }
+
+    appRouter.goNamed(
+      RouteConstants.tontineDetailsNamed,
+      pathParameters: {'id': tontineId},
+      extra: type == 'TONTINE_NEW_MESSAGE' ? {'initialTabIndex': 2} : null,
+    );
   }
 
   /// Récupère le jeton FCM de l'appareil et le synchronise avec le serveur backend.
@@ -103,6 +173,7 @@ class NotificationService {
     required int id,
     required String title,
     required String body,
+    Map<String, dynamic>? data,
   }) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
@@ -119,7 +190,13 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    await _localNotifications.show(id, title, body, details);
+    await _localNotifications.show(
+      id,
+      title,
+      body,
+      details,
+      payload: data != null ? jsonEncode(data) : null,
+    );
     getIt<LogService>().info(
       'Notification locale affichée',
       component: 'NotificationService',

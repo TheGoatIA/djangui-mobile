@@ -3,6 +3,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:uuid/uuid.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
@@ -39,6 +41,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource _localDataSource;
   final NetworkInfo _networkInfo;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   AuthRepositoryImpl(
     this._remoteDataSource,
@@ -47,6 +50,56 @@ class AuthRepositoryImpl implements AuthRepository {
   );
 
   LogService get _logger => getIt<LogService>();
+
+  /// Stable per-installation identifier, generated once and persisted — lets
+  /// the backend recognize "this is the same device" across logins (dedup
+  /// its `sessions[]` entry, and correctly attribute the device info synced
+  /// right after login instead of guessing at the most recent session).
+  Future<String> _getOrCreateDeviceId() async {
+    const key = 'kauri_device_id';
+    final existing = await _secureStorage.read(key: key);
+    if (existing != null && existing.isNotEmpty) return existing;
+    final generated = const Uuid().v4();
+    await _secureStorage.write(key: key, value: generated);
+    return generated;
+  }
+
+  /// Reads the real device model/OS/app version — shared by [login] (sent
+  /// with the credentials so the session is created with it from the start)
+  /// and [updateDeviceInfo] (kept as a fallback sync point for login methods
+  /// that don't go through [login], e.g. social/phone/biometric refresh).
+  Future<DeviceInfoRequest> _collectDeviceInfo() async {
+    final deviceInfoPlugin = DeviceInfoPlugin();
+    final packageInfo = await PackageInfo.fromPlatform();
+    String model = 'Unknown';
+    String os = 'Unknown';
+    String osVersion = 'Unknown';
+    String platform = 'unknown';
+
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfoPlugin.androidInfo;
+      model = '${androidInfo.manufacturer} ${androidInfo.model}';
+      os = 'Android';
+      osVersion = androidInfo.version.release;
+      platform = 'android';
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfoPlugin.iosInfo;
+      model = iosInfo.utsname.machine;
+      os = 'iOS';
+      osVersion = iosInfo.systemVersion;
+      platform = 'ios';
+    }
+
+    return DeviceInfoRequest(
+      deviceInfo: DeviceInfoDetails(
+        model: model,
+        os: os,
+        osVersion: osVersion,
+        platform: platform,
+      ),
+      appVersion: packageInfo.version,
+    );
+  }
 
   @override
   Future<Either<Failure, void>> verifyPhoneNumber(
@@ -339,7 +392,24 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, AuthResponse>> login(LoginRequest request) async {
     if (await _networkInfo.isConnected) {
       try {
-        final response = await _remoteDataSource.login(request);
+        // Best-effort: device info is only used to label the session in the
+        // Security page, never a login requirement — a collection failure
+        // (e.g. secure storage unavailable) must not block the login itself.
+        var enrichedRequest = request;
+        try {
+          final deviceId = await _getOrCreateDeviceId();
+          final device = await _collectDeviceInfo();
+          enrichedRequest = LoginRequest(
+            email: request.email,
+            password: request.password,
+            deviceId: deviceId,
+            deviceInfo: device.deviceInfo.toJson(),
+            appVersion: device.appVersion,
+          );
+        } catch (e) {
+          debugPrint('⚠️ [AuthRepository] Failed to collect device info for login: $e');
+        }
+        final response = await _remoteDataSource.login(enrichedRequest);
         // Sauvegarde persistante des jetons et de l'utilisateur.
         await _localDataSource.saveTokens(
           accessToken: response.tokens.accessToken,
@@ -539,35 +609,12 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> updateDeviceInfo() async {
     if (await _networkInfo.isConnected) {
       try {
-        final deviceInfoPlugin = DeviceInfoPlugin();
-        final packageInfo = await PackageInfo.fromPlatform();
-        String model = 'Unknown';
-        String os = 'Unknown';
-        String osVersion = 'Unknown';
-        String platform = 'unknown';
-
-        if (Platform.isAndroid) {
-          final androidInfo = await deviceInfoPlugin.androidInfo;
-          model = '${androidInfo.manufacturer} ${androidInfo.model}';
-          os = 'Android';
-          osVersion = androidInfo.version.release;
-          platform = 'android';
-        } else if (Platform.isIOS) {
-          final iosInfo = await deviceInfoPlugin.iosInfo;
-          model = iosInfo.utsname.machine;
-          os = 'iOS';
-          osVersion = iosInfo.systemVersion;
-          platform = 'ios';
-        }
-
+        final deviceId = await _getOrCreateDeviceId();
+        final device = await _collectDeviceInfo();
         final request = DeviceInfoRequest(
-          deviceInfo: DeviceInfoDetails(
-            model: model,
-            os: os,
-            osVersion: osVersion,
-            platform: platform,
-          ),
-          appVersion: packageInfo.version,
+          deviceInfo: device.deviceInfo,
+          appVersion: device.appVersion,
+          deviceId: deviceId,
         );
 
         await _remoteDataSource.updateDeviceInfo(request);

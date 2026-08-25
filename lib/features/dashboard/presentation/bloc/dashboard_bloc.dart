@@ -27,7 +27,20 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     GetDashboardDataRequested event,
     Emitter<DashboardState> emit,
   ) async {
-    emit(state.copyWith(status: DashboardStatus.loading));
+    // Paint the dashboard from the local cache immediately — getDashboardReport()
+    // below always waits for the network when online, so without this every
+    // open sat on stale "0" placeholder figures (report defaults to null)
+    // until the network call resolved, even though a perfectly good cached
+    // report was sitting on disk. The network call below still runs and
+    // replaces this with the authoritative report once it resolves.
+    final cachedResult = await _reportsRepository.getCachedDashboardReport();
+    cachedResult.fold((_) {}, (cached) {
+      if (cached != null) {
+        emit(state.copyWith(status: DashboardStatus.loading, report: cached));
+      } else {
+        emit(state.copyWith(status: DashboardStatus.loading));
+      }
+    });
     final result = await _reportsRepository.getDashboardReport();
     result.fold(
       (failure) => emit(

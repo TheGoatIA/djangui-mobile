@@ -73,9 +73,45 @@ final class _$ReportsApiService extends ReportsApiService {
   }
 
   @override
+  Future<Response<BaseListResponse<HealthScorePointModel>>>
+  getHealthScoreHistory({int months = 6}) {
+    final Uri $url = Uri.parse('/reports/health-score-history');
+    final Map<String, dynamic> $params = <String, dynamic>{'months': months};
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
+    return client
+        .send<BaseListResponse<HealthScorePointModel>, HealthScorePointModel>(
+          $request,
+        );
+  }
+
+  @override
   Future<Response<dynamic>> exportCsv() {
     final Uri $url = Uri.parse('/reports/export/csv');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);
+  }
+}
+
+final class _$ForecastApiService extends ForecastApiService {
+  _$ForecastApiService([ChopperClient? client]) {
+    if (client == null) return;
+    this.client = client;
+  }
+
+  @override
+  final Type definitionType = ForecastApiService;
+
+  @override
+  Future<Response<BaseResponse<ForecastReportModel>>> getBalanceForecast() {
+    final Uri $url = Uri.parse('/forecast/balance');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client.send<BaseResponse<ForecastReportModel>, ForecastReportModel>(
+      $request,
+    );
   }
 }
