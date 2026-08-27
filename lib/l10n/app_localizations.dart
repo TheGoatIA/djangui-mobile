@@ -290,6 +290,126 @@ abstract class AppLocalizations {
   /// **'Solde Total'**
   String get totalBalance;
 
+  /// No description provided for @resteAVivreLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste à vivre ce mois-ci'**
+  String get resteAVivreLabel;
+
+  /// No description provided for @resteAVivreOverspentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépassement de budget ce mois-ci'**
+  String get resteAVivreOverspentLabel;
+
+  /// No description provided for @joinBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre un budget'**
+  String get joinBudget;
+
+  /// No description provided for @joinBudgetDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez le code d\'invitation partagé par le propriétaire du budget pour le rejoindre.'**
+  String get joinBudgetDescription;
+
+  /// No description provided for @successJoinBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez rejoint le budget avec succès'**
+  String get successJoinBudget;
+
+  /// No description provided for @shareBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager ce budget'**
+  String get shareBudget;
+
+  /// No description provided for @shareBudgetDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partagez ce code avec les personnes que vous voulez inviter à contribuer à ce budget.'**
+  String get shareBudgetDescription;
+
+  /// No description provided for @budgetParticipants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participants'**
+  String get budgetParticipants;
+
+  /// No description provided for @leaveBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter ce budget'**
+  String get leaveBudget;
+
+  /// No description provided for @leaveBudgetConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment quitter ce budget partagé ?'**
+  String get leaveBudgetConfirm;
+
+  /// No description provided for @removeParticipant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer'**
+  String get removeParticipant;
+
+  /// No description provided for @sharedByLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partagé par {name}'**
+  String sharedByLabel(String name);
+
+  /// No description provided for @sharedBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partagé'**
+  String get sharedBadge;
+
+  /// No description provided for @spendingHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique des dépenses'**
+  String get spendingHistory;
+
+  /// No description provided for @selectCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une catégorie'**
+  String get selectCategory;
+
+  /// No description provided for @linkedGoalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif lié'**
+  String get linkedGoalLabel;
+
+  /// No description provided for @linkedGoalNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun objectif lié'**
+  String get linkedGoalNone;
+
+  /// No description provided for @linkedGoalDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le surplus non dépensé en fin de mois vous sera suggéré comme contribution à cet objectif.'**
+  String get linkedGoalDescription;
+
+  /// No description provided for @copyToClipboard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier'**
+  String get copyToClipboard;
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copié dans le presse-papiers'**
+  String get copiedToClipboard;
+
   /// No description provided for @recentActivities.
   ///
   /// In fr, this message translates to:
@@ -3338,6 +3458,78 @@ abstract class AppLocalizations {
   /// **'Indiquez le montant maximum à dépenser dans cette catégorie ce mois-ci. Vous serez alerté(e) en vous en approchant.'**
   String get tutorialBudgetAmountFieldDesc;
 
+  /// No description provided for @budgetInfoTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment fonctionnent les budgets ?'**
+  String get budgetInfoTooltip;
+
+  /// No description provided for @budgetInfoTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment fonctionnent les budgets'**
+  String get budgetInfoTitle;
+
+  /// No description provided for @budgetInfoTrackingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi automatique'**
+  String get budgetInfoTrackingTitle;
+
+  /// No description provided for @budgetInfoTrackingDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez un budget mensuel en allouant un montant à une ou plusieurs catégories (ex. Alimentation, Transport). Chaque nouvelle dépense correspondant à cette catégorie est comptabilisée automatiquement — pas besoin de la saisir deux fois.'**
+  String get budgetInfoTrackingDesc;
+
+  /// No description provided for @budgetInfoAlertsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alertes de dépassement'**
+  String get budgetInfoAlertsTitle;
+
+  /// No description provided for @budgetInfoAlertsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous recevez une notification dès qu\'une catégorie atteint 80% du montant alloué, puis une seconde si elle est dépassée.'**
+  String get budgetInfoAlertsDesc;
+
+  /// No description provided for @budgetInfoSharingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partage'**
+  String get budgetInfoSharingTitle;
+
+  /// No description provided for @budgetInfoSharingDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partagez un budget avec d\'autres personnes via un code d\'invitation : elles participent aux mêmes catégories, mais vous restez seul(e), en tant que propriétaire, à pouvoir modifier les montants alloués.'**
+  String get budgetInfoSharingDesc;
+
+  /// No description provided for @budgetInfoGoalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif lié'**
+  String get budgetInfoGoalTitle;
+
+  /// No description provided for @budgetInfoGoalDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Associez un budget à l\'un de vos objectifs d\'épargne pour garder le lien entre vos dépenses du mois et ce vers quoi vous économisez.'**
+  String get budgetInfoGoalDesc;
+
+  /// No description provided for @budgetInfoAutoTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Génération automatique'**
+  String get budgetInfoAutoTitle;
+
+  /// No description provided for @budgetInfoAutoDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anne peut analyser vos revenus et vos habitudes de dépenses pour vous proposer un budget déjà réparti par catégorie, que vous pouvez ensuite ajuster.'**
+  String get budgetInfoAutoDesc;
+
   /// No description provided for @tutorialAddInvestmentTitle.
   ///
   /// In fr, this message translates to:
@@ -5815,6 +6007,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Veuillez patienter, ne fermez pas l\'application.'**
   String get withdrawInProgressHint;
+
+  /// No description provided for @budgetSavingInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement du budget...'**
+  String get budgetSavingInProgress;
 
   /// No description provided for @walletPaymentMethod.
   ///

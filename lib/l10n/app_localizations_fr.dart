@@ -106,6 +106,72 @@ class AppLocalizationsFr extends AppLocalizations {
   String get totalBalance => 'Solde Total';
 
   @override
+  String get resteAVivreLabel => 'Reste à vivre ce mois-ci';
+
+  @override
+  String get resteAVivreOverspentLabel => 'Dépassement de budget ce mois-ci';
+
+  @override
+  String get joinBudget => 'Rejoindre un budget';
+
+  @override
+  String get joinBudgetDescription =>
+      'Entrez le code d\'invitation partagé par le propriétaire du budget pour le rejoindre.';
+
+  @override
+  String get successJoinBudget => 'Vous avez rejoint le budget avec succès';
+
+  @override
+  String get shareBudget => 'Partager ce budget';
+
+  @override
+  String get shareBudgetDescription =>
+      'Partagez ce code avec les personnes que vous voulez inviter à contribuer à ce budget.';
+
+  @override
+  String get budgetParticipants => 'Participants';
+
+  @override
+  String get leaveBudget => 'Quitter ce budget';
+
+  @override
+  String get leaveBudgetConfirm =>
+      'Voulez-vous vraiment quitter ce budget partagé ?';
+
+  @override
+  String get removeParticipant => 'Retirer';
+
+  @override
+  String sharedByLabel(String name) {
+    return 'Partagé par $name';
+  }
+
+  @override
+  String get sharedBadge => 'Partagé';
+
+  @override
+  String get spendingHistory => 'Historique des dépenses';
+
+  @override
+  String get selectCategory => 'Choisir une catégorie';
+
+  @override
+  String get linkedGoalLabel => 'Objectif lié';
+
+  @override
+  String get linkedGoalNone => 'Aucun objectif lié';
+
+  @override
+  String get linkedGoalDescription =>
+      'Le surplus non dépensé en fin de mois vous sera suggéré comme contribution à cet objectif.';
+
+  @override
+  String get copyToClipboard => 'Copier';
+
+  @override
+  String get copiedToClipboard => 'Copié dans le presse-papiers';
+
+  @override
   String get recentActivities => 'Activités Récentes';
 
   @override
@@ -1750,6 +1816,47 @@ class AppLocalizationsFr extends AppLocalizations {
       'Indiquez le montant maximum à dépenser dans cette catégorie ce mois-ci. Vous serez alerté(e) en vous en approchant.';
 
   @override
+  String get budgetInfoTooltip => 'Comment fonctionnent les budgets ?';
+
+  @override
+  String get budgetInfoTitle => 'Comment fonctionnent les budgets';
+
+  @override
+  String get budgetInfoTrackingTitle => 'Suivi automatique';
+
+  @override
+  String get budgetInfoTrackingDesc =>
+      'Créez un budget mensuel en allouant un montant à une ou plusieurs catégories (ex. Alimentation, Transport). Chaque nouvelle dépense correspondant à cette catégorie est comptabilisée automatiquement — pas besoin de la saisir deux fois.';
+
+  @override
+  String get budgetInfoAlertsTitle => 'Alertes de dépassement';
+
+  @override
+  String get budgetInfoAlertsDesc =>
+      'Vous recevez une notification dès qu\'une catégorie atteint 80% du montant alloué, puis une seconde si elle est dépassée.';
+
+  @override
+  String get budgetInfoSharingTitle => 'Partage';
+
+  @override
+  String get budgetInfoSharingDesc =>
+      'Partagez un budget avec d\'autres personnes via un code d\'invitation : elles participent aux mêmes catégories, mais vous restez seul(e), en tant que propriétaire, à pouvoir modifier les montants alloués.';
+
+  @override
+  String get budgetInfoGoalTitle => 'Objectif lié';
+
+  @override
+  String get budgetInfoGoalDesc =>
+      'Associez un budget à l\'un de vos objectifs d\'épargne pour garder le lien entre vos dépenses du mois et ce vers quoi vous économisez.';
+
+  @override
+  String get budgetInfoAutoTitle => 'Génération automatique';
+
+  @override
+  String get budgetInfoAutoDesc =>
+      'Anne peut analyser vos revenus et vos habitudes de dépenses pour vous proposer un budget déjà réparti par catégorie, que vous pouvez ensuite ajuster.';
+
+  @override
   String get tutorialAddInvestmentTitle => 'Nouvel Investissement';
 
   @override
@@ -3084,6 +3191,9 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get withdrawInProgressHint =>
       'Veuillez patienter, ne fermez pas l\'application.';
+
+  @override
+  String get budgetSavingInProgress => 'Enregistrement du budget...';
 
   @override
   String get walletPaymentMethod => 'Portefeuille Kauri';

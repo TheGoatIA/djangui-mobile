@@ -136,6 +136,9 @@ class ChatMessages extends Table {
   TextColumn get content => text()();
   TextColumn get sender => text()();
   DateTimeColumn get timestamp => dateTime()();
+  // 'sent' (défaut, y compris tout l'historique distant) / 'sending' /
+  // 'failed' — voir ChatMessageModel.status.
+  TextColumn get status => text().withDefault(const Constant('sent'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -366,7 +369,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 25;
 
   @override
   MigrationStrategy get migration {
@@ -417,6 +420,9 @@ class AppDatabase extends _$AppDatabase {
         if (from < 24) {
           await m.createTable(forecastCache);
           await m.createTable(healthScoreHistoryCache);
+        }
+        if (from < 25) {
+          await m.addColumn(chatMessages, chatMessages.status);
         }
       },
       beforeOpen: (details) async {

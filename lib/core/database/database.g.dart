@@ -4500,8 +4500,24 @@ class $ChatMessagesTable extends ChatMessages
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
-  List<GeneratedColumn> get $columns => [id, content, sender, timestamp];
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('sent'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    content,
+    sender,
+    timestamp,
+    status,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4543,6 +4559,12 @@ class $ChatMessagesTable extends ChatMessages
     } else if (isInserting) {
       context.missing(_timestampMeta);
     }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
     return context;
   }
 
@@ -4568,6 +4590,10 @@ class $ChatMessagesTable extends ChatMessages
         DriftSqlType.dateTime,
         data['${effectivePrefix}timestamp'],
       )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
     );
   }
 
@@ -4582,11 +4608,13 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
   final String content;
   final String sender;
   final DateTime timestamp;
+  final String status;
   const ChatMessage({
     required this.id,
     required this.content,
     required this.sender,
     required this.timestamp,
+    required this.status,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4595,6 +4623,7 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
     map['content'] = Variable<String>(content);
     map['sender'] = Variable<String>(sender);
     map['timestamp'] = Variable<DateTime>(timestamp);
+    map['status'] = Variable<String>(status);
     return map;
   }
 
@@ -4604,6 +4633,7 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
       content: Value(content),
       sender: Value(sender),
       timestamp: Value(timestamp),
+      status: Value(status),
     );
   }
 
@@ -4617,6 +4647,7 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
       content: serializer.fromJson<String>(json['content']),
       sender: serializer.fromJson<String>(json['sender']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      status: serializer.fromJson<String>(json['status']),
     );
   }
   @override
@@ -4627,6 +4658,7 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
       'content': serializer.toJson<String>(content),
       'sender': serializer.toJson<String>(sender),
       'timestamp': serializer.toJson<DateTime>(timestamp),
+      'status': serializer.toJson<String>(status),
     };
   }
 
@@ -4635,11 +4667,13 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
     String? content,
     String? sender,
     DateTime? timestamp,
+    String? status,
   }) => ChatMessage(
     id: id ?? this.id,
     content: content ?? this.content,
     sender: sender ?? this.sender,
     timestamp: timestamp ?? this.timestamp,
+    status: status ?? this.status,
   );
   ChatMessage copyWithCompanion(ChatMessagesCompanion data) {
     return ChatMessage(
@@ -4647,6 +4681,7 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
       content: data.content.present ? data.content.value : this.content,
       sender: data.sender.present ? data.sender.value : this.sender,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      status: data.status.present ? data.status.value : this.status,
     );
   }
 
@@ -4656,13 +4691,14 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
           ..write('id: $id, ')
           ..write('content: $content, ')
           ..write('sender: $sender, ')
-          ..write('timestamp: $timestamp')
+          ..write('timestamp: $timestamp, ')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, content, sender, timestamp);
+  int get hashCode => Object.hash(id, content, sender, timestamp, status);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4670,7 +4706,8 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
           other.id == this.id &&
           other.content == this.content &&
           other.sender == this.sender &&
-          other.timestamp == this.timestamp);
+          other.timestamp == this.timestamp &&
+          other.status == this.status);
 }
 
 class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
@@ -4678,12 +4715,14 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
   final Value<String> content;
   final Value<String> sender;
   final Value<DateTime> timestamp;
+  final Value<String> status;
   final Value<int> rowid;
   const ChatMessagesCompanion({
     this.id = const Value.absent(),
     this.content = const Value.absent(),
     this.sender = const Value.absent(),
     this.timestamp = const Value.absent(),
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ChatMessagesCompanion.insert({
@@ -4691,6 +4730,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     required String content,
     required String sender,
     required DateTime timestamp,
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        content = Value(content),
@@ -4701,6 +4741,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     Expression<String>? content,
     Expression<String>? sender,
     Expression<DateTime>? timestamp,
+    Expression<String>? status,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4708,6 +4749,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
       if (content != null) 'content': content,
       if (sender != null) 'sender': sender,
       if (timestamp != null) 'timestamp': timestamp,
+      if (status != null) 'status': status,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4717,6 +4759,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     Value<String>? content,
     Value<String>? sender,
     Value<DateTime>? timestamp,
+    Value<String>? status,
     Value<int>? rowid,
   }) {
     return ChatMessagesCompanion(
@@ -4724,6 +4767,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
       content: content ?? this.content,
       sender: sender ?? this.sender,
       timestamp: timestamp ?? this.timestamp,
+      status: status ?? this.status,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4743,6 +4787,9 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     if (timestamp.present) {
       map['timestamp'] = Variable<DateTime>(timestamp.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -4756,6 +4803,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
           ..write('content: $content, ')
           ..write('sender: $sender, ')
           ..write('timestamp: $timestamp, ')
+          ..write('status: $status, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -13715,6 +13763,7 @@ typedef $$ChatMessagesTableCreateCompanionBuilder =
       required String content,
       required String sender,
       required DateTime timestamp,
+      Value<String> status,
       Value<int> rowid,
     });
 typedef $$ChatMessagesTableUpdateCompanionBuilder =
@@ -13723,6 +13772,7 @@ typedef $$ChatMessagesTableUpdateCompanionBuilder =
       Value<String> content,
       Value<String> sender,
       Value<DateTime> timestamp,
+      Value<String> status,
       Value<int> rowid,
     });
 
@@ -13752,6 +13802,11 @@ class $$ChatMessagesTableFilterComposer
 
   ColumnFilters<DateTime> get timestamp => $composableBuilder(
     column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -13784,6 +13839,11 @@ class $$ChatMessagesTableOrderingComposer
     column: $table.timestamp,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ChatMessagesTableAnnotationComposer
@@ -13806,6 +13866,9 @@ class $$ChatMessagesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get timestamp =>
       $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
 }
 
 class $$ChatMessagesTableTableManager
@@ -13843,12 +13906,14 @@ class $$ChatMessagesTableTableManager
                 Value<String> content = const Value.absent(),
                 Value<String> sender = const Value.absent(),
                 Value<DateTime> timestamp = const Value.absent(),
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ChatMessagesCompanion(
                 id: id,
                 content: content,
                 sender: sender,
                 timestamp: timestamp,
+                status: status,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -13857,12 +13922,14 @@ class $$ChatMessagesTableTableManager
                 required String content,
                 required String sender,
                 required DateTime timestamp,
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ChatMessagesCompanion.insert(
                 id: id,
                 content: content,
                 sender: sender,
                 timestamp: timestamp,
+                status: status,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

@@ -106,6 +106,72 @@ class AppLocalizationsEn extends AppLocalizations {
   String get totalBalance => 'Total Balance';
 
   @override
+  String get resteAVivreLabel => 'Left to spend this month';
+
+  @override
+  String get resteAVivreOverspentLabel => 'Over budget this month';
+
+  @override
+  String get joinBudget => 'Join a budget';
+
+  @override
+  String get joinBudgetDescription =>
+      'Enter the invite code shared by the budget owner to join it.';
+
+  @override
+  String get successJoinBudget => 'You\'ve successfully joined the budget';
+
+  @override
+  String get shareBudget => 'Share this budget';
+
+  @override
+  String get shareBudgetDescription =>
+      'Share this code with the people you want to invite to contribute to this budget.';
+
+  @override
+  String get budgetParticipants => 'Participants';
+
+  @override
+  String get leaveBudget => 'Leave this budget';
+
+  @override
+  String get leaveBudgetConfirm =>
+      'Are you sure you want to leave this shared budget?';
+
+  @override
+  String get removeParticipant => 'Remove';
+
+  @override
+  String sharedByLabel(String name) {
+    return 'Shared by $name';
+  }
+
+  @override
+  String get sharedBadge => 'Shared';
+
+  @override
+  String get spendingHistory => 'Spending history';
+
+  @override
+  String get selectCategory => 'Select a category';
+
+  @override
+  String get linkedGoalLabel => 'Linked goal';
+
+  @override
+  String get linkedGoalNone => 'No linked goal';
+
+  @override
+  String get linkedGoalDescription =>
+      'Any unspent surplus at month\'s end will be suggested as a contribution to this goal.';
+
+  @override
+  String get copyToClipboard => 'Copy';
+
+  @override
+  String get copiedToClipboard => 'Copied to clipboard';
+
+  @override
   String get recentActivities => 'Recent Activities';
 
   @override
@@ -1743,6 +1809,47 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter the maximum you want to spend in this category this month. You\'ll get alerted as you approach it.';
 
   @override
+  String get budgetInfoTooltip => 'How do budgets work?';
+
+  @override
+  String get budgetInfoTitle => 'How budgets work';
+
+  @override
+  String get budgetInfoTrackingTitle => 'Automatic tracking';
+
+  @override
+  String get budgetInfoTrackingDesc =>
+      'Create a monthly budget by allocating an amount to one or more categories (e.g. Food, Transport). Every new expense matching that category is counted automatically — no need to enter it twice.';
+
+  @override
+  String get budgetInfoAlertsTitle => 'Overspending alerts';
+
+  @override
+  String get budgetInfoAlertsDesc =>
+      'You get a notification as soon as a category reaches 80% of its allocated amount, then a second one if it\'s exceeded.';
+
+  @override
+  String get budgetInfoSharingTitle => 'Sharing';
+
+  @override
+  String get budgetInfoSharingDesc =>
+      'Share a budget with other people via an invite code: they take part in the same categories, but only you, as the owner, can change the allocated amounts.';
+
+  @override
+  String get budgetInfoGoalTitle => 'Linked goal';
+
+  @override
+  String get budgetInfoGoalDesc =>
+      'Link a budget to one of your savings goals to keep the connection between this month\'s spending and what you\'re saving for.';
+
+  @override
+  String get budgetInfoAutoTitle => 'Automatic generation';
+
+  @override
+  String get budgetInfoAutoDesc =>
+      'Anne can analyze your income and spending habits to suggest a budget already split by category, which you can then adjust.';
+
+  @override
   String get tutorialAddInvestmentTitle => 'New Investment';
 
   @override
@@ -3065,6 +3172,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withdrawInProgressHint => 'Please wait, don\'t close the app.';
+
+  @override
+  String get budgetSavingInProgress => 'Saving budget...';
 
   @override
   String get walletPaymentMethod => 'Kauri Wallet';

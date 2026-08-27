@@ -38,4 +38,35 @@ abstract class BudgetApiService extends ChopperService {
     @Query('month') int? month,
     @Query('year') int? year,
   });
+
+  @GET(path: '/budgets/history')
+  Future<Response<BaseListResponse<BudgetCategoryHistoryPointModel>>>
+  getCategoryHistory({
+    @Query('category') required String category,
+    @Query('months') int? months,
+  });
+
+  @POST(path: '/budgets/{id}/share')
+  Future<Response<BaseResponse<Map<String, dynamic>>>> shareBudget(
+    @Path('id') String id,
+  );
+
+  @POST(path: '/budgets/join')
+  Future<Response<BaseResponse<BudgetModel>>> joinBudget(
+    @Body() Map<String, dynamic> body,
+  );
+
+  @GET(path: '/budgets/{id}/participants')
+  Future<Response<BaseListResponse<BudgetParticipantModel>>> getParticipants(
+    @Path('id') String id,
+  );
+
+  @DELETE(path: '/budgets/{id}/participants/{participantId}')
+  Future<Response<BaseResponse<dynamic>>> removeParticipant(
+    @Path('id') String id,
+    @Path('participantId') String participantId,
+  );
+
+  @POST(path: '/budgets/{id}/leave')
+  Future<Response<BaseResponse<dynamic>>> leaveBudget(@Path('id') String id);
 }

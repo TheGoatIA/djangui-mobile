@@ -108,6 +108,12 @@ class KauriApiClient {
         FintechTransactionsResponseModel: (json) =>
             FintechTransactionsResponseModel.fromJson(json),
         InvoiceResponseModel: (json) => InvoiceResponseModel.fromJson(json),
+        BudgetParticipantModel: (json) => BudgetParticipantModel.fromJson(json),
+        BudgetCategoryHistoryPointModel: (json) =>
+            BudgetCategoryHistoryPointModel.fromJson(json),
+        ForecastReportModel: (json) => ForecastReportModel.fromJson(json),
+        ForecastPointModel: (json) => ForecastPointModel.fromJson(json),
+        HealthScorePointModel: (json) => HealthScorePointModel.fromJson(json),
       }),
       services: [
         AuthApiService.create(),

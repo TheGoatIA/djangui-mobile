@@ -599,7 +599,6 @@ class _DashboardViewState extends State<DashboardView>
     );
   }
 
-  /// Construit la carte principale affichant le solde, les revenus et les dépenses.
   Widget _buildBalanceCard(BuildContext context) {
     return Container(
       width: double.infinity,

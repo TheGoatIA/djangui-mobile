@@ -45,6 +45,8 @@ class RouteConstants {
 
   /// Écran de gestion des budgets.
   static const String budgets = '/budgets';
+  /// Rejoindre un budget partagé par code d'invitation.
+  static const String joinBudget = '/budgets/join';
 
   /// Écran de gestion du portefeuille d'investissements.
   static const String investments = '/investments';

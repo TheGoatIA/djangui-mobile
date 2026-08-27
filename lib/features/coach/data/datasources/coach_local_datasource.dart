@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:injectable/injectable.dart';
 import '../../../../core/database/database.dart';
 import '../models/chat_message_model.dart';
@@ -26,6 +27,7 @@ class CoachLocalDataSourceImpl implements CoachLocalDataSource {
             text: row.content,
             sender: row.sender,
             timestamp: row.timestamp,
+            status: row.status,
           ),
         )
         .toList();
@@ -41,6 +43,7 @@ class CoachLocalDataSourceImpl implements CoachLocalDataSource {
             content: message.text,
             sender: message.sender,
             timestamp: message.timestamp,
+            status: Value(message.status),
           ),
         );
   }
@@ -57,6 +60,7 @@ class CoachLocalDataSourceImpl implements CoachLocalDataSource {
                 content: message.text,
                 sender: message.sender,
                 timestamp: message.timestamp,
+                status: Value(message.status),
               ),
             )
             .toList(),

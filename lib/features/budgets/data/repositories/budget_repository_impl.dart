@@ -234,6 +234,113 @@ class BudgetRepositoryImpl implements BudgetRepository {
   }
 
   @override
+  Future<Either<Failure, List<BudgetCategoryHistoryPointModel>>>
+  getCategoryHistory(String category, {int months = 6}) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      final result = await _remoteDataSource.getCategoryHistory(
+        category,
+        months: months,
+      );
+      return Right(result);
+    } catch (e) {
+      _logger.error(
+        "Échec de la récupération de l'historique de catégorie",
+        error: e,
+        component: 'BudgetRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> shareBudget(String id) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      final code = await _remoteDataSource.shareBudget(id);
+      return Right(code);
+    } catch (e) {
+      _logger.error(
+        'Échec du partage du budget',
+        error: e,
+        component: 'BudgetRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, BudgetModel>> joinBudget(String inviteCode) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      final budget = await _remoteDataSource.joinBudget(inviteCode);
+      await _localDataSource.saveBudget(budget);
+      return Right(budget);
+    } catch (e) {
+      _logger.error(
+        'Échec pour rejoindre le budget',
+        error: e,
+        component: 'BudgetRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<BudgetParticipantModel>>> getParticipants(
+    String id,
+  ) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      final result = await _remoteDataSource.getParticipants(id);
+      return Right(result);
+    } catch (e) {
+      _logger.error(
+        'Échec de la récupération des participants',
+        error: e,
+        component: 'BudgetRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeParticipant(
+    String id,
+    String participantId,
+  ) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      await _remoteDataSource.removeParticipant(id, participantId);
+      return const Right(null);
+    } catch (e) {
+      _logger.error(
+        'Échec du retrait du participant',
+        error: e,
+        component: 'BudgetRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> leaveBudget(String id) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      await _remoteDataSource.leaveBudget(id);
+      await _localDataSource.deleteBudget(id);
+      return const Right(null);
+    } catch (e) {
+      _logger.error(
+        'Échec pour quitter le budget',
+        error: e,
+        component: 'BudgetRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
   Future<Either<Failure, AutoBudgetResponse>> generateAutoBudget({
     int? month,
     int? year,

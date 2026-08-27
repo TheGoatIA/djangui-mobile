@@ -86,6 +86,15 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     await _db.delete(_db.tontineMessages).go();
     await _db.delete(_db.tontineMembers).go();
     await _db.delete(_db.tontines).go();
+    // Caches ajoutés pour Insights/Dashboard (persistance locale + prévision
+    // + historique du score de santé) : mêmes précautions, données propres à
+    // un utilisateur (solde, revenus, catégories de dépenses, rapport IA...).
+    await _db.delete(_db.dashboardReports).go();
+    await _db.delete(_db.spendingAnalysisCache).go();
+    await _db.delete(_db.savingsTrendCache).go();
+    await _db.delete(_db.narrativeReportCache).go();
+    await _db.delete(_db.forecastCache).go();
+    await _db.delete(_db.healthScoreHistoryCache).go();
     await clearBiometricToken();
     await clearLoginProvider();
   }

@@ -28,6 +28,7 @@ import '../features/transactions/presentation/pages/transaction_detail_page.dart
 import '../features/transactions/data/models/transaction_model.dart';
 import '../features/budgets/presentation/pages/budget_list_page.dart';
 import '../features/budgets/presentation/pages/add_budget_page.dart';
+import '../features/budgets/presentation/pages/join_budget_page.dart';
 import '../features/goals/presentation/pages/goal_list_page.dart';
 import '../features/goals/presentation/pages/add_goal_page.dart';
 import '../features/goals/presentation/pages/goal_detail_page.dart';
@@ -280,6 +281,10 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: 'add',
                   builder: (context, state) => const AddBudgetPage(),
+                ),
+                GoRoute(
+                  path: 'join',
+                  builder: (context, state) => const JoinBudgetPage(),
                 ),
               ],
             ),

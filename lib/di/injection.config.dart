@@ -329,9 +329,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i973.InternetConnectionChecker>(
       () => registerModule.connectionChecker,
     );
-    gh.lazySingleton<_i617.CoachRemoteDataSource>(
-      () => _i617.CoachRemoteDataSourceImpl(gh<_i621.CoachApiService>()),
-    );
     gh.lazySingleton<_i356.NotificationRemoteDataSource>(
       () => _i756.NotificationRemoteDataSourceImpl(
         gh<_i921.NotificationApiService>(),
@@ -410,13 +407,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i534.TransactionRemoteDataSource>(
       () => _i534.TransactionRemoteDataSourceImpl(
         gh<_i982.TransactionApiService>(),
-      ),
-    );
-    gh.lazySingleton<_i160.CoachRepository>(
-      () => _i307.CoachRepositoryImpl(
-        gh<_i617.CoachRemoteDataSource>(),
-        gh<_i580.CoachLocalDataSource>(),
-        gh<_i935.NetworkInfo>(),
       ),
     );
     gh.lazySingleton<_i1033.VoiceRepository>(
@@ -532,9 +522,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.factory<_i405.CoachBloc>(
-      () => _i405.CoachBloc(gh<_i160.CoachRepository>()),
-    );
     gh.lazySingleton<_i714.AuthBloc>(
       () => _i714.AuthBloc(
         gh<_i344.AuthRepository>(),
@@ -556,12 +543,25 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i946.GoalsBloc>(
       () => _i946.GoalsBloc(gh<_i751.GoalRepository>()),
     );
+    gh.lazySingleton<_i617.CoachRemoteDataSource>(
+      () => _i617.CoachRemoteDataSourceImpl(
+        gh<_i621.CoachApiService>(),
+        gh<_i344.AuthRepository>(),
+      ),
+    );
     gh.lazySingleton<_i760.ReportsRepository>(
       () => _i423.ReportsRepositoryImpl(
         gh<_i158.ReportsApiService>(),
         gh<_i158.ForecastApiService>(),
         gh<_i935.NetworkInfo>(),
         gh<_i515.ReportsLocalDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i160.CoachRepository>(
+      () => _i307.CoachRepositoryImpl(
+        gh<_i617.CoachRemoteDataSource>(),
+        gh<_i580.CoachLocalDataSource>(),
+        gh<_i935.NetworkInfo>(),
       ),
     );
     gh.lazySingleton<_i375.ChallengeRepository>(
@@ -615,6 +615,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i673.SubscriptionBloc>(
       () => _i673.SubscriptionBloc(gh<_i105.SubscriptionRepository>()),
+    );
+    gh.factory<_i405.CoachBloc>(
+      () => _i405.CoachBloc(gh<_i160.CoachRepository>()),
     );
     gh.factory<_i506.ChallengesBloc>(
       () => _i506.ChallengesBloc(gh<_i375.ChallengeRepository>()),

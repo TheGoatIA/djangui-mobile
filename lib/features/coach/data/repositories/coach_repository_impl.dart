@@ -1,12 +1,13 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
-import 'package:uuid/uuid.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/network_info.dart';
 import '../datasources/coach_local_datasource.dart';
 import '../datasources/coach_remote_datasource.dart';
 import '../../domain/repositories/coach_repository.dart';
+import '../../domain/entities/coach_send_update.dart';
 import '../models/chat_message_model.dart';
+import '../models/coach_stream_event.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
 import 'package:kauri/core/error/error_mapper.dart';
@@ -80,54 +81,82 @@ class CoachRepositoryImpl implements CoachRepository {
   }
 
   @override
-  Future<Either<Failure, ChatMessageModel>> sendMessage(String text) async {
+  Stream<CoachSendUpdate> sendMessageStream(String messageId, String text) async* {
     _logger.info(
-      'Envoi d\'un message à l\'assistant Anne.',
+      'Envoi d\'un message à l\'assistant Anne (streaming).',
       component: 'CoachRepository',
     );
-    // Save user message locally first
+    // Sauvegardé/mis à jour avec le même id à chaque étape (sending → sent
+    // ou failed) : un réessai réutilise cet id, donc la bulle existante est
+    // remplacée plutôt que dupliquée.
     final userMessage = ChatMessageModel(
-      id: const Uuid().v4(),
+      id: messageId,
       text: text,
       sender: 'user',
       timestamp: DateTime.now(),
+      status: 'sending',
     );
     await _localDataSource.saveMessage(userMessage);
 
-    if (await _networkInfo.isConnected) {
-      try {
-        final aiMessage = await _remoteDataSource.sendMessage(text);
-        await _localDataSource.saveMessage(aiMessage);
-        _logger.info(
-          'Réponse de Anne reçue avec succès.',
-          component: 'CoachRepository',
-        );
-        return Right(aiMessage);
-      } catch (e) {
-        // Le message n'a jamais atteint le serveur : on retire la copie
-        // locale plutôt que de la laisser dans un état ambigu qui serait de
-        // toute façon silencieusement effacé au prochain rechargement de
-        // l'historique en ligne (qui remplace le cache local par la liste
-        // serveur, laquelle ne contient pas ce message).
-        await _localDataSource.deleteMessage(userMessage.id);
-        _logger.error(
-          'Échec de l\'envoi du message au serveur AI',
-          error: e,
-          component: 'CoachRepository',
-        );
-        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
-      }
-    } else {
-      // Hors-ligne, l'assistant IA ne peut pas répondre en différé (pas de
-      // file d'attente de synchronisation pour ce flux) : même logique, on
-      // retire le message local plutôt que de le laisser disparaître plus
-      // tard sans explication.
-      await _localDataSource.deleteMessage(userMessage.id);
+    if (!await _networkInfo.isConnected) {
+      await _localDataSource.saveMessage(userMessage.copyWith(status: 'failed'));
       _logger.warning(
         'Impossible de discuter avec Anne hors-ligne.',
         component: 'CoachRepository',
       );
-      return Left(NetworkFailure());
+      yield CoachSendFailed(NetworkFailure());
+      return;
+    }
+
+    final buffer = StringBuffer();
+    try {
+      await for (final event in _remoteDataSource.sendMessageStream(text)) {
+        switch (event) {
+          case CoachStreamDelta(:final text):
+            buffer.write(text);
+            yield CoachSendDelta(buffer.toString());
+          case CoachStreamDone(:final actions):
+            await _localDataSource.saveMessage(
+              userMessage.copyWith(status: 'sent'),
+            );
+            final finalText = buffer.toString();
+            await _localDataSource.saveMessage(
+              ChatMessageModel(
+                id: DateTime.now().microsecondsSinceEpoch.toString(),
+                text: finalText,
+                sender: 'ai',
+                timestamp: DateTime.now(),
+                actions: actions,
+              ),
+            );
+            _logger.info(
+              'Réponse de Anne reçue avec succès.',
+              component: 'CoachRepository',
+            );
+            yield CoachSendCompleted(finalText, actions);
+          case CoachStreamFailure(:final message):
+            // Le message n'a jamais abouti : marqué 'failed' plutôt que
+            // supprimé, pour permettre un réessai ciblé sur cette bulle
+            // précise au lieu d'une snackbar générique.
+            await _localDataSource.saveMessage(
+              userMessage.copyWith(status: 'failed'),
+            );
+            _logger.error(
+              'Échec de l\'envoi du message au serveur AI',
+              error: message,
+              component: 'CoachRepository',
+            );
+            yield CoachSendFailed(ServerFailure(message));
+        }
+      }
+    } catch (e) {
+      await _localDataSource.saveMessage(userMessage.copyWith(status: 'failed'));
+      _logger.error(
+        'Erreur inattendue pendant le streaming du chat',
+        error: e,
+        component: 'CoachRepository',
+      );
+      yield CoachSendFailed(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 

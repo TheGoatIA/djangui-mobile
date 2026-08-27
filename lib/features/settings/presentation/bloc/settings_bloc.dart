@@ -35,7 +35,19 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     final languageCode = _prefs.getString('language_code');
     final biometricsEnabled = _prefs.getBool('biometrics_enabled') ?? false;
 
-    final dashboardOrder = _prefs.getStringList('dashboard_order');
+    final storedDashboardOrder = _prefs.getStringList('dashboard_order');
+    // Un utilisateur qui a déjà réordonné son dashboard a une liste persistée
+    // qui ne connaît pas les nouvelles clés de widget ajoutées depuis (ex.
+    // 'reste_a_vivre') — sans ce merge, ces widgets ne s'afficheraient plus
+    // jamais pour lui une fois qu'il a personnalisé l'ordre une première fois.
+    final dashboardOrder = storedDashboardOrder != null
+        ? [
+            ...storedDashboardOrder,
+            ...state.dashboardOrder.where(
+              (key) => !storedDashboardOrder.contains(key),
+            ),
+          ]
+        : null;
     final fontFamily = _prefs.getString('font_family') ?? 'Outfit';
     final appIcon = _prefs.getString('app_icon');
 

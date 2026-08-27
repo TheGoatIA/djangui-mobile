@@ -16,6 +16,8 @@ import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../goals/presentation/bloc/goals_bloc.dart';
+import '../../../goals/presentation/bloc/goals_state.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/services/log_service.dart';
@@ -51,6 +53,14 @@ class _AddBudgetPageState extends State<AddBudgetPage>
   final List<_CategoryRowItem> _categoryItems = [];
 
   DateTime _selectedDate = DateTime.now();
+  String? _selectedGoalId;
+  // Le budget tel que soumis, gardé localement pour l'analytics une fois la
+  // sauvegarde confirmée — plutôt que de le retrouver dans `state.budgets`
+  // (voir le listener plus bas), fragile : `.last` suppose à tort que le
+  // budget concerné est toujours en fin de liste (vrai à la création, faux
+  // en édition) et plante si la liste est vide.
+  BudgetModel? _pendingBudget;
+  bool _isSavingDialogShowing = false;
 
   final GlobalKey _categoryKey = GlobalKey();
   final GlobalKey _amountKey = GlobalKey();
@@ -63,6 +73,7 @@ class _AddBudgetPageState extends State<AddBudgetPage>
         widget.budget!.period.year,
         widget.budget!.period.month,
       );
+      _selectedGoalId = widget.budget!.linkedGoalId;
       for (final category in widget.budget!.categories) {
         final item = _CategoryRowItem();
         item.selectedCategory = category.name;
@@ -188,7 +199,9 @@ class _AddBudgetPageState extends State<AddBudgetPage>
           categories: categories,
           totalAllocated: totalAllocated,
           updatedAt: now,
+          linkedGoalId: _selectedGoalId,
         );
+        _pendingBudget = budget;
         context.read<BudgetsBloc>().add(UpdateBudgetRequested(budget));
       } else {
         final budget = BudgetModel(
@@ -207,7 +220,9 @@ class _AddBudgetPageState extends State<AddBudgetPage>
           currency:
               context.read<AuthBloc>().state.authResponse?.user.currency ??
               'XAF',
+          linkedGoalId: _selectedGoalId,
         );
+        _pendingBudget = budget;
         context.read<BudgetsBloc>().add(AddBudgetRequested(budget));
       }
     } else {
@@ -342,14 +357,60 @@ class _AddBudgetPageState extends State<AddBudgetPage>
 
         return BlocListener<BudgetsBloc, BudgetsState>(
           listener: (context, state) {
-            if (state.status == BudgetsStatus.success) {
+            // `status` est partagé avec GetBudgetsRequested (BudgetsBloc est
+            // une instance unique partagée par toute l'app) : sans la garde
+            // `_pendingBudget != null`, un simple rechargement de la liste
+            // qui commence/se termine PENDANT que cette page est ouverte
+            // déclencherait à tort le popup de chargement ou ferait croire
+            // qu'une sauvegarde vient de réussir/échouer, sans qu'aucune
+            // sauvegarde n'ait eu lieu.
+            if (state.status == BudgetsStatus.loading &&
+                _pendingBudget != null &&
+                !_isSavingDialogShowing) {
+              _isSavingDialogShowing = true;
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => PopScope(
+                  canPop: false,
+                  child: AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    content: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Text(l10n.budgetSavingInProgress),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+              return;
+            }
+
+            if (_isSavingDialogShowing &&
+                (state.status == BudgetsStatus.success ||
+                    state.status == BudgetsStatus.error)) {
+              _isSavingDialogShowing = false;
+              Navigator.of(context, rootNavigator: true).pop();
+            }
+
+            if (state.status == BudgetsStatus.success &&
+                _pendingBudget != null) {
               final isEdit = widget.budget != null;
+              final submitted = _pendingBudget!;
+              _pendingBudget = null;
               getIt<AnalyticsManager>().trackEvent(
                 feature: 'Budgets',
                 action: isEdit ? 'update_success' : 'create_success',
                 details: {
-                  'total_allocated': state.budgets.last.totalAllocated,
-                  'category_count': state.budgets.last.categories.length,
+                  'total_allocated': submitted.totalAllocated,
+                  'category_count': submitted.categories.length,
                 },
               );
               if (context.canPop()) {
@@ -362,7 +423,9 @@ class _AddBudgetPageState extends State<AddBudgetPage>
                   ),
                 ),
               );
-            } else if (state.status == BudgetsStatus.error) {
+            } else if (state.status == BudgetsStatus.error &&
+                _pendingBudget != null) {
+              _pendingBudget = null;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.errorMessage ?? l10n.errorBudget)),
               );
@@ -468,6 +531,48 @@ class _AddBudgetPageState extends State<AddBudgetPage>
                                   : _buildAmountField(item),
                             ],
                           ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      l10n.linkedGoalLabel,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      l10n.linkedGoalDescription,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    BlocBuilder<GoalsBloc, GoalsState>(
+                      builder: (context, goalsState) {
+                        return DropdownButtonFormField<String?>(
+                          initialValue: _selectedGoalId,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
+                          items: [
+                            DropdownMenuItem<String?>(
+                              value: null,
+                              child: Text(l10n.linkedGoalNone),
+                            ),
+                            ...goalsState.goals.map(
+                              (g) => DropdownMenuItem<String?>(
+                                value: g.id,
+                                child: Text(
+                                  g.name,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          ],
+                          onChanged: (value) =>
+                              setState(() => _selectedGoalId = value),
                         );
                       },
                     ),

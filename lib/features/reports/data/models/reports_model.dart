@@ -11,6 +11,7 @@ class DashboardReportModel extends Equatable {
   final double savingsRate;
   final String currency;
   final BudgetHealthModel? budgetHealth;
+  final ResteAVivreModel? resteAVivre;
 
   const DashboardReportModel({
     required this.walletBalance,
@@ -19,6 +20,7 @@ class DashboardReportModel extends Equatable {
     required this.savingsRate,
     this.currency = 'XAF',
     this.budgetHealth,
+    this.resteAVivre,
   });
 
   factory DashboardReportModel.fromJson(Map<String, dynamic> json) =>
@@ -33,7 +35,25 @@ class DashboardReportModel extends Equatable {
     savingsRate,
     currency,
     budgetHealth,
+    resteAVivre,
   ];
+}
+
+/// Somme (allocated - spent) du budget propre + de tous les budgets partagés
+/// où l'utilisateur est participant actif, pour le mois en cours.
+@JsonSerializable()
+class ResteAVivreModel extends Equatable {
+  final double amount;
+  final String currency;
+
+  const ResteAVivreModel({required this.amount, this.currency = 'XAF'});
+
+  factory ResteAVivreModel.fromJson(Map<String, dynamic> json) =>
+      _$ResteAVivreModelFromJson(json);
+  Map<String, dynamic> toJson() => _$ResteAVivreModelToJson(this);
+
+  @override
+  List<Object?> get props => [amount, currency];
 }
 
 @JsonSerializable()

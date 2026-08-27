@@ -19,6 +19,9 @@ DashboardReportModel _$DashboardReportModelFromJson(
       : BudgetHealthModel.fromJson(
           json['budgetHealth'] as Map<String, dynamic>,
         ),
+  resteAVivre: json['resteAVivre'] == null
+      ? null
+      : ResteAVivreModel.fromJson(json['resteAVivre'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$DashboardReportModelToJson(
@@ -30,7 +33,17 @@ Map<String, dynamic> _$DashboardReportModelToJson(
   'savingsRate': instance.savingsRate,
   'currency': instance.currency,
   'budgetHealth': instance.budgetHealth,
+  'resteAVivre': instance.resteAVivre,
 };
+
+ResteAVivreModel _$ResteAVivreModelFromJson(Map<String, dynamic> json) =>
+    ResteAVivreModel(
+      amount: (json['amount'] as num).toDouble(),
+      currency: json['currency'] as String? ?? 'XAF',
+    );
+
+Map<String, dynamic> _$ResteAVivreModelToJson(ResteAVivreModel instance) =>
+    <String, dynamic>{'amount': instance.amount, 'currency': instance.currency};
 
 BudgetHealthModel _$BudgetHealthModelFromJson(Map<String, dynamic> json) =>
     BudgetHealthModel(
