@@ -45,6 +45,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
   bool _enableSurplus = false;
   bool _enableRoundup = false;
   bool _showAdvanced = false;
+  int _surplusDayOfMonth = 1;
 
   @override
   void initState() {
@@ -139,6 +140,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
           enableSurplus: _enableSurplus,
           enableRoundup: _enableRoundup,
           percentageIncome: double.tryParse(_percentageController.text) ?? 0,
+          dayOfMonth: _surplusDayOfMonth,
         ),
         strategy: GoalStrategyModel(type: _selectedStrategy),
         category: _selectedType == 'debt'
@@ -375,8 +377,14 @@ class _AddGoalPageState extends State<AddGoalPage> {
                           if (value == null || value.isEmpty) {
                             return AppLocalizations.of(context)!.requiredField;
                           }
-                          if (double.tryParse(value) == null) {
+                          final parsed = double.tryParse(value);
+                          if (parsed == null) {
                             return AppLocalizations.of(context)!.invalidNumber;
+                          }
+                          if (parsed <= 0) {
+                            return AppLocalizations.of(
+                              context,
+                            )!.amountMustBePositive;
                           }
                           return null;
                         },
@@ -461,6 +469,27 @@ class _AddGoalPageState extends State<AddGoalPage> {
                         onChanged: (value) =>
                             setState(() => _enableSurplus = value),
                       ),
+                      if (_enableSurplus) ...[
+                        const SizedBox(height: 8),
+                        _buildDropdown<int>(
+                          context,
+                          label: AppLocalizations.of(
+                            context,
+                          )!.surplusDayOfMonthLabel,
+                          value: _surplusDayOfMonth,
+                          items: List.generate(28, (i) => i + 1)
+                              .map(
+                                (day) => DropdownMenuItem(
+                                  value: day,
+                                  child: Text(day.toString()),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) =>
+                              setState(() => _surplusDayOfMonth = value!),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                       _buildSwitchTile(
                         context,
                         label: AppLocalizations.of(context)!.enableRoundupLabel,
@@ -483,6 +512,19 @@ class _AddGoalPageState extends State<AddGoalPage> {
                           context,
                         )!.percentageIncomeDesc,
                         suffix: const Text('%'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return null;
+                          final parsed = double.tryParse(value);
+                          if (parsed == null) {
+                            return AppLocalizations.of(context)!.invalidNumber;
+                          }
+                          if (parsed < 0 || parsed > 100) {
+                            return AppLocalizations.of(
+                              context,
+                            )!.percentageMustBeInRange;
+                          }
+                          return null;
+                        },
                       ),
                     ],
                     const SizedBox(height: 40),

@@ -43,6 +43,19 @@
     "leaveBudget": "Leave this budget",
     "leaveBudgetConfirm": "Are you sure you want to leave this shared budget?",
     "removeParticipant": "Remove",
+    "joinGoal": "Join a goal",
+    "joinGoalDescription": "Enter the invite code shared by the goal's owner to join it.",
+    "successJoinGoal": "You have successfully joined the goal",
+    "shareGoal": "Share this goal",
+    "shareGoalDescription": "Share this code with the people you want to invite to contribute to this goal.",
+    "goalParticipants": "Participants",
+    "leaveGoal": "Leave this goal",
+    "leaveGoalConfirm": "Are you sure you want to leave this shared goal?",
+    "contributionByLabel": "By {name}",
+    "@contributionByLabel": {
+      "placeholders": { "name": { "type": "String" } }
+    },
+    "contributionByYou": "By you",
     "sharedByLabel": "Shared by {name}",
     "@sharedByLabel": {
       "placeholders": { "name": { "type": "String" } }
@@ -175,6 +188,8 @@
     "errorGoal": "Error creating goal",
     "selectDateError": "Please select a date",
     "invalidNumber": "Invalid number",
+    "amountMustBePositive": "Amount must be greater than zero",
+    "percentageMustBeInRange": "Percentage must be between 0 and 100",
     "notifications": "Notifications",
     "security": "Security",
     "language": "Language",
@@ -361,13 +376,8 @@
     "other": "Other",
     "fieldRequired": "Field required",
     "errorOccurred": "An error occurred",
-    "importGoal": "Import Goal",
-    "goalImportedSuccess": "Goal imported successfully!",
-    "sharedGoal": "Shared Goal",
     "targetAmount": "Target Amount",
     "deadline": "Deadline",
-    "addGoalToListPrompt": "Do you want to add this goal to your list?",
-    "acceptGoal": "Accept Goal",
     "aiAnalysisTitle": "AI Financial Analysis",
     "aiAnalysisUnavailable": "AI analysis is currently unavailable",
     "tontineAiAnalysisTitle": "AI Analysis of the Receipt",
@@ -470,6 +480,15 @@
     "goalEmojiLabel": "Emoji",
     "autoSaveRulesTitle": "Auto-Save Rules",
     "enableSurplusLabel": "Save Surplus",
+    "surplusDayOfMonthLabel": "Day of month for the suggestion",
+    "surplusDayOfMonthValue": "The {day}",
+    "@surplusDayOfMonthValue": {
+        "placeholders": {
+            "day": {
+                "type": "int"
+            }
+        }
+    },
     "enableRoundupLabel": "Round up Transactions",
     "percentageIncomeLabel": "% of Income",
     "emergencyType": "Emergency",
@@ -926,8 +945,10 @@
     "noteHint": "e.g. January installment",
     "historyLabel": "Contribution History",
     "contributionLabel": "Contribution",
+    "withdrawalLabel": "Withdrawal",
     "goalForcedExpenseHint": "Saving for a goal is recorded as an expense from your wallet.",
-    "enableSurplusDesc": "Automatically saves what remains of your budget at the end of the month.",
+    "debtRepaymentWarningHint": "This repayment is recorded as an expense from your wallet and debits your Kauri balance immediately.",
+    "enableSurplusDesc": "Suggests each month that you add what's left over after your expenses to this goal — you decide, no automatic debit.",
     "enableRoundupDesc": "Rounds up your expenses to the nearest currency unit and saves the difference.",
     "percentageIncomeDesc": "Percentage of each income automatically set aside.",
     "featureDisabledTitle": "Feature Unavailable",

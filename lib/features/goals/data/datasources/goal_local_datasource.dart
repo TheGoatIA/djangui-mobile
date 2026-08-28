@@ -22,13 +22,15 @@ class GoalLocalDataSourceImpl implements GoalLocalDataSource {
   Future<List<GoalModel>> getGoals() async {
     final rows = await _database.select(_database.goals).get();
     return rows.map((row) {
-      final participants = List<String>.from(json.decode(row.participants));
       final strategy = row.strategy != null
           ? GoalStrategyModel.fromJson(json.decode(row.strategy!))
           : const GoalStrategyModel(type: 'custom');
       final autoSaveRules = row.autoSaveRules != null
           ? AutoSaveRulesModel.fromJson(json.decode(row.autoSaveRules!))
           : null;
+      final contributions = (json.decode(row.contributions) as List)
+          .map((c) => GoalContributionModel.fromJson(c as Map<String, dynamic>))
+          .toList();
 
       return GoalModel(
         id: row.id,
@@ -38,14 +40,18 @@ class GoalLocalDataSourceImpl implements GoalLocalDataSource {
         type: row.type,
         targetAmount: row.targetAmount,
         currentAmount: row.currentAmount,
+        progress: row.progress,
         currency: row.currency,
         deadline: row.deadline,
         category: row.category,
         status: row.status,
+        priority: row.priority,
         strategy: strategy,
         autoSaveRules: autoSaveRules,
+        contributions: contributions,
         isShared: row.isShared,
-        participants: participants,
+        inviteCode: row.inviteCode,
+        isOwner: row.isOwner,
         image: row.image,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
@@ -80,16 +86,22 @@ class GoalLocalDataSourceImpl implements GoalLocalDataSource {
       type: Value(g.type),
       targetAmount: Value(g.targetAmount),
       currentAmount: Value(g.currentAmount),
+      progress: Value(g.progress),
       currency: Value(g.currency),
       deadline: Value(g.deadline),
       category: Value(g.category),
       status: Value(g.status),
+      priority: Value(g.priority),
       strategy: Value(json.encode(g.strategy.toJson())),
       autoSaveRules: Value(
         g.autoSaveRules != null ? json.encode(g.autoSaveRules!.toJson()) : null,
       ),
+      contributions: Value(
+        json.encode(g.contributions.map((c) => c.toJson()).toList()),
+      ),
       isShared: Value(g.isShared),
-      participants: Value(json.encode(g.participants)),
+      inviteCode: Value(g.inviteCode),
+      isOwner: Value(g.isOwner),
       image: Value(g.image),
       createdAt: Value(g.createdAt),
       updatedAt: Value(g.updatedAt),

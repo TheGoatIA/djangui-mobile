@@ -25,9 +25,6 @@ class RouteConstants {
   /// Écran définitif de réinitialisation du mot de passe.
   static const String resetPassword = '/reset-password';
 
-  /// Route pour l'importation d'un objectif partagé via lien.
-  static const String shareGoal = '/share/goal';
-
   /// Écran de présentation (Onboarding) pour les nouveaux utilisateurs.
   static const String onBoarding = '/onboarding';
 
@@ -56,6 +53,8 @@ class RouteConstants {
 
   /// Détail d'un objectif d'épargne.
   static const String goalDetails = '/goals/:id';
+  /// Rejoindre un objectif partagé par code d'invitation.
+  static const String joinGoal = '/goals/join';
 
   /// Chat avec le Coach financier IA.
   static const String coach = '/coach';

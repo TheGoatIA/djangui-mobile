@@ -13,7 +13,7 @@ import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/core/services/log_service.dart';
 import '../../../../di/injection.dart';
 
-@injectable
+@lazySingleton
 class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
   final VoiceRepository _voiceRepository;
   final AudioRecorder _audioRecorder = AudioRecorder();

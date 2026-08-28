@@ -6,7 +6,7 @@ import '../../domain/repositories/payment_repository.dart';
 import 'payment_event.dart';
 import 'payment_state.dart';
 
-@injectable
+@lazySingleton
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final PaymentRepository _repository;
   AnalyticsService get _analytics => getIt<AnalyticsService>();

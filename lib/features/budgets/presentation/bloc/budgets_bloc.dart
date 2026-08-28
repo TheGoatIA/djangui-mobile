@@ -11,7 +11,7 @@ import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:opentelemetry/api.dart';
 
-@injectable
+@lazySingleton
 class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
   final BudgetRepository _budgetRepository;
   TelemetryService get _telemetry => getIt<TelemetryService>();

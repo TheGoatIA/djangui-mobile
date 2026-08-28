@@ -254,12 +254,16 @@ class SyncService {
       // qu'une contribution déjà traitée par le serveur (accusé perdu avant
       // la suppression locale de la file) soit appliquée une seconde fois.
       final idempotencyKey = payload['idempotencyKey'] as String?;
-      await _goalRemoteDataSource.contributeToGoal(
+      final remoteGoal = await _goalRemoteDataSource.contributeToGoal(
         id,
         amount,
         note: payload['note'] as String?,
         idempotencyKey: idempotencyKey,
       );
+      // Remplace la valeur optimiste (posée hors-ligne, sans l'entrée
+      // d'historique ni le `progress` recalculé côté serveur) par la
+      // version faisant autorité renvoyée par le serveur.
+      await getIt<GoalLocalDataSource>().saveGoal(remoteGoal);
     }
   }
 

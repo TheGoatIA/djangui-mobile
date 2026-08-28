@@ -23,11 +23,13 @@ class AutoSaveRulesModel extends Equatable {
   final bool enableSurplus;
   final bool enableRoundup;
   final double percentageIncome;
+  final int dayOfMonth;
 
   const AutoSaveRulesModel({
     this.enableSurplus = false,
     this.enableRoundup = false,
     this.percentageIncome = 0.0,
+    this.dayOfMonth = 1,
   });
 
   factory AutoSaveRulesModel.fromJson(Map<String, dynamic> json) =>
@@ -35,22 +37,36 @@ class AutoSaveRulesModel extends Equatable {
   Map<String, dynamic> toJson() => _$AutoSaveRulesModelToJson(this);
 
   @override
-  List<Object?> get props => [enableSurplus, enableRoundup, percentageIncome];
+  List<Object?> get props => [
+    enableSurplus,
+    enableRoundup,
+    percentageIncome,
+    dayOfMonth,
+  ];
 }
 
 @JsonSerializable()
 class GoalContributionModel extends Equatable {
   @JsonKey(name: '_id', fromJson: GoalModel._idFromJson)
   final String id;
+  // Nullable : les contributions enregistrées avant l'introduction du
+  // partage n'ont pas d'auteur attribué côté serveur.
+  final String? userId;
   final double amount;
   final DateTime date;
   final String? note;
+  // 'contribution' ou 'redemption' : une entrée d'historique unique pour
+  // tout ce qui est entré et sorti du pot, pas seulement les dépôts.
+  @JsonKey(defaultValue: 'contribution')
+  final String type;
 
   const GoalContributionModel({
     required this.id,
+    this.userId,
     required this.amount,
     required this.date,
     this.note,
+    this.type = 'contribution',
   });
 
   factory GoalContributionModel.fromJson(Map<String, dynamic> json) =>
@@ -58,7 +74,33 @@ class GoalContributionModel extends Equatable {
   Map<String, dynamic> toJson() => _$GoalContributionModelToJson(this);
 
   @override
-  List<Object?> get props => [id, amount, date, note];
+  List<Object?> get props => [id, userId, amount, date, note, type];
+}
+
+@JsonSerializable()
+class GoalParticipantModel extends Equatable {
+  @JsonKey(name: '_id', fromJson: GoalModel._idFromJson)
+  final String id;
+  // Contrairement à BudgetParticipantModel, on expose aussi `userId` : il
+  // faut pouvoir relier une contribution de l'historique (GoalContributionModel.userId)
+  // à son auteur dans la liste des participants.
+  final String userId;
+  final String displayName;
+  final DateTime? joinedAt;
+
+  const GoalParticipantModel({
+    required this.id,
+    required this.userId,
+    required this.displayName,
+    this.joinedAt,
+  });
+
+  factory GoalParticipantModel.fromJson(Map<String, dynamic> json) =>
+      _$GoalParticipantModelFromJson(json);
+  Map<String, dynamic> toJson() => _$GoalParticipantModelToJson(this);
+
+  @override
+  List<Object?> get props => [id, userId, displayName, joinedAt];
 }
 
 @JsonSerializable()
@@ -82,8 +124,11 @@ class GoalModel extends Equatable {
   @JsonKey(includeIfNull: true)
   final AutoSaveRulesModel? autoSaveRules;
   final List<GoalContributionModel> contributions;
+  @JsonKey(defaultValue: false)
   final bool isShared;
-  final List<String> participants;
+  final String? inviteCode;
+  @JsonKey(defaultValue: true)
+  final bool isOwner;
   final String? image;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -111,7 +156,8 @@ class GoalModel extends Equatable {
     this.autoSaveRules,
     this.contributions = const [],
     this.isShared = false,
-    this.participants = const [],
+    this.inviteCode,
+    this.isOwner = true,
     this.image,
     required this.createdAt,
     this.updatedAt,
@@ -143,7 +189,8 @@ class GoalModel extends Equatable {
     AutoSaveRulesModel? autoSaveRules,
     List<GoalContributionModel>? contributions,
     bool? isShared,
-    List<String>? participants,
+    String? inviteCode,
+    bool? isOwner,
     String? image,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -166,7 +213,8 @@ class GoalModel extends Equatable {
       autoSaveRules: autoSaveRules ?? this.autoSaveRules,
       contributions: contributions ?? this.contributions,
       isShared: isShared ?? this.isShared,
-      participants: participants ?? this.participants,
+      inviteCode: inviteCode ?? this.inviteCode,
+      isOwner: isOwner ?? this.isOwner,
       image: image ?? this.image,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -192,7 +240,8 @@ class GoalModel extends Equatable {
     autoSaveRules,
     contributions,
     isShared,
-    participants,
+    inviteCode,
+    isOwner,
     image,
     createdAt,
     updatedAt,

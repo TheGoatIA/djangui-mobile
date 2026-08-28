@@ -6,7 +6,7 @@ import '../../domain/repositories/support_repository.dart';
 import 'support_event.dart';
 import 'support_state.dart';
 
-@injectable
+@lazySingleton
 class SupportBloc extends Bloc<SupportEvent, SupportState> {
   final SupportRepository _repository;
   LogService get _logger => getIt<LogService>();

@@ -20,7 +20,7 @@ import '../features/auth/presentation/pages/phone_login_page.dart';
 import '../features/auth/presentation/pages/otp_verification_page.dart';
 import '../features/auth/presentation/pages/email_verification_pending_page.dart';
 import '../features/auth/presentation/pages/complete_profile_page.dart';
-import '../features/goals/presentation/pages/goal_import_page.dart';
+import '../features/goals/presentation/pages/join_goal_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/transactions/presentation/pages/transaction_list_page.dart';
 import '../features/transactions/presentation/pages/add_transaction_page.dart';
@@ -128,10 +128,6 @@ final appRouter = GoRouter(
       if (state.uri.host == 'reset-password') {
         return '${RouteConstants.resetPassword}?${state.uri.query}';
       }
-      // If the link is kauri://share/goal?data=XYZ
-      if (state.uri.host == 'share' && state.uri.path == '/goal') {
-        return '${RouteConstants.shareGoal}?${state.uri.query}';
-      }
     }
     final authState = context.read<AuthBloc>().state;
     final user = authState.authResponse?.user;
@@ -209,13 +205,6 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.emailVerificationPending,
       builder: (context, state) => const EmailVerificationPendingPage(),
-    ),
-    GoRoute(
-      path: RouteConstants.shareGoal,
-      builder: (context, state) {
-        final data = state.uri.queryParameters['data'] ?? '';
-        return GoalImportPage(dataToken: data);
-      },
     ),
     GoRoute(
       path: RouteConstants.phoneLogin,
@@ -303,6 +292,10 @@ final appRouter = GoRouter(
                   path: 'add',
                   name: 'goal-add',
                   builder: (context, state) => const AddGoalPage(),
+                ),
+                GoRoute(
+                  path: 'join',
+                  builder: (context, state) => const JoinGoalPage(),
                 ),
                 GoRoute(
                   path: ':id',

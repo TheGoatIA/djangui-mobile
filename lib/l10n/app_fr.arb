@@ -43,6 +43,19 @@
     "leaveBudget": "Quitter ce budget",
     "leaveBudgetConfirm": "Voulez-vous vraiment quitter ce budget partagé ?",
     "removeParticipant": "Retirer",
+    "joinGoal": "Rejoindre un objectif",
+    "joinGoalDescription": "Entrez le code d'invitation partagé par le propriétaire de l'objectif pour le rejoindre.",
+    "successJoinGoal": "Vous avez rejoint l'objectif avec succès",
+    "shareGoal": "Partager cet objectif",
+    "shareGoalDescription": "Partagez ce code avec les personnes que vous voulez inviter à contribuer à cet objectif.",
+    "goalParticipants": "Participants",
+    "leaveGoal": "Quitter cet objectif",
+    "leaveGoalConfirm": "Voulez-vous vraiment quitter cet objectif partagé ?",
+    "contributionByLabel": "Par {name}",
+    "@contributionByLabel": {
+      "placeholders": { "name": { "type": "String" } }
+    },
+    "contributionByYou": "Par vous",
     "sharedByLabel": "Partagé par {name}",
     "@sharedByLabel": {
       "placeholders": { "name": { "type": "String" } }
@@ -175,6 +188,8 @@
     "errorGoal": "Erreur lors de la création de l'objectif",
     "selectDateError": "Veuillez sélectionner une date",
     "invalidNumber": "Nombre invalide",
+    "amountMustBePositive": "Le montant doit être supérieur à zéro",
+    "percentageMustBeInRange": "Le pourcentage doit être entre 0 et 100",
     "notifications": "Notifications",
     "security": "Sécurité",
     "language": "Langue",
@@ -361,13 +376,8 @@
     "other": "Autre",
     "fieldRequired": "Champ requis",
     "errorOccurred": "Une erreur est survenue",
-    "importGoal": "Importer Objectif",
-    "goalImportedSuccess": "Objectif importé avec succès !",
-    "sharedGoal": "Objectif Partagé",
     "targetAmount": "Montant Cible",
     "deadline": "Date Limite",
-    "addGoalToListPrompt": "Voulez-vous ajouter cet objectif à votre liste ?",
-    "acceptGoal": "Accepter l'objectif",
     "aiAnalysisTitle": "Analyse Financière IA",
     "aiAnalysisUnavailable": "L'analyse IA est temporairement indisponible",
     "tontineAiAnalysisTitle": "Analyse IA du reçu",
@@ -470,6 +480,15 @@
     "goalEmojiLabel": "Emoji",
     "autoSaveRulesTitle": "Règles d'Épargne Auto",
     "enableSurplusLabel": "Épargner le surplus",
+    "surplusDayOfMonthLabel": "Jour du mois pour la suggestion",
+    "surplusDayOfMonthValue": "Le {day}",
+    "@surplusDayOfMonthValue": {
+        "placeholders": {
+            "day": {
+                "type": "int"
+            }
+        }
+    },
     "enableRoundupLabel": "Arrondir les transactions",
     "percentageIncomeLabel": "% du Revenu",
     "emergencyType": "Urgence",
@@ -926,8 +945,10 @@
     "noteHint": "ex: Échéance de Janvier",
     "historyLabel": "Historique des contributions",
     "contributionLabel": "Contribution",
+    "withdrawalLabel": "Retrait",
     "goalForcedExpenseHint": "L'épargne pour un objectif est enregistrée comme une dépense de votre portefeuille.",
-    "enableSurplusDesc": "Épargne automatiquement ce qui reste de votre budget à la fin du mois.",
+    "debtRepaymentWarningHint": "Ce remboursement est enregistré comme une dépense de votre portefeuille et débite votre solde Kauri immédiatement.",
+    "enableSurplusDesc": "Vous suggère chaque mois de verser dans cet objectif ce qu'il vous reste après vos dépenses — c'est vous qui décidez, aucun débit automatique.",
     "enableRoundupDesc": "Arrondit vos dépenses à l'euro supérieur et épargne la différence.",
     "percentageIncomeDesc": "Pourcentage de chaque revenu automatiquement mis de côté.",
     "featureDisabledTitle": "Fonctionnalité Indisponible",

@@ -96,10 +96,19 @@ class Goals extends Table {
   DateTimeColumn get deadline => dateTime()();
   TextColumn get category => text().nullable()();
   TextColumn get status => text().withDefault(const Constant('active'))();
+  TextColumn get priority => text().withDefault(const Constant('medium'))();
+  RealColumn get progress => real().withDefault(const Constant(0.0))();
   TextColumn get strategy => text().nullable()(); // JSON
   TextColumn get autoSaveRules => text().nullable()(); // JSON
+  TextColumn get contributions =>
+      text().withDefault(const Constant('[]'))(); // JSON
   BoolColumn get isShared => boolean().withDefault(const Constant(false))();
+  // Colonne conservée mais plus utilisée depuis le passage aux vrais objectifs
+  // collaboratifs (GoalParticipant côté serveur) — aucune migration existante
+  // dans ce fichier ne supprime de colonne, on ne commence pas ici.
   TextColumn get participants => text().withDefault(const Constant('[]'))();
+  TextColumn get inviteCode => text().nullable()();
+  BoolColumn get isOwner => boolean().withDefault(const Constant(true))();
   TextColumn get image => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
@@ -369,7 +378,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 25;
+  int get schemaVersion => 27;
 
   @override
   MigrationStrategy get migration {
@@ -423,6 +432,15 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 25) {
           await m.addColumn(chatMessages, chatMessages.status);
+        }
+        if (from < 26) {
+          await m.addColumn(goals, goals.priority);
+          await m.addColumn(goals, goals.progress);
+          await m.addColumn(goals, goals.contributions);
+        }
+        if (from < 27) {
+          await m.addColumn(goals, goals.inviteCode);
+          await m.addColumn(goals, goals.isOwner);
         }
       },
       beforeOpen: (details) async {

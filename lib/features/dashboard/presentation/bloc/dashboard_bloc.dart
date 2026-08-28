@@ -7,7 +7,7 @@ import '../../../reports/domain/repositories/reports_repository.dart';
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';
 
-@injectable
+@lazySingleton
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   final ReportsRepository _reportsRepository;
 

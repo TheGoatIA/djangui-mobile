@@ -10,7 +10,7 @@ import '../../domain/repositories/subscription_repository.dart';
 part 'subscription_event.dart';
 part 'subscription_state.dart';
 
-@injectable
+@lazySingleton
 class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
   final SubscriptionRepository _repository;
   LogService get _logger => getIt<LogService>();

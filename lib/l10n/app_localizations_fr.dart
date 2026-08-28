@@ -142,6 +142,41 @@ class AppLocalizationsFr extends AppLocalizations {
   String get removeParticipant => 'Retirer';
 
   @override
+  String get joinGoal => 'Rejoindre un objectif';
+
+  @override
+  String get joinGoalDescription =>
+      'Entrez le code d\'invitation partagé par le propriétaire de l\'objectif pour le rejoindre.';
+
+  @override
+  String get successJoinGoal => 'Vous avez rejoint l\'objectif avec succès';
+
+  @override
+  String get shareGoal => 'Partager cet objectif';
+
+  @override
+  String get shareGoalDescription =>
+      'Partagez ce code avec les personnes que vous voulez inviter à contribuer à cet objectif.';
+
+  @override
+  String get goalParticipants => 'Participants';
+
+  @override
+  String get leaveGoal => 'Quitter cet objectif';
+
+  @override
+  String get leaveGoalConfirm =>
+      'Voulez-vous vraiment quitter cet objectif partagé ?';
+
+  @override
+  String contributionByLabel(String name) {
+    return 'Par $name';
+  }
+
+  @override
+  String get contributionByYou => 'Par vous';
+
+  @override
   String sharedByLabel(String name) {
     return 'Partagé par $name';
   }
@@ -508,6 +543,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get invalidNumber => 'Nombre invalide';
+
+  @override
+  String get amountMustBePositive => 'Le montant doit être supérieur à zéro';
+
+  @override
+  String get percentageMustBeInRange =>
+      'Le pourcentage doit être entre 0 et 100';
 
   @override
   String get notifications => 'Notifications';
@@ -929,26 +971,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get errorOccurred => 'Une erreur est survenue';
 
   @override
-  String get importGoal => 'Importer Objectif';
-
-  @override
-  String get goalImportedSuccess => 'Objectif importé avec succès !';
-
-  @override
-  String get sharedGoal => 'Objectif Partagé';
-
-  @override
   String get targetAmount => 'Montant Cible';
 
   @override
   String get deadline => 'Date Limite';
-
-  @override
-  String get addGoalToListPrompt =>
-      'Voulez-vous ajouter cet objectif à votre liste ?';
-
-  @override
-  String get acceptGoal => 'Accepter l\'objectif';
 
   @override
   String get aiAnalysisTitle => 'Analyse Financière IA';
@@ -1235,6 +1261,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get enableSurplusLabel => 'Épargner le surplus';
+
+  @override
+  String get surplusDayOfMonthLabel => 'Jour du mois pour la suggestion';
+
+  @override
+  String surplusDayOfMonthValue(int day) {
+    return 'Le $day';
+  }
 
   @override
   String get enableRoundupLabel => 'Arrondir les transactions';
@@ -2634,12 +2668,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get contributionLabel => 'Contribution';
 
   @override
+  String get withdrawalLabel => 'Retrait';
+
+  @override
   String get goalForcedExpenseHint =>
       'L\'épargne pour un objectif est enregistrée comme une dépense de votre portefeuille.';
 
   @override
+  String get debtRepaymentWarningHint =>
+      'Ce remboursement est enregistré comme une dépense de votre portefeuille et débite votre solde Kauri immédiatement.';
+
+  @override
   String get enableSurplusDesc =>
-      'Épargne automatiquement ce qui reste de votre budget à la fin du mois.';
+      'Vous suggère chaque mois de verser dans cet objectif ce qu\'il vous reste après vos dépenses — c\'est vous qui décidez, aucun débit automatique.';
 
   @override
   String get enableRoundupDesc =>

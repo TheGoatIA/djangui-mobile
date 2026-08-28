@@ -12,7 +12,7 @@ import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:opentelemetry/api.dart';
 
-@injectable
+@lazySingleton
 class TontineBloc extends Bloc<TontineEvent, TontineState> {
   final TontineRepository _repository;
   TelemetryService get _telemetry => getIt<TelemetryService>();

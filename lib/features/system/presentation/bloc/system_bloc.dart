@@ -15,7 +15,7 @@ import 'system_state.dart';
 export 'system_event.dart';
 export 'system_state.dart';
 
-@injectable
+@lazySingleton
 class SystemBloc extends Bloc<SystemEvent, SystemState> {
   final SystemRepository _repository;
   TelemetryService get _telemetry => getIt<TelemetryService>();

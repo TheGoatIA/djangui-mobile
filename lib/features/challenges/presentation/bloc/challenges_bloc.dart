@@ -10,7 +10,7 @@ import 'package:kauri/di/injection.dart';
 import 'challenges_event.dart';
 import 'challenges_state.dart';
 
-@injectable
+@lazySingleton
 class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
   final ChallengeRepository _challengeRepository;
   TelemetryService get _telemetry => getIt<TelemetryService>();

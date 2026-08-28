@@ -15,6 +15,11 @@ abstract class GoalRemoteDataSource {
     String? idempotencyKey,
   });
   Future<GoalModel> redeemGoal(String id, {double? amount});
+  Future<String> shareGoal(String id);
+  Future<GoalModel> joinGoal(String inviteCode);
+  Future<List<GoalParticipantModel>> getParticipants(String id);
+  Future<void> removeParticipant(String id, String participantId);
+  Future<void> leaveGoal(String id);
 }
 
 @LazySingleton(as: GoalRemoteDataSource)
@@ -95,5 +100,51 @@ class GoalRemoteDataSourceImpl implements GoalRemoteDataSource {
       throw Exception(response.body?.message ?? 'Failed to redeem funds');
     }
     return response.body!.data!;
+  }
+
+  @override
+  Future<String> shareGoal(String id) async {
+    final response = await _apiService.shareGoal(id);
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!['inviteCode'] as String;
+    } else {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<GoalModel> joinGoal(String inviteCode) async {
+    final response = await _apiService.joinGoal({'inviteCode': inviteCode});
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
+    } else {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<List<GoalParticipantModel>> getParticipants(String id) async {
+    final response = await _apiService.getParticipants(id);
+    if (response.isSuccessful && response.body?.data != null) {
+      return response.body!.data!;
+    } else {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<void> removeParticipant(String id, String participantId) async {
+    final response = await _apiService.removeParticipant(id, participantId);
+    if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<void> leaveGoal(String id) async {
+    final response = await _apiService.leaveGoal(id);
+    if (!response.isSuccessful) {
+      throw Exception(response.errorMessage);
+    }
   }
 }

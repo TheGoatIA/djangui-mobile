@@ -13,7 +13,7 @@ import '../../../../di/injection.dart';
 part 'settings_event.dart';
 part 'settings_state.dart';
 
-@injectable
+@lazySingleton
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final SharedPreferences _prefs;
   final AuthRepository _authRepository;

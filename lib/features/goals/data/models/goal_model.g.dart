@@ -20,6 +20,7 @@ AutoSaveRulesModel _$AutoSaveRulesModelFromJson(Map<String, dynamic> json) =>
       enableSurplus: json['enableSurplus'] as bool? ?? false,
       enableRoundup: json['enableRoundup'] as bool? ?? false,
       percentageIncome: (json['percentageIncome'] as num?)?.toDouble() ?? 0.0,
+      dayOfMonth: (json['dayOfMonth'] as num?)?.toInt() ?? 1,
     );
 
 Map<String, dynamic> _$AutoSaveRulesModelToJson(AutoSaveRulesModel instance) =>
@@ -27,24 +28,49 @@ Map<String, dynamic> _$AutoSaveRulesModelToJson(AutoSaveRulesModel instance) =>
       'enableSurplus': instance.enableSurplus,
       'enableRoundup': instance.enableRoundup,
       'percentageIncome': instance.percentageIncome,
+      'dayOfMonth': instance.dayOfMonth,
     };
 
 GoalContributionModel _$GoalContributionModelFromJson(
   Map<String, dynamic> json,
 ) => GoalContributionModel(
   id: GoalModel._idFromJson(json['_id']),
+  userId: json['userId'] as String?,
   amount: (json['amount'] as num).toDouble(),
   date: DateTime.parse(json['date'] as String),
   note: json['note'] as String?,
+  type: json['type'] as String? ?? 'contribution',
 );
 
 Map<String, dynamic> _$GoalContributionModelToJson(
   GoalContributionModel instance,
 ) => <String, dynamic>{
   '_id': instance.id,
+  'userId': instance.userId,
   'amount': instance.amount,
   'date': instance.date.toIso8601String(),
   'note': instance.note,
+  'type': instance.type,
+};
+
+GoalParticipantModel _$GoalParticipantModelFromJson(
+  Map<String, dynamic> json,
+) => GoalParticipantModel(
+  id: GoalModel._idFromJson(json['_id']),
+  userId: json['userId'] as String,
+  displayName: json['displayName'] as String,
+  joinedAt: json['joinedAt'] == null
+      ? null
+      : DateTime.parse(json['joinedAt'] as String),
+);
+
+Map<String, dynamic> _$GoalParticipantModelToJson(
+  GoalParticipantModel instance,
+) => <String, dynamic>{
+  '_id': instance.id,
+  'userId': instance.userId,
+  'displayName': instance.displayName,
+  'joinedAt': instance.joinedAt?.toIso8601String(),
 };
 
 GoalModel _$GoalModelFromJson(Map<String, dynamic> json) => GoalModel(
@@ -77,11 +103,8 @@ GoalModel _$GoalModelFromJson(Map<String, dynamic> json) => GoalModel(
           .toList() ??
       const [],
   isShared: json['isShared'] as bool? ?? false,
-  participants:
-      (json['participants'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList() ??
-      const [],
+  inviteCode: json['inviteCode'] as String?,
+  isOwner: json['isOwner'] as bool? ?? true,
   image: json['image'] as String?,
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt: json['updatedAt'] == null
@@ -107,7 +130,8 @@ Map<String, dynamic> _$GoalModelToJson(GoalModel instance) => <String, dynamic>{
   'autoSaveRules': instance.autoSaveRules,
   'contributions': instance.contributions,
   'isShared': instance.isShared,
-  'participants': instance.participants,
+  'inviteCode': instance.inviteCode,
+  'isOwner': instance.isOwner,
   'image': instance.image,
   'createdAt': instance.createdAt.toIso8601String(),
   'updatedAt': instance.updatedAt?.toIso8601String(),

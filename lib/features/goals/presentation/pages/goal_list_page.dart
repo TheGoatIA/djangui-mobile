@@ -9,7 +9,8 @@ import '../bloc/goals_event.dart';
 import '../bloc/goals_state.dart';
 import '../../data/models/goal_model.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../core/services/share_service.dart';
+import '../../../../core/constants/route_constants.dart';
+import '../widgets/goal_share_sheet.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/utils/currency_helper.dart';
 
@@ -53,6 +54,7 @@ class _GoalListViewState extends State<GoalListView> {
       'Affichage de la liste des objectifs.',
       component: 'GoalListPage',
     );
+    context.read<GoalsBloc>().add(const GetGoalsRequested(forceRefresh: true));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -122,11 +124,36 @@ class _GoalListViewState extends State<GoalListView> {
         }
         return Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
-          appBar: AppBar(title: Text(l10n.myGoals)),
+          appBar: AppBar(
+            title: Text(l10n.myGoals),
+            actions: [
+              IconButton(
+                onPressed: () async {
+                  final refresh = await context.push<bool>(
+                    RouteConstants.joinGoal,
+                  );
+                  if (refresh == true && context.mounted) {
+                    context.read<GoalsBloc>().add(
+                      const GetGoalsRequested(forceRefresh: true),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.group_add_outlined),
+                tooltip: l10n.joinGoal,
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
           body: BlocListener<GoalsBloc, GoalsState>(
             listener: (context, state) {
               if (state.status == GoalsStatus.success) {
                 _startTutorial();
+              } else if (state.status == GoalsStatus.error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.errorMessage ?? l10n.errorGoal),
+                  ),
+                );
               }
             },
             child: BlocBuilder<GoalsBloc, GoalsState>(
@@ -281,7 +308,7 @@ class _GoalItem extends StatelessWidget {
                         'Action: Partage de l\'objectif ${goal.id}',
                         component: 'GoalListPage',
                       );
-                      getIt<ShareService>().shareGoal(goal);
+                      showGoalShareSheet(context, goal);
                     } else if (value == 'delete') {
                       getIt<LogService>().info(
                         'Action: Demande de suppression de l\'objectif ${goal.id}',

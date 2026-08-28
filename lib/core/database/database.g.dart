@@ -2599,6 +2599,30 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     requiredDuringInsert: false,
     defaultValue: const Constant('active'),
   );
+  static const VerificationMeta _priorityMeta = const VerificationMeta(
+    'priority',
+  );
+  @override
+  late final GeneratedColumn<String> priority = GeneratedColumn<String>(
+    'priority',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('medium'),
+  );
+  static const VerificationMeta _progressMeta = const VerificationMeta(
+    'progress',
+  );
+  @override
+  late final GeneratedColumn<double> progress = GeneratedColumn<double>(
+    'progress',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
   static const VerificationMeta _strategyMeta = const VerificationMeta(
     'strategy',
   );
@@ -2620,6 +2644,18 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contributionsMeta = const VerificationMeta(
+    'contributions',
+  );
+  @override
+  late final GeneratedColumn<String> contributions = GeneratedColumn<String>(
+    'contributions',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
   );
   static const VerificationMeta _isSharedMeta = const VerificationMeta(
     'isShared',
@@ -2647,6 +2683,32 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
     defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _inviteCodeMeta = const VerificationMeta(
+    'inviteCode',
+  );
+  @override
+  late final GeneratedColumn<String> inviteCode = GeneratedColumn<String>(
+    'invite_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isOwnerMeta = const VerificationMeta(
+    'isOwner',
+  );
+  @override
+  late final GeneratedColumn<bool> isOwner = GeneratedColumn<bool>(
+    'is_owner',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_owner" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
   );
   static const VerificationMeta _imageMeta = const VerificationMeta('image');
   @override
@@ -2692,10 +2754,15 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     deadline,
     category,
     status,
+    priority,
+    progress,
     strategy,
     autoSaveRules,
+    contributions,
     isShared,
     participants,
+    inviteCode,
+    isOwner,
     image,
     createdAt,
     updatedAt,
@@ -2794,6 +2861,18 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         status.isAcceptableOrUnknown(data['status']!, _statusMeta),
       );
     }
+    if (data.containsKey('priority')) {
+      context.handle(
+        _priorityMeta,
+        priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta),
+      );
+    }
+    if (data.containsKey('progress')) {
+      context.handle(
+        _progressMeta,
+        progress.isAcceptableOrUnknown(data['progress']!, _progressMeta),
+      );
+    }
     if (data.containsKey('strategy')) {
       context.handle(
         _strategyMeta,
@@ -2806,6 +2885,15 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         autoSaveRules.isAcceptableOrUnknown(
           data['auto_save_rules']!,
           _autoSaveRulesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('contributions')) {
+      context.handle(
+        _contributionsMeta,
+        contributions.isAcceptableOrUnknown(
+          data['contributions']!,
+          _contributionsMeta,
         ),
       );
     }
@@ -2822,6 +2910,18 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
           data['participants']!,
           _participantsMeta,
         ),
+      );
+    }
+    if (data.containsKey('invite_code')) {
+      context.handle(
+        _inviteCodeMeta,
+        inviteCode.isAcceptableOrUnknown(data['invite_code']!, _inviteCodeMeta),
+      );
+    }
+    if (data.containsKey('is_owner')) {
+      context.handle(
+        _isOwnerMeta,
+        isOwner.isAcceptableOrUnknown(data['is_owner']!, _isOwnerMeta),
       );
     }
     if (data.containsKey('image')) {
@@ -2897,6 +2997,14 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         DriftSqlType.string,
         data['${effectivePrefix}status'],
       )!,
+      priority: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}priority'],
+      )!,
+      progress: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}progress'],
+      )!,
       strategy: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}strategy'],
@@ -2905,6 +3013,10 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         DriftSqlType.string,
         data['${effectivePrefix}auto_save_rules'],
       ),
+      contributions: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contributions'],
+      )!,
       isShared: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_shared'],
@@ -2912,6 +3024,14 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
       participants: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}participants'],
+      )!,
+      inviteCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}invite_code'],
+      ),
+      isOwner: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_owner'],
       )!,
       image: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -2946,10 +3066,15 @@ class Goal extends DataClass implements Insertable<Goal> {
   final DateTime deadline;
   final String? category;
   final String status;
+  final String priority;
+  final double progress;
   final String? strategy;
   final String? autoSaveRules;
+  final String contributions;
   final bool isShared;
   final String participants;
+  final String? inviteCode;
+  final bool isOwner;
   final String? image;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -2965,10 +3090,15 @@ class Goal extends DataClass implements Insertable<Goal> {
     required this.deadline,
     this.category,
     required this.status,
+    required this.priority,
+    required this.progress,
     this.strategy,
     this.autoSaveRules,
+    required this.contributions,
     required this.isShared,
     required this.participants,
+    this.inviteCode,
+    required this.isOwner,
     this.image,
     required this.createdAt,
     this.updatedAt,
@@ -2993,14 +3123,21 @@ class Goal extends DataClass implements Insertable<Goal> {
       map['category'] = Variable<String>(category);
     }
     map['status'] = Variable<String>(status);
+    map['priority'] = Variable<String>(priority);
+    map['progress'] = Variable<double>(progress);
     if (!nullToAbsent || strategy != null) {
       map['strategy'] = Variable<String>(strategy);
     }
     if (!nullToAbsent || autoSaveRules != null) {
       map['auto_save_rules'] = Variable<String>(autoSaveRules);
     }
+    map['contributions'] = Variable<String>(contributions);
     map['is_shared'] = Variable<bool>(isShared);
     map['participants'] = Variable<String>(participants);
+    if (!nullToAbsent || inviteCode != null) {
+      map['invite_code'] = Variable<String>(inviteCode);
+    }
+    map['is_owner'] = Variable<bool>(isOwner);
     if (!nullToAbsent || image != null) {
       map['image'] = Variable<String>(image);
     }
@@ -3030,14 +3167,21 @@ class Goal extends DataClass implements Insertable<Goal> {
           ? const Value.absent()
           : Value(category),
       status: Value(status),
+      priority: Value(priority),
+      progress: Value(progress),
       strategy: strategy == null && nullToAbsent
           ? const Value.absent()
           : Value(strategy),
       autoSaveRules: autoSaveRules == null && nullToAbsent
           ? const Value.absent()
           : Value(autoSaveRules),
+      contributions: Value(contributions),
       isShared: Value(isShared),
       participants: Value(participants),
+      inviteCode: inviteCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(inviteCode),
+      isOwner: Value(isOwner),
       image: image == null && nullToAbsent
           ? const Value.absent()
           : Value(image),
@@ -3065,10 +3209,15 @@ class Goal extends DataClass implements Insertable<Goal> {
       deadline: serializer.fromJson<DateTime>(json['deadline']),
       category: serializer.fromJson<String?>(json['category']),
       status: serializer.fromJson<String>(json['status']),
+      priority: serializer.fromJson<String>(json['priority']),
+      progress: serializer.fromJson<double>(json['progress']),
       strategy: serializer.fromJson<String?>(json['strategy']),
       autoSaveRules: serializer.fromJson<String?>(json['autoSaveRules']),
+      contributions: serializer.fromJson<String>(json['contributions']),
       isShared: serializer.fromJson<bool>(json['isShared']),
       participants: serializer.fromJson<String>(json['participants']),
+      inviteCode: serializer.fromJson<String?>(json['inviteCode']),
+      isOwner: serializer.fromJson<bool>(json['isOwner']),
       image: serializer.fromJson<String?>(json['image']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
@@ -3089,10 +3238,15 @@ class Goal extends DataClass implements Insertable<Goal> {
       'deadline': serializer.toJson<DateTime>(deadline),
       'category': serializer.toJson<String?>(category),
       'status': serializer.toJson<String>(status),
+      'priority': serializer.toJson<String>(priority),
+      'progress': serializer.toJson<double>(progress),
       'strategy': serializer.toJson<String?>(strategy),
       'autoSaveRules': serializer.toJson<String?>(autoSaveRules),
+      'contributions': serializer.toJson<String>(contributions),
       'isShared': serializer.toJson<bool>(isShared),
       'participants': serializer.toJson<String>(participants),
+      'inviteCode': serializer.toJson<String?>(inviteCode),
+      'isOwner': serializer.toJson<bool>(isOwner),
       'image': serializer.toJson<String?>(image),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
@@ -3111,10 +3265,15 @@ class Goal extends DataClass implements Insertable<Goal> {
     DateTime? deadline,
     Value<String?> category = const Value.absent(),
     String? status,
+    String? priority,
+    double? progress,
     Value<String?> strategy = const Value.absent(),
     Value<String?> autoSaveRules = const Value.absent(),
+    String? contributions,
     bool? isShared,
     String? participants,
+    Value<String?> inviteCode = const Value.absent(),
+    bool? isOwner,
     Value<String?> image = const Value.absent(),
     DateTime? createdAt,
     Value<DateTime?> updatedAt = const Value.absent(),
@@ -3130,12 +3289,17 @@ class Goal extends DataClass implements Insertable<Goal> {
     deadline: deadline ?? this.deadline,
     category: category.present ? category.value : this.category,
     status: status ?? this.status,
+    priority: priority ?? this.priority,
+    progress: progress ?? this.progress,
     strategy: strategy.present ? strategy.value : this.strategy,
     autoSaveRules: autoSaveRules.present
         ? autoSaveRules.value
         : this.autoSaveRules,
+    contributions: contributions ?? this.contributions,
     isShared: isShared ?? this.isShared,
     participants: participants ?? this.participants,
+    inviteCode: inviteCode.present ? inviteCode.value : this.inviteCode,
+    isOwner: isOwner ?? this.isOwner,
     image: image.present ? image.value : this.image,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
@@ -3159,14 +3323,23 @@ class Goal extends DataClass implements Insertable<Goal> {
       deadline: data.deadline.present ? data.deadline.value : this.deadline,
       category: data.category.present ? data.category.value : this.category,
       status: data.status.present ? data.status.value : this.status,
+      priority: data.priority.present ? data.priority.value : this.priority,
+      progress: data.progress.present ? data.progress.value : this.progress,
       strategy: data.strategy.present ? data.strategy.value : this.strategy,
       autoSaveRules: data.autoSaveRules.present
           ? data.autoSaveRules.value
           : this.autoSaveRules,
+      contributions: data.contributions.present
+          ? data.contributions.value
+          : this.contributions,
       isShared: data.isShared.present ? data.isShared.value : this.isShared,
       participants: data.participants.present
           ? data.participants.value
           : this.participants,
+      inviteCode: data.inviteCode.present
+          ? data.inviteCode.value
+          : this.inviteCode,
+      isOwner: data.isOwner.present ? data.isOwner.value : this.isOwner,
       image: data.image.present ? data.image.value : this.image,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -3187,10 +3360,15 @@ class Goal extends DataClass implements Insertable<Goal> {
           ..write('deadline: $deadline, ')
           ..write('category: $category, ')
           ..write('status: $status, ')
+          ..write('priority: $priority, ')
+          ..write('progress: $progress, ')
           ..write('strategy: $strategy, ')
           ..write('autoSaveRules: $autoSaveRules, ')
+          ..write('contributions: $contributions, ')
           ..write('isShared: $isShared, ')
           ..write('participants: $participants, ')
+          ..write('inviteCode: $inviteCode, ')
+          ..write('isOwner: $isOwner, ')
           ..write('image: $image, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -3199,7 +3377,7 @@ class Goal extends DataClass implements Insertable<Goal> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     name,
     description,
@@ -3211,14 +3389,19 @@ class Goal extends DataClass implements Insertable<Goal> {
     deadline,
     category,
     status,
+    priority,
+    progress,
     strategy,
     autoSaveRules,
+    contributions,
     isShared,
     participants,
+    inviteCode,
+    isOwner,
     image,
     createdAt,
     updatedAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3234,10 +3417,15 @@ class Goal extends DataClass implements Insertable<Goal> {
           other.deadline == this.deadline &&
           other.category == this.category &&
           other.status == this.status &&
+          other.priority == this.priority &&
+          other.progress == this.progress &&
           other.strategy == this.strategy &&
           other.autoSaveRules == this.autoSaveRules &&
+          other.contributions == this.contributions &&
           other.isShared == this.isShared &&
           other.participants == this.participants &&
+          other.inviteCode == this.inviteCode &&
+          other.isOwner == this.isOwner &&
           other.image == this.image &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -3255,10 +3443,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<DateTime> deadline;
   final Value<String?> category;
   final Value<String> status;
+  final Value<String> priority;
+  final Value<double> progress;
   final Value<String?> strategy;
   final Value<String?> autoSaveRules;
+  final Value<String> contributions;
   final Value<bool> isShared;
   final Value<String> participants;
+  final Value<String?> inviteCode;
+  final Value<bool> isOwner;
   final Value<String?> image;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
@@ -3275,10 +3468,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.deadline = const Value.absent(),
     this.category = const Value.absent(),
     this.status = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.progress = const Value.absent(),
     this.strategy = const Value.absent(),
     this.autoSaveRules = const Value.absent(),
+    this.contributions = const Value.absent(),
     this.isShared = const Value.absent(),
     this.participants = const Value.absent(),
+    this.inviteCode = const Value.absent(),
+    this.isOwner = const Value.absent(),
     this.image = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -3296,10 +3494,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     required DateTime deadline,
     this.category = const Value.absent(),
     this.status = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.progress = const Value.absent(),
     this.strategy = const Value.absent(),
     this.autoSaveRules = const Value.absent(),
+    this.contributions = const Value.absent(),
     this.isShared = const Value.absent(),
     this.participants = const Value.absent(),
+    this.inviteCode = const Value.absent(),
+    this.isOwner = const Value.absent(),
     this.image = const Value.absent(),
     required DateTime createdAt,
     this.updatedAt = const Value.absent(),
@@ -3322,10 +3525,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Expression<DateTime>? deadline,
     Expression<String>? category,
     Expression<String>? status,
+    Expression<String>? priority,
+    Expression<double>? progress,
     Expression<String>? strategy,
     Expression<String>? autoSaveRules,
+    Expression<String>? contributions,
     Expression<bool>? isShared,
     Expression<String>? participants,
+    Expression<String>? inviteCode,
+    Expression<bool>? isOwner,
     Expression<String>? image,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -3343,10 +3551,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       if (deadline != null) 'deadline': deadline,
       if (category != null) 'category': category,
       if (status != null) 'status': status,
+      if (priority != null) 'priority': priority,
+      if (progress != null) 'progress': progress,
       if (strategy != null) 'strategy': strategy,
       if (autoSaveRules != null) 'auto_save_rules': autoSaveRules,
+      if (contributions != null) 'contributions': contributions,
       if (isShared != null) 'is_shared': isShared,
       if (participants != null) 'participants': participants,
+      if (inviteCode != null) 'invite_code': inviteCode,
+      if (isOwner != null) 'is_owner': isOwner,
       if (image != null) 'image': image,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -3366,10 +3579,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Value<DateTime>? deadline,
     Value<String?>? category,
     Value<String>? status,
+    Value<String>? priority,
+    Value<double>? progress,
     Value<String?>? strategy,
     Value<String?>? autoSaveRules,
+    Value<String>? contributions,
     Value<bool>? isShared,
     Value<String>? participants,
+    Value<String?>? inviteCode,
+    Value<bool>? isOwner,
     Value<String?>? image,
     Value<DateTime>? createdAt,
     Value<DateTime?>? updatedAt,
@@ -3387,10 +3605,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       deadline: deadline ?? this.deadline,
       category: category ?? this.category,
       status: status ?? this.status,
+      priority: priority ?? this.priority,
+      progress: progress ?? this.progress,
       strategy: strategy ?? this.strategy,
       autoSaveRules: autoSaveRules ?? this.autoSaveRules,
+      contributions: contributions ?? this.contributions,
       isShared: isShared ?? this.isShared,
       participants: participants ?? this.participants,
+      inviteCode: inviteCode ?? this.inviteCode,
+      isOwner: isOwner ?? this.isOwner,
       image: image ?? this.image,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -3434,17 +3657,32 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
+    if (priority.present) {
+      map['priority'] = Variable<String>(priority.value);
+    }
+    if (progress.present) {
+      map['progress'] = Variable<double>(progress.value);
+    }
     if (strategy.present) {
       map['strategy'] = Variable<String>(strategy.value);
     }
     if (autoSaveRules.present) {
       map['auto_save_rules'] = Variable<String>(autoSaveRules.value);
     }
+    if (contributions.present) {
+      map['contributions'] = Variable<String>(contributions.value);
+    }
     if (isShared.present) {
       map['is_shared'] = Variable<bool>(isShared.value);
     }
     if (participants.present) {
       map['participants'] = Variable<String>(participants.value);
+    }
+    if (inviteCode.present) {
+      map['invite_code'] = Variable<String>(inviteCode.value);
+    }
+    if (isOwner.present) {
+      map['is_owner'] = Variable<bool>(isOwner.value);
     }
     if (image.present) {
       map['image'] = Variable<String>(image.value);
@@ -3475,10 +3713,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
           ..write('deadline: $deadline, ')
           ..write('category: $category, ')
           ..write('status: $status, ')
+          ..write('priority: $priority, ')
+          ..write('progress: $progress, ')
           ..write('strategy: $strategy, ')
           ..write('autoSaveRules: $autoSaveRules, ')
+          ..write('contributions: $contributions, ')
           ..write('isShared: $isShared, ')
           ..write('participants: $participants, ')
+          ..write('inviteCode: $inviteCode, ')
+          ..write('isOwner: $isOwner, ')
           ..write('image: $image, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -12881,10 +13124,15 @@ typedef $$GoalsTableCreateCompanionBuilder =
       required DateTime deadline,
       Value<String?> category,
       Value<String> status,
+      Value<String> priority,
+      Value<double> progress,
       Value<String?> strategy,
       Value<String?> autoSaveRules,
+      Value<String> contributions,
       Value<bool> isShared,
       Value<String> participants,
+      Value<String?> inviteCode,
+      Value<bool> isOwner,
       Value<String?> image,
       required DateTime createdAt,
       Value<DateTime?> updatedAt,
@@ -12903,10 +13151,15 @@ typedef $$GoalsTableUpdateCompanionBuilder =
       Value<DateTime> deadline,
       Value<String?> category,
       Value<String> status,
+      Value<String> priority,
+      Value<double> progress,
       Value<String?> strategy,
       Value<String?> autoSaveRules,
+      Value<String> contributions,
       Value<bool> isShared,
       Value<String> participants,
+      Value<String?> inviteCode,
+      Value<bool> isOwner,
       Value<String?> image,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
@@ -12976,6 +13229,16 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get strategy => $composableBuilder(
     column: $table.strategy,
     builder: (column) => ColumnFilters(column),
@@ -12986,6 +13249,11 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get contributions => $composableBuilder(
+    column: $table.contributions,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<bool> get isShared => $composableBuilder(
     column: $table.isShared,
     builder: (column) => ColumnFilters(column),
@@ -12993,6 +13261,16 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
 
   ColumnFilters<String> get participants => $composableBuilder(
     column: $table.participants,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get inviteCode => $composableBuilder(
+    column: $table.inviteCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isOwner => $composableBuilder(
+    column: $table.isOwner,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13076,6 +13354,16 @@ class $$GoalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get strategy => $composableBuilder(
     column: $table.strategy,
     builder: (column) => ColumnOrderings(column),
@@ -13086,6 +13374,11 @@ class $$GoalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get contributions => $composableBuilder(
+    column: $table.contributions,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isShared => $composableBuilder(
     column: $table.isShared,
     builder: (column) => ColumnOrderings(column),
@@ -13093,6 +13386,16 @@ class $$GoalsTableOrderingComposer
 
   ColumnOrderings<String> get participants => $composableBuilder(
     column: $table.participants,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get inviteCode => $composableBuilder(
+    column: $table.inviteCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isOwner => $composableBuilder(
+    column: $table.isOwner,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -13160,11 +13463,22 @@ class $$GoalsTableAnnotationComposer
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
+  GeneratedColumn<String> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<double> get progress =>
+      $composableBuilder(column: $table.progress, builder: (column) => column);
+
   GeneratedColumn<String> get strategy =>
       $composableBuilder(column: $table.strategy, builder: (column) => column);
 
   GeneratedColumn<String> get autoSaveRules => $composableBuilder(
     column: $table.autoSaveRules,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contributions => $composableBuilder(
+    column: $table.contributions,
     builder: (column) => column,
   );
 
@@ -13175,6 +13489,14 @@ class $$GoalsTableAnnotationComposer
     column: $table.participants,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get inviteCode => $composableBuilder(
+    column: $table.inviteCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isOwner =>
+      $composableBuilder(column: $table.isOwner, builder: (column) => column);
 
   GeneratedColumn<String> get image =>
       $composableBuilder(column: $table.image, builder: (column) => column);
@@ -13225,10 +13547,15 @@ class $$GoalsTableTableManager
                 Value<DateTime> deadline = const Value.absent(),
                 Value<String?> category = const Value.absent(),
                 Value<String> status = const Value.absent(),
+                Value<String> priority = const Value.absent(),
+                Value<double> progress = const Value.absent(),
                 Value<String?> strategy = const Value.absent(),
                 Value<String?> autoSaveRules = const Value.absent(),
+                Value<String> contributions = const Value.absent(),
                 Value<bool> isShared = const Value.absent(),
                 Value<String> participants = const Value.absent(),
+                Value<String?> inviteCode = const Value.absent(),
+                Value<bool> isOwner = const Value.absent(),
                 Value<String?> image = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -13245,10 +13572,15 @@ class $$GoalsTableTableManager
                 deadline: deadline,
                 category: category,
                 status: status,
+                priority: priority,
+                progress: progress,
                 strategy: strategy,
                 autoSaveRules: autoSaveRules,
+                contributions: contributions,
                 isShared: isShared,
                 participants: participants,
+                inviteCode: inviteCode,
+                isOwner: isOwner,
                 image: image,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -13267,10 +13599,15 @@ class $$GoalsTableTableManager
                 required DateTime deadline,
                 Value<String?> category = const Value.absent(),
                 Value<String> status = const Value.absent(),
+                Value<String> priority = const Value.absent(),
+                Value<double> progress = const Value.absent(),
                 Value<String?> strategy = const Value.absent(),
                 Value<String?> autoSaveRules = const Value.absent(),
+                Value<String> contributions = const Value.absent(),
                 Value<bool> isShared = const Value.absent(),
                 Value<String> participants = const Value.absent(),
+                Value<String?> inviteCode = const Value.absent(),
+                Value<bool> isOwner = const Value.absent(),
                 Value<String?> image = const Value.absent(),
                 required DateTime createdAt,
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -13287,10 +13624,15 @@ class $$GoalsTableTableManager
                 deadline: deadline,
                 category: category,
                 status: status,
+                priority: priority,
+                progress: progress,
                 strategy: strategy,
                 autoSaveRules: autoSaveRules,
+                contributions: contributions,
                 isShared: isShared,
                 participants: participants,
+                inviteCode: inviteCode,
+                isOwner: isOwner,
                 image: image,
                 createdAt: createdAt,
                 updatedAt: updatedAt,

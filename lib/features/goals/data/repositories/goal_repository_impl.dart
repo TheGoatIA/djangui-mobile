@@ -108,6 +108,10 @@ class GoalRepositoryImpl implements GoalRepository {
         );
         return Right(remoteGoal);
       } catch (e) {
+        // Le serveur a rejeté la création : l'objectif optimiste écrit en
+        // local n'existe nulle part ailleurs, donc on le retire plutôt que
+        // de laisser un objectif fantôme dans le cache.
+        await _localDataSource.deleteGoal(goal.id);
         _logger.error(
           'Échec de la création de l\'objectif sur le serveur',
           error: e,
@@ -140,11 +144,16 @@ class GoalRepositoryImpl implements GoalRepository {
       'Suppression de l\'objectif: $id',
       component: 'GoalRepository',
     );
-    await _localDataSource.deleteGoal(id);
 
     if (await _networkInfo.isConnected) {
       try {
         await _remoteDataSource.deleteGoal(id);
+        // On ne retire du cache local qu'une fois la suppression confirmée
+        // par le serveur : sinon un objectif dont l'argent est toujours
+        // détenu par le serveur (échec réseau, rejet) disparaîtrait
+        // silencieusement de l'app alors que rien n'a réellement été
+        // supprimé ni remboursé.
+        await _localDataSource.deleteGoal(id);
         _logger.info(
           'Objectif supprimé avec succès du serveur.',
           component: 'GoalRepository',
@@ -160,7 +169,9 @@ class GoalRepositoryImpl implements GoalRepository {
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
-      // Offline: Queue it
+      // Offline: Queue it (suppression optimiste assumée ici, rejouée plus
+      // tard par SyncService)
+      await _localDataSource.deleteGoal(id);
       _logger.info(
         'Mode hors-ligne: Suppression ajoutée à la file d\'attente de synchronisation.',
         component: 'GoalRepository',
@@ -304,6 +315,95 @@ class GoalRepositoryImpl implements GoalRepository {
       // Offline redemption is tricky because it affects balance immediately.
       // For now, let's treat it as a server-only action or queue it.
       return Left(ServerFailure('Connexion requise pour le rachat de fonds.'));
+    }
+  }
+
+  // ─── PARTAGE ────────────────────────────────────────────────────────────
+
+  @override
+  Future<Either<Failure, String>> shareGoal(String id) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      final code = await _remoteDataSource.shareGoal(id);
+      return Right(code);
+    } catch (e) {
+      _logger.error(
+        'Échec du partage de l\'objectif',
+        error: e,
+        component: 'GoalRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, GoalModel>> joinGoal(String inviteCode) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      final goal = await _remoteDataSource.joinGoal(inviteCode);
+      await _localDataSource.saveGoal(goal);
+      return Right(goal);
+    } catch (e) {
+      _logger.error(
+        'Échec pour rejoindre l\'objectif',
+        error: e,
+        component: 'GoalRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<GoalParticipantModel>>> getParticipants(
+    String id,
+  ) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      final result = await _remoteDataSource.getParticipants(id);
+      return Right(result);
+    } catch (e) {
+      _logger.error(
+        'Échec de la récupération des participants',
+        error: e,
+        component: 'GoalRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeParticipant(
+    String id,
+    String participantId,
+  ) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      await _remoteDataSource.removeParticipant(id, participantId);
+      return const Right(null);
+    } catch (e) {
+      _logger.error(
+        'Échec du retrait du participant',
+        error: e,
+        component: 'GoalRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> leaveGoal(String id) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      await _remoteDataSource.leaveGoal(id);
+      await _localDataSource.deleteGoal(id);
+      return const Right(null);
+    } catch (e) {
+      _logger.error(
+        'Échec pour quitter l\'objectif',
+        error: e,
+        component: 'GoalRepository',
+      );
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 }

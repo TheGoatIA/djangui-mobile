@@ -356,6 +356,66 @@ abstract class AppLocalizations {
   /// **'Retirer'**
   String get removeParticipant;
 
+  /// No description provided for @joinGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre un objectif'**
+  String get joinGoal;
+
+  /// No description provided for @joinGoalDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez le code d\'invitation partagé par le propriétaire de l\'objectif pour le rejoindre.'**
+  String get joinGoalDescription;
+
+  /// No description provided for @successJoinGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez rejoint l\'objectif avec succès'**
+  String get successJoinGoal;
+
+  /// No description provided for @shareGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager cet objectif'**
+  String get shareGoal;
+
+  /// No description provided for @shareGoalDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partagez ce code avec les personnes que vous voulez inviter à contribuer à cet objectif.'**
+  String get shareGoalDescription;
+
+  /// No description provided for @goalParticipants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participants'**
+  String get goalParticipants;
+
+  /// No description provided for @leaveGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter cet objectif'**
+  String get leaveGoal;
+
+  /// No description provided for @leaveGoalConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment quitter cet objectif partagé ?'**
+  String get leaveGoalConfirm;
+
+  /// No description provided for @contributionByLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par {name}'**
+  String contributionByLabel(String name);
+
+  /// No description provided for @contributionByYou.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par vous'**
+  String get contributionByYou;
+
   /// No description provided for @sharedByLabel.
   ///
   /// In fr, this message translates to:
@@ -1045,6 +1105,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Nombre invalide'**
   String get invalidNumber;
+
+  /// No description provided for @amountMustBePositive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant doit être supérieur à zéro'**
+  String get amountMustBePositive;
+
+  /// No description provided for @percentageMustBeInRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le pourcentage doit être entre 0 et 100'**
+  String get percentageMustBeInRange;
 
   /// No description provided for @notifications.
   ///
@@ -1826,24 +1898,6 @@ abstract class AppLocalizations {
   /// **'Une erreur est survenue'**
   String get errorOccurred;
 
-  /// No description provided for @importGoal.
-  ///
-  /// In fr, this message translates to:
-  /// **'Importer Objectif'**
-  String get importGoal;
-
-  /// No description provided for @goalImportedSuccess.
-  ///
-  /// In fr, this message translates to:
-  /// **'Objectif importé avec succès !'**
-  String get goalImportedSuccess;
-
-  /// No description provided for @sharedGoal.
-  ///
-  /// In fr, this message translates to:
-  /// **'Objectif Partagé'**
-  String get sharedGoal;
-
   /// No description provided for @targetAmount.
   ///
   /// In fr, this message translates to:
@@ -1855,18 +1909,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Date Limite'**
   String get deadline;
-
-  /// No description provided for @addGoalToListPrompt.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voulez-vous ajouter cet objectif à votre liste ?'**
-  String get addGoalToListPrompt;
-
-  /// No description provided for @acceptGoal.
-  ///
-  /// In fr, this message translates to:
-  /// **'Accepter l\'objectif'**
-  String get acceptGoal;
 
   /// No description provided for @aiAnalysisTitle.
   ///
@@ -2419,6 +2461,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Épargner le surplus'**
   String get enableSurplusLabel;
+
+  /// No description provided for @surplusDayOfMonthLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour du mois pour la suggestion'**
+  String get surplusDayOfMonthLabel;
+
+  /// No description provided for @surplusDayOfMonthValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le {day}'**
+  String surplusDayOfMonthValue(int day);
 
   /// No description provided for @enableRoundupLabel.
   ///
@@ -4988,16 +5042,28 @@ abstract class AppLocalizations {
   /// **'Contribution'**
   String get contributionLabel;
 
+  /// No description provided for @withdrawalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrait'**
+  String get withdrawalLabel;
+
   /// No description provided for @goalForcedExpenseHint.
   ///
   /// In fr, this message translates to:
   /// **'L\'épargne pour un objectif est enregistrée comme une dépense de votre portefeuille.'**
   String get goalForcedExpenseHint;
 
+  /// No description provided for @debtRepaymentWarningHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce remboursement est enregistré comme une dépense de votre portefeuille et débite votre solde Kauri immédiatement.'**
+  String get debtRepaymentWarningHint;
+
   /// No description provided for @enableSurplusDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Épargne automatiquement ce qui reste de votre budget à la fin du mois.'**
+  /// **'Vous suggère chaque mois de verser dans cet objectif ce qu\'il vous reste après vos dépenses — c\'est vous qui décidez, aucun débit automatique.'**
   String get enableSurplusDesc;
 
   /// No description provided for @enableRoundupDesc.

@@ -9,7 +9,7 @@ import '../../domain/repositories/notification_repository.dart';
 part 'notifications_event.dart';
 part 'notifications_state.dart';
 
-@injectable
+@lazySingleton
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   final NotificationRepository _repository;
   LogService get _logger => getIt<LogService>();
