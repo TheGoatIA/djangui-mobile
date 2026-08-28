@@ -20,6 +20,7 @@ import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/services/log_service.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
 /// Page listant les objectifs d'épargne de l'utilisateur.
 ///
@@ -308,6 +309,11 @@ class _GoalItem extends StatelessWidget {
                         'Action: Partage de l\'objectif ${goal.id}',
                         component: 'GoalListPage',
                       );
+                      getIt<AnalyticsManager>().trackEvent(
+                        feature: 'Goals',
+                        action: 'share',
+                        details: {'id': goal.id},
+                      );
                       showGoalShareSheet(context, goal);
                     } else if (value == 'delete') {
                       getIt<LogService>().info(
@@ -449,6 +455,11 @@ class _GoalItem extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
+              getIt<AnalyticsManager>().trackEvent(
+                feature: 'Goals',
+                action: 'delete_success',
+                details: {'id': goal.id},
+              );
               context.read<GoalsBloc>().add(DeleteGoalRequested(goal.id));
               Navigator.pop(dialogContext);
             },

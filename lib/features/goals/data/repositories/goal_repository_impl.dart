@@ -322,9 +322,15 @@ class GoalRepositoryImpl implements GoalRepository {
 
   @override
   Future<Either<Failure, String>> shareGoal(String id) async {
+    _logger.info('Partage de l\'objectif: $id', component: 'GoalRepository');
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
     try {
       final code = await _remoteDataSource.shareGoal(id);
+      _logger.info(
+        'Objectif partagé avec succès.',
+        component: 'GoalRepository',
+        metadata: {'id': id},
+      );
       return Right(code);
     } catch (e) {
       _logger.error(
@@ -338,10 +344,19 @@ class GoalRepositoryImpl implements GoalRepository {
 
   @override
   Future<Either<Failure, GoalModel>> joinGoal(String inviteCode) async {
+    _logger.info(
+      'Tentative de rejoindre un objectif avec le code: $inviteCode',
+      component: 'GoalRepository',
+    );
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
     try {
       final goal = await _remoteDataSource.joinGoal(inviteCode);
       await _localDataSource.saveGoal(goal);
+      _logger.info(
+        'Objectif rejoint avec succès.',
+        component: 'GoalRepository',
+        metadata: {'id': goal.id},
+      );
       return Right(goal);
     } catch (e) {
       _logger.error(
@@ -357,9 +372,17 @@ class GoalRepositoryImpl implements GoalRepository {
   Future<Either<Failure, List<GoalParticipantModel>>> getParticipants(
     String id,
   ) async {
+    _logger.info(
+      'Récupération des participants de l\'objectif: $id',
+      component: 'GoalRepository',
+    );
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
     try {
       final result = await _remoteDataSource.getParticipants(id);
+      _logger.info(
+        '${result.length} participants récupérés.',
+        component: 'GoalRepository',
+      );
       return Right(result);
     } catch (e) {
       _logger.error(
@@ -376,9 +399,17 @@ class GoalRepositoryImpl implements GoalRepository {
     String id,
     String participantId,
   ) async {
+    _logger.info(
+      'Retrait du participant $participantId de l\'objectif $id',
+      component: 'GoalRepository',
+    );
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
     try {
       await _remoteDataSource.removeParticipant(id, participantId);
+      _logger.info(
+        'Participant retiré avec succès.',
+        component: 'GoalRepository',
+      );
       return const Right(null);
     } catch (e) {
       _logger.error(
@@ -392,10 +423,12 @@ class GoalRepositoryImpl implements GoalRepository {
 
   @override
   Future<Either<Failure, void>> leaveGoal(String id) async {
+    _logger.info('Tentative de quitter l\'objectif: $id', component: 'GoalRepository');
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
     try {
       await _remoteDataSource.leaveGoal(id);
       await _localDataSource.deleteGoal(id);
+      _logger.info('Objectif quitté avec succès.', component: 'GoalRepository');
       return const Right(null);
     } catch (e) {
       _logger.error(

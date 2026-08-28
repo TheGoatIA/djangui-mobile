@@ -263,6 +263,10 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
     ShareGoalRequested event,
     Emitter<GoalsState> emit,
   ) async {
+    _logger.info(
+      'Partage de l\'objectif: ${event.goalId}',
+      component: 'GoalsBloc',
+    );
     emit(
       state.copyWith(
         shareStatus: GoalSideStatus.loading,
@@ -284,19 +288,26 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
           ),
         );
       },
-      (inviteCode) => emit(
-        state.copyWith(
-          shareStatus: GoalSideStatus.success,
-          shareInviteCode: () => inviteCode,
-          goals: state.goals
-              .map(
-                (g) => g.id == event.goalId
-                    ? g.copyWith(isShared: true, inviteCode: inviteCode)
-                    : g,
-              )
-              .toList(),
-        ),
-      ),
+      (inviteCode) {
+        _logger.info(
+          'Objectif partagé avec succès.',
+          component: 'GoalsBloc',
+          metadata: {'id': event.goalId},
+        );
+        emit(
+          state.copyWith(
+            shareStatus: GoalSideStatus.success,
+            shareInviteCode: () => inviteCode,
+            goals: state.goals
+                .map(
+                  (g) => g.id == event.goalId
+                      ? g.copyWith(isShared: true, inviteCode: inviteCode)
+                      : g,
+                )
+                .toList(),
+          ),
+        );
+      },
     );
   }
 
@@ -308,6 +319,10 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
     // avec GetGoalsRequested : cette session a déjà rencontré et corrigé ce
     // piège pour la suppression d'objectif (un fetch de fond partageant le
     // même statut peut déclencher un listener par erreur).
+    _logger.info(
+      'Tentative de rejoindre un objectif avec le code: ${event.inviteCode}',
+      component: 'GoalsBloc',
+    );
     emit(state.copyWith(status: GoalsStatus.loading));
     final result = await _goalRepository.joinGoal(event.inviteCode);
     result.fold<void>(
@@ -325,6 +340,11 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
         );
       },
       (goal) {
+        _logger.info(
+          'Objectif rejoint avec succès.',
+          component: 'GoalsBloc',
+          metadata: {'id': goal.id},
+        );
         final updatedList = List<GoalModel>.from(state.goals)..add(goal);
         emit(
           state.copyWith(status: GoalsStatus.joinSuccess, goals: updatedList),
@@ -337,6 +357,10 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
     GetGoalParticipantsRequested event,
     Emitter<GoalsState> emit,
   ) async {
+    _logger.info(
+      'Récupération des participants de l\'objectif: ${event.goalId}',
+      component: 'GoalsBloc',
+    );
     emit(state.copyWith(participantsStatus: GoalSideStatus.loading));
     final result = await _goalRepository.getParticipants(event.goalId);
     result.fold<void>(
@@ -353,12 +377,18 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
           ),
         );
       },
-      (participants) => emit(
-        state.copyWith(
-          participantsStatus: GoalSideStatus.success,
-          participants: participants,
-        ),
-      ),
+      (participants) {
+        _logger.info(
+          '${participants.length} participants récupérés.',
+          component: 'GoalsBloc',
+        );
+        emit(
+          state.copyWith(
+            participantsStatus: GoalSideStatus.success,
+            participants: participants,
+          ),
+        );
+      },
     );
   }
 
@@ -366,6 +396,10 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
     RemoveGoalParticipantRequested event,
     Emitter<GoalsState> emit,
   ) async {
+    _logger.info(
+      'Retrait du participant ${event.participantId} de l\'objectif ${event.goalId}',
+      component: 'GoalsBloc',
+    );
     final result = await _goalRepository.removeParticipant(
       event.goalId,
       event.participantId,
@@ -384,13 +418,19 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
           ),
         );
       },
-      (_) => emit(
-        state.copyWith(
-          participants: state.participants
-              .where((p) => p.id != event.participantId)
-              .toList(),
-        ),
-      ),
+      (_) {
+        _logger.info(
+          'Participant retiré avec succès.',
+          component: 'GoalsBloc',
+        );
+        emit(
+          state.copyWith(
+            participants: state.participants
+                .where((p) => p.id != event.participantId)
+                .toList(),
+          ),
+        );
+      },
     );
   }
 
@@ -398,6 +438,10 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
     LeaveGoalRequested event,
     Emitter<GoalsState> emit,
   ) async {
+    _logger.info(
+      'Tentative de quitter l\'objectif: ${event.goalId}',
+      component: 'GoalsBloc',
+    );
     emit(state.copyWith(status: GoalsStatus.loading));
     final result = await _goalRepository.leaveGoal(event.goalId);
     result.fold<void>(
@@ -415,6 +459,7 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
         );
       },
       (_) {
+        _logger.info('Objectif quitté avec succès.', component: 'GoalsBloc');
         final updatedList = state.goals
             .where((g) => g.id != event.goalId)
             .toList();
