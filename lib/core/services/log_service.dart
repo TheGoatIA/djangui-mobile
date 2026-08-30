@@ -101,10 +101,15 @@ class LogService {
         },
       };
 
-      // Ne jamais transmettre le Bearer token dans les en-têtes de télémétrie/logs (K-07)
+      // Ne jamais transmettre le Bearer token dans les en-têtes de télémétrie/logs (K-07).
+      // X-Client-Key identifie un client mobile officiel (pas un secret de session) —
+      // voir F-14 de l'audit sécurité : cet endpoint reste volontairement accessible
+      // sans connexion, mais ne doit pas non plus être ouvert à n'importe qui.
       final headers = {
         'Content-Type': 'application/json',
         'X-Trace-Id': traceId,
+        if (EnvConfig.logsClientKey.isNotEmpty)
+          'X-Client-Key': EnvConfig.logsClientKey,
       };
 
       // Fire and forget to not block UI, but with error handling

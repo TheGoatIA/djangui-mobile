@@ -212,27 +212,27 @@ class _SecurityPageState extends State<SecurityPage>
                             (_availableBiometrics?.isNotEmpty ?? false))
                         ? (value) async {
                             if (value) {
-                              // If enabling, check if we already have a biometric token
-                              final repo = getIt<AuthRepository>();
-                              final biometricToken = await repo
-                                  .getBiometricToken();
-                              final provider = await repo.getLoginProvider();
+                              // Toujours repasser par la collecte de
+                              // consentement à l'activation — ne JAMAIS
+                              // sonder l'existence d'un jeton biométrique
+                              // via getBiometricToken() ici : ce stockage
+                              // est protégé matériellement (audit F-01), un
+                              // simple test de présence y déclencherait une
+                              // invite biométrique réelle et inattendue au
+                              // seul geste d'afficher cet écran.
+                              final provider = await getIt<AuthRepository>()
+                                  .getLoginProvider();
 
                               if (!context.mounted) return;
 
-                              if (biometricToken == null &&
-                                  provider == 'password') {
+                              if (provider == 'password') {
                                 _showPasswordDialog(context);
-                              } else if (biometricToken == null &&
-                                  provider != null &&
-                                  provider != 'password') {
-                                // For social logins, just save the token
+                              } else {
+                                // Connexion sociale/téléphone : pas de mot
+                                // de passe à vérifier, la session déjà
+                                // active suffit de preuve d'identité.
                                 context.read<AuthBloc>().add(
                                   AuthSetupBiometricsSocialRequested(),
-                                );
-                              } else {
-                                context.read<SettingsBloc>().add(
-                                  ToggleBiometrics(value),
                                 );
                               }
                             } else {
@@ -366,6 +366,8 @@ class _SecurityPageState extends State<SecurityPage>
                   TextFormField(
                     controller: passwordController,
                     obscureText: true,
+                    autocorrect: false,
+                    enableSuggestions: false,
                     decoration: const InputDecoration(
                       labelText: 'Password',
                       border: OutlineInputBorder(),

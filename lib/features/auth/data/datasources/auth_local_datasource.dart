@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 import 'package:kauri/core/database/database.dart';
+import 'package:kauri/core/services/biometric_gated_storage.dart';
 import 'package:kauri/features/auth/data/models/user_model.dart';
 import 'package:kauri/features/auth/data/models/badge_model.dart';
 import 'package:drift/drift.dart' as drift;
@@ -30,13 +31,18 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final FlutterSecureStorage _storage;
   final AppDatabase _db;
   final Logger _logger;
+  final BiometricGatedStorage _biometricStorage;
 
-  AuthLocalDataSourceImpl(this._storage, this._db, this._logger);
+  AuthLocalDataSourceImpl(
+    this._storage,
+    this._db,
+    this._logger,
+    this._biometricStorage,
+  );
 
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _providerKey = 'login_provider';
-  static const _biometricTokenKey = 'biometric_token';
 
   @override
   Future<void> saveTokens({
@@ -173,19 +179,21 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> saveBiometricToken(String token) async {
-    _logger.d('💾 [AuthLocal] Saving biometric token');
-    await _storage.write(key: _biometricTokenKey, value: token);
+    _logger.d('💾 [AuthLocal] Saving biometric token (Keystore/Keychain biométrique)');
+    await _biometricStorage.write(token);
   }
 
   @override
   Future<String?> getBiometricToken() async {
-    final token = await _storage.read(key: _biometricTokenKey);
+    // Déclenche l'invite biométrique native ici même — pas de vérification
+    // Dart séparée à contourner, le déchiffrement lui-même l'exige.
+    final token = await _biometricStorage.read();
     _logger.d('💾 [AuthLocal] Fetching biometric token: ${token != null}');
     return token;
   }
 
   @override
   Future<void> clearBiometricToken() async {
-    await _storage.delete(key: _biometricTokenKey);
+    await _biometricStorage.delete();
   }
 }

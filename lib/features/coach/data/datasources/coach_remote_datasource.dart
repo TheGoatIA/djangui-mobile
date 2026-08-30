@@ -31,7 +31,15 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
   Stream<CoachStreamEvent> sendMessageStream(String text) async* {
     final client = http.Client();
     try {
-      final response = await _sendStreamRequest(client, text);
+      http.StreamedResponse? response;
+      try {
+        response = await _sendStreamRequest(client, text);
+      } on TimeoutException {
+        yield const CoachStreamFailure(
+          'Anne ne répond pas pour le moment. Réessayez.',
+        );
+        return;
+      }
       if (response == null) {
         yield const CoachStreamFailure(
           'Session expirée. Veuillez vous reconnecter.',
@@ -102,7 +110,14 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
       request.headers['Authorization'] = 'Bearer $token';
     }
 
-    final response = await client.send(request);
+    // Timeout borné au démarrage du flux (réception des en-têtes) seulement —
+    // une fois le flux ouvert, sa durée totale n'est volontairement pas
+    // plafonnée ici (une réponse IA longue est légitime). Ça évite qu'une
+    // connexion qui ne répond jamais bloque indéfiniment sans jamais lever
+    // d'erreur exploitable par l'appelant.
+    final response = await client
+        .send(request)
+        .timeout(const Duration(seconds: 30));
 
     if (response.statusCode == 401 && !isRetry) {
       await response.stream.drain<void>().catchError((_) {});

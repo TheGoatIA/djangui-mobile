@@ -28,6 +28,7 @@ import '../../../../di/injection.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 class TransactionListPage extends StatelessWidget {
   const TransactionListPage({super.key});
@@ -64,7 +65,8 @@ class TransactionListView extends StatefulWidget {
   State<TransactionListView> createState() => _TransactionListViewState();
 }
 
-class _TransactionListViewState extends State<TransactionListView> {
+class _TransactionListViewState extends State<TransactionListView>
+    with WidgetsBindingObserver, SecureScreenMixin<TransactionListView> {
   final GlobalKey _listKey = GlobalKey();
   final GlobalKey _addKey = GlobalKey();
 

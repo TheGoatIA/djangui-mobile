@@ -799,6 +799,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> clearBiometricToken() async {
+    await _localDataSource.clearBiometricToken();
+  }
+
+  @override
   Future<Either<Failure, Map<String, dynamic>>> submitKYC({
     required String documentType,
     required String documentNumber,

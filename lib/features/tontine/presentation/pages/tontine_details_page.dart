@@ -23,6 +23,7 @@ import '../../../../core/widgets/cached_data_banner.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../core/widgets/tutorial/tutorial_step.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 class TontineDetailsPage extends StatefulWidget {
   final String tontineId;
@@ -38,7 +39,10 @@ class TontineDetailsPage extends StatefulWidget {
 }
 
 class _TontineDetailsPageState extends State<TontineDetailsPage>
-    with TickerProviderStateMixin {
+    with
+        TickerProviderStateMixin,
+        WidgetsBindingObserver,
+        SecureScreenMixin<TontineDetailsPage> {
   late TabController _tabController;
 
   late int _currentIndex;

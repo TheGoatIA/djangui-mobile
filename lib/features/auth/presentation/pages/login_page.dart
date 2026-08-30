@@ -9,8 +9,6 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/brand_icons.dart';
 import '../../../../l10n/app_localizations.dart';
-import 'package:flutter/services.dart';
-import 'package:local_auth/local_auth.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
@@ -201,75 +199,20 @@ class _LoginPageState extends State<LoginPage> {
                                   if (settingsState.biometricsEnabled &&
                                       flags.authBiometric.isEnabled) {
                                     return OutlinedButton(
-                                      onPressed: () async {
-                                        final localAuth = LocalAuthentication();
-                                        final authBloc = context
-                                            .read<AuthBloc>();
-                                        try {
-                                          final didAuthenticate =
-                                              await localAuth.authenticate(
-                                                localizedReason:
-                                                    'Veuillez vous authentifier pour vous connecter',
-                                                biometricOnly: true,
-                                              );
-
-                                          if (didAuthenticate) {
-                                            getIt<AnalyticsManager>()
-                                                .trackEvent(
-                                                  feature: 'Auth',
-                                                  action: 'login_success',
-                                                  details: {
-                                                    'provider': 'biometric',
-                                                  },
-                                                );
-
-                                            // Telemetry
-                                            getIt<TelemetryService>()
-                                                .recordEvent('auth.biometric', {
-                                                  'result': 'success',
-                                                });
-
-                                            authBloc.add(
-                                              AuthBiometricLoginRequested(),
-                                            );
-                                          }
-                                        } on PlatformException catch (e) {
-                                          String message =
-                                              'Erreur d\'authentification';
-                                          if (e.code == 'noCredentialsSet' ||
-                                              e.code == 'NotEnrolled') {
-                                            message =
-                                                'Aucune biométrie configurée sur cet appareil.';
-                                          } else if (e.code == 'NotAvailable') {
-                                            message =
-                                                'L\'authentification biométrique n\'est pas disponible.';
-                                          }
-
-                                          if (!context.mounted) return;
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(content: Text(message)),
-                                          );
-
-                                          getIt<TelemetryService>()
-                                              .recordEvent('auth.biometric', {
-                                                'result': 'failure',
-                                                'reason': e.code,
-                                                'message': message,
-                                              });
-                                        } catch (e) {
-                                          if (!context.mounted) return;
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Une erreur inattendue est survenue',
-                                              ),
-                                            ),
-                                          );
-                                        }
+                                      // Aucune vérification biométrique séparée ici (audit
+                                      // F-01) : la vérification a lieu au moment du
+                                      // déchiffrement du token dans BiometricGatedStorage
+                                      // (Keystore/Keychain), déclenché par le bloc — c'est
+                                      // le SEUL geste biométrique, il ne peut pas être
+                                      // contourné en interceptant un simple booléen Dart.
+                                      onPressed: () {
+                                        getIt<TelemetryService>().recordEvent(
+                                          'auth.biometric',
+                                          {'result': 'attempted'},
+                                        );
+                                        context.read<AuthBloc>().add(
+                                          AuthBiometricLoginRequested(),
+                                        );
                                       },
                                       style: OutlinedButton.styleFrom(
                                         minimumSize: const Size(

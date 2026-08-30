@@ -84,6 +84,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 TextFormField(
                   controller: _currentPasswordController,
                   obscureText: _obscureCurrent,
+                  autocorrect: false,
+                  enableSuggestions: false,
                   decoration: InputDecoration(
                     labelText: l10n.currentPassword,
                     prefixIcon: const Icon(Icons.lock_outline),
@@ -105,6 +107,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 TextFormField(
                   controller: _newPasswordController,
                   obscureText: _obscureNew,
+                  autocorrect: false,
+                  enableSuggestions: false,
                   decoration: InputDecoration(
                     labelText: l10n.newPassword,
                     prefixIcon: const Icon(Icons.lock_reset),
@@ -126,6 +130,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirm,
+                  autocorrect: false,
+                  enableSuggestions: false,
                   decoration: InputDecoration(
                     labelText: l10n.confirmNewPassword,
                     prefixIcon: const Icon(Icons.check_circle_outline),

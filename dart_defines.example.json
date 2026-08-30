@@ -6,6 +6,7 @@
   "OTEL_ENDPOINT": "https://otel.kauri-app.com:4318/v1/traces",
   "OTEL_SERVICE_NAME": "kauri-mobile",
   "API_LOGS_ENDPOINT": "https://logs.kauri-app.com/ingest",
+  "LOGS_CLIENT_KEY": "même valeur que MOBILE_CLIENT_API_KEY côté backend (.env) — pas un secret, juste un identifiant de client officiel",
   "ENV": "production",
   "ENABLE_REAL_MONEY": "true"
 }

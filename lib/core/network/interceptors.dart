@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:chopper/chopper.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kauri/core/services/log_service.dart';
@@ -15,7 +17,16 @@ bool _isBodySensitive(Uri url) {
       path.contains('/payments/') ||
       path.contains('/transactions/') ||
       path.contains('/reseller/') ||
-      path.contains('/vault');
+      path.contains('/vault') ||
+      // Ces routes déplacent aussi de l'argent réel (contributions/rachats
+      // d'objectifs, cotisations tontine, dépôts de défi, budgets) — leurs
+      // corps de requête/réponse ne doivent pas plus fuiter en clair vers la
+      // console locale ou le collecteur de logs distant que les précédentes.
+      path.contains('/goals') ||
+      path.contains('/tontines') ||
+      path.contains('/challenges') ||
+      path.contains('/budgets') ||
+      path.contains('/reports');
 }
 
 /// Fragments d'URL correspondant aux routes financières protégées côté
@@ -36,11 +47,23 @@ const _idempotencyProtectedPathFragments = [
 /// Attache une clé `Idempotency-Key` unique aux requêtes mutant de l'argent
 /// réel (K-10), pour activer la déduplication déjà implémentée côté serveur.
 ///
-/// Une nouvelle clé est générée par requête sortante, sauf si l'appelant en a
-/// déjà fourni une explicitement (ex: rejeu d'une action mise en file
-/// d'attente hors-ligne, qui doit réutiliser la MÊME clé à chaque tentative
-/// — voir K-17 et le champ `idempotencyKey` du payload dans `SyncRequests`).
+/// La clé est réutilisée pour une même requête logique (même méthode, même
+/// route, même corps) rejouée dans une courte fenêtre — typiquement
+/// l'utilisateur qui retape "Réessayer" après un timeout ambigu où il ne
+/// sait pas si la première tentative a abouti côté serveur. Sans ce cache,
+/// chaque nouvel appel générait une clé neuve : le serveur ne pouvait alors
+/// jamais reconnaître la relance comme un doublon, et une contribution/un
+/// retrait pouvait être traité deux fois. Un appelant qui fournit déjà une
+/// clé explicitement (ex: rejeu d'une action mise en file d'attente
+/// hors-ligne, qui doit réutiliser la MÊME clé à chaque tentative — voir
+/// K-17 et le champ `idempotencyKey` du payload dans `SyncRequests`) n'est
+/// jamais court-circuité par ce cache.
 class IdempotencyKeyInterceptor implements Interceptor {
+  // Fenêtre pendant laquelle une requête identique est considérée comme la
+  // même intention utilisateur plutôt qu'une nouvelle action délibérée.
+  static const _reuseWindow = Duration(minutes: 2);
+  static final Map<String, _CachedIdempotencyKey> _cache = {};
+
   @override
   FutureOr<Response<BodyType>> intercept<BodyType>(
     Chain<BodyType> chain,
@@ -50,13 +73,44 @@ class IdempotencyKeyInterceptor implements Interceptor {
     if (request.method == 'POST' &&
         !request.headers.containsKey('Idempotency-Key') &&
         _idempotencyProtectedPathFragments.any(request.url.path.contains)) {
+      final cacheKey = _requestFingerprint(request);
+      _pruneExpired();
+
+      final cached = _cache[cacheKey];
+      final key = (cached != null && !cached.isExpired)
+          ? cached.value
+          : const Uuid().v4();
+      _cache[cacheKey] = _CachedIdempotencyKey(key);
+
       final headers = Map<String, String>.from(request.headers);
-      headers['Idempotency-Key'] = const Uuid().v4();
+      headers['Idempotency-Key'] = key;
       request = request.copyWith(headers: headers);
     }
 
     return chain.proceed(request);
   }
+
+  static String _requestFingerprint(Request request) {
+    final bodyPart = request.body is String
+        ? request.body as String
+        : request.body?.toString() ?? '';
+    return '${request.method}:${request.url.path}:${sha256.convert(utf8.encode(bodyPart))}';
+  }
+
+  static void _pruneExpired() {
+    _cache.removeWhere((_, cached) => cached.isExpired);
+  }
+}
+
+class _CachedIdempotencyKey {
+  final String value;
+  final DateTime _createdAt = DateTime.now();
+
+  _CachedIdempotencyKey(this.value);
+
+  bool get isExpired =>
+      DateTime.now().difference(_createdAt) >
+      IdempotencyKeyInterceptor._reuseWindow;
 }
 
 /// Intercepteur chargé d'ajouter automatiquement le jeton d'authentification aux requêtes sortantes.

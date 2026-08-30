@@ -113,6 +113,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       component: 'SettingsBloc',
     );
     await _prefs.setBool('biometrics_enabled', event.enabled);
+    if (!event.enabled) {
+      // Sans ça, le jeton biométrique déjà déchiffrable resterait valide
+      // même après désactivation dans les réglages (audit F-02) — le
+      // bouton disparaît de l'UI, mais le token seul ne suffisait pas à
+      // garantir que l'accès rapide est réellement coupé.
+      await _authRepository.clearBiometricToken();
+    }
     emit(state.copyWith(biometricsEnabled: event.enabled));
   }
 

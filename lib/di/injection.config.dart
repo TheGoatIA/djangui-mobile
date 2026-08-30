@@ -18,6 +18,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart'
 import 'package:kauri/core/database/database.dart' as _i777;
 import 'package:kauri/core/network/network_info.dart' as _i935;
 import 'package:kauri/core/services/app_icon_service.dart' as _i40;
+import 'package:kauri/core/services/biometric_gated_storage.dart' as _i163;
 import 'package:kauri/core/services/log_service.dart' as _i169;
 import 'package:kauri/core/services/notification_service.dart' as _i273;
 import 'package:kauri/core/services/ocr_service.dart' as _i950;
@@ -248,6 +249,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i892.TelemetryService>(() => _i892.TelemetryService());
     gh.lazySingleton<_i40.AppIconService>(() => _i40.AppIconService());
+    gh.lazySingleton<_i163.BiometricGatedStorage>(
+      () => _i163.BiometricGatedStorage(),
+    );
     gh.lazySingleton<_i169.LogService>(() => _i169.LogService());
     gh.lazySingleton<_i273.NotificationService>(
       () => _i273.NotificationService(),
@@ -364,13 +368,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i92.ConfigApiService>(),
       ),
     );
-    gh.lazySingleton<_i240.AuthLocalDataSource>(
-      () => _i240.AuthLocalDataSourceImpl(
-        gh<_i558.FlutterSecureStorage>(),
-        gh<_i777.AppDatabase>(),
-        gh<_i974.Logger>(),
-      ),
-    );
     gh.lazySingleton<_i612.GoalLocalDataSource>(
       () => _i612.GoalLocalDataSourceImpl(gh<_i777.AppDatabase>()),
     );
@@ -417,6 +414,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i342.PaymentService>(
       () => _i342.PaymentService(gh<_i1020.PaymentApiService>()),
+    );
+    gh.lazySingleton<_i240.AuthLocalDataSource>(
+      () => _i240.AuthLocalDataSourceImpl(
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i777.AppDatabase>(),
+        gh<_i974.Logger>(),
+        gh<_i163.BiometricGatedStorage>(),
+      ),
     );
     gh.lazySingleton<_i376.SystemBloc>(
       () => _i376.SystemBloc(gh<_i608.SystemRepository>()),

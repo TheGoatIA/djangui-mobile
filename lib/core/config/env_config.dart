@@ -28,6 +28,16 @@ class EnvConfig {
     defaultValue: '',
   );
 
+  /// Clé identifiant un client mobile officiel auprès de l'endpoint public
+  /// de télémétrie (`/system/telemetry/:type`, non authentifié par JWT pour
+  /// que la télémétrie pré-connexion fonctionne — voir K-07). Pas un vrai
+  /// secret (embarqué dans l'app comme une clé API Firebase) : sert juste à
+  /// écarter le spam anonyme sur cet endpoint, pas à protéger des données.
+  static const String logsClientKey = String.fromEnvironment(
+    'LOGS_CLIENT_KEY',
+    defaultValue: '',
+  );
+
   /// Nom du service OTEL.
   static const String otelServiceName = String.fromEnvironment(
     'OTEL_SERVICE_NAME',

@@ -83,9 +83,12 @@ class _ResellerHubViewState extends State<_ResellerHubView>
   void _copySensitiveData(BuildContext context, String text, String label) {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$label copié (effacement automatique dans 45s)')),
+      SnackBar(content: Text('$label copié (effacement automatique dans 30s)')),
     );
-    Future.delayed(const Duration(seconds: 45), () async {
+    // 30s plutôt que 45 : réduit la fenêtre pendant laquelle une autre
+    // application peut lire cette donnée sensible depuis le presse-papiers
+    // système, tout en laissant le temps de coller la valeur une fois.
+    Future.delayed(const Duration(seconds: 30), () async {
       final current = await Clipboard.getData(Clipboard.kTextPlain);
       if (current?.text == text) {
         Clipboard.setData(const ClipboardData(text: ''));
@@ -111,6 +114,7 @@ class _ResellerHubViewState extends State<_ResellerHubView>
 
   void _showVaultDialog(BuildContext context, ResellerAccountModel account) {
     bool obscure = true;
+    bool obscurePin = true;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final repository = getIt<ResellerRepository>();
@@ -210,11 +214,25 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                     ListTile(
                       leading: const Icon(Icons.pin_rounded),
                       title: const Text('Code PIN Profil'),
-                      subtitle: Text(pin),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.copy_rounded),
-                        onPressed: () =>
-                            _copySensitiveData(context, pin, 'Code PIN'),
+                      subtitle: Text(obscurePin ? '••••' : pin),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              obscurePin
+                                  ? Icons.visibility_rounded
+                                  : Icons.visibility_off_rounded,
+                            ),
+                            onPressed: () =>
+                                setModalState(() => obscurePin = !obscurePin),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.copy_rounded),
+                            onPressed: () =>
+                                _copySensitiveData(context, pin, 'Code PIN'),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 16),

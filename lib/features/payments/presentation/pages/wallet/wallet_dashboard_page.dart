@@ -24,6 +24,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kauri/core/constants/route_constants.dart';
 import 'package:kauri/core/widgets/transaction_status_badge.dart';
 import 'package:kauri/features/system/presentation/bloc/system_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletDashboardPage extends StatefulWidget {
   const WalletDashboardPage({super.key});
@@ -41,16 +42,25 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
   // popped exactly once and before any success/error feedback is shown for
   // the same state transition — see the FintechBloc listener below.
   bool _isWithdrawDialogShowing = false;
+  static const _balanceHiddenPrefKey = 'wallet_balance_hidden';
+  bool _balanceHidden = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _balanceHidden =
+        getIt<SharedPreferences>().getBool(_balanceHiddenPrefKey) ?? false;
     context.read<FintechBloc>().add(FetchWalletBalance());
     context.read<FintechBloc>().add(FetchWalletTransactions());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
+  }
+
+  void _toggleBalanceVisibility() {
+    setState(() => _balanceHidden = !_balanceHidden);
+    getIt<SharedPreferences>().setBool(_balanceHiddenPrefKey, _balanceHidden);
   }
 
   @override
@@ -475,13 +485,34 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              AppLocalizations.of(context)!.availableBalance,
-              style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.availableBalance,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Colors.white70,
+                  ),
+                ),
+                InkWell(
+                  onTap: _toggleBalanceVisibility,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Icon(
+                      _balanceHidden
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: Colors.white70,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 10),
             Text(
-              format.format(balance),
+              _balanceHidden ? '•••••••' : format.format(balance),
               style: AppTextStyles.h1.copyWith(
                 color: Colors.white,
                 fontSize: 32,
@@ -539,7 +570,7 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
           ),
           const SizedBox(height: 4),
           Text(
-            '${format.format(amount)} CFA',
+            _balanceHidden ? '•••' : '${format.format(amount)} CFA',
             style: AppTextStyles.bodyMedium.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,

@@ -96,6 +96,7 @@ final class _$ReportsApiService extends ReportsApiService {
     return client.send<dynamic, dynamic>($request);
   }
 }
+
 final class _$ForecastApiService extends ForecastApiService {
   _$ForecastApiService([ChopperClient? client]) {
     if (client == null) return;

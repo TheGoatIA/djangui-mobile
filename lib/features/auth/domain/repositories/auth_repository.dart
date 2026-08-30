@@ -127,6 +127,11 @@ abstract class AuthRepository {
   /// Sauvegarde le jeton spécifique à l'authentification biométrique.
   Future<void> saveBiometricToken(String token);
 
+  /// Révoque le jeton biométrique (ex: désactivation dans les réglages) —
+  /// sans ça, un jeton déjà déchiffrable resterait utilisable même après que
+  /// l'utilisateur pense avoir coupé l'accès rapide (audit F-02).
+  Future<void> clearBiometricToken();
+
   /// Soumet les documents KYC pour validation.
   Future<Either<Failure, Map<String, dynamic>>> submitKYC({
     required String documentType,

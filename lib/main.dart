@@ -7,6 +7,7 @@ import 'package:freerasp/freerasp.dart';
 import 'package:kauri/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'core/services/telemetry_service.dart';
+import 'core/network/certificate_pinning.dart';
 import 'core/services/log_service.dart';
 import 'core/services/tutorial_service.dart';
 import 'core/widgets/environment_banner.dart';
@@ -54,6 +55,10 @@ import 'core/analytics/analytics_bloc_observer.dart';
 void main() async {
   final startTime = DateTime.now();
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Certificate pinning (audit F-03) — doit être posé avant la construction
+  // de tout client HTTP (Chopper, Firebase, etc.), donc en tout premier.
+  HttpOverrides.global = PinnedHttpOverrides();
 
   // Initialisation de Firebase avec les options par défaut générées
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

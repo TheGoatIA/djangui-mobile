@@ -31,9 +31,6 @@ jobs:
       - name: Installer les dépendances Flutter
         run: flutter pub get
 
-      - name: Vérifier l'environnement
-        run: printenv
-
       - name: Analyse du code avec Flutter
         run: flutter analyze --no-fatal-warnings --no-fatal-infos
 

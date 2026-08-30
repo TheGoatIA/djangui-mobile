@@ -18,6 +18,7 @@ import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/widgets/cached_data_banner.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 /// Page listant les Tontines (épargne collective) de l'utilisateur.
 ///
@@ -30,7 +31,8 @@ class TontineListPage extends StatefulWidget {
   State<TontineListPage> createState() => _TontineListPageState();
 }
 
-class _TontineListPageState extends State<TontineListPage> {
+class _TontineListPageState extends State<TontineListPage>
+    with WidgetsBindingObserver, SecureScreenMixin<TontineListPage> {
   // Clés utilisées pour le tutoriel interactif.
   final GlobalKey _listKey = GlobalKey();
   final GlobalKey _joinKey = GlobalKey();
