@@ -60,7 +60,7 @@ dependencies:
   firebase_messaging: ^16.1.0
 
   # Charts & UI Components
-  fl_chart: ^1.1.1
+  fl_chart: ^1.2.0
   cached_network_image: ^3.4.1
   flutter_svg: ^2.2.3
   lottie: ^3.3.2
