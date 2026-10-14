@@ -85,7 +85,7 @@ dependencies:
   file_picker: ^10.3.8
   fpdart: ^1.2.0
   package_info_plus: ^9.0.1
-  device_info_plus: ^12.3.0
+  device_info_plus: ^12.4.0
 
   # PDF & QR
   pdf: ^3.12.0
