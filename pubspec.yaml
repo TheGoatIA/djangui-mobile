@@ -172,6 +172,12 @@ flutter_launcher_icons:
 # The following section is specific to Flutter packages.
 flutter:
 
+  # SwiftPM désactivé : plusieurs plugins (ML Kit, biometric_storage, printing...) restent en
+  # CocoaPods ; Firebase en SwiftPM + ML Kit en Pods embarquent tous deux GoogleDataTransport
+  # => "175 duplicate symbols" au link iOS. Tout passe donc par CocoaPods.
+  config:
+    enable-swift-package-manager: false
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
