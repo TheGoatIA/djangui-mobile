@@ -18,7 +18,7 @@ jobs:
       - name: Installer Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.38.9'
+          flutter-version: '3.47.6'
           channel: 'stable'
           cache: true
 
@@ -32,7 +32,7 @@ jobs:
         run: flutter pub get
 
       - name: Analyse du code avec Flutter
-        run: flutter analyze --no-fatal-warnings --no-fatal-infos
+        run: flutter analyze
 
       - name: Exécuter SonarQube
         uses: SonarSource/sonarqube-scan-action@v6

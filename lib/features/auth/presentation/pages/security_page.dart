@@ -112,6 +112,7 @@ class _SecurityPageState extends State<SecurityPage>
   }
 
   void _showDeleteAccountConfirmation() {
+    final passwordController = TextEditingController();
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -119,20 +120,44 @@ class _SecurityPageState extends State<SecurityPage>
           AppLocalizations.of(context)!.deleteAccount,
           style: TextStyle(color: Theme.of(context).colorScheme.error),
         ),
-        content: Text(AppLocalizations.of(context)!.deleteAccountDescription),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppLocalizations.of(context)!.deleteAccountDescription),
+            const SizedBox(height: 16),
+            // Re-authentication: the API refuses to delete a password-based
+            // account without it (a stolen session alone is not enough).
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              autocorrect: false,
+              enableSuggestions: false,
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.password,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
+            onPressed: () {
+              Navigator.pop(dialogContext);
+            },
             child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
+              final password = passwordController.text;
               Navigator.pop(dialogContext);
               getIt<LogService>().info(
                 'Action: Suppression de compte confirmée',
                 component: 'SecurityPage',
               );
-              context.read<AuthBloc>().add(AuthDeleteAccountRequested());
+              context.read<AuthBloc>().add(
+                AuthDeleteAccountRequested(password: password),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
@@ -200,57 +225,57 @@ class _SecurityPageState extends State<SecurityPage>
                   return KeyedSubtree(
                     key: _biometricKey,
                     child: SwitchListTile(
-                    secondary: Icon(
-                      _getBiometricIcon(),
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    title: Text(l10n.enableBiometrics),
-                    subtitle: Text(l10n.biometricsDescription),
-                    value: state.biometricsEnabled,
-                    onChanged:
-                        (_canCheckBiometrics &&
-                            (_availableBiometrics?.isNotEmpty ?? false))
-                        ? (value) async {
-                            if (value) {
-                              // Toujours repasser par la collecte de
-                              // consentement à l'activation — ne JAMAIS
-                              // sonder l'existence d'un jeton biométrique
-                              // via getBiometricToken() ici : ce stockage
-                              // est protégé matériellement (audit F-01), un
-                              // simple test de présence y déclencherait une
-                              // invite biométrique réelle et inattendue au
-                              // seul geste d'afficher cet écran.
-                              final provider = await getIt<AuthRepository>()
-                                  .getLoginProvider();
+                      secondary: Icon(
+                        _getBiometricIcon(),
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: Text(l10n.enableBiometrics),
+                      subtitle: Text(l10n.biometricsDescription),
+                      value: state.biometricsEnabled,
+                      onChanged:
+                          (_canCheckBiometrics &&
+                              (_availableBiometrics?.isNotEmpty ?? false))
+                          ? (value) async {
+                              if (value) {
+                                // Toujours repasser par la collecte de
+                                // consentement à l'activation — ne JAMAIS
+                                // sonder l'existence d'un jeton biométrique
+                                // via getBiometricToken() ici : ce stockage
+                                // est protégé matériellement (audit F-01), un
+                                // simple test de présence y déclencherait une
+                                // invite biométrique réelle et inattendue au
+                                // seul geste d'afficher cet écran.
+                                final provider = await getIt<AuthRepository>()
+                                    .getLoginProvider();
 
-                              if (!context.mounted) return;
+                                if (!context.mounted) return;
 
-                              if (provider == 'password') {
-                                _showPasswordDialog(context);
+                                if (provider == 'password') {
+                                  _showPasswordDialog(context);
+                                } else {
+                                  // Connexion sociale/téléphone : pas de mot
+                                  // de passe à vérifier, la session déjà
+                                  // active suffit de preuve d'identité.
+                                  context.read<AuthBloc>().add(
+                                    AuthSetupBiometricsSocialRequested(),
+                                  );
+                                }
                               } else {
-                                // Connexion sociale/téléphone : pas de mot
-                                // de passe à vérifier, la session déjà
-                                // active suffit de preuve d'identité.
-                                context.read<AuthBloc>().add(
-                                  AuthSetupBiometricsSocialRequested(),
+                                context.read<SettingsBloc>().add(
+                                  ToggleBiometrics(value),
                                 );
                               }
-                            } else {
-                              context.read<SettingsBloc>().add(
-                                ToggleBiometrics(value),
-                              );
                             }
-                          }
-                        : (value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Please enroll biometrics in your device settings first.',
+                          : (value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please enroll biometrics in your device settings first.',
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                    activeThumbColor: Theme.of(context).colorScheme.primary,
+                              );
+                            },
+                      activeThumbColor: Theme.of(context).colorScheme.primary,
                     ),
                   );
                 },

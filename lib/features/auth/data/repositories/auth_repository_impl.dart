@@ -407,7 +407,9 @@ class AuthRepositoryImpl implements AuthRepository {
             appVersion: device.appVersion,
           );
         } catch (e) {
-          debugPrint('⚠️ [AuthRepository] Failed to collect device info for login: $e');
+          debugPrint(
+            '⚠️ [AuthRepository] Failed to collect device info for login: $e',
+          );
         }
         final response = await _remoteDataSource.login(enrichedRequest);
         // Sauvegarde persistante des jetons et de l'utilisateur.
@@ -482,7 +484,9 @@ class AuthRepositoryImpl implements AuthRepository {
               .timeout(const Duration(seconds: 5));
         }
       } catch (e) {
-        debugPrint('⚠️ [AuthRepository] Server logout failed (proceeding with local cleanup): $e');
+        debugPrint(
+          '⚠️ [AuthRepository] Server logout failed (proceeding with local cleanup): $e',
+        );
       }
 
       // 2. Clear local storage
@@ -645,10 +649,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteAccount() async {
+  Future<Either<Failure, void>> deleteAccount({String? password}) async {
     if (await _networkInfo.isConnected) {
       try {
-        await _remoteDataSource.deleteAccount();
+        await _remoteDataSource.deleteAccount(password: password);
         // Clear local data after deletion
         await logout();
         return const Right(null);

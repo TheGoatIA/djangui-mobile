@@ -199,9 +199,17 @@ final class _$AuthApiService extends AuthApiService {
   }
 
   @override
-  Future<Response<BaseResponse<dynamic>>> deleteAccount() {
+  Future<Response<BaseResponse<dynamic>>> deleteAccount(
+    Map<String, dynamic> body,
+  ) {
     final Uri $url = Uri.parse('/auth/delete-me');
-    final Request $request = Request('DELETE', $url, client.baseUrl);
+    final $body = body;
+    final Request $request = Request(
+      'DELETE',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
     return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
   }
 

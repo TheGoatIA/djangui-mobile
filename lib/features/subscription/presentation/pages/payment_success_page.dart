@@ -41,7 +41,16 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
     if (ref != null && ref.trim().isNotEmpty) {
       setState(() => _isLoading = true);
       final paymentService = getIt<PaymentService>();
-      final success = await paymentService.verifyTransaction(ref.trim());
+      // L'utilisateur peut revenir avant que l'opérateur ait confirmé : on
+      // réessaie quelques fois avant de conclure à un échec.
+      var success = false;
+      for (var attempt = 0; attempt < 5 && !success; attempt++) {
+        if (attempt > 0) {
+          await Future.delayed(const Duration(seconds: 3));
+          if (!mounted) return;
+        }
+        success = await paymentService.verifyTransaction(ref.trim());
+      }
 
       if (mounted) {
         setState(() {

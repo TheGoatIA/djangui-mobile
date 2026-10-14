@@ -85,7 +85,9 @@ abstract class AuthApiService extends ChopperService {
   );
 
   @DELETE(path: ApiConstants.deleteMe)
-  Future<Response<BaseResponse<dynamic>>> deleteAccount();
+  Future<Response<BaseResponse<dynamic>>> deleteAccount(
+    @Body() Map<String, dynamic> body,
+  );
 
   @GET(path: ApiConstants.sessions)
   Future<Response<BaseResponse<Map<String, dynamic>>>> getSessions();

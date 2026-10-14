@@ -75,10 +75,17 @@ class UserModel {
 
   String get fullName => '$firstName $lastName';
 
-  bool get isBusiness =>
-      subscription?.plan == 'business' &&
-      subscription?.status == 'active' &&
-      (subscription?.endDate == null || subscription!.endDate!.isAfter(DateTime.now()));
+  /// Même règle que l'API (utils/subscription.ts) : un abonnement résilié reste
+  /// valable jusqu'à sa date de fin, mais pas s'il n'en a pas.
+  bool get isBusiness {
+    final sub = subscription;
+    if (sub == null || sub.plan != 'business') return false;
+    final end = sub.endDate;
+    final notExpired = end == null || end.isAfter(DateTime.now());
+    if (sub.status == 'active') return notExpired;
+    if (sub.status == 'cancelled') return end != null && notExpired;
+    return false;
+  }
 
   String get currentPlan => subscription?.plan ?? 'free';
 }
@@ -149,4 +156,3 @@ class KycDataModel {
       _$KycDataModelFromJson(json);
   Map<String, dynamic> toJson() => _$KycDataModelToJson(this);
 }
-

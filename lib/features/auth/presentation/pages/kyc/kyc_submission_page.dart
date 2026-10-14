@@ -74,19 +74,25 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
           _fullNameController.text = user.fullName;
         }
 
-        if (kyc.documentNumber != null && kyc.documentNumber!.trim().isNotEmpty) {
+        if (kyc.documentNumber != null &&
+            kyc.documentNumber!.trim().isNotEmpty) {
           _docNumberController.text = kyc.documentNumber!;
         }
 
         if (kyc.documentType != null) {
-          final normalized = kyc.documentType!.toLowerCase().replaceAll('_', ' ').trim();
+          final normalized = kyc.documentType!
+              .toLowerCase()
+              .replaceAll('_', ' ')
+              .trim();
           if (normalized.contains('cni') || normalized.contains('identite')) {
             _selectedDocType = 'CNI';
           } else if (normalized.contains('pass')) {
             _selectedDocType = 'Passport';
-          } else if (normalized.contains('permis') || normalized.contains('driver')) {
+          } else if (normalized.contains('permis') ||
+              normalized.contains('driver')) {
             _selectedDocType = 'Permis';
-          } else if (normalized.contains('resident') || normalized.contains('residence')) {
+          } else if (normalized.contains('resident') ||
+              normalized.contains('residence')) {
             _selectedDocType = 'Carte de résident';
           }
         }
@@ -110,10 +116,13 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
 
   Future<void> _selectExpiryDate() async {
     final now = DateTime.now();
-    final initialDate = _selectedExpiryDate ?? now.add(const Duration(days: 365 * 3));
+    final initialDate =
+        _selectedExpiryDate ?? now.add(const Duration(days: 365 * 3));
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: initialDate.isAfter(now) ? initialDate : now.add(const Duration(days: 1)),
+      initialDate: initialDate.isAfter(now)
+          ? initialDate
+          : now.add(const Duration(days: 1)),
       firstDate: now,
       lastDate: now.add(const Duration(days: 365 * 20)),
       helpText: AppLocalizations.of(context)!.kycDocExpiryLabel,
@@ -157,9 +166,7 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isFront
-                      ? l10n.kycDocFrontTitle
-                      : l10n.kycDocBackTitle,
+                  isFront ? l10n.kycDocFrontTitle : l10n.kycDocBackTitle,
                   style: AppTextStyles.h3.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -179,7 +186,10 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.camera_alt, color: AppColors.primary),
+                    child: const Icon(
+                      Icons.camera_alt,
+                      color: AppColors.primary,
+                    ),
                   ),
                   title: Text(l10n.kycImportMethodCamera),
                   subtitle: Text(l10n.kycImportMethodCameraSub),
@@ -336,7 +346,10 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.face_retouching_natural, color: AppColors.primary),
+                    child: const Icon(
+                      Icons.face_retouching_natural,
+                      color: AppColors.primary,
+                    ),
                   ),
                   title: Text(l10n.kycSelfieCameraTitle),
                   subtitle: Text(l10n.kycSelfieCameraSub),
@@ -436,9 +449,7 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                  ErrorMapper.safeMessage(state.errorMessage),
-                ),
+                content: Text(ErrorMapper.safeMessage(state.errorMessage)),
                 backgroundColor: AppColors.error,
                 duration: const Duration(seconds: 5),
               ),
@@ -473,16 +484,18 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                           padding: const EdgeInsets.all(16),
                           margin: const EdgeInsets.only(bottom: 20),
                           decoration: BoxDecoration(
-                            color: (kycLevel == 'rejected'
-                                    ? AppColors.error
-                                    : Colors.orange)
-                                .withValues(alpha: 0.1),
+                            color:
+                                (kycLevel == 'rejected'
+                                        ? AppColors.error
+                                        : Colors.orange)
+                                    .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: (kycLevel == 'rejected'
-                                      ? AppColors.error
-                                      : Colors.orange)
-                                  .withValues(alpha: 0.3),
+                              color:
+                                  (kycLevel == 'rejected'
+                                          ? AppColors.error
+                                          : Colors.orange)
+                                      .withValues(alpha: 0.3),
                             ),
                           ),
                           child: Row(
@@ -536,7 +549,9 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                               Text(
                                 l10n.kycDocInfoTitle,
                                 style: AppTextStyles.h3.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -556,8 +571,9 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   filled: true,
-                                  fillColor:
-                                      Theme.of(context).colorScheme.surface,
+                                  fillColor: Theme.of(
+                                    context,
+                                  ).colorScheme.surface,
                                 ),
                                 items: [
                                   DropdownMenuItem(
@@ -612,7 +628,9 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                                       if (_selectedExpiryDate == null) {
                                         return l10n.kycDocExpiryRequired;
                                       }
-                                      if (_selectedExpiryDate!.isBefore(DateTime.now())) {
+                                      if (_selectedExpiryDate!.isBefore(
+                                        DateTime.now(),
+                                      )) {
                                         return l10n.kycDocExpiryInvalid;
                                       }
                                       return null;
@@ -676,7 +694,8 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                         onPressed: () {
                           if (!_isSubmitting) _submitKYC();
                         },
-                        isLoading: _isSubmitting || state.status == AuthStatus.loading,
+                        isLoading:
+                            _isSubmitting || state.status == AuthStatus.loading,
                       ),
                       const SizedBox(height: 24),
                     ],
@@ -705,8 +724,12 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
     required VoidCallback onDelete,
   }) {
     final l10n = AppLocalizations.of(context)!;
-    final hasExisting = file == null && existingUrl != null && existingUrl.isNotEmpty;
-    final isExistingPdf = hasExisting && (existingUrl.toLowerCase().endsWith('.pdf') || existingUrl.toLowerCase().contains('.pdf?'));
+    final hasExisting =
+        file == null && existingUrl != null && existingUrl.isNotEmpty;
+    final isExistingPdf =
+        hasExisting &&
+        (existingUrl.toLowerCase().endsWith('.pdf') ||
+            existingUrl.toLowerCase().contains('.pdf?'));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -772,7 +795,9 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
               border: Border.all(
                 color: (file != null || hasExisting)
                     ? AppColors.primary.withValues(alpha: 0.5)
-                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                    : Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.3),
                 width: (file != null || hasExisting) ? 2 : 1,
               ),
               boxShadow: [
@@ -798,7 +823,9 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                               ),
                               const SizedBox(height: 8),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                                 child: Text(
                                   fileName ?? l10n.kycDocPdfLabel,
                                   style: AppTextStyles.bodyMedium.copyWith(
@@ -836,7 +863,11 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                           radius: 18,
                           backgroundColor: Colors.black.withValues(alpha: 0.6),
                           child: IconButton(
-                            icon: const Icon(Icons.close, size: 18, color: Colors.white),
+                            icon: const Icon(
+                              Icons.close,
+                              size: 18,
+                              color: Colors.white,
+                            ),
                             onPressed: onDelete,
                           ),
                         ),
@@ -845,7 +876,10 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                         bottom: 8,
                         right: 8,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.6),
                             borderRadius: BorderRadius.circular(8),
@@ -853,11 +887,18 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.edit, size: 14, color: Colors.white),
+                              const Icon(
+                                Icons.edit,
+                                size: 14,
+                                color: Colors.white,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 l10n.kycDocChange,
-                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
                               ),
                             ],
                           ),
@@ -866,110 +907,124 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                     ],
                   )
                 : hasExisting
-                    ? Stack(
-                        children: [
-                          if (isExistingPdf)
-                            Center(
+                ? Stack(
+                    children: [
+                      if (isExistingPdf)
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.picture_as_pdf,
+                                size: 50,
+                                color: Colors.redAccent,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                l10n.kycExistingDocKept,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                l10n.kycDocPdfAccepted,
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: AppColors.success,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Image.network(
+                            existingUrl,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (_, _, _) => Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   const Icon(
-                                    Icons.picture_as_pdf,
-                                    size: 50,
-                                    color: Colors.redAccent,
+                                    Icons.file_present_rounded,
+                                    size: 40,
+                                    color: AppColors.primary,
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    l10n.kycExistingDocKept,
-                                    style: AppTextStyles.bodyMedium.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    l10n.kycDocPdfAccepted,
-                                    style: AppTextStyles.labelSmall.copyWith(
-                                      color: AppColors.success,
-                                    ),
-                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(l10n.kycExistingDocKept),
                                 ],
                               ),
-                            )
-                          else
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
-                              child: Image.network(
-                                existingUrl,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                                errorBuilder: (_, _, _) => Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(Icons.file_present_rounded, size: 40, color: AppColors.primary),
-                                      const SizedBox(height: 6),
-                                      Text(l10n.kycExistingDocKept),
-                                    ],
-                                  ),
+                            ),
+                          ),
+                        ),
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.65),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.edit,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                l10n.kycReplaceDoc,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
                                 ),
                               ),
-                            ),
-                          Positioned(
-                            bottom: 8,
-                            right: 8,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.65),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.edit, size: 14, color: Colors.white),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    l10n.kycReplaceDoc,
-                                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            ],
                           ),
-                        ],
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.08),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.add_photo_alternate_outlined,
-                              size: 32,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            l10n.kycDocPhotoOrPdf,
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            l10n.kycDocTapToUpload,
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
+                    ],
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.08),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.add_photo_alternate_outlined,
+                          size: 32,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.kycDocPhotoOrPdf,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.kycDocTapToUpload,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ],
@@ -978,7 +1033,10 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
 
   Widget _buildSelfieSlot() {
     final l10n = AppLocalizations.of(context)!;
-    final hasExistingSelfie = _selfieFile == null && _existingSelfieUrl != null && _existingSelfieUrl!.isNotEmpty;
+    final hasExistingSelfie =
+        _selfieFile == null &&
+        _existingSelfieUrl != null &&
+        _existingSelfieUrl!.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1029,7 +1087,9 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
               border: Border.all(
                 color: (_selfieFile != null || hasExistingSelfie)
                     ? AppColors.primary.withValues(alpha: 0.5)
-                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                    : Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.3),
                 width: (_selfieFile != null || hasExistingSelfie) ? 2 : 1,
               ),
               boxShadow: [
@@ -1067,7 +1127,11 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                           radius: 18,
                           backgroundColor: Colors.black.withValues(alpha: 0.6),
                           child: IconButton(
-                            icon: const Icon(Icons.close, size: 18, color: Colors.white),
+                            icon: const Icon(
+                              Icons.close,
+                              size: 18,
+                              color: Colors.white,
+                            ),
                             onPressed: () => setState(() {
                               _selfieFile = null;
                               _isSelfieFlipped = false;
@@ -1085,7 +1149,10 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                             });
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.black.withValues(alpha: 0.7),
                               borderRadius: BorderRadius.circular(8),
@@ -1093,11 +1160,20 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.flip, size: 14, color: Colors.white),
+                                const Icon(
+                                  Icons.flip,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  _isSelfieFlipped ? l10n.kycSelfieMirrorActive : l10n.kycSelfieMirrorToggle,
-                                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                                  _isSelfieFlipped
+                                      ? l10n.kycSelfieMirrorActive
+                                      : l10n.kycSelfieMirrorToggle,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ],
                             ),
@@ -1108,7 +1184,10 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                         bottom: 8,
                         right: 8,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.7),
                             borderRadius: BorderRadius.circular(8),
@@ -1116,11 +1195,18 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.camera_alt, size: 14, color: Colors.white),
+                              const Icon(
+                                Icons.camera_alt,
+                                size: 14,
+                                color: Colors.white,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 l10n.kycSelfieRetake,
-                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
                               ),
                             ],
                           ),
@@ -1129,77 +1215,86 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                     ],
                   )
                 : hasExistingSelfie
-                    ? Stack(
-                        children: [
-                          Center(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
-                              child: Image.network(
-                                _existingSelfieUrl!,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                                errorBuilder: (_, _, _) => const Center(
-                                  child: Icon(Icons.face, size: 40),
+                ? Stack(
+                    children: [
+                      Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Image.network(
+                            _existingSelfieUrl!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (_, _, _) =>
+                                const Center(child: Icon(Icons.face, size: 40)),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.camera_alt,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                l10n.kycSelfieRetake,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
                                 ),
                               ),
-                            ),
+                            ],
                           ),
-                          Positioned(
-                            bottom: 8,
-                            right: 8,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.7),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.camera_alt, size: 14, color: Colors.white),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    l10n.kycSelfieRetake,
-                                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.08),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.face_retouching_natural,
-                              size: 36,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            l10n.kycSelfieAction,
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            l10n.kycSelfieActionSub,
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
+                    ],
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.08),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.face_retouching_natural,
+                          size: 36,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.kycSelfieAction,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.kycSelfieActionSub,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ],
@@ -1260,7 +1355,9 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                   value: _uploadProgress,
                   minHeight: 10,
                   backgroundColor: AppColors.primary.withValues(alpha: 0.15),
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppColors.primary,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -1373,7 +1470,11 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.schedule, size: 16, color: Colors.blueAccent),
+                  const Icon(
+                    Icons.schedule,
+                    size: 16,
+                    color: Colors.blueAccent,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     l10n.kycPendingUnderReviewBadge,
@@ -1438,7 +1539,9 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
                           child: Text(
                             l10n.kycPendingEstimatedTime,
                             style: AppTextStyles.bodySmall.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -1518,4 +1621,3 @@ class _KYCSubmissionPageState extends State<KYCSubmissionPage>
     );
   }
 }
-

@@ -39,8 +39,16 @@ class SubscriptionView extends StatefulWidget {
   State<SubscriptionView> createState() => _SubscriptionViewState();
 }
 
-class _SubscriptionViewState extends State<SubscriptionView> {
+class _SubscriptionViewState extends State<SubscriptionView>
+    with WidgetsBindingObserver {
   final GlobalKey _premiumPlanKey = GlobalKey();
+
+  /// Référence du paiement externe (NotchPay/Stripe) en cours. L'utilisateur
+  /// quitte l'app pour payer : si le deep link kauri://payment/success ne se
+  /// déclenche pas (navigateur fermé à la main, app tuée par l'OS...), on
+  /// revérifie ce paiement au retour au premier plan.
+  String? _pendingPaymentReference;
+  bool _isVerifyingPending = false;
 
   Future<List<PlanConfigModel>>? _plansFuture;
   String? _lastLanguage;
@@ -52,10 +60,48 @@ class _SubscriptionViewState extends State<SubscriptionView> {
       'Affichage de la page d\'abonnement.',
       component: 'SubscriptionPage',
     );
+    WidgetsBinding.instance.addObserver(this);
     context.read<FintechBloc>().add(FetchWalletBalance());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _verifyPendingPayment();
+    }
+  }
+
+  Future<void> _verifyPendingPayment() async {
+    final reference = _pendingPaymentReference;
+    if (reference == null || reference.isEmpty || _isVerifyingPending) return;
+    _isVerifyingPending = true;
+    try {
+      final paymentService = getIt<PaymentService>();
+      // Le webhook peut arriver quelques secondes après le retour de l'utilisateur.
+      for (var attempt = 0; attempt < 4; attempt++) {
+        final completed = await paymentService.verifyTransaction(reference);
+        if (!mounted) return;
+        if (completed) {
+          _pendingPaymentReference = null;
+          context.read<AuthBloc>().add(AuthRefreshUserRequested());
+          context.read<FintechBloc>().add(FetchWalletBalance());
+          context.read<FintechBloc>().add(FetchWalletTransactions());
+          ToastUtils.showSuccess(
+            context,
+            AppLocalizations.of(context)!.walletSubscriptionSuccess,
+          );
+          setState(() {});
+          return;
+        }
+        await Future.delayed(const Duration(seconds: 3));
+        if (!mounted) return;
+      }
+    } finally {
+      _isVerifyingPending = false;
+    }
   }
 
   void _loadPlans([String? forcedLanguage]) {
@@ -94,6 +140,7 @@ class _SubscriptionViewState extends State<SubscriptionView> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
@@ -1131,7 +1178,7 @@ class _SubscriptionViewState extends State<SubscriptionView> {
     Navigator.pop(context); // Close bottom sheet
 
     final paymentService = getIt<PaymentService>();
-    String? url;
+    ({String url, String reference})? init;
 
     try {
       if (method == 'notchpay') {
@@ -1205,7 +1252,7 @@ class _SubscriptionViewState extends State<SubscriptionView> {
           phone = enteredPhone;
         }
 
-        url = await paymentService.initializeNotchPay(
+        init = await paymentService.initializeNotchPay(
           priceInfo.amount,
           currency: priceInfo.currency,
           phone: phone,
@@ -1216,17 +1263,24 @@ class _SubscriptionViewState extends State<SubscriptionView> {
           'Action: Initialisation paiement via Stripe',
           component: 'SubscriptionPage',
         );
-        url = await paymentService.createStripeCheckout(
+        init = await paymentService.createStripeCheckout(
           priceInfo.amount,
           priceInfo.currency,
           plan: plan,
         );
       }
 
-      if (url != null) {
-        final uri = Uri.parse(url);
+      if (init != null) {
+        final uri = Uri.parse(init.url);
         if (await canLaunchUrl(uri)) {
+          _pendingPaymentReference = init.reference;
           await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          if (!context.mounted) return;
+          ToastUtils.showError(
+            context,
+            AppLocalizations.of(context)!.paymentInitError,
+          );
         }
       } else {
         if (!context.mounted) return;

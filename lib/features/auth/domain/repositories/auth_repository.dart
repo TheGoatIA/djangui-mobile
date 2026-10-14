@@ -96,7 +96,7 @@ abstract class AuthRepository {
   );
 
   /// Supprime définitivement le compte utilisateur.
-  Future<Either<Failure, void>> deleteAccount();
+  Future<Either<Failure, void>> deleteAccount({String? password});
 
   /// Liste toutes les sessions actives pour cet utilisateur.
   Future<Either<Failure, List<SessionModel>>> getSessions();

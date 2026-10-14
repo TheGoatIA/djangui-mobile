@@ -44,7 +44,7 @@ Kauri est une application mobile Flutter de finances personnelles assistée par 
 
 ### Prérequis
 
-- SDK Flutter (dernière version stable)
+- SDK Flutter **3.47.6** (version utilisée par la CI ; Dart ≥ 3.10) — Android : `compileSdk`/`targetSdk` **36** (écrits en dur dans `android/app/build.gradle.kts`, exigence Google Play)
 - Android Studio / VS Code
 - Projet Firebase configuré (`google-services.json` / `GoogleService-Info.plist`)
 - Une instance de l'API backend `djangui-api` accessible (voir son propre `README.md`)
@@ -64,7 +64,7 @@ Kauri est une application mobile Flutter de finances personnelles assistée par 
 
 3. **Configurer l'environnement — via `--dart-define-from-file`, pas `.env`.**
 
-   ⚠️ Ce projet ne lit **aucun** fichier `.env` au runtime (aucune dépendance `flutter_dotenv` n'est utilisée) — les fichiers `.env*` présents à la racine sont des reliques inertes, ignorés par Git, à ne pas utiliser. La configuration réelle passe exclusivement par des fichiers JSON injectés à la compilation :
+   ⚠️ Ce projet ne lit **aucun** fichier `.env` au runtime (aucune dépendance `flutter_dotenv` n'est utilisée) — un éventuel fichier `.env` local à la racine est une relique inerte, ignorée par Git, à ne pas utiliser. La configuration réelle passe exclusivement par des fichiers JSON injectés à la compilation :
 
    ```bash
    cp dart_defines.example.json dart_defines.dev.json

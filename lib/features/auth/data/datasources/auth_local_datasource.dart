@@ -179,7 +179,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> saveBiometricToken(String token) async {
-    _logger.d('💾 [AuthLocal] Saving biometric token (Keystore/Keychain biométrique)');
+    _logger.d(
+      '💾 [AuthLocal] Saving biometric token (Keystore/Keychain biométrique)',
+    );
     await _biometricStorage.write(token);
   }
 

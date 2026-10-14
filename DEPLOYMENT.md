@@ -12,6 +12,8 @@ Ce document explique comment déployer l'application mobile Kauri (Flutter) et s
 - Placez-les respectivement dans `android/app/` et `ios/Runner/`.
 
 ### 2. Build & Déploiement Android — local/manuel
+- **API Android cible** : `compileSdk = 36` et `targetSdk = 36` sont **écrits en dur** dans `android/app/build.gradle.kts` (exigence Google Play). Ils ne dépendent donc plus de la version de Flutter installée sur la machine ou sur Codemagic. Vérification après un build : le manifeste fusionné (`build/app/intermediates/merged_manifest/release/.../AndroidManifest.xml`) doit contenir `android:targetSdkVersion="36"`.
+- **Liens vérifiés (App Links)** : le lien de réinitialisation de mot de passe `https://api.kauri-app.com/reset-password/<jeton>` s'ouvre directement dans l'app (intent-filter `autoVerify`). L'API doit servir `/.well-known/assetlinks.json` — renseigner `ANDROID_SHA256_CERT_FINGERPRINTS` côté API avec l'empreinte du **certificat de signature Play** (Play Console → Intégrité de l'app) *et* celle de la clé d'upload si vous testez des builds locaux.
 - **Signature** : Créez un fichier `key.properties` dans `android/` avec le chemin de votre keystore, le mot de passe et l'alias (ne jamais committer ce fichier).
 - **Build APK (Release avec Obfuscation - K-19)** :
   ```bash
@@ -29,6 +31,7 @@ Ce document explique comment déployer l'application mobile Kauri (Flutter) et s
   ```bash
   flutter build ipa --release --dart-define-from-file=dart_defines.prod.json --obfuscate --split-debug-info=build/symbols/ios
   ```
+- **Universal Links (reset de mot de passe)** : dans le portail développeur Apple, activez la capacité *Associated Domains* sur l'App ID, régénérez le profil de provisioning, puis ajoutez `applinks:api.kauri-app.com` à `com.apple.developer.associated-domains` dans `ios/Runner/Runner.entitlements` (ou via Xcode → Signing & Capabilities). Renseignez `IOS_APP_ID` (`<TEAM_ID>.cm.tbg.kauri`) côté API, qui sert `/.well-known/apple-app-site-association`. Tant que ce n'est pas fait, iOS retombe sur le schéma `kauri://`.
 - Conservez l'archive de symboles `build/symbols/` pour la désanonymisation des traces de crash dans Firebase Crashlytics.
 - Téléchargez via Transporter ou Xcode vers App Store Connect.
 
@@ -69,11 +72,11 @@ Le pipeline mobile réel est Codemagic, configuré via l'**éditeur visuel** de 
 - **Firebase App Distribution (staging, Android + iOS)** — activer « Publishing → Firebase App Distribution » sur le workflow staging (fonctionnalité native de l'éditeur visuel, pas de script requis) : renseigner l'App ID Firebase Android et l'App ID Firebase iOS (Console Firebase → Paramètres du projet → Vos applications), un groupe de testeurs (ex. `staging-testers`, à créer dans Console Firebase → App Distribution → Testeurs et groupes), et connecter le compte de service Firebase si ce n'est pas déjà fait. Objectif : chaque push sur `dev` doit produire un build installable directement par l'équipe de test, sans étape manuelle après le push.
 - **Versioning `YYYYMMDD.N`** — l'éditeur visuel a des champs « Build name »/« Build number » qui acceptent des variables d'environnement calculées par un script préalable. Si ce format n'est pas encore en place, ajouter un script (section « Scripts », avant l'étape de build) qui calcule la date du jour + un numéro de séquence (par ex. en interrogeant les tags Git existants) et exporte le résultat en variable d'environnement, puis référencer cette variable dans les champs Build name/Build number. **Le même format est utilisé côté backend** pour les tags d'image Docker (voir `djangui-api/DEPLOYMENT.md` § 5.2) — dis-le-moi si tu veux le script exact à coller dans la section Scripts.
 
-Les workflows `.github/workflows/*.yml` de ce dépôt (`main.yml`, `build.yml`) restent des vérifications complémentaires légères (`flutter analyze`, SonarQube) — **ils ne construisent ni ne publient jamais de release mobile**, ce rôle appartient entièrement à Codemagic.
+Les workflows `.github/workflows/*.yml` de ce dépôt (`main.yml` : `flutter analyze` + `flutter test` sur Flutter 3.47.6 ; `build.yml` : analyse + SonarQube) restent des vérifications complémentaires — **ils ne construisent ni ne publient jamais de release mobile**, ce rôle appartient entièrement à Codemagic.
 
 ### Backend (NodeJS) — GitHub Actions
 
-Dans le dépôt `djangui-api` : `ci.yml` (lint + build + `npm audit`), `build.yml` (analyse SonarQube), `cd.yml` (publication d'image Docker vers GHCR, désormais déclenché sur `main` **et** `dev`, tag versionné `YYYYMMDD.N`), `deploy.yml` (déploiement SSH — staging automatique sur push `main`/`dev`, production uniquement manuelle). Détail complet dans son propre `DEPLOYMENT.md` § 5.
+Dans le dépôt `djangui-api` : `ci.yml` (lint + format + build + tests + `npm audit` des dépendances de production), `build.yml` (analyse SonarQube, manuelle) et `deploy.yml` (tests → build/push de l'image Docker vers GHCR taguée `YYYYMMDD.N` → déploiement SSH : staging sur push `dev`, production sur push `main`). Détail complet dans son propre `DEPLOYMENT.md` § 5.
 
 ### Monitoring
 - **Mobile** — Firebase Crashlytics (crashs), Firebase Analytics, OpenTelemetry (traces, `OTEL_ENDPOINT`), et un endpoint de logs applicatif dédié (`API_LOGS_ENDPOINT`) — voir `dart_defines.example.json`.

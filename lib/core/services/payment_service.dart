@@ -117,8 +117,9 @@ class PaymentService {
   }
 
   /// Initialise une transaction via NotchPay (préféré pour l'Afrique de l'Ouest/Centrale).
-  /// Retourne l'URL de paiement vers laquelle rediriger l'utilisateur.
-  Future<String?> initializeNotchPay(
+  /// Retourne l'URL de paiement vers laquelle rediriger l'utilisateur ainsi que
+  /// la référence interne, indispensable pour vérifier le paiement au retour.
+  Future<({String url, String reference})?> initializeNotchPay(
     double amount, {
     String? currency,
     String? phone,
@@ -141,6 +142,7 @@ class PaymentService {
     if (response.isSuccessful && response.body != null) {
       final data = response.body!['data'] as Map<String, dynamic>?;
       final url = data?['url'] as String?;
+      final reference = data?['reference'] as String?;
 
       // Telemetry: Payment Initialized
       _telemetry.recordEvent('business.payment.init', {
@@ -151,7 +153,8 @@ class PaymentService {
         'success': url != null,
       });
 
-      return url;
+      if (url == null) return null;
+      return (url: url, reference: reference ?? '');
     }
     getIt<LogService>().warning(
       'Échec initialisation NotchPay',
@@ -165,8 +168,8 @@ class PaymentService {
   }
 
   /// Initialise une transaction via Stripe Checkout.
-  /// Retourne l'URL de paiement générée par Stripe.
-  Future<String?> createStripeCheckout(
+  /// Retourne l'URL de paiement générée par Stripe et la référence interne.
+  Future<({String url, String reference})?> createStripeCheckout(
     double amount,
     String currency, {
     String? plan,
@@ -185,6 +188,7 @@ class PaymentService {
     if (response.isSuccessful && response.body != null) {
       final data = response.body!['data'] as Map<String, dynamic>?;
       final url = data?['url'] as String?;
+      final reference = data?['reference'] as String?;
 
       // Telemetry: Payment Initialized
       _telemetry.recordEvent('business.payment.init', {
@@ -195,7 +199,8 @@ class PaymentService {
         'success': url != null,
       });
 
-      return url;
+      if (url == null) return null;
+      return (url: url, reference: reference ?? '');
     }
     getIt<LogService>().warning(
       'Échec initialisation Stripe',
@@ -206,14 +211,21 @@ class PaymentService {
   }
 
   /// Vérifie le statut final d'une transaction à partir de sa référence.
+  ///
+  /// L'API répond HTTP 200 même quand le paiement est encore en attente
+  /// (`data.status` = 'pending'), donc `response.isSuccessful` ne prouve rien :
+  /// seul `data.status == 'completed'` signifie que l'abonnement est activé.
   Future<bool> verifyTransaction(String reference) async {
     try {
       final response = await _apiService.verifyTransaction(reference);
-      final success = response.isSuccessful;
+      final data = response.body?['data'];
+      final status = data is Map ? data['status'] as String? : null;
+      final success = response.isSuccessful && status == 'completed';
 
       // Telemetry: Payment Verification
       _telemetry.recordEvent('business.payment.verify', {
         'reference': reference,
+        'status': status ?? 'unknown',
         'success': success,
       });
 

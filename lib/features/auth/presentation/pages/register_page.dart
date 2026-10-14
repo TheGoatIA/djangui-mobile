@@ -201,10 +201,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     validator: (value) => PasswordValidator.validate(
                       value,
-                      emptyError:
-                          AppLocalizations.of(context)!.enterPasswordError,
-                      complexityError:
-                          AppLocalizations.of(context)!.passwordLengthError,
+                      emptyError: AppLocalizations.of(
+                        context,
+                      )!.enterPasswordError,
+                      complexityError: AppLocalizations.of(
+                        context,
+                      )!.passwordLengthError,
                     ),
                   ),
                   const SizedBox(height: 24),

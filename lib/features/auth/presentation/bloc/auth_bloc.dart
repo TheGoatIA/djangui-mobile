@@ -636,7 +636,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _authRepository.deleteAccount();
+    final result = await _authRepository.deleteAccount(
+      password: event.password,
+    );
     result.fold(
       (failure) => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
@@ -883,8 +885,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           event.selfieFilePath!,
         );
         selfieUrl = selfieResult.fold(
-          (failure) =>
-              throw Exception('Échec de l\'upload du selfie: ${failure.message}'),
+          (failure) => throw Exception(
+            'Échec de l\'upload du selfie: ${failure.message}',
+          ),
           (response) => response.finalUrl,
         );
       }

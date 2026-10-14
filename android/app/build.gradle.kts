@@ -13,7 +13,11 @@ plugins {
 
 android {
     namespace = "cm.tbg.kauri"
-    compileSdk = flutter.compileSdkVersion
+    // Explicit API 36 (Google Play target-API requirement): never inherited from
+    // the Flutter SDK default, which changes with the installed Flutter version
+    // (a CI runner on an older Flutter would otherwise silently build against a
+    // lower API level).
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     val keystoreProperties = Properties()
@@ -44,7 +48,7 @@ android {
     defaultConfig {
         applicationId = "cm.tbg.kauri"
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

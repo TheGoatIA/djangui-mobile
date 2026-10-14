@@ -160,7 +160,16 @@ class AuthChangePasswordRequested extends AuthEvent {
   List<Object?> get props => [currentPassword, newPassword];
 }
 
-class AuthDeleteAccountRequested extends AuthEvent {}
+class AuthDeleteAccountRequested extends AuthEvent {
+  /// Account password, re-entered by the user to confirm the deletion
+  /// (required by the API for password-based accounts).
+  final String? password;
+
+  const AuthDeleteAccountRequested({this.password});
+
+  @override
+  List<Object?> get props => [password];
+}
 
 class AuthSubmitKYCRequested extends AuthEvent {
   final String fullName;

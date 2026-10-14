@@ -95,6 +95,19 @@
 
 ---
 
+## 🔎 Audit pré-production (octobre 2026)
+
+| # | Item | Statut | Détail |
+|---|------|--------|--------|
+| 42 | `compileSdk` / `targetSdk` Android = 36 (exigence Google Play) | ✅ Validé | Écrits en dur dans `android/app/build.gradle.kts` — plus hérités de la version de Flutter installée (local, CI ou Codemagic) |
+| 43 | Lien de réinitialisation de mot de passe non interceptable | ✅ Android / ⚠️ iOS | Android : App Links vérifiés (`autoVerify`, `/.well-known/assetlinks.json` servi par l'API). iOS : endpoint AASA prêt côté API, **activer la capacité Associated Domains** (voir DEPLOYMENT.md § 3) |
+| 44 | Suppression de compte avec ré-authentification | ✅ Validé | Le mot de passe est redemandé dans la boîte de dialogue ; l'API refuse sans lui pour un compte à mot de passe |
+| 45 | Changement de mot de passe : session courante conservée, autres appareils déconnectés | ✅ Validé | Le refresh token courant est transmis à `PATCH /auth/change-password` |
+| 46 | Restriction de la clé API Firebase (`google-services.json`) | ⚠️ À faire manuellement | Console Google Cloud → Identifiants → clé Android : restreindre au package `cm.tbg.kauri` + empreinte SHA-1/SHA-256 de signature, et aux seules API Firebase utilisées. La clé n'est pas un secret mais, non restreinte, elle est utilisable par n'importe qui |
+| 47 | Bibliothèques natives alignées 16 Ko (exigence Google Play) | ✅ Vérifié (debug) / ⚠️ À refaire sur la release | `zipalign -c -P 16 4` OK et alignement ELF 16384 sur toutes les bibliothèques arm64 du dernier APK. À refaire sur l'AAB de release avant publication (plugins tiers) |
+
+---
+
 ## 📋 Statut de synthèse
 
 - **38 / 41** points corrigés et vérifiés dans le code (client + backend).

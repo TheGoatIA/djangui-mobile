@@ -1,3 +1,4 @@
+import 'deep_link_parser.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -109,6 +110,10 @@ final appRouter = GoRouter(
   observers: [TelemetryRouteObserver()],
   refreshListenable: GoRouterRefreshStream(getIt<AuthBloc>().stream),
   redirect: (context, state) {
+    // Verified HTTPS link (Android App Links / iOS Universal Links), see deep_link_parser.dart
+    final resetRoute = resetPasswordRouteFor(state.uri);
+    if (resetRoute != null) return resetRoute;
+
     // Handle kauri scheme deep links
     if (state.uri.scheme == 'kauri') {
       // If the link is kauri://payment/success, GoRouter might see:
@@ -134,7 +139,8 @@ final appRouter = GoRouter(
     final isAuthenticated = authState.status == AuthStatus.authenticated;
     final isKnownUnauthenticated =
         authState.status == AuthStatus.unauthenticated ||
-        (authState.status == AuthStatus.error && authState.authResponse == null);
+        (authState.status == AuthStatus.error &&
+            authState.authResponse == null);
 
     // Garde d'authentification : un utilisateur non connecté ne doit jamais
     // atteindre un écran protégé (lien profond direct, état de navigation
@@ -466,7 +472,8 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.paymentSuccess,
       pageBuilder: (context, state) {
-        final ref = state.uri.queryParameters['ref'] ??
+        final ref =
+            state.uri.queryParameters['ref'] ??
             state.uri.queryParameters['reference'] ??
             state.uri.queryParameters['trxref'] ??
             state.uri.queryParameters['transaction_reference'];
@@ -481,7 +488,8 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.paymentFailure,
       pageBuilder: (context, state) {
-        final ref = state.uri.queryParameters['ref'] ??
+        final ref =
+            state.uri.queryParameters['ref'] ??
             state.uri.queryParameters['reference'] ??
             state.uri.queryParameters['trxref'] ??
             state.uri.queryParameters['transaction_reference'];

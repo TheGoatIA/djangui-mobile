@@ -34,7 +34,7 @@ abstract class AuthRemoteDataSource {
   Future<void> updateFcmToken(String token);
   Future<void> updateDeviceInfo(DeviceInfoRequest request);
   Future<void> changePassword(String currentPassword, String newPassword);
-  Future<void> deleteAccount();
+  Future<void> deleteAccount({String? password});
   Future<List<SessionModel>> getSessions();
   Future<void> revokeSession(String sessionId);
   Future<void> revokeAllOtherSessions();
@@ -239,9 +239,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String currentPassword,
     String newPassword,
   ) async {
+    // Identifies THIS device's session so the API keeps it signed in while
+    // signing every other device out after the password change.
+    final refreshToken = await _localDataSource.getRefreshToken();
     final response = await _apiService.changePassword({
       'currentPassword': currentPassword,
       'newPassword': newPassword,
+      if (refreshToken != null) 'refreshToken': refreshToken,
     });
     if (!response.isSuccessful) {
       throw Exception(response.errorMessage);
@@ -249,8 +253,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> deleteAccount() async {
-    final response = await _apiService.deleteAccount();
+  Future<void> deleteAccount({String? password}) async {
+    // The API requires the account password for password-based accounts
+    // (Firebase-only accounts have none and send an empty body).
+    final response = await _apiService.deleteAccount({
+      if (password != null && password.isNotEmpty) 'password': password,
+    });
     if (!response.isSuccessful) {
       throw Exception(response.errorMessage);
     }

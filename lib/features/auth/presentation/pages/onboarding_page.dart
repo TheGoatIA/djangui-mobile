@@ -140,20 +140,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             offset: Offset(delta * -32, 0),
                             child: Opacity(
                               opacity: (1 - delta.abs() * 0.6).clamp(0.4, 1.0),
-                              child: Image.asset(
-                                    _contents[index].image,
-                                    height: 250,
-                                    fit: BoxFit.contain,
-                                  )
-                                  .animate(
-                                    onPlay: (c) => c.repeat(reverse: true),
-                                  )
-                                  .scaleXY(
-                                    begin: 1,
-                                    end: 1.03,
-                                    duration: 3000.ms,
-                                    curve: Curves.easeInOut,
-                                  ),
+                              child:
+                                  Image.asset(
+                                        _contents[index].image,
+                                        height: 250,
+                                        fit: BoxFit.contain,
+                                      )
+                                      .animate(
+                                        onPlay: (c) => c.repeat(reverse: true),
+                                      )
+                                      .scaleXY(
+                                        begin: 1,
+                                        end: 1.03,
+                                        duration: 3000.ms,
+                                        curve: Curves.easeInOut,
+                                      ),
                             ),
                           ),
                           const SizedBox(height: 60),
