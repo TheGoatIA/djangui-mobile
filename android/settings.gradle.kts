@@ -23,11 +23,11 @@ plugins {
     id("org.jetbrains.kotlin.android") version "2.2.20" apply false
     // Lets Gradle auto-provision the JDK 17 toolchain that some plugins (e.g.
     // biometric_storage) require, so a machine that only has JDK 21+ still builds.
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
     // START: FlutterFire Configuration
     id("com.google.gms.google-services") version "4.4.1" apply false
     id("com.google.firebase.crashlytics") version "3.0.2" apply false
-    id("com.google.firebase.firebase-perf") version "1.4.2" apply false
+    id("com.google.firebase.firebase-perf") version "2.0.2" apply false
     // END: FlutterFire Configuration
 }
 
