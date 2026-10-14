@@ -69,6 +69,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
+      - name: Libérer de l'espace disque (runner ~14 Go libres)
+        # Le build Android debug (3 ABI, ML Kit, Firebase, SQLite…) dépasse l'espace libre d'un
+        # runner standard : "No space left on device" pendant D8/dexing. On supprime les chaînes
+        # d'outils préinstallées dont ce job n'a pas besoin (le SDK Android est conservé).
+        run: |
+          df -h / | tail -1
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/ghc /usr/local/.ghcup /usr/local/share/boost /usr/share/swift \
+                      /usr/local/graalvm /usr/local/share/powershell /opt/microsoft \
+                      /opt/hostedtoolcache/CodeQL /usr/local/share/chromium || true
+          sudo docker image prune -af >/dev/null 2>&1 || true
+          sudo apt-get clean || true
+          df -h / | tail -1
       - uses: actions/checkout@v6
       - uses: actions/setup-java@v4
         with:
@@ -95,9 +108,12 @@ jobs:
       - run: flutter pub get
       - name: Build APK debug (sans secrets, valeurs de test)
         run: |
-          flutter build apk --debug \
+          # Une seule ABI (arm64) : triple l'espace/temps sinon, et suffit à prouver que le projet
+          # compile pour l'API 36. Les APK/AAB complets sont produits par Codemagic.
+          flutter build apk --debug --target-platform android-arm64 \
             --dart-define=API_BASE_URL=https://staging.kauri-app.com/api/v1 \
             --dart-define=ENV=staging
+          df -h / | tail -1
       - name: "Non-régression SDK : targetSdk et compileSdk = 36"
         run: |
           set -e
@@ -115,6 +131,7 @@ jobs:
         if: failure()
         run: |
           free -h || true
+          df -h / || true
           ls -la android/*.log android/hs_err_pid*.log 2>/dev/null || true
           find ~/.gradle/daemon -name '*.out.log' -type f 2>/dev/null | head -2 | xargs -r tail -n 60 || true
 
