@@ -232,7 +232,8 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
             } else if (state.status == FintechStatus.withdrawalError ||
                 (state.status == FintechStatus.error &&
                     state.message != null)) {
-              final isKycError = state.message != null &&
+              final isKycError =
+                  state.message != null &&
                   (state.message!.toLowerCase().contains('kyc') ||
                       state.message!.toLowerCase().contains('identité'));
               showDialog(
@@ -250,7 +251,8 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                   ),
                   title: Builder(
                     builder: (context) {
-                      final kycLevel = context
+                      final kycLevel =
+                          context
                               .read<AuthBloc>()
                               .state
                               .authResponse
@@ -264,14 +266,17 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                         );
                       }
                       return Text(
-                        isKycError ? 'Vérification KYC requise' : 'Retrait échoué',
+                        isKycError
+                            ? 'Vérification KYC requise'
+                            : 'Retrait échoué',
                         textAlign: TextAlign.center,
                       );
                     },
                   ),
                   content: Builder(
                     builder: (context) {
-                      final kycLevel = context
+                      final kycLevel =
+                          context
                               .read<AuthBloc>()
                               .state
                               .authResponse
@@ -296,7 +301,8 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                     if (isKycError) ...[
                       Builder(
                         builder: (context) {
-                          final kycLevel = context
+                          final kycLevel =
+                              context
                                   .read<AuthBloc>()
                                   .state
                                   .authResponse
@@ -439,7 +445,10 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
     // Dynamic calculation of incomes and outcomes (ignoring failed, cancelled transactions and technical refunds)
     final validTransactions = transactions.where((t) {
       final s = t.status.toLowerCase().trim();
-      return s != 'failed' && s != 'cancelled' && s != 'canceled' && s != 'rejected';
+      return s != 'failed' &&
+          s != 'cancelled' &&
+          s != 'canceled' &&
+          s != 'rejected';
     });
 
     final incomes = validTransactions
@@ -783,13 +792,12 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                   children: [
                     Text(
                       DateFormat('dd MMM yyyy HH:mm').format(tx.createdAt),
-                      style: AppTextStyles.bodySmall.copyWith(color: Colors.grey),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Colors.grey,
+                      ),
                     ),
                     const SizedBox(width: 6),
-                    TransactionStatusBadge(
-                      status: tx.status,
-                      compact: true,
-                    ),
+                    TransactionStatusBadge(status: tx.status, compact: true),
                   ],
                 ),
               ],
@@ -1018,7 +1026,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
           final rawAmount =
               double.tryParse(amountController.text.replaceAll(' ', '')) ?? 0.0;
           final fees = rawAmount > 0
-              ? (rawAmount * feePercent < 100 ? 100.0 : (rawAmount * feePercent))
+              ? (rawAmount * feePercent < 100
+                    ? 100.0
+                    : (rawAmount * feePercent))
               : 0.0;
           final totalDebited = rawAmount > 0 ? rawAmount + fees : 0.0;
           final remainingBalance = currentBalance - totalDebited;
@@ -1042,7 +1052,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -1082,7 +1094,10 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                     decoration: InputDecoration(
                       labelText: l10n.phoneNumberLabel,
                       hintText: l10n.phoneNumberHint,
-                      prefixIcon: const Icon(Icons.phone_android_rounded, size: 20),
+                      prefixIcon: const Icon(
+                        Icons.phone_android_rounded,
+                        size: 20,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -1090,7 +1105,10 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                     initialValue: selectedOperator,
                     decoration: InputDecoration(
                       labelText: l10n.withdrawOperator,
-                      prefixIcon: const Icon(Icons.account_balance_wallet_outlined, size: 20),
+                      prefixIcon: const Icon(
+                        Icons.account_balance_wallet_outlined,
+                        size: 20,
+                      ),
                     ),
                     items: const [
                       DropdownMenuItem(
@@ -1110,7 +1128,10 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isInsufficientFunds
@@ -1137,7 +1158,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.success.withValues(alpha: 0.15),
+                                  color: AppColors.success.withValues(
+                                    alpha: 0.15,
+                                  ),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -1172,7 +1195,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                         _buildFeeRow(
                           l10n.withdrawRemainingBalance,
                           CurrencyHelper.formatAmount(remainingBalance),
-                          valueColor: remainingBalance < 0 ? AppColors.error : AppColors.success,
+                          valueColor: remainingBalance < 0
+                              ? AppColors.error
+                              : AppColors.success,
                         ),
                       ],
                     ),
@@ -1271,7 +1296,8 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
           value,
           style: AppTextStyles.bodySmall.copyWith(
             fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-            color: valueColor ??
+            color:
+                valueColor ??
                 (isBold
                     ? Theme.of(context).colorScheme.onSurface
                     : Theme.of(context).colorScheme.onSurfaceVariant),

@@ -686,7 +686,10 @@ class _InsightsViewState extends State<InsightsView> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      '• ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Expanded(
                       child: Text(insight, style: AppTextStyles.bodySmall),
                     ),

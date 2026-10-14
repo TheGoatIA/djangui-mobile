@@ -8,9 +8,7 @@ abstract class ReportsLocalDataSource {
   Future<DashboardReportModel?> getCachedDashboardReport();
   Future<void> saveDashboardReport(DashboardReportModel report);
 
-  Future<List<SpendingAnalysisModel>?> getCachedSpendingAnalysis(
-    String period,
-  );
+  Future<List<SpendingAnalysisModel>?> getCachedSpendingAnalysis(String period);
   Future<void> saveSpendingAnalysis(
     String period,
     List<SpendingAnalysisModel> data,
@@ -109,9 +107,7 @@ class ReportsLocalDataSourceImpl implements ReportsLocalDataSource {
   }
 
   @override
-  Future<List<SavingsTrendModel>?> getCachedSavingsTrend(
-    String period,
-  ) async {
+  Future<List<SavingsTrendModel>?> getCachedSavingsTrend(String period) async {
     final row = await (_db.select(
       _db.savingsTrendCache,
     )..where((t) => t.period.equals(period))).getSingleOrNull();

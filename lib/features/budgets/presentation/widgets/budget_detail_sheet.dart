@@ -146,8 +146,7 @@ class _BudgetDetailSheetState extends State<BudgetDetailSheet> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                AddBudgetPage(budget: budget),
+                            builder: (context) => AddBudgetPage(budget: budget),
                           ),
                         );
                       },
@@ -411,9 +410,9 @@ class _BudgetDetailSheetState extends State<BudgetDetailSheet> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(
-                  alpha: 0.08,
-                ),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Center(
@@ -647,10 +646,7 @@ class _ParticipantsSection extends StatelessWidget {
                           tooltip: l10n.removeParticipant,
                           onPressed: () {
                             context.read<BudgetsBloc>().add(
-                              RemoveBudgetParticipantRequested(
-                                budget.id,
-                                p.id,
-                              ),
+                              RemoveBudgetParticipantRequested(budget.id, p.id),
                             );
                           },
                         )

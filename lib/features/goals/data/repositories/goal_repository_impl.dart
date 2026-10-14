@@ -423,7 +423,10 @@ class GoalRepositoryImpl implements GoalRepository {
 
   @override
   Future<Either<Failure, void>> leaveGoal(String id) async {
-    _logger.info('Tentative de quitter l\'objectif: $id', component: 'GoalRepository');
+    _logger.info(
+      'Tentative de quitter l\'objectif: $id',
+      component: 'GoalRepository',
+    );
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
     try {
       await _remoteDataSource.leaveGoal(id);

@@ -153,9 +153,7 @@ class _GoalListViewState extends State<GoalListView>
                 _startTutorial();
               } else if (state.status == GoalsStatus.error) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.errorMessage ?? l10n.errorGoal),
-                  ),
+                  SnackBar(content: Text(state.errorMessage ?? l10n.errorGoal)),
                 );
               }
             },
@@ -217,10 +215,7 @@ class _GoalListViewState extends State<GoalListView>
 
                       // Le premier élément est mis en avant par le tutoriel
                       if (index == 0) {
-                        return KeyedSubtree(
-                          key: _listKey,
-                          child: goalWidget,
-                        );
+                        return KeyedSubtree(key: _listKey, child: goalWidget);
                       }
 
                       return goalWidget;

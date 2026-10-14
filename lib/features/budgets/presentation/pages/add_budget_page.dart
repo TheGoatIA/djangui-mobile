@@ -382,9 +382,7 @@ class _AddBudgetPageState extends State<AddBudgetPage>
                       children: [
                         const CircularProgressIndicator(),
                         const SizedBox(width: 20),
-                        Expanded(
-                          child: Text(l10n.budgetSavingInProgress),
-                        ),
+                        Expanded(child: Text(l10n.budgetSavingInProgress)),
                       ],
                     ),
                   ),

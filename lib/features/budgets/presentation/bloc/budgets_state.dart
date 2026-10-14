@@ -58,7 +58,8 @@ class BudgetsState extends Equatable {
       autoBudgetResponse: autoBudgetResponse != null
           ? autoBudgetResponse()
           : this.autoBudgetResponse,
-      categoryHistoryStatus: categoryHistoryStatus ?? this.categoryHistoryStatus,
+      categoryHistoryStatus:
+          categoryHistoryStatus ?? this.categoryHistoryStatus,
       categoryHistory: categoryHistory ?? this.categoryHistory,
       participantsStatus: participantsStatus ?? this.participantsStatus,
       participants: participants ?? this.participants,

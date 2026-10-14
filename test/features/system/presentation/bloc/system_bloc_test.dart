@@ -10,6 +10,7 @@ import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 
 class MockSystemRepository extends Mock implements SystemRepository {}
+
 class MockTelemetryService extends Mock implements TelemetryService {}
 
 void main() {

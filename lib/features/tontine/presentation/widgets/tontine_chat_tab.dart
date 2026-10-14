@@ -352,9 +352,9 @@ class _TontineChatTabState extends State<TontineChatTab> {
       listener: (context, state) {
         _isSendingMessage = false;
         if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage!)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
         }
       },
       child: Column(

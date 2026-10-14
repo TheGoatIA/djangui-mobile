@@ -139,9 +139,15 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
                   const SizedBox(height: 16),
                   Builder(
                     builder: (context) {
-                      final user = context.watch<AuthBloc>().state.authResponse?.user;
+                      final user = context
+                          .watch<AuthBloc>()
+                          .state
+                          .authResponse
+                          ?.user;
                       final isBusiness = user?.isBusiness ?? false;
-                      final planLabel = isBusiness ? 'Super Premium (Business)' : 'Premium';
+                      final planLabel = isBusiness
+                          ? 'Super Premium (Business)'
+                          : 'Premium';
 
                       return Text(
                         _isVerified

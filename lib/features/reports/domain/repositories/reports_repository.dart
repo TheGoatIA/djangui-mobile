@@ -4,6 +4,7 @@ import '../../data/models/reports_model.dart';
 
 abstract class ReportsRepository {
   Future<Either<Failure, DashboardReportModel>> getDashboardReport();
+
   /// Local cache only, never touches the network — used to paint the
   /// dashboard instantly while [getDashboardReport] refreshes it in the
   /// background. Returns `Right(null)` when nothing has been cached yet.
@@ -15,6 +16,7 @@ abstract class ReportsRepository {
   Future<Either<Failure, List<SpendingAnalysisModel>>> getSpendingAnalysis({
     String? period,
   });
+
   /// Cache local uniquement (pas d'appel réseau) — permet à Insights
   /// d'afficher instantanément la dernière analyse connue pour [period]
   /// pendant que [getSpendingAnalysis] la rafraîchit en arrière-plan.

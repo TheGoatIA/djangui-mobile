@@ -268,10 +268,7 @@ class _InvestmentsViewState extends State<InvestmentsView> {
                       );
 
                       if (index == 0) {
-                        return KeyedSubtree(
-                          key: _listKey,
-                          child: dismissible,
-                        );
+                        return KeyedSubtree(key: _listKey, child: dismissible);
                       }
 
                       return dismissible;

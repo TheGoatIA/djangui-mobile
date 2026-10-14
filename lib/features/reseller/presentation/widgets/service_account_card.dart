@@ -67,7 +67,10 @@ class ServiceAccountCard extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: (isProfitable ? AppColors.primary : Colors.red)
                           .withValues(alpha: 0.12),
@@ -87,11 +90,18 @@ class ServiceAccountCard extends StatelessWidget {
                   if (onDeleteAccount != null) ...[
                     const SizedBox(width: 4),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.redAccent),
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        size: 18,
+                        color: Colors.redAccent,
+                      ),
                       tooltip: 'Supprimer le compte maître',
                       visualDensity: VisualDensity.compact,
                       padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                      constraints: const BoxConstraints(
+                        minWidth: 28,
+                        minHeight: 28,
+                      ),
                       onPressed: onDeleteAccount,
                     ),
                   ],
@@ -128,11 +138,16 @@ class ServiceAccountCard extends StatelessWidget {
                 return GestureDetector(
                   onTap: () => onSlotTap?.call(slot),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: dotColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: dotColor.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: dotColor.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -162,7 +177,10 @@ class ServiceAccountCard extends StatelessWidget {
                 return GestureDetector(
                   onTap: onTap,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
@@ -203,7 +221,10 @@ class ServiceAccountCard extends StatelessWidget {
               TextButton.icon(
                 onPressed: onUnlockVault,
                 icon: const Icon(Icons.lock_open_rounded, size: 14),
-                label: const Text('Accès & PIN', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                label: const Text(
+                  'Accès & PIN',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
                 style: TextButton.styleFrom(
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,

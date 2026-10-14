@@ -19,8 +19,14 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
   ChallengesBloc(this._challengeRepository) : super(ChallengesState.initial()) {
     on<GetChallengesRequested>(_onGetChallengesRequested);
     on<GetUserChallengesRequested>(_onGetUserChallengesRequested);
-    on<JoinChallengeRequested>(_onJoinChallengeRequested, transformer: droppable());
-    on<ValidateWeekRequested>(_onValidateWeekRequested, transformer: droppable());
+    on<JoinChallengeRequested>(
+      _onJoinChallengeRequested,
+      transformer: droppable(),
+    );
+    on<ValidateWeekRequested>(
+      _onValidateWeekRequested,
+      transformer: droppable(),
+    );
     on<UnjoinChallengeRequested>(
       _onUnjoinChallengeRequested,
       transformer: droppable(),

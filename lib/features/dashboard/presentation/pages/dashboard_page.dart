@@ -114,7 +114,8 @@ class _DashboardViewState extends State<DashboardView>
       // app_router.dart. Otherwise this popup could tell a user real money
       // has arrived for them while the server still rejects their deposits.
       final isCountryAllowed =
-          user != null && featureFlags.realMoneyCountries.contains(user.country);
+          user != null &&
+          featureFlags.realMoneyCountries.contains(user.country);
       if (isRealMoneyEnabled && isCountryAllowed) {
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
@@ -1011,7 +1012,9 @@ class _DashboardViewState extends State<DashboardView>
         children: [
           Text(
             AppLocalizations.of(context)!.otherTools,
-            style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+            style: AppTextStyles.bodyLarge.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 12),
           Container(
@@ -1040,7 +1043,10 @@ class _DashboardViewState extends State<DashboardView>
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(12),
@@ -1081,7 +1087,10 @@ class _DashboardViewState extends State<DashboardView>
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.blue.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(12),
@@ -1340,4 +1349,3 @@ class _DashboardViewState extends State<DashboardView>
     );
   }
 }
-

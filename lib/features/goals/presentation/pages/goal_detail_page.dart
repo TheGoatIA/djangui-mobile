@@ -766,8 +766,7 @@ class _GoalDetailPageState extends State<GoalDetailPage>
   ) {
     final l10n = AppLocalizations.of(context)!;
     if (goal.contributions.isEmpty) return const SizedBox.shrink();
-    final currentUserId =
-        context.read<AuthBloc>().state.authResponse?.user.id;
+    final currentUserId = context.read<AuthBloc>().state.authResponse?.user.id;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -827,9 +826,7 @@ class _GoalDetailPageState extends State<GoalDetailPage>
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      isRedemption
-                          ? Icons.arrow_downward
-                          : Icons.arrow_upward,
+                      isRedemption ? Icons.arrow_downward : Icons.arrow_upward,
                       size: 20,
                       color: accentColor,
                     ),
@@ -1128,7 +1125,9 @@ class _RedeemDialogState extends State<_RedeemDialog> {
               decoration: BoxDecoration(
                 color: AppColors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.error.withValues(alpha: 0.2)),
+                border: Border.all(
+                  color: AppColors.error.withValues(alpha: 0.2),
+                ),
               ),
               child: Row(
                 children: [

@@ -102,4 +102,3 @@ class UploadRemoteDataSourceImpl implements UploadRemoteDataSource {
     return _unwrap(await _apiService.uploadDocument(file));
   }
 }
-

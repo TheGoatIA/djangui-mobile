@@ -79,7 +79,8 @@ class FintechRepositoryImpl implements FintechRepository {
       });
       if (response.isSuccessful && response.body?.data != null) {
         return Right(
-          response.body!.data!['message'] ?? 'Demande de retrait envoyée avec succès',
+          response.body!.data!['message'] ??
+              'Demande de retrait envoyée avec succès',
         );
       }
       return Left(ServerFailure(response.errorMessage));

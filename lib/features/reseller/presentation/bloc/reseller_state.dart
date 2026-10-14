@@ -1,4 +1,4 @@
-﻿import 'package:equatable/equatable.dart';
+import 'package:equatable/equatable.dart';
 import '../../data/models/reseller_models.dart';
 
 abstract class ResellerState extends Equatable {
@@ -16,10 +16,7 @@ class ResellerLoaded extends ResellerState {
   final ResellerDashboardStatsModel stats;
   final List<ResellerAccountModel> accounts;
 
-  const ResellerLoaded({
-    required this.stats,
-    required this.accounts,
-  });
+  const ResellerLoaded({required this.stats, required this.accounts});
 
   @override
   List<Object?> get props => [stats, accounts];
@@ -41,7 +38,13 @@ class ResellerVaultUnlocked extends ResellerState {
   });
 
   @override
-  List<Object?> get props => [email, password, pin, recoveryContact, secretNotes];
+  List<Object?> get props => [
+    email,
+    password,
+    pin,
+    recoveryContact,
+    secretNotes,
+  ];
 }
 
 class ResellerActionSuccess extends ResellerState {

@@ -88,7 +88,9 @@ class _BudgetListViewState extends State<BudgetListView>
     // mémoire depuis la dernière synchronisation (au login), sans jamais se
     // rafraîchir à l'ouverture. Un budget créé/modifié ailleurs ne pouvait
     // donc jamais apparaître sans un pull-to-refresh manuel.
-    context.read<BudgetsBloc>().add(const GetBudgetsRequested(forceRefresh: true));
+    context.read<BudgetsBloc>().add(
+      const GetBudgetsRequested(forceRefresh: true),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
       getIt<AnalyticsManager>().trackEvent(
@@ -372,9 +374,7 @@ class _BudgetListViewState extends State<BudgetListView>
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(28),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: ListView(
             controller: scrollController,

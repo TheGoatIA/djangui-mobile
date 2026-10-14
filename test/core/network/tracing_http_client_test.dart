@@ -21,49 +21,52 @@ void main() {
   });
 
   group('TracingHttpClient Tests', () {
-    test('preserves and transmits MultipartRequest files and fields with traceparent', () async {
-      http.BaseRequest? capturedRequest;
-      String? capturedBody;
+    test(
+      'preserves and transmits MultipartRequest files and fields with traceparent',
+      () async {
+        http.BaseRequest? capturedRequest;
+        String? capturedBody;
 
-      final mockInner = MockClient.streaming((request, bodyStream) async {
-        capturedRequest = request;
-        final bytes = await bodyStream.toBytes();
-        capturedBody = utf8.decode(bytes, allowMalformed: true);
-        return http.StreamedResponse(
-          Stream.value(utf8.encode('{"success": true}')),
-          200,
+        final mockInner = MockClient.streaming((request, bodyStream) async {
+          capturedRequest = request;
+          final bytes = await bodyStream.toBytes();
+          capturedBody = utf8.decode(bytes, allowMalformed: true);
+          return http.StreamedResponse(
+            Stream.value(utf8.encode('{"success": true}')),
+            200,
+          );
+        });
+
+        final tracingClient = TracingHttpClient(inner: mockInner);
+
+        final multipartRequest = http.MultipartRequest(
+          'POST',
+          Uri.parse('http://example.com/upload/document'),
         );
-      });
+        multipartRequest.fields['title'] = 'CNI Front';
+        multipartRequest.files.add(
+          http.MultipartFile.fromString(
+            'document',
+            'dummy file binary content',
+            filename: 'cni.jpg',
+          ),
+        );
 
-      final tracingClient = TracingHttpClient(inner: mockInner);
+        final response = await tracingClient.send(multipartRequest);
 
-      final multipartRequest = http.MultipartRequest(
-        'POST',
-        Uri.parse('http://example.com/upload/document'),
-      );
-      multipartRequest.fields['title'] = 'CNI Front';
-      multipartRequest.files.add(
-        http.MultipartFile.fromString(
-          'document',
-          'dummy file binary content',
-          filename: 'cni.jpg',
-        ),
-      );
+        expect(response.statusCode, 200);
+        expect(capturedRequest, isA<http.MultipartRequest>());
 
-      final response = await tracingClient.send(multipartRequest);
-
-      expect(response.statusCode, 200);
-      expect(capturedRequest, isA<http.MultipartRequest>());
-
-      final receivedMultipart = capturedRequest as http.MultipartRequest;
-      expect(receivedMultipart.fields['title'], 'CNI Front');
-      expect(receivedMultipart.files.length, 1);
-      expect(receivedMultipart.files.first.field, 'document');
-      expect(receivedMultipart.files.first.filename, 'cni.jpg');
-      expect(receivedMultipart.headers.containsKey('traceparent'), isTrue);
-      expect(capturedBody?.contains('dummy file binary content'), isTrue);
-      expect(capturedBody?.contains('name="document"'), isTrue);
-    });
+        final receivedMultipart = capturedRequest as http.MultipartRequest;
+        expect(receivedMultipart.fields['title'], 'CNI Front');
+        expect(receivedMultipart.files.length, 1);
+        expect(receivedMultipart.files.first.field, 'document');
+        expect(receivedMultipart.files.first.filename, 'cni.jpg');
+        expect(receivedMultipart.headers.containsKey('traceparent'), isTrue);
+        expect(capturedBody?.contains('dummy file binary content'), isTrue);
+        expect(capturedBody?.contains('name="document"'), isTrue);
+      },
+    );
 
     test('preserves standard Request and injects traceparent header', () async {
       http.BaseRequest? capturedRequest;

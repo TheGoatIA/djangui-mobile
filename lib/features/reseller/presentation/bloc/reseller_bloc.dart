@@ -78,13 +78,15 @@ class ResellerBloc extends Bloc<ResellerEvent, ResellerState> {
       emit(ResellerLoading());
       try {
         final vault = await _repository.unlockVault(event.accountId);
-        emit(ResellerVaultUnlocked(
-          email: vault['email'] ?? '',
-          password: vault['password'] ?? '',
-          pin: vault['pin'] ?? '',
-          recoveryContact: vault['recoveryContact'] ?? '',
-          secretNotes: vault['secretNotes'] ?? '',
-        ));
+        emit(
+          ResellerVaultUnlocked(
+            email: vault['email'] ?? '',
+            password: vault['password'] ?? '',
+            pin: vault['pin'] ?? '',
+            recoveryContact: vault['recoveryContact'] ?? '',
+            secretNotes: vault['secretNotes'] ?? '',
+          ),
+        );
       } catch (e) {
         emit(ResellerError(ErrorMapper.safeMessage(e)));
       }

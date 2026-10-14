@@ -1,4 +1,4 @@
-﻿class ResellerAccountModel {
+class ResellerAccountModel {
   final String id;
   final String serviceName;
   final String? servicePreset;
@@ -60,7 +60,8 @@
       totalRevenue: (json['totalRevenue'] as num?)?.toDouble() ?? 0.0,
       netMargin: (json['netMargin'] as num?)?.toDouble() ?? 0.0,
       status: json['status'] ?? 'active',
-      slots: (json['slots'] as List<dynamic>?)
+      slots:
+          (json['slots'] as List<dynamic>?)
               ?.map((s) => ResellerSlotModel.fromJson(s))
               .toList() ??
           [],

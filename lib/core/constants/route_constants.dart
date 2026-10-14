@@ -1,4 +1,4 @@
-﻿/// Définition des constantes de navigation (Routes) du projet.
+/// Définition des constantes de navigation (Routes) du projet.
 /// Ce fichier centralise tous les noms et chemins de routes pour GoRouter.
 class RouteConstants {
   /// Écran d'accueil dynamique (Splash Screen).
@@ -42,6 +42,7 @@ class RouteConstants {
 
   /// Écran de gestion des budgets.
   static const String budgets = '/budgets';
+
   /// Rejoindre un budget partagé par code d'invitation.
   static const String joinBudget = '/budgets/join';
 
@@ -53,6 +54,7 @@ class RouteConstants {
 
   /// Détail d'un objectif d'épargne.
   static const String goalDetails = '/goals/:id';
+
   /// Rejoindre un objectif partagé par code d'invitation.
   static const String joinGoal = '/goals/join';
 

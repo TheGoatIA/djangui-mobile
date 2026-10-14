@@ -1,14 +1,51 @@
+# Dependabot — djangui-mobile
+# Hebdomadaire (lundi), uniquement vers `dev`. Les montées majeures de plugins Flutter
+# restent des PRs séparées ; minor/patch sont groupées. Un `flutter pub get` + analyse +
+# tests tournent sur chaque PR (voir .github/workflows/ci.yml).
 version: 2
 updates:
   - package-ecosystem: "pub"
     directory: "/"
-    schedule:
-      interval: "daily"
     target-branch: "dev"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Africa/Douala"
     open-pull-requests-limit: 20
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      pub-minor-patch:
+        update-types: ["minor", "patch"]
+
+  # Gradle (plugins Android / Firebase) — le répertoire est celui du projet Android
+  - package-ecosystem: "gradle"
+    directory: "/android"
+    target-branch: "dev"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Africa/Douala"
+    open-pull-requests-limit: 20
+    commit-message:
+      prefix: "chore(android)"
+    groups:
+      gradle-minor-patch:
+        update-types: ["minor", "patch"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
-    schedule:
-      interval: "daily"
     target-branch: "dev"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Africa/Douala"
+    open-pull-requests-limit: 20
+    commit-message:
+      prefix: "chore(ci)"
+    groups:
+      github-actions:
+        patterns: ["*"]

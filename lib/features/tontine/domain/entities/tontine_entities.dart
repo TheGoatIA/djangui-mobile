@@ -166,8 +166,16 @@ class TontineMessage extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [id, tontineId, senderId, content, type, audioUrl, audioDuration, createdAt];
+  List<Object?> get props => [
+    id,
+    tontineId,
+    senderId,
+    content,
+    type,
+    audioUrl,
+    audioDuration,
+    createdAt,
+  ];
 }
 
 class TurnSummary extends Equatable {

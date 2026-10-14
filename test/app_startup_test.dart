@@ -5,94 +5,100 @@ import 'package:kauri/core/error/error_mapper.dart';
 
 void main() {
   group('App Security & Startup Rules Validation', () {
-    test('PasswordValidator enforces 8+ chars, uppercase, lowercase, digit, special char', () {
-      // Too short
-      expect(PasswordValidator.isValid('Ab1!'), isFalse);
-      expect(PasswordValidator.isValid('Abcdef1!'), isTrue);
+    test(
+      'PasswordValidator enforces 8+ chars, uppercase, lowercase, digit, special char',
+      () {
+        // Too short
+        expect(PasswordValidator.isValid('Ab1!'), isFalse);
+        expect(PasswordValidator.isValid('Abcdef1!'), isTrue);
 
-      // Missing uppercase
-      expect(PasswordValidator.isValid('abcdef1!'), isFalse);
+        // Missing uppercase
+        expect(PasswordValidator.isValid('abcdef1!'), isFalse);
 
-      // Missing lowercase
-      expect(PasswordValidator.isValid('ABCDEF1!'), isFalse);
+        // Missing lowercase
+        expect(PasswordValidator.isValid('ABCDEF1!'), isFalse);
 
-      // Missing digit
-      expect(PasswordValidator.isValid('Abcdefgh!'), isFalse);
+        // Missing digit
+        expect(PasswordValidator.isValid('Abcdefgh!'), isFalse);
 
-      // Missing special character
-      expect(PasswordValidator.isValid('Abcdefg12'), isFalse);
+        // Missing special character
+        expect(PasswordValidator.isValid('Abcdefg12'), isFalse);
 
-      // Valid strong passwords
-      expect(PasswordValidator.isValid('Kauri@2026'), isTrue);
-      expect(PasswordValidator.isValid('P@ssw0rd123!'), isTrue);
-      expect(PasswordValidator.isValid('Secur3#Pass'), isTrue);
-    });
+        // Valid strong passwords
+        expect(PasswordValidator.isValid('Kauri@2026'), isTrue);
+        expect(PasswordValidator.isValid('P@ssw0rd123!'), isTrue);
+        expect(PasswordValidator.isValid('Secur3#Pass'), isTrue);
+      },
+    );
 
-    test('TransactionModel.isMutable protects real-money transactions (F01)', () {
-      final cashTx = TransactionModel(
-        id: '1',
-        amount: 5000,
-        type: 'expense',
-        category: 'Food',
-        description: 'Lunch',
-        date: DateTime.now(),
-        paymentMethod: 'cash',
-        source: 'manual',
-      );
+    test(
+      'TransactionModel.isMutable protects real-money transactions (F01)',
+      () {
+        final cashTx = TransactionModel(
+          id: '1',
+          amount: 5000,
+          type: 'expense',
+          category: 'Food',
+          description: 'Lunch',
+          date: DateTime.now(),
+          paymentMethod: 'cash',
+          source: 'manual',
+        );
 
-      final manualTx = TransactionModel(
-        id: '2',
-        amount: 2000,
-        type: 'income',
-        category: 'Gift',
-        description: 'Cash gift',
-        date: DateTime.now(),
-        paymentMethod: null,
-        source: 'manual',
-      );
+        final manualTx = TransactionModel(
+          id: '2',
+          amount: 2000,
+          type: 'income',
+          category: 'Gift',
+          description: 'Cash gift',
+          date: DateTime.now(),
+          paymentMethod: null,
+          source: 'manual',
+        );
 
-      final stripeTx = TransactionModel(
-        id: '3',
-        amount: 15000,
-        type: 'expense',
-        category: 'Subscription',
-        description: 'Premium Stripe',
-        date: DateTime.now(),
-        paymentMethod: 'stripe',
-        source: 'stripe',
-      );
+        final stripeTx = TransactionModel(
+          id: '3',
+          amount: 15000,
+          type: 'expense',
+          category: 'Subscription',
+          description: 'Premium Stripe',
+          date: DateTime.now(),
+          paymentMethod: 'stripe',
+          source: 'stripe',
+        );
 
-      final notchpayTx = TransactionModel(
-        id: '4',
-        amount: 10000,
-        type: 'income',
-        category: 'Deposit',
-        description: 'NotchPay Mobile Money',
-        date: DateTime.now(),
-        paymentMethod: 'notchpay',
-        source: 'notchpay',
-      );
+        final notchpayTx = TransactionModel(
+          id: '4',
+          amount: 10000,
+          type: 'income',
+          category: 'Deposit',
+          description: 'NotchPay Mobile Money',
+          date: DateTime.now(),
+          paymentMethod: 'notchpay',
+          source: 'notchpay',
+        );
 
-      final walletTx = TransactionModel(
-        id: '5',
-        amount: 50000,
-        type: 'transfer',
-        category: 'Transfer',
-        description: 'Wallet transfer',
-        date: DateTime.now(),
-        paymentMethod: 'wallet',
-        source: 'wallet',
-      );
+        final walletTx = TransactionModel(
+          id: '5',
+          amount: 50000,
+          type: 'transfer',
+          category: 'Transfer',
+          description: 'Wallet transfer',
+          date: DateTime.now(),
+          paymentMethod: 'wallet',
+          source: 'wallet',
+        );
 
-      // Only cash/manual are mutable
-      expect(cashTx.isMutable, isTrue);
-      expect(manualTx.isMutable, isTrue);
+        // Only cash/manual are mutable
+        expect(cashTx.isMutable, isTrue);
+        expect(manualTx.isMutable, isTrue);
 
-      // Real financial transactions are immutable
-      expect(stripeTx.isMutable, isFalse);
-      expect(notchpayTx.isMutable, isFalse);
-      expect(walletTx.isMutable, isFalse);
-    });
+        // Real financial transactions are immutable
+        expect(stripeTx.isMutable, isFalse);
+        expect(notchpayTx.isMutable, isFalse);
+        expect(walletTx.isMutable, isFalse);
+      },
+    );
 
     test('ErrorMapper sanitizes exceptions without leaking technical traces', () {
       const serverCrash =

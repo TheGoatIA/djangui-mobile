@@ -321,32 +321,34 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                       const CachedDataBanner(),
                       Expanded(
                         child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildOverviewTab(
-                        context,
-                        tontine,
-                        state.selectedTontineContributions
-                            .where((c) => c.tontineId == widget.tontineId)
-                            .toList(),
-                        state.selectedTontineMembers,
-                      ),
-                      _buildMembersTab(
-                        context,
-                        state.selectedTontineMembers,
-                        isCreator,
-                        tontine,
-                      ),
-                      _buildChatTab(context, tontine.id),
-                      if (isCreator)
-                        _buildValidationTab(
-                          context,
-                          state.selectedTontineContributions
-                              .where((c) => c.tontineId == widget.tontineId)
-                              .toList(),
-                          state.selectedTontineMembers,
-                        ),
-                    ],
+                          controller: _tabController,
+                          children: [
+                            _buildOverviewTab(
+                              context,
+                              tontine,
+                              state.selectedTontineContributions
+                                  .where((c) => c.tontineId == widget.tontineId)
+                                  .toList(),
+                              state.selectedTontineMembers,
+                            ),
+                            _buildMembersTab(
+                              context,
+                              state.selectedTontineMembers,
+                              isCreator,
+                              tontine,
+                            ),
+                            _buildChatTab(context, tontine.id),
+                            if (isCreator)
+                              _buildValidationTab(
+                                context,
+                                state.selectedTontineContributions
+                                    .where(
+                                      (c) => c.tontineId == widget.tontineId,
+                                    )
+                                    .toList(),
+                                state.selectedTontineMembers,
+                              ),
+                          ],
                         ),
                       ),
                     ],
@@ -817,154 +819,162 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
             borderRadius: BorderRadius.circular(16),
             clipBehavior: Clip.antiAlias,
             child: ListTile(
-            contentPadding: const EdgeInsets.all(16),
-            leading: CircleAvatar(
-              radius: 24,
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              child: Text(
-                member.displayName.isNotEmpty
-                    ? member.displayName[0].toUpperCase()
-                    : '?',
-                style: AppTextStyles.h3.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+              contentPadding: const EdgeInsets.all(16),
+              leading: CircleAvatar(
+                radius: 24,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                child: Text(
+                  member.displayName.isNotEmpty
+                      ? member.displayName[0].toUpperCase()
+                      : '?',
+                  style: AppTextStyles.h3.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
-            ),
-            title: Row(
-              children: [
-                Flexible(
-                  child: Text(
-                    member.displayName,
-                    style: AppTextStyles.h3.copyWith(fontSize: 16),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                if (member.id == tontine.turnSummary?.currentBeneficiaryId) ...[
-                  const SizedBox(width: 6),
-                  Tooltip(
-                    message: l10n.turnBeneficiaryLabel,
-                    child: const Icon(
-                      Icons.emoji_events,
-                      size: 18,
-                      color: Colors.amber,
+              title: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      member.displayName,
+                      style: AppTextStyles.h3.copyWith(fontSize: 16),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ],
-              ],
-            ),
-            subtitle: Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.pie_chart_outline,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${member.parts} ${member.parts > 1 ? "parts" : "part"}',
-                    style: AppTextStyles.bodySmall,
-                  ),
-                  if (tontine.socialFund['enabled'] == true) ...[
-                    const SizedBox(width: 8),
+                  if (member.id ==
+                      tontine.turnSummary?.currentBeneficiaryId) ...[
+                    const SizedBox(width: 6),
                     Tooltip(
-                      message: member.hasPaidSocialFund
-                          ? l10n.socialFundPaidLabel
-                          : l10n.socialFundUnpaidLabel,
-                      child: Icon(
-                        member.hasPaidSocialFund
-                            ? Icons.volunteer_activism
-                            : Icons.volunteer_activism_outlined,
-                        size: 16,
-                        color: member.hasPaidSocialFund
-                            ? Colors.green
-                            : Colors.grey,
+                      message: l10n.turnBeneficiaryLabel,
+                      child: const Icon(
+                        Icons.emoji_events,
+                        size: 18,
+                        color: Colors.amber,
                       ),
                     ),
                   ],
                 ],
               ),
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (member.userId ==
-                        context.read<AuthBloc>().state.authResponse?.user.id &&
-                    tontine.status.toLowerCase() != 'completed')
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        l10n.autoDebit,
-                        style: AppTextStyles.bodySmall.copyWith(fontSize: 10),
-                      ),
-                      Switch(
-                        value: member.autoDebitEnabled,
-                        onChanged: (value) {
-                          context.read<TontineBloc>().add(
-                            ToggleAutoDebitRequested(
-                              tontineId: tontineId,
-                              enabled: value,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isHighTrust
-                        ? Colors.green.withValues(alpha: 0.1)
-                        : Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isHighTrust ? Colors.green : Colors.orange,
-                      width: 1,
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.pie_chart_outline,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        isHighTrust ? Icons.verified : Icons.gpp_good_outlined,
-                        size: 16,
-                        color: isHighTrust ? Colors.green : Colors.orange,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${member.trustScore.toStringAsFixed(0)}%',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: isHighTrust ? Colors.green : Colors.orange,
-                          fontWeight: FontWeight.bold,
+                    const SizedBox(width: 4),
+                    Text(
+                      '${member.parts} ${member.parts > 1 ? "parts" : "part"}',
+                      style: AppTextStyles.bodySmall,
+                    ),
+                    if (tontine.socialFund['enabled'] == true) ...[
+                      const SizedBox(width: 8),
+                      Tooltip(
+                        message: member.hasPaidSocialFund
+                            ? l10n.socialFundPaidLabel
+                            : l10n.socialFundUnpaidLabel,
+                        child: Icon(
+                          member.hasPaidSocialFund
+                              ? Icons.volunteer_activism
+                              : Icons.volunteer_activism_outlined,
+                          size: 16,
+                          color: member.hasPaidSocialFund
+                              ? Colors.green
+                              : Colors.grey,
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-                if (isCreator &&
-                    canRemove &&
-                    member.userId !=
-                        context.read<AuthBloc>().state.authResponse?.user.id)
-                  IconButton(
-                    icon: const Icon(
-                      Icons.person_remove_outlined,
-                      color: Colors.red,
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (member.userId ==
+                          context
+                              .read<AuthBloc>()
+                              .state
+                              .authResponse
+                              ?.user
+                              .id &&
+                      tontine.status.toLowerCase() != 'completed')
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          l10n.autoDebit,
+                          style: AppTextStyles.bodySmall.copyWith(fontSize: 10),
+                        ),
+                        Switch(
+                          value: member.autoDebitEnabled,
+                          onChanged: (value) {
+                            context.read<TontineBloc>().add(
+                              ToggleAutoDebitRequested(
+                                tontineId: tontineId,
+                                enabled: value,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                    onPressed: () => _confirmRemoveMember(
-                      context,
-                      tontineId,
-                      member.id,
-                      member.displayName,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isHighTrust
+                          ? Colors.green.withValues(alpha: 0.1)
+                          : Colors.orange.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isHighTrust ? Colors.green : Colors.orange,
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isHighTrust
+                              ? Icons.verified
+                              : Icons.gpp_good_outlined,
+                          size: 16,
+                          color: isHighTrust ? Colors.green : Colors.orange,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${member.trustScore.toStringAsFixed(0)}%',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: isHighTrust ? Colors.green : Colors.orange,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-              ],
+                  if (isCreator &&
+                      canRemove &&
+                      member.userId !=
+                          context.read<AuthBloc>().state.authResponse?.user.id)
+                    IconButton(
+                      icon: const Icon(
+                        Icons.person_remove_outlined,
+                        color: Colors.red,
+                      ),
+                      onPressed: () => _confirmRemoveMember(
+                        context,
+                        tontineId,
+                        member.id,
+                        member.displayName,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
           ),
         ).animate().fadeIn(delay: (index * 50).ms).slideX();
       },
@@ -1133,135 +1143,142 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                      ListTile(
-                        contentPadding: const EdgeInsets.all(16),
-                        leading: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
-                            shape: BoxShape.circle,
+                        ListTile(
+                          contentPadding: const EdgeInsets.all(16),
+                          leading: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.money,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                           ),
-                          child: Icon(
-                            Icons.money,
-                            color: Theme.of(context).colorScheme.primary,
+                          title: Text(
+                            '$memberName ${l10n.turn} ${contribution.turnIndex}',
+                            style: AppTextStyles.h3.copyWith(fontSize: 18),
+                          ),
+                          subtitle: Text(
+                            DateFormat.yMMMMd(
+                              'fr',
+                            ).add_jm().format(contribution.createdAt),
+                            style: AppTextStyles.bodySmall,
+                          ),
+                          trailing: _buildStatusChip(
+                            context,
+                            contribution.validationStatus,
                           ),
                         ),
-                        title: Text(
-                          '$memberName ${l10n.turn} ${contribution.turnIndex}',
-                          style: AppTextStyles.h3.copyWith(fontSize: 18),
-                        ),
-                        subtitle: Text(
-                          DateFormat.yMMMMd(
-                            'fr',
-                          ).add_jm().format(contribution.createdAt),
-                          style: AppTextStyles.bodySmall,
-                        ),
-                        trailing: _buildStatusChip(
-                          context,
-                          contribution.validationStatus,
-                        ),
-                      ),
-                      if (contribution.proofImage.isNotEmpty)
-                        GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => Dialog(
-                                child: InteractiveViewer(
-                                  child: Image.network(
-                                    _getValidImageUrl(contribution.proofImage),
+                        if (contribution.proofImage.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => Dialog(
+                                  child: InteractiveViewer(
+                                    child: Image.network(
+                                      _getValidImageUrl(
+                                        contribution.proofImage,
+                                      ),
+                                    ),
                                   ),
                                 ),
+                              );
+                            },
+                            child: Container(
+                              height: 200,
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
                               ),
-                            );
-                          },
-                          child: Container(
-                            height: 200,
-                            margin: const EdgeInsets.symmetric(horizontal: 16),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              image: DecorationImage(
-                                image: NetworkImage(
-                                  _getValidImageUrl(contribution.proofImage),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                image: DecorationImage(
+                                  image: NetworkImage(
+                                    _getValidImageUrl(contribution.proofImage),
+                                  ),
+                                  fit: BoxFit.cover,
                                 ),
-                                fit: BoxFit.cover,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
+                            ),
+                          ),
+                        if (contribution.aiAnalysis != null &&
+                            (contribution.aiAnalysis as Map).isNotEmpty)
+                          _buildAiAnalysisCard(
+                            context,
+                            contribution.aiAnalysis,
+                          ),
+                        if (contribution.validationStatus == 'pending' &&
+                            context
+                                    .read<TontineBloc>()
+                                    .state
+                                    .selectedTontine
+                                    ?.status
+                                    .toLowerCase() !=
+                                'completed')
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () => _validateContribution(
+                                      context,
+                                      contribution.id,
+                                      false,
+                                    ),
+                                    icon: const Icon(Icons.close),
+                                    label: Text(l10n.reject),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: Colors.red,
+                                      side: const BorderSide(color: Colors.red),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    onPressed: () => _validateContribution(
+                                      context,
+                                      contribution.id,
+                                      true,
+                                    ),
+                                    icon: const Icon(Icons.check),
+                                    label: Text(l10n.approve),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                      if (contribution.aiAnalysis != null &&
-                          (contribution.aiAnalysis as Map).isNotEmpty)
-                        _buildAiAnalysisCard(context, contribution.aiAnalysis),
-                      if (contribution.validationStatus == 'pending' &&
-                          context
-                                  .read<TontineBloc>()
-                                  .state
-                                  .selectedTontine
-                                  ?.status
-                                  .toLowerCase() !=
-                              'completed')
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () => _validateContribution(
-                                    context,
-                                    contribution.id,
-                                    false,
-                                  ),
-                                  icon: const Icon(Icons.close),
-                                  label: Text(l10n.reject),
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: Colors.red,
-                                    side: const BorderSide(color: Colors.red),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () => _validateContribution(
-                                    context,
-                                    contribution.id,
-                                    true,
-                                  ),
-                                  icon: const Icon(Icons.check),
-                                  label: Text(l10n.approve),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
+                      ],
+                    ),
                   ),
                 ).animate().fadeIn().slideY(begin: 0.2, end: 0);
               },
@@ -1271,7 +1288,10 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     );
   }
 
-  Widget _buildAiAnalysisCard(BuildContext context, Map<String, dynamic> analysis) {
+  Widget _buildAiAnalysisCard(
+    BuildContext context,
+    Map<String, dynamic> analysis,
+  ) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final detectedAmount = analysis['detectedAmount'];
@@ -1315,7 +1335,10 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
           ),
           const SizedBox(height: 8),
           if (detectedAmount != null)
-            _buildAiAnalysisRow(l10n.tontineAiDetectedAmount, '$detectedAmount'),
+            _buildAiAnalysisRow(
+              l10n.tontineAiDetectedAmount,
+              '$detectedAmount',
+            ),
           if (detectedRef != null && detectedRef.toString().isNotEmpty)
             _buildAiAnalysisRow(l10n.tontineAiDetectedRef, '$detectedRef'),
           if (detectedDateText != null)
@@ -1339,7 +1362,9 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
           Text(label, style: AppTextStyles.bodySmall),
           Text(
             value,
-            style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold),
+            style: AppTextStyles.bodySmall.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),

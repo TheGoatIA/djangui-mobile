@@ -81,7 +81,10 @@ class CoachRepositoryImpl implements CoachRepository {
   }
 
   @override
-  Stream<CoachSendUpdate> sendMessageStream(String messageId, String text) async* {
+  Stream<CoachSendUpdate> sendMessageStream(
+    String messageId,
+    String text,
+  ) async* {
     _logger.info(
       'Envoi d\'un message à l\'assistant Anne (streaming).',
       component: 'CoachRepository',
@@ -99,7 +102,9 @@ class CoachRepositoryImpl implements CoachRepository {
     await _localDataSource.saveMessage(userMessage);
 
     if (!await _networkInfo.isConnected) {
-      await _localDataSource.saveMessage(userMessage.copyWith(status: 'failed'));
+      await _localDataSource.saveMessage(
+        userMessage.copyWith(status: 'failed'),
+      );
       _logger.warning(
         'Impossible de discuter avec Anne hors-ligne.',
         component: 'CoachRepository',
@@ -150,7 +155,9 @@ class CoachRepositoryImpl implements CoachRepository {
         }
       }
     } catch (e) {
-      await _localDataSource.saveMessage(userMessage.copyWith(status: 'failed'));
+      await _localDataSource.saveMessage(
+        userMessage.copyWith(status: 'failed'),
+      );
       _logger.error(
         'Erreur inattendue pendant le streaming du chat',
         error: e,

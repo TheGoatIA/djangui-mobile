@@ -41,9 +41,7 @@ class InsightsBloc extends Bloc<InsightsEvent, InsightsState> {
     );
     cachedAnalysis.fold((_) {}, (cached) {
       if (cached != null) {
-        seeded = seeded.copyWith(
-          distribution: _toDistribution(cached),
-        );
+        seeded = seeded.copyWith(distribution: _toDistribution(cached));
       }
     });
     cachedTrends.fold((_) {}, (cached) {
@@ -142,9 +140,7 @@ class InsightsBloc extends Bloc<InsightsEvent, InsightsState> {
       (sum, item) => sum + item.amount,
     );
     return analysisData.map((e) {
-      final percentage = totalAmount > 0
-          ? (e.amount / totalAmount) * 100
-          : 0.0;
+      final percentage = totalAmount > 0 ? (e.amount / totalAmount) * 100 : 0.0;
       return CategoryDistributionModel(
         category: e.category,
         amount: e.amount,

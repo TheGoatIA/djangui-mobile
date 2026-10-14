@@ -231,10 +231,7 @@ class _ChallengesViewState extends State<ChallengesView> {
                       );
 
                       if (index == 0) {
-                        return KeyedSubtree(
-                          key: _listKey,
-                          child: widget,
-                        );
+                        return KeyedSubtree(key: _listKey, child: widget);
                       }
 
                       return widget;
