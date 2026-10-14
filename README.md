@@ -2,13 +2,13 @@
 
 Kauri est une application mobile Flutter de finances personnelles assistée par IA : tontines digitales, budgets partagés, objectifs d'épargne collaboratifs, défis d'épargne gamifiés, coach IA, et un hub revendeur. L'application ne fait jamais confiance à ses propres calculs financiers affichés — le backend (`djangui-api`) est la seule source de vérité pour les soldes, taux de change et statuts de paiement.
 
-![Kauri Header](https://raw.githubusercontent.com/TheGoatIA/djangui-mobile/main/assets/images/logo.png)
+![Kauri Header](assets/images/logo.png)
 
 **Documentation complète :**
 - [DEPLOYMENT.md](DEPLOYMENT.md) — build, signature, variables de compilation, CI/CD (Codemagic)
 - [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) — revue de sécurité ligne par ligne, statut par point d'audit
 - [PRIVACY_COMPLIANCE.md](PRIVACY_COMPLIANCE.md) — données collectées, rétention, conformité RGPD
-- [CONTRIBUTING.md](CONTRIBUTING.md) — standards de code et procédure de contribution
+- [CONTRIBUTING.md](CONTRIBUTING.md) — standards de code, tests, qualité et procédure de contribution
 - [grafana_guide_fr.md](grafana_guide_fr.md) — lecture des métriques mobiles remontées côté serveur
 
 ---
@@ -85,6 +85,49 @@ Kauri est une application mobile Flutter de finances personnelles assistée par 
    ```
 
 Le détail complet des builds release (obfuscation, signature Android/iOS, pipeline Codemagic) est dans [DEPLOYMENT.md](DEPLOYMENT.md).
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart TD
+  UI[Pages / Widgets] --> BLOC[flutter_bloc — états]
+  BLOC --> REPO[Repositories]
+  REPO --> REMOTE[Datasources distantes<br/>Chopper : auth, idempotence, logging]
+  REPO --> LOCAL[(Drift / SQLite3MC chiffré)]
+  REMOTE -->|HTTPS + pinning| API[djangui-api]
+  ROUTER[go_router + deep_link_parser] --> UI
+  LINK[App Links / Universal Links<br/>/reset-password] --> ROUTER
+```
+
+- Code organisé par fonctionnalité (`lib/features/<domaine>/{data,domain,presentation}`), noyau transverse dans `lib/core`.
+- Les erreurs serveur sont mappées par `lib/core/error/error_mapper.dart` (aucun détail technique n'est montré à l'utilisateur).
+- Le lien de réinitialisation `https://api.kauri-app.com/reset-password/<jeton>` ouvre l'app (App Links vérifiés), avec repli sur le schéma `kauri://`.
+
+## ✅ Qualité & CI/CD
+
+```bash
+flutter analyze
+dart format --output=none --set-exit-if-changed lib test
+flutter test --coverage
+bash tool/check_coverage.sh
+node tool/check_android_plugin_sdk.js 36
+```
+
+```mermaid
+flowchart LR
+  PR[PR / push dev] --> Q[quality<br/>format · analyze · garde-fou SDK]
+  PR --> T[test + couverture]
+  PR --> A[android-build<br/>APK debug arm64, API 36]
+  PR --> S[security<br/>gitleaks · OSV]
+  T --> SO[sonar<br/>plugin Flutter]
+  main[push main] --> CM[Codemagic<br/>release Android / iOS]
+```
+
+- **GitHub Actions** (`.github/workflows/main.yml`) : qualité, tests, compilation Android API 36, sécurité, SonarQube — staging et PR.
+- **Codemagic** : uniquement les builds de **production** (signature, obfuscation, stores).
+- **Dependabot** hebdomadaire sur `dev` ; plugins FlutterFire groupés (versions alignées), majeures de `permission_handler` ignorées tant que la toolchain n'est pas migrée (voir [DEPLOYMENT.md](DEPLOYMENT.md) § Toolchain Android).
 
 ---
 
