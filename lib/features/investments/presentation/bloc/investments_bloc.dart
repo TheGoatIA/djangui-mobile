@@ -7,7 +7,7 @@ import '../../domain/repositories/investment_repository.dart';
 part 'investments_event.dart';
 part 'investments_state.dart';
 
-@injectable
+@lazySingleton
 class InvestmentsBloc extends Bloc<InvestmentsEvent, InvestmentsState> {
   final InvestmentRepository _repository;
 

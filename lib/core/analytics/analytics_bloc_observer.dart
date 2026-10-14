@@ -1,6 +1,7 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 import 'analytics_service.dart';
 import 'events.dart';
 
@@ -68,16 +69,17 @@ class AnalyticsBlocObserver extends BlocObserver {
     final blocType = bloc.runtimeType.toString();
     final errorType = error.runtimeType.toString();
 
-    // Enrichit le rapport Crashlytics avant que l'erreur ne remonte
+    // Enrichit le rapport Crashlytics avec un message d'erreur sécurisé (K-32)
     try {
+      final safeErrMsg = ErrorMapper.safeMessage(error);
       FirebaseCrashlytics.instance.setCustomKey(
         'last_bloc_error',
-        '$blocType: $error',
+        '$blocType: $safeErrMsg',
       );
       FirebaseCrashlytics.instance.recordError(
         error,
         stackTrace,
-        reason: 'BLoC error in $blocType',
+        reason: 'BLoC error in $blocType: $safeErrMsg',
         fatal: false,
       );
     } catch (_) {

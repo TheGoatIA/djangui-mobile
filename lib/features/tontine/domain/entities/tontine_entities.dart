@@ -10,7 +10,6 @@ class Tontine extends Equatable {
   final String rotationMode;
   final String validationMode;
   final Map<String, dynamic> sanctions;
-  final List<Map<String, dynamic>>? escrowDetails;
   final Map<String, dynamic> socialFund;
   final String status;
   final String inviteCode;
@@ -34,7 +33,6 @@ class Tontine extends Equatable {
     required this.rotationMode,
     required this.validationMode,
     required this.sanctions,
-    this.escrowDetails,
     required this.socialFund,
     required this.status,
     required this.inviteCode,
@@ -60,7 +58,6 @@ class Tontine extends Equatable {
     rotationMode,
     validationMode,
     sanctions,
-    escrowDetails,
     socialFund,
     status,
     inviteCode,
@@ -85,7 +82,6 @@ class TontineMember extends Equatable {
   final double trustScore;
   final bool hasPaidSocialFund;
   final bool autoDebitEnabled;
-  final Map<String, dynamic>? payoutDetails;
 
   const TontineMember({
     required this.id,
@@ -96,7 +92,6 @@ class TontineMember extends Equatable {
     required this.trustScore,
     required this.hasPaidSocialFund,
     this.autoDebitEnabled = false,
-    this.payoutDetails,
   });
 
   @override
@@ -109,7 +104,6 @@ class TontineMember extends Equatable {
     trustScore,
     hasPaidSocialFund,
     autoDebitEnabled,
-    payoutDetails,
   ];
 }
 
@@ -155,6 +149,9 @@ class TontineMessage extends Equatable {
   final String tontineId;
   final String senderId;
   final String content;
+  final String type;
+  final String? audioUrl;
+  final int? audioDuration;
   final DateTime createdAt;
 
   const TontineMessage({
@@ -162,11 +159,15 @@ class TontineMessage extends Equatable {
     required this.tontineId,
     required this.senderId,
     required this.content,
+    this.type = 'text',
+    this.audioUrl,
+    this.audioDuration,
     required this.createdAt,
   });
 
   @override
-  List<Object?> get props => [id, tontineId, senderId, content, createdAt];
+  List<Object?> get props =>
+      [id, tontineId, senderId, content, type, audioUrl, audioDuration, createdAt];
 }
 
 class TurnSummary extends Equatable {
@@ -175,6 +176,8 @@ class TurnSummary extends Equatable {
   final int contributorsCount;
   final int totalMembers;
   final DateTime? deadline;
+  final String? currentBeneficiaryId;
+  final String? currentBeneficiaryName;
 
   const TurnSummary({
     required this.collectedAmount,
@@ -182,6 +185,8 @@ class TurnSummary extends Equatable {
     required this.contributorsCount,
     required this.totalMembers,
     this.deadline,
+    this.currentBeneficiaryId,
+    this.currentBeneficiaryName,
   });
 
   @override
@@ -191,5 +196,7 @@ class TurnSummary extends Equatable {
     contributorsCount,
     totalMembers,
     deadline,
+    currentBeneficiaryId,
+    currentBeneficiaryName,
   ];
 }

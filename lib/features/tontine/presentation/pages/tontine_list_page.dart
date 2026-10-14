@@ -11,12 +11,14 @@ import '../bloc/tontine_event.dart';
 import '../bloc/tontine_state.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
+import '../../../../core/widgets/cached_data_banner.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 /// Page listant les Tontines (épargne collective) de l'utilisateur.
 ///
@@ -29,7 +31,8 @@ class TontineListPage extends StatefulWidget {
   State<TontineListPage> createState() => _TontineListPageState();
 }
 
-class _TontineListPageState extends State<TontineListPage> {
+class _TontineListPageState extends State<TontineListPage>
+    with WidgetsBindingObserver, SecureScreenMixin<TontineListPage> {
   // Clés utilisées pour le tutoriel interactif.
   final GlobalKey _listKey = GlobalKey();
   final GlobalKey _joinKey = GlobalKey();
@@ -49,18 +52,48 @@ class _TontineListPageState extends State<TontineListPage> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Relance le tutoriel si le service de tutoriel est réinitialisé
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTutorial();
+    });
+  }
+
+  @override
+  void dispose() {
+    getIt<TutorialService>().cancelActiveTutorial(context);
+    super.dispose();
+  }
+
   /// Démarre le tutoriel interactif si nécessaire.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('tontines_v2')) {
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(
-          context,
-        ).startShowCase([_joinKey, _listKey, _createKey]);
-        tutorialService.markTutorialAsSeen('tontines_v2');
-      });
-    }
+    if (tutorialService.hasSeenTutorial('tontines_v2')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'tontines_v2', [
+        TutorialStep(
+          targetKey: _joinKey,
+          title: l10n.tutorialJoinTontineTitle,
+          description: l10n.tutorialJoinTontineDesc,
+        ),
+        TutorialStep(
+          targetKey: _listKey,
+          title: l10n.tutorialTontineListTitle,
+          description: l10n.tutorialTontineListDesc,
+        ),
+        TutorialStep(
+          targetKey: _createKey,
+          title: l10n.tutorialCreateTontineButtonTitle,
+          description: l10n.tutorialCreateTontineButtonDesc,
+        ),
+      ]);
+    });
   }
 
   @override
@@ -98,10 +131,8 @@ class _TontineListPageState extends State<TontineListPage> {
                     context.pushNamed(RouteConstants.tontineGuideNamed),
               ),
               // Bouton pour rejoindre une tontine existante via un code
-              Showcase(
+              KeyedSubtree(
                 key: _joinKey,
-                title: l10n.tutorialJoinTontineTitle,
-                description: l10n.tutorialJoinTontineDesc,
                 child: IconButton(
                   icon: const Icon(Icons.group_add_outlined),
                   tooltip: l10n.joinTontine,
@@ -111,7 +142,21 @@ class _TontineListPageState extends State<TontineListPage> {
               ),
             ],
           ),
-          body: BlocBuilder<TontineBloc, TontineState>(
+          body: Column(
+            children: [
+              const CachedDataBanner(),
+              Expanded(
+                child: BlocConsumer<TontineBloc, TontineState>(
+            listenWhen: (previous, current) =>
+                current.status == TontineStatus.success &&
+                previous.status != TontineStatus.success,
+            listener: (context, state) {
+              // La liste ne monte son Showcase qu'une fois les tontines
+              // chargées : on retente ici dès que c'est le cas.
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _startTutorial();
+              });
+            },
             builder: (context, state) {
               // État de chargement initial
               if (state.status == TontineStatus.loading &&
@@ -121,10 +166,8 @@ class _TontineListPageState extends State<TontineListPage> {
 
               // État vide si aucune tontine n'est rejointe
               if (state.tontines.isEmpty) {
-                return Showcase(
+                return KeyedSubtree(
                   key: _listKey,
-                  title: l10n.tutorialTontineListTitle,
-                  description: l10n.tutorialTontineListDesc,
                   child: _buildEmptyState(context, l10n),
                 );
               }
@@ -138,10 +181,8 @@ class _TontineListPageState extends State<TontineListPage> {
                   );
                   context.read<TontineBloc>().add(TontinesLoadRequested());
                 },
-                child: Showcase(
+                child: KeyedSubtree(
                   key: _listKey,
-                  title: l10n.tutorialTontineListTitle,
-                  description: l10n.tutorialTontineListDesc,
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: state.tontines.length,
@@ -156,12 +197,13 @@ class _TontineListPageState extends State<TontineListPage> {
                 ),
               );
             },
+                ),
+              ),
+            ],
           ),
           // Bouton pour créer une nouvelle tontine
-          floatingActionButton: Showcase(
+          floatingActionButton: KeyedSubtree(
             key: _createKey,
-            title: l10n.tutorialCreateTontineButtonTitle,
-            description: l10n.tutorialCreateTontineButtonDesc,
             child: FloatingActionButton.extended(
               onPressed: () => _handleCreateTontine(context),
               label: Text(l10n.createTontine),

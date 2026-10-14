@@ -7,6 +7,7 @@ import '../../../../core/errors/failures.dart';
 import '../../data/models/investment_model.dart';
 import '../../domain/repositories/investment_repository.dart';
 import 'package:kauri/features/investments/data/datasources/investment_api_service.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: InvestmentRepository)
 class InvestmentRepositoryImpl implements InvestmentRepository {
@@ -142,7 +143,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
       }
       return Left(ServerFailure());
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -163,7 +164,7 @@ class InvestmentRepositoryImpl implements InvestmentRepository {
       }
       return Left(ServerFailure());
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 }

@@ -11,6 +11,8 @@ import '../models/subscription_model.dart';
 import '../../domain/repositories/subscription_repository.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
+import 'package:kauri/core/error/error_mapper.dart';
+import 'package:kauri/core/network/api_response_extensions.dart';
 
 @LazySingleton(as: SubscriptionRepository)
 class SubscriptionRepositoryImpl implements SubscriptionRepository {
@@ -68,7 +70,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           );
           return Right(localSubs);
         }
-        return Left(ServerFailure(response.body?.message ?? 'Server error'));
+        return Left(ServerFailure(response.errorMessage));
       } catch (e) {
         if (localSubs.isNotEmpty) {
           _logger.error(
@@ -78,7 +80,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           );
           return Right(localSubs);
         }
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       if (localSubs.isNotEmpty) return Right(localSubs);
@@ -95,9 +97,9 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
       if (response.isSuccessful && response.body?.data != null) {
         return Right(response.body!.data!);
       }
-      return Left(ServerFailure(response.body?.message ?? 'Server error'));
+      return Left(ServerFailure(response.errorMessage));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -128,14 +130,14 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           'Échec de l\'ajout de l\'abonnement sur le serveur.',
           component: 'SubscriptionRepository',
         );
-        return Left(ServerFailure(response.body?.message ?? 'Server error'));
+        return Left(ServerFailure(response.errorMessage));
       } catch (e) {
         _logger.error(
           'Erreur technique lors de l\'ajout de l\'abonnement',
           error: e,
           component: 'SubscriptionRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       try {
@@ -159,7 +161,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
             );
         return const Right(null);
       } catch (e) {
-        return Left(CacheFailure(e.toString()));
+        return Left(CacheFailure(ErrorMapper.safeMessage(e)));
       }
     }
   }
@@ -194,7 +196,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           error: e,
           component: 'SubscriptionRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       try {
@@ -214,7 +216,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
             );
         return const Right(null);
       } catch (e) {
-        return Left(CacheFailure(e.toString()));
+        return Left(CacheFailure(ErrorMapper.safeMessage(e)));
       }
     }
   }
@@ -230,7 +232,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         }
         return Left(ServerFailure());
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       try {
@@ -246,7 +248,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
             );
         return const Right(null);
       } catch (e) {
-        return Left(CacheFailure(e.toString()));
+        return Left(CacheFailure(ErrorMapper.safeMessage(e)));
       }
     }
   }
@@ -268,14 +270,14 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         );
         return Right(suggestions);
       }
-      return Left(ServerFailure(response.body?.message ?? 'Server error'));
+      return Left(ServerFailure(response.errorMessage));
     } catch (e) {
       _logger.error(
         'Erreur lors de la détection d\'abonnements',
         error: e,
         component: 'SubscriptionRepository',
       );
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 }

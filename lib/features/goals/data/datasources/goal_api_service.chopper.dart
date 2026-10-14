@@ -63,4 +63,53 @@ final class _$GoalApiService extends GoalApiService {
     final Request $request = Request('POST', $url, client.baseUrl, body: $body);
     return client.send<BaseResponse<GoalModel>, GoalModel>($request);
   }
+
+  @override
+  Future<Response<BaseResponse<Map<String, dynamic>>>> shareGoal(String id) {
+    final Uri $url = Uri.parse('/goals/${id}/share');
+    final Request $request = Request('POST', $url, client.baseUrl);
+    return client
+        .send<BaseResponse<Map<String, dynamic>>, Map<String, dynamic>>(
+          $request,
+        );
+  }
+
+  @override
+  Future<Response<BaseResponse<GoalModel>>> joinGoal(
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/goals/join');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<GoalModel>, GoalModel>($request);
+  }
+
+  @override
+  Future<Response<BaseListResponse<GoalParticipantModel>>> getParticipants(
+    String id,
+  ) {
+    final Uri $url = Uri.parse('/goals/${id}/participants');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client
+        .send<BaseListResponse<GoalParticipantModel>, GoalParticipantModel>(
+          $request,
+        );
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> removeParticipant(
+    String id,
+    String participantId,
+  ) {
+    final Uri $url = Uri.parse('/goals/${id}/participants/${participantId}');
+    final Request $request = Request('DELETE', $url, client.baseUrl);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
+
+  @override
+  Future<Response<BaseResponse<dynamic>>> leaveGoal(String id) {
+    final Uri $url = Uri.parse('/goals/${id}/leave');
+    final Request $request = Request('POST', $url, client.baseUrl);
+    return client.send<BaseResponse<dynamic>, BaseResponse<dynamic>>($request);
+  }
 }

@@ -14,4 +14,16 @@ abstract class BudgetRepository {
     int? month,
     int? year,
   });
+  Future<Either<Failure, List<BudgetCategoryHistoryPointModel>>>
+  getCategoryHistory(String category, {int months = 6});
+  Future<Either<Failure, String>> shareBudget(String id);
+  Future<Either<Failure, BudgetModel>> joinBudget(String inviteCode);
+  Future<Either<Failure, List<BudgetParticipantModel>>> getParticipants(
+    String id,
+  );
+  Future<Either<Failure, void>> removeParticipant(
+    String id,
+    String participantId,
+  );
+  Future<Either<Failure, void>> leaveBudget(String id);
 }

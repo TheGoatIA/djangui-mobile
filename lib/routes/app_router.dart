@@ -1,8 +1,13 @@
+import 'deep_link_parser.dart';
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/constants/route_constants.dart';
+import '../di/injection.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
+import '../features/system/presentation/bloc/system_bloc.dart';
 import '../core/navigation/telemetry_route_observer.dart';
 import '../core/widgets/scaffold_with_navbar.dart';
 import '../core/widgets/custom_page_transition.dart';
@@ -16,7 +21,7 @@ import '../features/auth/presentation/pages/phone_login_page.dart';
 import '../features/auth/presentation/pages/otp_verification_page.dart';
 import '../features/auth/presentation/pages/email_verification_pending_page.dart';
 import '../features/auth/presentation/pages/complete_profile_page.dart';
-import '../features/goals/presentation/pages/goal_import_page.dart';
+import '../features/goals/presentation/pages/join_goal_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/transactions/presentation/pages/transaction_list_page.dart';
 import '../features/transactions/presentation/pages/add_transaction_page.dart';
@@ -24,6 +29,7 @@ import '../features/transactions/presentation/pages/transaction_detail_page.dart
 import '../features/transactions/data/models/transaction_model.dart';
 import '../features/budgets/presentation/pages/budget_list_page.dart';
 import '../features/budgets/presentation/pages/add_budget_page.dart';
+import '../features/budgets/presentation/pages/join_budget_page.dart';
 import '../features/goals/presentation/pages/goal_list_page.dart';
 import '../features/goals/presentation/pages/add_goal_page.dart';
 import '../features/goals/presentation/pages/goal_detail_page.dart';
@@ -56,17 +62,58 @@ import '../features/user_subscriptions/data/models/subscription_model.dart';
 import '../features/payments/presentation/pages/wallet/wallet_dashboard_page.dart';
 import '../features/auth/presentation/pages/account_suspended_page.dart';
 import '../features/auth/presentation/pages/kyc/kyc_submission_page.dart';
+import '../features/reseller/presentation/pages/reseller_hub_page.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
 );
 
+/// Fait réévaluer `redirect` par GoRouter à chaque changement de statut
+/// d'authentification (ex : déconnexion pendant qu'un écran protégé est
+/// affiché), sans attendre une navigation déclenchée par l'utilisateur.
+class GoRouterRefreshStream extends ChangeNotifier {
+  late final StreamSubscription<dynamic> _subscription;
+
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
+/// Écrans accessibles sans être authentifié. Toute route absente de cette
+/// liste est considérée protégée : un utilisateur non authentifié qui essaie
+/// de l'atteindre (deep link direct, état restauré, navigation
+/// programmatique, session expirée pendant qu'il est déjà dessus) est
+/// renvoyé vers l'écran de connexion.
+const _publicRoutePaths = <String>{
+  RouteConstants.splash,
+  RouteConstants.login,
+  RouteConstants.register,
+  RouteConstants.forgotPassword,
+  RouteConstants.resetPassword,
+  RouteConstants.phoneLogin,
+  RouteConstants.otpVerification,
+  RouteConstants.onBoarding,
+  RouteConstants.accountSuspended,
+};
+
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: RouteConstants.splash,
-  debugLogDiagnostics: true,
+  debugLogDiagnostics: kDebugMode,
   observers: [TelemetryRouteObserver()],
+  refreshListenable: GoRouterRefreshStream(getIt<AuthBloc>().stream),
   redirect: (context, state) {
+    // Verified HTTPS link (Android App Links / iOS Universal Links), see deep_link_parser.dart
+    final resetRoute = resetPasswordRouteFor(state.uri);
+    if (resetRoute != null) return resetRoute;
+
     // Handle kauri scheme deep links
     if (state.uri.scheme == 'kauri') {
       // If the link is kauri://payment/success, GoRouter might see:
@@ -86,20 +133,53 @@ final appRouter = GoRouter(
       if (state.uri.host == 'reset-password') {
         return '${RouteConstants.resetPassword}?${state.uri.query}';
       }
-      // If the link is kauri://share/goal?data=XYZ
-      if (state.uri.host == 'share' && state.uri.path == '/goal') {
-        return '${RouteConstants.shareGoal}?${state.uri.query}';
-      }
     }
-    // Geographic Restriction: Only Cameroon (CM) for financial services
     final authState = context.read<AuthBloc>().state;
     final user = authState.authResponse?.user;
+    final isAuthenticated = authState.status == AuthStatus.authenticated;
+    final isKnownUnauthenticated =
+        authState.status == AuthStatus.unauthenticated ||
+        (authState.status == AuthStatus.error &&
+            authState.authResponse == null);
+
+    // Garde d'authentification : un utilisateur non connecté ne doit jamais
+    // atteindre un écran protégé (lien profond direct, état de navigation
+    // restauré, session qui expire pendant qu'il est déjà sur la page). On ne
+    // redirige que lorsque le statut est connu comme "non authentifié" (pas
+    // pendant `initial`/`loading`, le temps que le Splash détermine l'état) —
+    // sinon un rafraîchissement de token en cours ferait un aller-retour
+    // intempestif vers le login.
+    if (isKnownUnauthenticated && !_publicRoutePaths.contains(state.uri.path)) {
+      return RouteConstants.login;
+    }
+
+    // Geographic Restriction: real-money features only for the countries the
+    // server currently allows (FeatureFlagService.getRealMoneyCountries,
+    // admin-editable) — never a hardcoded literal here, which would drift
+    // from the real allowlist as soon as it's expanded/restricted server-side.
     final isFintechRoute =
         state.uri.path == RouteConstants.wallet ||
         state.uri.path == RouteConstants.kycSubmission;
 
-    if (isFintechRoute && user != null && user.country != 'CM') {
-      return RouteConstants.dashboard; // Redirect to dashboard if not in CM
+    if (isFintechRoute && user != null) {
+      final allowedCountries = context
+          .read<SystemBloc>()
+          .state
+          .featureFlags
+          .realMoneyCountries;
+      if (!allowedCountries.contains(user.country)) {
+        return RouteConstants.dashboard;
+      }
+    }
+
+    // Un utilisateur authentifié qui atterrit sur login/register/onboarding
+    // (bouton "retour", lien profond obsolète) est renvoyé au tableau de bord
+    // plutôt que de revoir l'écran de connexion.
+    if (isAuthenticated &&
+        (state.uri.path == RouteConstants.login ||
+            state.uri.path == RouteConstants.register ||
+            state.uri.path == RouteConstants.onBoarding)) {
+      return RouteConstants.dashboard;
     }
 
     return null;
@@ -131,13 +211,6 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.emailVerificationPending,
       builder: (context, state) => const EmailVerificationPendingPage(),
-    ),
-    GoRoute(
-      path: RouteConstants.shareGoal,
-      builder: (context, state) {
-        final data = state.uri.queryParameters['data'] ?? '';
-        return GoalImportPage(dataToken: data);
-      },
     ),
     GoRoute(
       path: RouteConstants.phoneLogin,
@@ -204,6 +277,10 @@ final appRouter = GoRouter(
                   path: 'add',
                   builder: (context, state) => const AddBudgetPage(),
                 ),
+                GoRoute(
+                  path: 'join',
+                  builder: (context, state) => const JoinBudgetPage(),
+                ),
               ],
             ),
           ],
@@ -221,6 +298,10 @@ final appRouter = GoRouter(
                   path: 'add',
                   name: 'goal-add',
                   builder: (context, state) => const AddGoalPage(),
+                ),
+                GoRoute(
+                  path: 'join',
+                  builder: (context, state) => const JoinGoalPage(),
                 ),
                 GoRoute(
                   path: ':id',
@@ -325,6 +406,14 @@ final appRouter = GoRouter(
       ),
     ),
     GoRoute(
+      path: RouteConstants.resellerHub,
+      pageBuilder: (context, state) => buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const ResellerHubPage(),
+      ),
+    ),
+    GoRoute(
       path: RouteConstants.subscription,
       pageBuilder: (context, state) => buildPageWithDefaultTransition(
         context: context,
@@ -383,7 +472,11 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.paymentSuccess,
       pageBuilder: (context, state) {
-        final ref = state.uri.queryParameters['ref'];
+        final ref =
+            state.uri.queryParameters['ref'] ??
+            state.uri.queryParameters['reference'] ??
+            state.uri.queryParameters['trxref'] ??
+            state.uri.queryParameters['transaction_reference'];
         final status = state.uri.queryParameters['status'];
         return buildPageWithDefaultTransition(
           context: context,
@@ -395,7 +488,11 @@ final appRouter = GoRouter(
     GoRoute(
       path: RouteConstants.paymentFailure,
       pageBuilder: (context, state) {
-        final ref = state.uri.queryParameters['ref'];
+        final ref =
+            state.uri.queryParameters['ref'] ??
+            state.uri.queryParameters['reference'] ??
+            state.uri.queryParameters['trxref'] ??
+            state.uri.queryParameters['transaction_reference'];
         final message = state.uri.queryParameters['message'];
         return buildPageWithDefaultTransition(
           context: context,
@@ -476,10 +573,17 @@ final appRouter = GoRouter(
           name: RouteConstants.tontineDetailsNamed,
           pageBuilder: (context, state) {
             final id = state.pathParameters['id']!;
+            final extra = state.extra;
+            final initialTabIndex = extra is Map
+                ? extra['initialTabIndex'] as int?
+                : null;
             return buildPageWithDefaultTransition(
               context: context,
               state: state,
-              child: TontineDetailsPage(tontineId: id),
+              child: TontineDetailsPage(
+                tontineId: id,
+                initialTabIndex: initialTabIndex ?? 0,
+              ),
             );
           },
         ),

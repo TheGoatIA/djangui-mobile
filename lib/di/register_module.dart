@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
+import 'package:kauri/core/config/env_config.dart';
 import 'package:kauri/core/network/api_client.dart';
 import 'package:kauri/core/database/database.dart';
 import 'package:kauri/features/auth/data/datasources/auth_api_service.dart';
@@ -86,6 +87,10 @@ abstract class RegisterModule {
       ReportsApiService.create(getIt<ChopperClient>());
 
   @lazySingleton
+  ForecastApiService get forecastApiService =>
+      ForecastApiService.create(getIt<ChopperClient>());
+
+  @lazySingleton
   SystemApiService get systemApiService =>
       SystemApiService.create(getIt<ChopperClient>());
 
@@ -135,7 +140,24 @@ abstract class RegisterModule {
   @lazySingleton
   Logger get logger => Logger();
 
+  // Par défaut, ce package vérifie 3 API démo tierces au hasard
+  // (dummyapi.online, jsonplaceholder.typicode.com, fakestoreapi.com) —
+  // aucun rapport avec Kauri, et donc aucune garantie de rester en ligne ni
+  // de refléter si NOTRE serveur est joignable. C'est ce qui causait des
+  // faux "hors-ligne" juste après un appel réseau pourtant réussi (ex: un
+  // budget créé avec succès, puis rechargé depuis un cache local obsolète
+  // car isConnected répondait `false`) : ce qui compte pour cette app n'est
+  // pas "internet existe quelque part" mais "l'API Kauri est joignable". On
+  // vérifie donc directement son propre endpoint de santé public.
   @lazySingleton
   InternetConnectionChecker get connectionChecker =>
-      InternetConnectionChecker.createInstance();
+      InternetConnectionChecker.createInstance(
+        addresses: [
+          AddressCheckOption(
+            uri: Uri.parse(
+              '${EnvConfig.apiBaseUrl.replaceAll('/api/v1', '')}/api/health',
+            ),
+          ),
+        ],
+      );
 }

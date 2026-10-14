@@ -14,11 +14,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.38.9'
+          flutter-version: '3.47.6'
           channel: 'stable'
           cache: true
       - name: Cache Pub dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
@@ -26,7 +26,7 @@ jobs:
             ${{ runner.os }}-pub-
       - name: Install Dependencies
         run: flutter pub get
-      - name: Create .env from example
-        run: cp .env.example .env
       - name: Analyze Code
         run: flutter analyze
+      - name: Run tests
+        run: flutter test

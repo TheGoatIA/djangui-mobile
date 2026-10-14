@@ -96,7 +96,7 @@ abstract class AuthRepository {
   );
 
   /// Supprime définitivement le compte utilisateur.
-  Future<Either<Failure, void>> deleteAccount();
+  Future<Either<Failure, void>> deleteAccount({String? password});
 
   /// Liste toutes les sessions actives pour cet utilisateur.
   Future<Either<Failure, List<SessionModel>>> getSessions();
@@ -106,12 +106,6 @@ abstract class AuthRepository {
 
   /// Révoque toutes les autres sessions actives à part l'actuelle.
   Future<Either<Failure, void>> revokeAllOtherSessions();
-
-  /// Récupère les identifiants stockés de manière sécurisée pour la biométrie.
-  Future<Map<String, String>?> getBiometricCredentials();
-
-  /// Supprime les identifiants biométriques stockés.
-  Future<void> clearBiometricCredentials();
 
   /// Enregistre une trace de connexion (IP, localisation, appareil).
   Future<void> logConnection();
@@ -133,12 +127,19 @@ abstract class AuthRepository {
   /// Sauvegarde le jeton spécifique à l'authentification biométrique.
   Future<void> saveBiometricToken(String token);
 
+  /// Révoque le jeton biométrique (ex: désactivation dans les réglages) —
+  /// sans ça, un jeton déjà déchiffrable resterait utilisable même après que
+  /// l'utilisateur pense avoir coupé l'accès rapide (audit F-02).
+  Future<void> clearBiometricToken();
+
   /// Soumet les documents KYC pour validation.
   Future<Either<Failure, Map<String, dynamic>>> submitKYC({
     required String documentType,
     required String documentNumber,
     required String fullName,
+    String? documentExpiryDate,
     required String documentImageUrl,
+    String? documentBackImageUrl,
     required String selfieImageUrl,
   });
 }

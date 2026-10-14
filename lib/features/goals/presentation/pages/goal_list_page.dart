@@ -9,16 +9,19 @@ import '../bloc/goals_event.dart';
 import '../bloc/goals_state.dart';
 import '../../data/models/goal_model.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../core/services/share_service.dart';
+import '../../../../core/constants/route_constants.dart';
+import '../widgets/goal_share_sheet.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/utils/currency_helper.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/services/log_service.dart';
+import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 /// Page listant les objectifs d'épargne de l'utilisateur.
 ///
@@ -41,7 +44,8 @@ class GoalListView extends StatefulWidget {
   State<GoalListView> createState() => _GoalListViewState();
 }
 
-class _GoalListViewState extends State<GoalListView> {
+class _GoalListViewState extends State<GoalListView>
+    with WidgetsBindingObserver, SecureScreenMixin<GoalListView> {
   // Clés utilisées pour le tutoriel interactif.
   final GlobalKey _listKey = GlobalKey();
   final GlobalKey _addKey = GlobalKey();
@@ -53,6 +57,7 @@ class _GoalListViewState extends State<GoalListView> {
       'Affichage de la liste des objectifs.',
       component: 'GoalListPage',
     );
+    context.read<GoalsBloc>().add(const GetGoalsRequested(forceRefresh: true));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
     });
@@ -70,26 +75,34 @@ class _GoalListViewState extends State<GoalListView> {
   /// Démarre le tutoriel si l'utilisateur ne l'a pas encore vu sur cet écran.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('goals')) {
-      try {
-        final shell = StatefulNavigationShell.of(context);
-        if (shell.currentIndex != 3) return;
-      } catch (_) {
-        if (ModalRoute.of(context)?.isCurrent != true) return;
-      }
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
-        tutorialService.markTutorialAsSeen('goals');
-      });
+    if (tutorialService.hasSeenTutorial('goals')) return;
+    try {
+      final shell = StatefulNavigationShell.of(context);
+      if (shell.currentIndex != 3) return;
+    } catch (_) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
     }
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'goals', [
+        TutorialStep(
+          targetKey: _listKey,
+          title: l10n.tutorialGoalsTitle,
+          description: l10n.tutorialGoalsDesc,
+        ),
+        TutorialStep(
+          targetKey: _addKey,
+          title: l10n.tutorialAddGoalTitle,
+          description: l10n.tutorialAddGoalDesc,
+        ),
+      ]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
@@ -114,11 +127,36 @@ class _GoalListViewState extends State<GoalListView> {
         }
         return Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
-          appBar: AppBar(title: Text(l10n.myGoals)),
+          appBar: AppBar(
+            title: Text(l10n.myGoals),
+            actions: [
+              IconButton(
+                onPressed: () async {
+                  final refresh = await context.push<bool>(
+                    RouteConstants.joinGoal,
+                  );
+                  if (refresh == true && context.mounted) {
+                    context.read<GoalsBloc>().add(
+                      const GetGoalsRequested(forceRefresh: true),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.group_add_outlined),
+                tooltip: l10n.joinGoal,
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
           body: BlocListener<GoalsBloc, GoalsState>(
             listener: (context, state) {
               if (state.status == GoalsStatus.success) {
                 _startTutorial();
+              } else if (state.status == GoalsStatus.error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.errorMessage ?? l10n.errorGoal),
+                  ),
+                );
               }
             },
             child: BlocBuilder<GoalsBloc, GoalsState>(
@@ -132,10 +170,8 @@ class _GoalListViewState extends State<GoalListView> {
                 // État vide
                 if (state.goals.isEmpty) {
                   return Center(
-                    child: Showcase(
+                    child: KeyedSubtree(
                       key: _listKey,
-                      title: l10n.tutorialGoalsTitle,
-                      description: l10n.tutorialGoalsDesc,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -181,10 +217,8 @@ class _GoalListViewState extends State<GoalListView> {
 
                       // Le premier élément est mis en avant par le tutoriel
                       if (index == 0) {
-                        return Showcase(
+                        return KeyedSubtree(
                           key: _listKey,
-                          title: l10n.tutorialGoalsTitle,
-                          description: l10n.tutorialGoalsDesc,
                           child: goalWidget,
                         );
                       }
@@ -196,10 +230,8 @@ class _GoalListViewState extends State<GoalListView> {
               },
             ),
           ),
-          floatingActionButton: Showcase(
+          floatingActionButton: KeyedSubtree(
             key: _addKey,
-            title: l10n.tutorialAddGoalTitle,
-            description: l10n.tutorialAddGoalDesc,
             child: FloatingActionButton(
               heroTag: 'goals_fab',
               onPressed: () async {
@@ -279,7 +311,12 @@ class _GoalItem extends StatelessWidget {
                         'Action: Partage de l\'objectif ${goal.id}',
                         component: 'GoalListPage',
                       );
-                      getIt<ShareService>().shareGoal(goal);
+                      getIt<AnalyticsManager>().trackEvent(
+                        feature: 'Goals',
+                        action: 'share',
+                        details: {'id': goal.id},
+                      );
+                      showGoalShareSheet(context, goal);
                     } else if (value == 'delete') {
                       getIt<LogService>().info(
                         'Action: Demande de suppression de l\'objectif ${goal.id}',
@@ -420,6 +457,11 @@ class _GoalItem extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
+              getIt<AnalyticsManager>().trackEvent(
+                feature: 'Goals',
+                action: 'delete_success',
+                details: {'id': goal.id},
+              );
               context.read<GoalsBloc>().add(DeleteGoalRequested(goal.id));
               Navigator.pop(dialogContext);
             },

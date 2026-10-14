@@ -8,3 +8,7 @@ abstract class DashboardEvent extends Equatable {
 }
 
 class GetDashboardDataRequested extends DashboardEvent {}
+
+class ResetDashboardRequested extends DashboardEvent {
+  const ResetDashboardRequested();
+}

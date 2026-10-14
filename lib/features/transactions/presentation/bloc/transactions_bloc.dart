@@ -1,9 +1,11 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import '../../data/models/transaction_model.dart';
 import '../../domain/repositories/transaction_repository.dart';
 
+import 'package:kauri/core/analytics/events.dart';
 import 'package:kauri/core/analytics/analytics_service.dart';
 import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
@@ -23,8 +25,14 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
   TransactionsBloc(this._transactionRepository)
     : super(TransactionsState.initial()) {
     on<GetTransactionsRequested>(_onGetTransactionsRequested);
-    on<AddTransactionRequested>(_onAddTransactionRequested);
-    on<DeleteTransactionRequested>(_onDeleteTransactionRequested);
+    on<AddTransactionRequested>(
+      _onAddTransactionRequested,
+      transformer: droppable(),
+    );
+    on<DeleteTransactionRequested>(
+      _onDeleteTransactionRequested,
+      transformer: droppable(),
+    );
     on<ResetTransactionsStatus>(_onResetTransactionsStatus);
   }
 
@@ -32,7 +40,16 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     ResetTransactionsStatus event,
     Emitter<TransactionsState> emit,
   ) {
-    emit(state.copyWith(status: TransactionsStatus.initial));
+    // TransactionsBloc is a singleton kept alive for the whole app lifetime,
+    // so on logout we must also clear the cached list — not just the status —
+    // otherwise the next account to log in on this device can briefly see the
+    // previous user's transactions before the first fetch completes.
+    emit(
+      state.copyWith(
+        status: TransactionsStatus.initial,
+        transactions: const [],
+      ),
+    );
   }
 
   Future<void> _onGetTransactionsRequested(
@@ -137,7 +154,9 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
           );
 
           _telemetry.recordEvent('transaction.created', {
-            'amount': event.transaction.amount,
+            'amount_range': AnalyticsAmountRange.fromAmount(
+              event.transaction.amount,
+            ),
             'currency': event.transaction.currency,
             'type': event.transaction.type,
             'category': event.transaction.category,

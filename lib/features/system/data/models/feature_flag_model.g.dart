@@ -94,6 +94,14 @@ FeatureFlagModel _$FeatureFlagModelFromJson(
       : FeatureConfig.fromJson(
           json['feat_subscriptions'] as Map<String, dynamic>,
         ),
+  featRealMoney: json['feat_real_money'] == null
+      ? const FeatureConfig(isEnabled: EnvConfig.enableRealMoney)
+      : FeatureConfig.fromJson(json['feat_real_money'] as Map<String, dynamic>),
+  realMoneyCountries:
+      (json['real_money_countries'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const ['CM'],
 );
 
 Map<String, dynamic> _$FeatureFlagModelToJson(FeatureFlagModel instance) =>
@@ -117,4 +125,6 @@ Map<String, dynamic> _$FeatureFlagModelToJson(FeatureFlagModel instance) =>
       'feat_challenges': instance.featChallenges,
       'feat_notifications': instance.featNotifications,
       'feat_subscriptions': instance.featSubscriptions,
+      'feat_real_money': instance.featRealMoney,
+      'real_money_countries': instance.realMoneyCountries,
     };

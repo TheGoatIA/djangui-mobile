@@ -11,6 +11,16 @@ class TontineState extends Equatable {
   final List<TontineContribution> selectedTontineContributions;
   final List<TontineMessage> selectedTontineMessages;
   final String? errorMessage;
+  // Passive "fetching this tontine's details/members to display it" flag —
+  // deliberately separate from [status], which is reserved for explicit user
+  // actions (start/rotate/validate/pay/update/delete/...). Mixing the two
+  // made simply opening (or re-opening) a tontine look like an action just
+  // completed, popping up an unrelated "opération réalisée avec succès" toast.
+  final bool isLoadingDetails;
+  // Same idea as [isLoadingDetails], for the chat's message list — lets the
+  // UI show a spinner only on a genuine first load (nothing cached yet),
+  // without it being confused for an action's loading dialog.
+  final bool isLoadingMessages;
 
   const TontineState({
     this.status = TontineStatus.initial,
@@ -20,6 +30,8 @@ class TontineState extends Equatable {
     this.selectedTontineContributions = const [],
     this.selectedTontineMessages = const [],
     this.errorMessage,
+    this.isLoadingDetails = false,
+    this.isLoadingMessages = false,
   });
 
   TontineState copyWith({
@@ -30,6 +42,8 @@ class TontineState extends Equatable {
     List<TontineContribution>? selectedTontineContributions,
     List<TontineMessage>? selectedTontineMessages,
     String? errorMessage,
+    bool? isLoadingDetails,
+    bool? isLoadingMessages,
   }) {
     return TontineState(
       status: status ?? this.status,
@@ -41,7 +55,15 @@ class TontineState extends Equatable {
           selectedTontineContributions ?? this.selectedTontineContributions,
       selectedTontineMessages:
           selectedTontineMessages ?? this.selectedTontineMessages,
-      errorMessage: errorMessage ?? this.errorMessage,
+      // Deliberately NOT `errorMessage ?? this.errorMessage`: an error is a
+      // one-shot signal for whichever action just failed. Falling back to the
+      // previous value made a stale error re-surface on every later emit that
+      // didn't bother to explicitly re-state it — including successful ones —
+      // so a transient failure from minutes ago could pop back up attached to
+      // an unrelated, successful state change.
+      errorMessage: errorMessage,
+      isLoadingDetails: isLoadingDetails ?? this.isLoadingDetails,
+      isLoadingMessages: isLoadingMessages ?? this.isLoadingMessages,
     );
   }
 
@@ -54,5 +76,7 @@ class TontineState extends Equatable {
     selectedTontineContributions,
     selectedTontineMessages,
     errorMessage,
+    isLoadingDetails,
+    isLoadingMessages,
   ];
 }

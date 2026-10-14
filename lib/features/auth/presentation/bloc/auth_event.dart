@@ -160,21 +160,40 @@ class AuthChangePasswordRequested extends AuthEvent {
   List<Object?> get props => [currentPassword, newPassword];
 }
 
-class AuthDeleteAccountRequested extends AuthEvent {}
+class AuthDeleteAccountRequested extends AuthEvent {
+  /// Account password, re-entered by the user to confirm the deletion
+  /// (required by the API for password-based accounts).
+  final String? password;
+
+  const AuthDeleteAccountRequested({this.password});
+
+  @override
+  List<Object?> get props => [password];
+}
 
 class AuthSubmitKYCRequested extends AuthEvent {
   final String fullName;
   final String documentType;
   final String documentNumber;
-  final String docFilePath;
-  final String selfieFilePath;
+  final DateTime? expiryDate;
+  final String? docFilePath;
+  final String? docBackFilePath;
+  final String? selfieFilePath;
+  final String? existingDocUrl;
+  final String? existingDocBackUrl;
+  final String? existingSelfieUrl;
 
   const AuthSubmitKYCRequested({
     required this.fullName,
     required this.documentType,
     required this.documentNumber,
-    required this.docFilePath,
-    required this.selfieFilePath,
+    this.expiryDate,
+    this.docFilePath,
+    this.docBackFilePath,
+    this.selfieFilePath,
+    this.existingDocUrl,
+    this.existingDocBackUrl,
+    this.existingSelfieUrl,
   });
 
   @override
@@ -182,8 +201,13 @@ class AuthSubmitKYCRequested extends AuthEvent {
     fullName,
     documentType,
     documentNumber,
+    expiryDate,
     docFilePath,
+    docBackFilePath,
     selfieFilePath,
+    existingDocUrl,
+    existingDocBackUrl,
+    existingSelfieUrl,
   ];
 }
 

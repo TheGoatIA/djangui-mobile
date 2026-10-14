@@ -3,12 +3,17 @@ import 'package:equatable/equatable.dart';
 
 part 'device_info_request.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class DeviceInfoRequest extends Equatable {
   final DeviceInfoDetails deviceInfo;
   final String appVersion;
+  final String? deviceId;
 
-  const DeviceInfoRequest({required this.deviceInfo, required this.appVersion});
+  const DeviceInfoRequest({
+    required this.deviceInfo,
+    required this.appVersion,
+    this.deviceId,
+  });
 
   factory DeviceInfoRequest.fromJson(Map<String, dynamic> json) =>
       _$DeviceInfoRequestFromJson(json);
@@ -16,7 +21,7 @@ class DeviceInfoRequest extends Equatable {
   Map<String, dynamic> toJson() => _$DeviceInfoRequestToJson(this);
 
   @override
-  List<Object?> get props => [deviceInfo, appVersion];
+  List<Object?> get props => [deviceInfo, appVersion, deviceId];
 }
 
 @JsonSerializable()

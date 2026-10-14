@@ -151,4 +151,64 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
+  // --- Rose Velvet (Premium) ---
+  static const Color roseVelvetDeep = Color(0xFF2A0E1D);
+  static const Color roseVelvetSurface = Color(0xFF3D1529);
+  static const Color roseVelvetAccent = Color(0xFFF43F8E);
+  static const Color roseVelvetSecondary = Color(0xFFE8B4C8);
+
+  static const LinearGradient roseVelvetGradient = LinearGradient(
+    colors: [roseVelvetDeep, Color(0xFF4A1B33)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // --- Ruby Ember (Premium) ---
+  static const Color rubyBlack = Color(0xFF120505);
+  static const Color rubySurface = Color(0xFF1F0A0A);
+  static const Color rubyAccent = Color(0xFFE0263E);
+  static const Color rubySecondary = Color(0xFFFF7A59);
+
+  static const LinearGradient rubyGradient = LinearGradient(
+    colors: [rubyBlack, Color(0xFF2C0D0D)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // --- Ocean Abyss (Premium) ---
+  static const Color abyssDeep = Color(0xFF031B26);
+  static const Color abyssSurface = Color(0xFF063340);
+  static const Color abyssAccent = Color(0xFF22D3EE);
+  static const Color abyssSecondary = Color(0xFF0EA5A5);
+
+  static const LinearGradient abyssGradient = LinearGradient(
+    colors: [abyssDeep, Color(0xFF0A4257)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // --- Cyber Neon (Premium) ---
+  static const Color cyberVoid = Color(0xFF0A0118);
+  static const Color cyberSurface = Color(0xFF170A2E);
+  static const Color cyberMagenta = Color(0xFFF72585);
+  static const Color cyberCyan = Color(0xFF4CC9F0);
+
+  static const LinearGradient cyberGradient = LinearGradient(
+    colors: [cyberVoid, Color(0xFF230B3F)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // --- Champagne Pearl (Premium — the only light-mode premium theme) ---
+  static const Color pearlBackground = Color(0xFFFBF3EC);
+  static const Color pearlSurface = Color(0xFFFFFFFF);
+  static const Color pearlAccent = Color(0xFFB8895A);
+  static const Color pearlSecondary = Color(0xFF7A5C3E);
+
+  static const LinearGradient pearlGradient = LinearGradient(
+    colors: [Color(0xFFFBF3EC), Color(0xFFF0DFCF)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }

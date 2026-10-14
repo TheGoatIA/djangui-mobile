@@ -60,13 +60,22 @@ abstract class TontineApiService extends ChopperService {
     @Body() Map<String, dynamic> body,
   );
 
+  @POST(path: '/{id}/messages')
+  @Multipart()
+  Future<Response<BaseResponse<TontineMessageModel>>> sendVoiceMessage(
+    @Path('id') String id, {
+    @PartFile('audio') required MultipartFile audioFile,
+    @Part('duration') required String duration,
+  });
+
   @GET(path: '/{id}/contributions')
   Future<Response<BaseListResponse<TontineContributionModel>>> getContributions(
     @Path('id') String id,
   );
 
-  @POST(path: '/contributions/{id}/validate')
+  @PATCH(path: '/{tontineId}/contributions/{id}/validate')
   Future<Response<BaseResponse<TontineContributionModel>>> validateContribution(
+    @Path('tontineId') String tontineId,
     @Path('id') String id,
     @Body() Map<String, dynamic> body,
   );
@@ -95,5 +104,10 @@ abstract class TontineApiService extends ChopperService {
     @Path('id') String id,
     @Path('memberId') String memberId,
     @Body() Map<String, dynamic> body,
+  );
+
+  @POST(path: '/{id}/social-fund/pay')
+  Future<Response<BaseResponse<TontineMemberModel>>> paySocialFund(
+    @Path('id') String id,
   );
 }

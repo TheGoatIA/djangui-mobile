@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -12,7 +13,7 @@ import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/core/services/log_service.dart';
 import '../../../../di/injection.dart';
 
-@injectable
+@lazySingleton
 class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
   final VoiceRepository _voiceRepository;
   final AudioRecorder _audioRecorder = AudioRecorder();
@@ -64,7 +65,7 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
       emit(
         state.copyWith(
           status: VoiceStatus.error,
-          errorMessage: 'Erreur lors du démarrage de l\'enregistrement : $e',
+          errorMessage: ErrorMapper.safeMessage(e),
         ),
       );
     }
@@ -91,7 +92,7 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
       emit(
         state.copyWith(
           status: VoiceStatus.error,
-          errorMessage: 'Erreur lors du traitement de l\'audio : $e',
+          errorMessage: ErrorMapper.safeMessage(e),
         ),
       );
     }
@@ -122,6 +123,7 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
 
       final startTime = DateTime.now();
       final result = await _voiceRepository.processVoice(File(path));
+
       final duration = DateTime.now().difference(startTime).inMilliseconds;
 
       result.fold(
@@ -193,7 +195,7 @@ class VoiceBloc extends Bloc<VoiceEvent, VoiceState> {
       emit(
         state.copyWith(
           status: VoiceStatus.error,
-          errorMessage: 'Erreur lors du traitement de l\'audio : $e',
+          errorMessage: ErrorMapper.safeMessage(e),
         ),
       );
     }

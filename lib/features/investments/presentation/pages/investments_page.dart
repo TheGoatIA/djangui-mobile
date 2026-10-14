@@ -13,7 +13,7 @@ import '../bloc/investments_bloc.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/utils/currency_helper.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../core/services/log_service.dart';
 
@@ -66,30 +66,54 @@ class _InvestmentsViewState extends State<InvestmentsView> {
     });
   }
 
+  /// La cible [_listKey] n'existe que lorsqu'il y a déjà au moins un
+  /// investissement (sinon c'est l'état vide qui s'affiche) : on la saute et
+  /// on ne montre que [_addKey] si le portefeuille est encore vide, sinon la
+  /// séquence resterait bloquée dès la première étape.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('investments')) {
-      if (ModalRoute.of(context)?.isCurrent != true) return;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        final authState = context.read<AuthBloc>().state;
-        final isPremium = authState.authResponse?.user.isPremium ?? false;
+    if (tutorialService.hasSeenTutorial('investments')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final authState = context.read<AuthBloc>().state;
+      final isPremium = authState.authResponse?.user.isPremium ?? false;
+      final l10n = AppLocalizations.of(context)!;
 
-        if (!isPremium) {
-          ShowCaseWidget.of(context).startShowCase([_premiumKey]);
-        } else {
-          ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
-        }
-        tutorialService.markTutorialAsSeen('investments');
-      });
-    }
+      if (!isPremium) {
+        tutorialService.startTutorial(context, 'investments', [
+          TutorialStep(
+            targetKey: _premiumKey,
+            title: l10n.tutorialSubscriptionTitle,
+            description: l10n.tutorialSubscriptionDesc,
+          ),
+        ]);
+        return;
+      }
+      final hasInvestments = context
+          .read<InvestmentsBloc>()
+          .state
+          .investments
+          .isNotEmpty;
+      tutorialService.startTutorial(context, 'investments', [
+        if (hasInvestments)
+          TutorialStep(
+            targetKey: _listKey,
+            title: l10n.tutorialInvestmentsTitle,
+            description: l10n.tutorialInvestmentsDesc,
+          ),
+        TutorialStep(
+          targetKey: _addKey,
+          title: l10n.tutorialAddInvestmentTitle,
+          description: l10n.tutorialAddInvestmentDesc,
+        ),
+      ]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
@@ -118,10 +142,8 @@ class _InvestmentsViewState extends State<InvestmentsView> {
           appBar: AppBar(
             title: Text(l10n.myInvestments),
             actions: [
-              Showcase(
+              KeyedSubtree(
                 key: _addKey,
-                title: l10n.tutorialAddInvestmentTitle,
-                description: l10n.tutorialAddInvestmentDesc,
                 child: IconButton(
                   icon: const Icon(Icons.add),
                   onPressed: () =>
@@ -165,14 +187,8 @@ class _InvestmentsViewState extends State<InvestmentsView> {
                           ),
                         ),
                         const SizedBox(height: 32),
-                        Showcase(
+                        KeyedSubtree(
                           key: _premiumKey,
-                          title: AppLocalizations.of(
-                            context,
-                          )!.tutorialSubscriptionTitle,
-                          description: AppLocalizations.of(
-                            context,
-                          )!.tutorialSubscriptionDesc,
                           child: AppButton(
                             text: AppLocalizations.of(
                               context,
@@ -187,7 +203,18 @@ class _InvestmentsViewState extends State<InvestmentsView> {
                 );
               }
 
-              return BlocBuilder<InvestmentsBloc, InvestmentsState>(
+              return BlocConsumer<InvestmentsBloc, InvestmentsState>(
+                listenWhen: (previous, current) =>
+                    current.status == InvestmentsStatus.loaded &&
+                    previous.status != InvestmentsStatus.loaded,
+                listener: (context, state) {
+                  // La liste ne monte son Showcase qu'une fois les
+                  // investissements chargés : on retente ici dès que c'est
+                  // le cas (utile si le portefeuille se remplit après coup).
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _startTutorial();
+                  });
+                },
                 builder: (context, state) {
                   if (state.status == InvestmentsStatus.loading) {
                     return const Center(child: CircularProgressIndicator());
@@ -241,14 +268,8 @@ class _InvestmentsViewState extends State<InvestmentsView> {
                       );
 
                       if (index == 0) {
-                        return Showcase(
+                        return KeyedSubtree(
                           key: _listKey,
-                          title: AppLocalizations.of(
-                            context,
-                          )!.tutorialInvestmentsTitle,
-                          description: AppLocalizations.of(
-                            context,
-                          )!.tutorialInvestmentsDesc,
                           child: dismissible,
                         );
                       }

@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 import 'package:kauri/core/database/database.dart';
+import 'package:kauri/core/services/biometric_gated_storage.dart';
 import 'package:kauri/features/auth/data/models/user_model.dart';
 import 'package:kauri/features/auth/data/models/badge_model.dart';
 import 'package:drift/drift.dart' as drift;
@@ -17,9 +18,6 @@ abstract class AuthLocalDataSource {
   Future<void> clearTokens();
   Future<void> saveUser(UserModel user);
   Future<UserModel?> getUser();
-  Future<void> saveCredentials(String email, String password);
-  Future<Map<String, String>?> getCredentials();
-  Future<void> clearCredentials();
   Future<void> saveLoginProvider(String provider);
   Future<String?> getLoginProvider();
   Future<void> clearLoginProvider();
@@ -33,15 +31,18 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final FlutterSecureStorage _storage;
   final AppDatabase _db;
   final Logger _logger;
+  final BiometricGatedStorage _biometricStorage;
 
-  AuthLocalDataSourceImpl(this._storage, this._db, this._logger);
+  AuthLocalDataSourceImpl(
+    this._storage,
+    this._db,
+    this._logger,
+    this._biometricStorage,
+  );
 
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
-  static const _emailKey = 'login_email';
-  static const _passwordKey = 'login_password';
   static const _providerKey = 'login_provider';
-  static const _biometricTokenKey = 'biometric_token';
 
   @override
   Future<void> saveTokens({
@@ -71,7 +72,12 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     _logger.d('💾 [AuthLocal] Clearing all tokens and user data');
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _refreshTokenKey);
-    // Clear all user-related data from tables
+    // A device can be shared between users (logout/login by different people) —
+    // every locally-cached table must be wiped here, not just the ones a given
+    // feature happened to have when this method was first written. Missing a
+    // table here means the next user to log in on this device can see the
+    // previous user's cached data (tontines, contributions, subscriptions...)
+    // until/unless a fresh sync happens to overwrite it.
     await _db.delete(_db.users).go();
     await _db.delete(_db.transactions).go();
     await _db.delete(_db.budgets).go();
@@ -80,6 +86,23 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     await _db.delete(_db.investments).go();
     await _db.delete(_db.chatMessages).go();
     await _db.delete(_db.syncRequests).go();
+    await _db.delete(_db.userSubscriptions).go();
+    await _db.delete(_db.userChallenges).go();
+    await _db.delete(_db.tontineContributions).go();
+    await _db.delete(_db.tontineMessages).go();
+    await _db.delete(_db.tontineMembers).go();
+    await _db.delete(_db.tontines).go();
+    // Caches ajoutés pour Insights/Dashboard (persistance locale + prévision
+    // + historique du score de santé) : mêmes précautions, données propres à
+    // un utilisateur (solde, revenus, catégories de dépenses, rapport IA...).
+    await _db.delete(_db.dashboardReports).go();
+    await _db.delete(_db.spendingAnalysisCache).go();
+    await _db.delete(_db.savingsTrendCache).go();
+    await _db.delete(_db.narrativeReportCache).go();
+    await _db.delete(_db.forecastCache).go();
+    await _db.delete(_db.healthScoreHistoryCache).go();
+    await clearBiometricToken();
+    await clearLoginProvider();
   }
 
   @override
@@ -137,32 +160,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }
 
   @override
-  Future<void> saveCredentials(String email, String password) async {
-    _logger.d('💾 [AuthLocal] Saving credentials for biometric login: $email');
-    await _storage.write(key: _emailKey, value: email);
-    await _storage.write(key: _passwordKey, value: password);
-  }
-
-  @override
-  Future<Map<String, String>?> getCredentials() async {
-    final email = await _storage.read(key: _emailKey);
-    final password = await _storage.read(key: _passwordKey);
-    _logger.d(
-      '💾 [AuthLocal] Fetching credentials: ${email != null ? "Found" : "Not Found"}',
-    );
-    if (email != null && password != null) {
-      return {'email': email, 'password': password};
-    }
-    return null;
-  }
-
-  @override
-  Future<void> clearCredentials() async {
-    await _storage.delete(key: _emailKey);
-    await _storage.delete(key: _passwordKey);
-  }
-
-  @override
   Future<void> saveLoginProvider(String provider) async {
     _logger.d('💾 [AuthLocal] Saving login provider: $provider');
     await _storage.write(key: _providerKey, value: provider);
@@ -182,19 +179,23 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> saveBiometricToken(String token) async {
-    _logger.d('💾 [AuthLocal] Saving biometric token');
-    await _storage.write(key: _biometricTokenKey, value: token);
+    _logger.d(
+      '💾 [AuthLocal] Saving biometric token (Keystore/Keychain biométrique)',
+    );
+    await _biometricStorage.write(token);
   }
 
   @override
   Future<String?> getBiometricToken() async {
-    final token = await _storage.read(key: _biometricTokenKey);
+    // Déclenche l'invite biométrique native ici même — pas de vérification
+    // Dart séparée à contourner, le déchiffrement lui-même l'exige.
+    final token = await _biometricStorage.read();
     _logger.d('💾 [AuthLocal] Fetching biometric token: ${token != null}');
     return token;
   }
 
   @override
   Future<void> clearBiometricToken() async {
-    await _storage.delete(key: _biometricTokenKey);
+    await _biometricStorage.delete();
   }
 }

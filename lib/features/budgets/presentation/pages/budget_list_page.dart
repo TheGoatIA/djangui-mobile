@@ -19,12 +19,13 @@ import '../../data/models/auto_budget_response.dart';
 import '../../../../core/theme/app_shadows.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 /// Page listant les budgets mensuels de l'utilisateur.
 ///
@@ -66,7 +67,8 @@ class BudgetListView extends StatefulWidget {
   State<BudgetListView> createState() => _BudgetListViewState();
 }
 
-class _BudgetListViewState extends State<BudgetListView> {
+class _BudgetListViewState extends State<BudgetListView>
+    with WidgetsBindingObserver, SecureScreenMixin<BudgetListView> {
   // Clés utilisées pour le tutoriel interactif.
   final _listKey = GlobalKey();
   final _addKey = GlobalKey();
@@ -80,6 +82,13 @@ class _BudgetListViewState extends State<BudgetListView> {
       'Affichage de la liste des budgets.',
       component: 'BudgetListPage',
     );
+    // BudgetsBloc est partagé (fourni une seule fois au niveau de l'app, voir
+    // main.dart) et ne se réinitialise jamais entre deux visites de cette
+    // page — sans cet appel, la page se contentait d'afficher l'état déjà en
+    // mémoire depuis la dernière synchronisation (au login), sans jamais se
+    // rafraîchir à l'ouverture. Un budget créé/modifié ailleurs ne pouvait
+    // donc jamais apparaître sans un pull-to-refresh manuel.
+    context.read<BudgetsBloc>().add(const GetBudgetsRequested(forceRefresh: true));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startTutorial();
       getIt<AnalyticsManager>().trackEvent(
@@ -101,26 +110,46 @@ class _BudgetListViewState extends State<BudgetListView> {
   /// Démarre le tutoriel si l'utilisateur ne l'a pas encore vu sur cet écran.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('budgets')) {
-      try {
-        final shell = StatefulNavigationShell.of(context);
-        if (shell.currentIndex != 2) return;
-      } catch (_) {
-        if (ModalRoute.of(context)?.isCurrent != true) return;
-      }
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_anneKey, _listKey, _addKey]);
-        tutorialService.markTutorialAsSeen('budgets');
-      });
+    if (tutorialService.hasSeenTutorial('budgets')) return;
+    try {
+      final shell = StatefulNavigationShell.of(context);
+      if (shell.currentIndex != 2) return;
+    } catch (_) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
     }
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final showAnneStep = context
+          .read<SystemBloc>()
+          .state
+          .featureFlags
+          .aiBudgetGeneration
+          .isEnabled;
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'budgets', [
+        if (showAnneStep)
+          TutorialStep(
+            targetKey: _anneKey,
+            title: l10n.tutorialAnneTitle,
+            description: l10n.tutorialAnneDesc,
+          ),
+        TutorialStep(
+          targetKey: _listKey,
+          title: l10n.tutorialBudgetsTitle,
+          description: l10n.tutorialBudgetsDesc,
+        ),
+        TutorialStep(
+          targetKey: _addKey,
+          title: l10n.tutorialAddBudgetTitle,
+          description: l10n.tutorialAddBudgetDesc,
+        ),
+      ]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
@@ -131,15 +160,18 @@ class _BudgetListViewState extends State<BudgetListView> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.myBudgets),
         actions: [
+          IconButton(
+            onPressed: () => _showInfoSheet(context),
+            icon: const Icon(Icons.info_outline),
+            tooltip: AppLocalizations.of(context)!.budgetInfoTooltip,
+          ),
           BlocBuilder<SystemBloc, SystemState>(
             builder: (context, systemState) {
               if (!systemState.featureFlags.aiBudgetGeneration.isEnabled) {
                 return const SizedBox.shrink();
               }
-              return Showcase(
+              return KeyedSubtree(
                 key: _anneKey,
-                title: AppLocalizations.of(context)!.tutorialAnneTitle,
-                description: AppLocalizations.of(context)!.tutorialAnneDesc,
                 child: TextButton.icon(
                   onPressed: () {
                     getIt<LogService>().info(
@@ -162,6 +194,20 @@ class _BudgetListViewState extends State<BudgetListView> {
                 ),
               );
             },
+          ),
+          IconButton(
+            onPressed: () async {
+              final refresh = await context.push<bool>(
+                RouteConstants.joinBudget,
+              );
+              if (refresh == true && context.mounted) {
+                context.read<BudgetsBloc>().add(
+                  const GetBudgetsRequested(forceRefresh: true),
+                );
+              }
+            },
+            icon: const Icon(Icons.group_add_outlined),
+            tooltip: AppLocalizations.of(context)!.joinBudget,
           ),
           const SizedBox(width: 8),
         ],
@@ -199,12 +245,8 @@ class _BudgetListViewState extends State<BudgetListView> {
             // État vide
             if (state.budgets.isEmpty) {
               return Center(
-                child: Showcase(
+                child: KeyedSubtree(
                   key: _listKey,
-                  title: AppLocalizations.of(context)!.tutorialBudgetsTitle,
-                  description: AppLocalizations.of(
-                    context,
-                  )!.tutorialBudgetsDesc,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -248,14 +290,7 @@ class _BudgetListViewState extends State<BudgetListView> {
 
                   // Le premier élément est mis en avant par le tutoriel
                   if (index == 0) {
-                    return Showcase(
-                      key: _listKey,
-                      title: AppLocalizations.of(context)!.tutorialBudgetsTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialBudgetsDesc,
-                      child: budgetWidget,
-                    );
+                    return KeyedSubtree(key: _listKey, child: budgetWidget);
                   }
 
                   return budgetWidget;
@@ -266,10 +301,8 @@ class _BudgetListViewState extends State<BudgetListView> {
         ),
       ),
       // Bouton pour créer un nouveau budget mensuel
-      floatingActionButton: Showcase(
+      floatingActionButton: KeyedSubtree(
         key: _addKey,
-        title: AppLocalizations.of(context)!.tutorialAddBudgetTitle,
-        description: AppLocalizations.of(context)!.tutorialAddBudgetDesc,
         child: FloatingActionButton(
           heroTag: 'budgets_fab',
           onPressed: () async {
@@ -290,6 +323,123 @@ class _BudgetListViewState extends State<BudgetListView> {
           child: Icon(
             Icons.add,
             color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Explique le fonctionnement des budgets (suivi automatique, alertes,
+  /// partage, objectif lié, génération via Anne) — texte localisé fr/en
+  /// comme le reste de l'app, pas de contenu codé en dur dans une seule
+  /// langue.
+  void _showInfoSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final sections = <(IconData, String, String)>[
+      (
+        Icons.track_changes_outlined,
+        l10n.budgetInfoTrackingTitle,
+        l10n.budgetInfoTrackingDesc,
+      ),
+      (
+        Icons.notifications_active_outlined,
+        l10n.budgetInfoAlertsTitle,
+        l10n.budgetInfoAlertsDesc,
+      ),
+      (
+        Icons.group_outlined,
+        l10n.budgetInfoSharingTitle,
+        l10n.budgetInfoSharingDesc,
+      ),
+      (Icons.flag_outlined, l10n.budgetInfoGoalTitle, l10n.budgetInfoGoalDesc),
+      (
+        Icons.psychology_outlined,
+        l10n.budgetInfoAutoTitle,
+        l10n.budgetInfoAutoDesc,
+      ),
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (_, scrollController) => Container(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(28),
+            ),
+          ),
+          child: ListView(
+            controller: scrollController,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(l10n.budgetInfoTitle, style: AppTextStyles.h2),
+              const SizedBox(height: 20),
+              for (final (icon, title, desc) in sections) ...[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            desc,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+              ],
+            ],
           ),
         ),
       ),
@@ -580,12 +730,31 @@ class _BudgetItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Mois et année du budget
-                Text(
-                  DateFormat.yMMMM(
-                    Localizations.localeOf(context).languageCode,
-                  ).format(DateTime(budget.period.year, budget.period.month)),
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          DateFormat.yMMMM(
+                            Localizations.localeOf(context).languageCode,
+                          ).format(
+                            DateTime(budget.period.year, budget.period.month),
+                          ),
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (budget.isShared) ...[
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.group_outlined,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 // Pourcentage consommé
@@ -596,16 +765,18 @@ class _BudgetItem extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                // Bouton de suppression
-                IconButton(
-                  onPressed: () => _showDeleteDialog(context),
-                  icon: Icon(
-                    Icons.delete_outline,
-                    color: Theme.of(context).colorScheme.error,
+                // Bouton de suppression — propriétaire uniquement (un
+                // participant ne peut pas supprimer un budget partagé)
+                if (budget.isOwner)
+                  IconButton(
+                    onPressed: () => _showDeleteDialog(context),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
               ],
             ),
             const SizedBox(height: 12),

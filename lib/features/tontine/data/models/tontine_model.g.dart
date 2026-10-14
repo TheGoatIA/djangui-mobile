@@ -16,9 +16,6 @@ TontineModel _$TontineModelFromJson(Map<String, dynamic> json) => TontineModel(
   rotationMode: json['rotationMode'] as String,
   validationMode: json['validationMode'] as String,
   sanctions: json['sanctions'] as Map<String, dynamic>,
-  escrowDetails: (json['escrowDetails'] as List<dynamic>?)
-      ?.map((e) => e as Map<String, dynamic>)
-      .toList(),
   socialFund: json['socialFund'] as Map<String, dynamic>,
   status: json['status'] as String,
   inviteCode: json['inviteCode'] as String,
@@ -54,7 +51,6 @@ Map<String, dynamic> _$TontineModelToJson(TontineModel instance) =>
       'rotationMode': instance.rotationMode,
       'validationMode': instance.validationMode,
       'sanctions': instance.sanctions,
-      'escrowDetails': instance.escrowDetails,
       'socialFund': instance.socialFund,
       'status': instance.status,
       'inviteCode': instance.inviteCode,
@@ -79,7 +75,6 @@ TontineMemberModel _$TontineMemberModelFromJson(Map<String, dynamic> json) =>
       trustScore: (json['trustScore'] as num).toDouble(),
       hasPaidSocialFund: json['hasPaidSocialFund'] as bool,
       autoDebitEnabled: json['isAutoDebitEnabled'] as bool? ?? false,
-      payoutDetails: json['payoutDetails'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$TontineMemberModelToJson(TontineMemberModel instance) =>
@@ -92,7 +87,6 @@ Map<String, dynamic> _$TontineMemberModelToJson(TontineMemberModel instance) =>
       'trustScore': instance.trustScore,
       'hasPaidSocialFund': instance.hasPaidSocialFund,
       'isAutoDebitEnabled': instance.autoDebitEnabled,
-      'payoutDetails': instance.payoutDetails,
     };
 
 TontineContributionModel _$TontineContributionModelFromJson(
@@ -129,6 +123,9 @@ TontineMessageModel _$TontineMessageModelFromJson(Map<String, dynamic> json) =>
       tontineId: json['tontineId'] as String,
       senderId: _idFromMapOrString(json['senderId']),
       content: json['content'] as String,
+      type: json['type'] as String? ?? 'text',
+      audioUrl: json['audioUrl'] as String?,
+      audioDuration: (json['audioDuration'] as num?)?.toInt(),
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
@@ -139,6 +136,9 @@ Map<String, dynamic> _$TontineMessageModelToJson(
   'tontineId': instance.tontineId,
   'senderId': instance.senderId,
   'content': instance.content,
+  'type': instance.type,
+  'audioUrl': instance.audioUrl,
+  'audioDuration': instance.audioDuration,
   'createdAt': instance.createdAt.toIso8601String(),
 };
 
@@ -148,6 +148,8 @@ TurnSummaryModel _$TurnSummaryModelFromJson(Map<String, dynamic> json) =>
       expectedAmount: (json['expectedAmount'] as num).toDouble(),
       contributorsCount: (json['contributorsCount'] as num).toInt(),
       totalMembers: (json['totalMembers'] as num).toInt(),
+      currentBeneficiaryId: json['currentBeneficiaryId'] as String?,
+      currentBeneficiaryName: json['currentBeneficiaryName'] as String?,
     );
 
 Map<String, dynamic> _$TurnSummaryModelToJson(TurnSummaryModel instance) =>
@@ -156,4 +158,6 @@ Map<String, dynamic> _$TurnSummaryModelToJson(TurnSummaryModel instance) =>
       'expectedAmount': instance.expectedAmount,
       'contributorsCount': instance.contributorsCount,
       'totalMembers': instance.totalMembers,
+      'currentBeneficiaryId': instance.currentBeneficiaryId,
+      'currentBeneficiaryName': instance.currentBeneficiaryName,
     };

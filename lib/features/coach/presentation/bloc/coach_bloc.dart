@@ -1,8 +1,10 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/models/chat_message_model.dart';
+import '../../domain/entities/coach_send_update.dart';
 import '../../domain/repositories/coach_repository.dart';
 import 'coach_event.dart';
 import 'coach_state.dart';
@@ -17,7 +19,12 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
 
   CoachBloc(this._coachRepository) : super(CoachState.initial()) {
     on<GetChatHistoryRequested>(_onGetChatHistoryRequested);
-    on<SendMessageRequested>(_onSendMessageRequested);
+    // sequential() : jamais deux envois/réessais traités en parallèle, qui
+    // pourraient sinon interlacer leurs emits (placeholders, textes en
+    // streaming) de façon incohérente. Mis en file plutôt que jeté (à
+    // l'inverse de droppable()) pour ne perdre aucun message.
+    on<SendMessageRequested>(_onSendMessageRequested, transformer: sequential());
+    on<RetryMessageRequested>(_onRetryMessageRequested, transformer: sequential());
     on<ClearHistoryRequested>(_onClearHistoryRequested);
   }
 
@@ -48,7 +55,13 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
         }
       },
       (history) {
-        emit(state.copyWith(status: CoachStatus.success, messages: history));
+        emit(
+          state.copyWith(
+            status: CoachStatus.success,
+            messages: history,
+            errorMessage: null,
+          ),
+        );
 
         // Telemetry: AI Engagement
         _telemetry.recordEvent('ux.ai_coach.session_load', {
@@ -62,67 +75,181 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
     SendMessageRequested event,
     Emitter<CoachState> emit,
   ) async {
-    debugPrint('🤖 [CoachBloc] Sending message: ${event.text}');
-    // Add optimistic user message
+    await _sendAndStream(const Uuid().v4(), event.text, emit);
+  }
+
+  Future<void> _onRetryMessageRequested(
+    RetryMessageRequested event,
+    Emitter<CoachState> emit,
+  ) async {
+    ChatMessageModel? failedMessage;
+    for (final m in state.messages) {
+      if (m.id == event.messageId) {
+        failedMessage = m;
+        break;
+      }
+    }
+    if (failedMessage == null) return;
+    await _sendAndStream(failedMessage.id, failedMessage.text, emit);
+  }
+
+  /// Cœur commun à l'envoi initial et au réessai : affiche/replace la bulle
+  /// utilisateur (statut 'sending'), crée la bulle IA dès le premier
+  /// fragment reçu, puis la met à jour au fil de l'eau jusqu'à la fin du
+  /// flux ou une erreur.
+  Future<void> _sendAndStream(
+    String messageId,
+    String text,
+    Emitter<CoachState> emit,
+  ) async {
+    debugPrint('🤖 [CoachBloc] Sending message: $text');
     final userMessage = ChatMessageModel(
-      id: const Uuid().v4(),
-      text: event.text,
+      id: messageId,
+      text: text,
       sender: 'user',
       timestamp: DateTime.now(),
+      status: 'sending',
     );
 
-    final updatedMessages = List<ChatMessageModel>.from(state.messages)
-      ..add(userMessage);
-    debugPrint(
-      '🤖 [CoachBloc] Optimistic update: ${updatedMessages.length} messages',
+    final alreadyPresent = state.messages.any((m) => m.id == messageId);
+    final seededMessages = alreadyPresent
+        ? state.messages.map((m) => m.id == messageId ? userMessage : m).toList()
+        : (List<ChatMessageModel>.from(state.messages)..add(userMessage));
+
+    emit(
+      state.copyWith(
+        messages: seededMessages,
+        isSending: true,
+        errorMessage: null,
+        clearStreamingMessageId: true,
+      ),
     );
-    emit(state.copyWith(messages: updatedMessages, isSending: true));
 
     final startTime = DateTime.now();
-    final result = await _coachRepository.sendMessage(event.text);
-    final duration = DateTime.now().difference(startTime).inMilliseconds;
+    String? aiMessageId;
 
-    result.fold<void>(
-      (failure) {
-        debugPrint('🤖 [CoachBloc] Send message failed: ${failure.message}');
+    await for (final update in _coachRepository.sendMessageStream(
+      messageId,
+      text,
+    )) {
+      switch (update) {
+        case CoachSendDelta(:final cumulativeText):
+          if (aiMessageId == null) {
+            aiMessageId = const Uuid().v4();
+            final placeholder = ChatMessageModel(
+              id: aiMessageId,
+              text: cumulativeText,
+              sender: 'ai',
+              timestamp: DateTime.now(),
+            );
+            emit(
+              state.copyWith(
+                messages: [...state.messages, placeholder],
+                streamingMessageId: aiMessageId,
+              ),
+            );
+          } else {
+            final updatedId = aiMessageId;
+            final updated = state.messages
+                .map(
+                  (m) => m.id == updatedId
+                      ? m.copyWith(text: cumulativeText)
+                      : m,
+                )
+                .toList();
+            emit(state.copyWith(messages: updated));
+          }
 
-        // Telemetry: AI Failure
-        _telemetry.recordEvent('ux.ai_coach.error', {
-          'error': failure.message,
-          'latency_ms': duration,
-        });
+        case CoachSendCompleted(:final text, :final actions):
+          final duration = DateTime.now().difference(startTime).inMilliseconds;
+          _telemetry.recordEvent('ux.ai_coach.response', {
+            'latency_ms': duration,
+            'message_length': text.length,
+          });
 
-        getIt<LogService>().error(
-          'Echec envoi message Coach',
-          component: 'CoachBloc',
-          error: failure.message,
-        );
+          final confirmedUserMessages = state.messages
+              .map((m) => m.id == messageId ? m.copyWith(status: 'sent') : m)
+              .toList();
 
-        emit(
-          state.copyWith(
-            isSending: false,
-            status: CoachStatus.error,
-            errorMessage: failure.message,
-          ),
-        );
-      },
-      (ChatMessageModel aiMessage) {
-        debugPrint('🤖 [CoachBloc] AI response received: ${aiMessage.text}');
+          final finalAiId = aiMessageId;
+          List<ChatMessageModel> finalMessages;
+          if (finalAiId != null) {
+            finalMessages = confirmedUserMessages
+                .map(
+                  (m) => m.id == finalAiId
+                      ? ChatMessageModel(
+                          id: m.id,
+                          text: text,
+                          sender: 'ai',
+                          timestamp: m.timestamp,
+                          actions: actions,
+                        )
+                      : m,
+                )
+                .toList();
+          } else {
+            // Aucun fragment n'a jamais été reçu (réponse vide, cas limite) :
+            // ajoute directement le message final.
+            finalMessages = [
+              ...confirmedUserMessages,
+              ChatMessageModel(
+                id: const Uuid().v4(),
+                text: text,
+                sender: 'ai',
+                timestamp: DateTime.now(),
+                actions: actions,
+              ),
+            ];
+          }
 
-        // Telemetry: AI Latency & Success
-        _telemetry.recordEvent('ux.ai_coach.response', {
-          'latency_ms': duration,
-          'message_length': aiMessage.text.length,
-        });
+          debugPrint(
+            '🤖 [CoachBloc] Final update: ${finalMessages.length} messages',
+          );
+          emit(
+            state.copyWith(
+              isSending: false,
+              messages: finalMessages,
+              errorMessage: null,
+              clearStreamingMessageId: true,
+            ),
+          );
 
-        final finalMessages = List<ChatMessageModel>.from(state.messages)
-          ..add(aiMessage);
-        debugPrint(
-          '🤖 [CoachBloc] Final update: ${finalMessages.length} messages',
-        );
-        emit(state.copyWith(isSending: false, messages: finalMessages));
-      },
-    );
+        case CoachSendFailed(:final failure):
+          final duration = DateTime.now().difference(startTime).inMilliseconds;
+          debugPrint('🤖 [CoachBloc] Send message failed: ${failure.message}');
+
+          _telemetry.recordEvent('ux.ai_coach.error', {
+            'error': failure.message,
+            'latency_ms': duration,
+          });
+
+          getIt<LogService>().error(
+            'Echec envoi message Coach',
+            component: 'CoachBloc',
+            error: failure.message,
+          );
+
+          // Marque le message utilisateur en échec (garde-le visible avec un
+          // bouton réessayer) et retire le placeholder IA vide s'il existe.
+          final failedAiId = aiMessageId;
+          final messagesAfterFailure = state.messages
+              .where((m) => m.id != failedAiId)
+              .map(
+                (m) => m.id == messageId ? m.copyWith(status: 'failed') : m,
+              )
+              .toList();
+
+          emit(
+            state.copyWith(
+              messages: messagesAfterFailure,
+              isSending: false,
+              status: CoachStatus.error,
+              errorMessage: failure.message,
+              clearStreamingMessageId: true,
+            ),
+          );
+      }
+    }
   }
 
   Future<void> _onClearHistoryRequested(

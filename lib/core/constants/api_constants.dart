@@ -1,7 +1,7 @@
 /// Documentation des constantes d'API pour l'application Kauri.
 /// Ce fichier centralise tous les points de terminaison (endpoints) utilisés par les services distants.
 class ApiConstants {
-  // Remarque : baseUrl doit être récupéré via dotenv.env['API_BASE_URL'] dans le NetworkModule.
+  // Remarque : baseUrl est fourni par EnvConfig.apiBaseUrl (voir core/config/env_config.dart).
 
   // --- Authentification ---
   /// Point de terminaison pour la connexion utilisateur.
@@ -129,12 +129,16 @@ class ApiConstants {
 
   /// Vérification du statut d'un paiement via sa référence.
   static const String verifyPayment = '/payments/verify/{reference}';
+  static String verifyPaymentUrl(String reference) => '/payments/verify/$reference';
 
   /// Historique des transactions de paiement.
   static const String paymentHistory = '/payments';
 
   /// Annulation d'un abonnement Premium actif.
   static const String cancelSubscription = '/payments/cancel-subscription';
+
+  /// Paiement de l'abonnement Premium directement via le portefeuille Kauri.
+  static const String paySubscriptionWallet = '/payments/pay/wallet';
 
   // --- Notifications ---
   /// Gestion des notifications utilisateur.
@@ -203,6 +207,9 @@ class ApiConstants {
   // --- Abonnements Externe (Recurring Expenses) ---
   /// Gestion des abonnements récurrents détectés (Netflix, Spotify, etc.).
   static const String subscriptions = '/subscriptions';
+
+  /// Configuration dynamique et tarifs des forfaits Kauri (Free, Premium, Business).
+  static const String subscriptionPlans = '/subscriptions/plans';
 
   /// Détection automatique d'abonnements via les données SMS.
   static const String subscriptionsDetect = '/subscriptions/detect';

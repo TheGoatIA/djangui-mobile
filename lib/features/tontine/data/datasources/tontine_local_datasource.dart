@@ -22,6 +22,7 @@ abstract class TontineLocalDataSource {
     List<TontineMessageModel> messages,
   );
   Future<void> saveTontineMessage(TontineMessageModel message);
+  Future<void> deleteTontineMessage(String id);
 
   Future<List<TontineContributionModel>> getTontineContributions(
     String tontineId,
@@ -46,12 +47,18 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
 
   @override
   Future<void> saveTontines(List<TontineModel> tontines) async {
-    await _db.batch((batch) {
-      batch.insertAll(
-        _db.tontines,
-        tontines.map((t) => _mapModelToCompanion(t)),
-        mode: InsertMode.insertOrReplace,
-      );
+    // Full replace: this is always fed the complete authoritative list for the
+    // current user, so any local row missing from it means the user lost
+    // access (left/removed/deleted) and must be purged, not just left behind.
+    await _db.transaction(() async {
+      await _db.delete(_db.tontines).go();
+      await _db.batch((batch) {
+        batch.insertAll(
+          _db.tontines,
+          tontines.map((t) => _mapModelToCompanion(t)),
+          mode: InsertMode.insertOrReplace,
+        );
+      });
     });
   }
 
@@ -64,7 +71,18 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
 
   @override
   Future<void> deleteTontine(String id) async {
-    await (_db.delete(_db.tontines)..where((t) => t.id.equals(id))).go();
+    await _db.transaction(() async {
+      await (_db.delete(_db.tontines)..where((t) => t.id.equals(id))).go();
+      await (_db.delete(
+        _db.tontineMembers,
+      )..where((t) => t.tontineId.equals(id))).go();
+      await (_db.delete(
+        _db.tontineMessages,
+      )..where((t) => t.tontineId.equals(id))).go();
+      await (_db.delete(
+        _db.tontineContributions,
+      )..where((t) => t.tontineId.equals(id))).go();
+    });
   }
 
   @override
@@ -82,9 +100,6 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
             parts: row.parts,
             trustScore: row.trustScore,
             hasPaidSocialFund: row.hasPaidSocialFund,
-            payoutDetails: row.payoutDetails != null
-                ? json.decode(row.payoutDetails!) as Map<String, dynamic>
-                : null,
           ),
         )
         .toList();
@@ -95,25 +110,29 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
     String tontineId,
     List<TontineMemberModel> members,
   ) async {
-    await _db.batch((batch) {
-      batch.insertAll(
+    // Full replace scoped to this tontine: members removed server-side (left,
+    // kicked) must disappear from the local cache too, not just accumulate.
+    await _db.transaction(() async {
+      await (_db.delete(
         _db.tontineMembers,
-        members.map(
-          (m) => TontineMembersCompanion.insert(
-            id: m.id,
-            tontineId: m.tontineId,
-            userId: m.userId,
-            displayName: m.displayName,
-            parts: Value(m.parts),
-            trustScore: Value(m.trustScore),
-            hasPaidSocialFund: Value(m.hasPaidSocialFund),
-            payoutDetails: Value(
-              m.payoutDetails != null ? json.encode(m.payoutDetails) : null,
+      )..where((t) => t.tontineId.equals(tontineId))).go();
+      await _db.batch((batch) {
+        batch.insertAll(
+          _db.tontineMembers,
+          members.map(
+            (m) => TontineMembersCompanion.insert(
+              id: m.id,
+              tontineId: m.tontineId,
+              userId: m.userId,
+              displayName: m.displayName,
+              parts: Value(m.parts),
+              trustScore: Value(m.trustScore),
+              hasPaidSocialFund: Value(m.hasPaidSocialFund),
             ),
           ),
-        ),
-        mode: InsertMode.insertOrReplace,
-      );
+          mode: InsertMode.insertOrReplace,
+        );
+      });
     });
   }
 
@@ -137,6 +156,9 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
             tontineId: row.tontineId,
             senderId: row.senderId,
             content: row.content,
+            type: row.type,
+            audioUrl: row.audioUrl,
+            audioDuration: row.audioDuration,
             createdAt: row.createdAt,
           ),
         )
@@ -148,6 +170,11 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
     String tontineId,
     List<TontineMessageModel> messages,
   ) async {
+    // Not a full replace: an offline-composed message can still be sitting
+    // here as a "temp_" row awaiting sync when this runs, and wiping the
+    // table before re-inserting the server's list would delete it before its
+    // pending send is confirmed. That row is cleaned up precisely, once sync
+    // confirms it, in TontineRepositoryImpl.sendMessage/SyncService instead.
     await _db.batch((batch) {
       batch.insertAll(
         _db.tontineMessages,
@@ -157,12 +184,22 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
             tontineId: m.tontineId,
             senderId: m.senderId,
             content: m.content,
+            type: Value(m.type),
+            audioUrl: Value(m.audioUrl),
+            audioDuration: Value(m.audioDuration),
             createdAt: m.createdAt,
           ),
         ),
         mode: InsertMode.insertOrReplace,
       );
     });
+  }
+
+  @override
+  Future<void> deleteTontineMessage(String id) async {
+    await (_db.delete(
+      _db.tontineMessages,
+    )..where((t) => t.id.equals(id))).go();
   }
 
   @override
@@ -175,6 +212,9 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
             tontineId: message.tontineId,
             senderId: message.senderId,
             content: message.content,
+            type: Value(message.type),
+            audioUrl: Value(message.audioUrl),
+            audioDuration: Value(message.audioDuration),
             createdAt: message.createdAt,
           ),
         );
@@ -211,26 +251,34 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
     String tontineId,
     List<TontineContributionModel> contributions,
   ) async {
-    await _db.batch((batch) {
-      batch.insertAll(
+    // Full replace scoped to this tontine: this is always fed the complete
+    // server list for it, so nothing here is a client-only draft awaiting
+    // sync (unlike messages) — safe to purge anything no longer present.
+    await _db.transaction(() async {
+      await (_db.delete(
         _db.tontineContributions,
-        contributions.map(
-          (c) => TontineContributionsCompanion.insert(
-            id: c.id,
-            tontineId: c.tontineId,
-            memberId: c.memberId,
-            turnIndex: c.turnIndex,
-            amountPaid: c.amountPaid,
-            proofImage: Value(c.proofImage),
-            validationStatus: Value(c.validationStatus),
-            createdAt: c.createdAt,
-            aiAnalysis: Value(
-              c.aiAnalysis != null ? json.encode(c.aiAnalysis) : null,
+      )..where((t) => t.tontineId.equals(tontineId))).go();
+      await _db.batch((batch) {
+        batch.insertAll(
+          _db.tontineContributions,
+          contributions.map(
+            (c) => TontineContributionsCompanion.insert(
+              id: c.id,
+              tontineId: c.tontineId,
+              memberId: c.memberId,
+              turnIndex: c.turnIndex,
+              amountPaid: c.amountPaid,
+              proofImage: Value(c.proofImage),
+              validationStatus: Value(c.validationStatus),
+              createdAt: c.createdAt,
+              aiAnalysis: Value(
+                c.aiAnalysis != null ? json.encode(c.aiAnalysis) : null,
+              ),
             ),
           ),
-        ),
-        mode: InsertMode.insertOrReplace,
-      );
+          mode: InsertMode.insertOrReplace,
+        );
+      });
     });
   }
 
@@ -260,9 +308,6 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
       socialFund: row.socialFund != null
           ? json.decode(row.socialFund!) as Map<String, dynamic>
           : {},
-      escrowDetails: row.escrowDetails != null
-          ? List<Map<String, dynamic>>.from(json.decode(row.escrowDetails!))
-          : null,
       autoRenew: row.autoRenew,
       rulesAcceptedByAll: row.rulesAcceptedByAll,
       turnSummary: extraData != null && extraData.containsKey('turnSummary')
@@ -292,9 +337,6 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
       validationMode: Value(t.validationMode),
       sanctions: Value(json.encode(t.sanctions)),
       socialFund: Value(json.encode(t.socialFund)),
-      escrowDetails: Value(
-        t.escrowDetails != null ? json.encode(t.escrowDetails) : null,
-      ),
       autoRenew: Value(t.autoRenew),
       rulesAcceptedByAll: Value(t.rulesAcceptedByAll),
       extraData: Value(

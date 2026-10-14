@@ -34,7 +34,7 @@ abstract class AuthRemoteDataSource {
   Future<void> updateFcmToken(String token);
   Future<void> updateDeviceInfo(DeviceInfoRequest request);
   Future<void> changePassword(String currentPassword, String newPassword);
-  Future<void> deleteAccount();
+  Future<void> deleteAccount({String? password});
   Future<List<SessionModel>> getSessions();
   Future<void> revokeSession(String sessionId);
   Future<void> revokeAllOtherSessions();
@@ -42,11 +42,14 @@ abstract class AuthRemoteDataSource {
   Future<void> logConnection(ConnectionRequest request);
   Future<CountryChangeRequestModel> requestCountryChange(String countryCode);
   Future<void> updateLanguage(String languageCode);
+  Future<void> logout([String? refreshToken]);
   Future<Map<String, dynamic>> submitKYC({
     required String documentType,
     required String documentNumber,
     required String fullName,
+    String? documentExpiryDate,
     required String documentImageUrl,
+    String? documentBackImageUrl,
     required String selfieImageUrl,
   });
 }
@@ -57,6 +60,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final AuthLocalDataSource _localDataSource;
 
   AuthRemoteDataSourceImpl(this._apiService, this._localDataSource);
+
+  @override
+  Future<void> logout([String? refreshToken]) async {
+    try {
+      await _apiService.logout();
+    } catch (e) {
+      debugPrint('⚠️ [AuthRemoteDataSource] Remote logout error: $e');
+    }
+  }
 
   @override
   Future<AuthResponse> firebaseLogin(String idToken, {String? country}) async {
@@ -104,9 +116,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<AuthResponse> register(RegisterRequest request) async {
-    debugPrint(
-      '🌐 [AuthRemoteDataSource] Registering user with: ${request.toJson()}',
-    );
+    debugPrint('🌐 [AuthRemoteDataSource] Registering user: ${request.email}');
     final response = await _apiService.register(request);
     if (response.isSuccessful && response.body?.data != null) {
       return response.body!.data!;
@@ -229,9 +239,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String currentPassword,
     String newPassword,
   ) async {
+    // Identifies THIS device's session so the API keeps it signed in while
+    // signing every other device out after the password change.
+    final refreshToken = await _localDataSource.getRefreshToken();
     final response = await _apiService.changePassword({
       'currentPassword': currentPassword,
       'newPassword': newPassword,
+      if (refreshToken != null) 'refreshToken': refreshToken,
     });
     if (!response.isSuccessful) {
       throw Exception(response.errorMessage);
@@ -239,8 +253,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> deleteAccount() async {
-    final response = await _apiService.deleteAccount();
+  Future<void> deleteAccount({String? password}) async {
+    // The API requires the account password for password-based accounts
+    // (Firebase-only accounts have none and send an empty body).
+    final response = await _apiService.deleteAccount({
+      if (password != null && password.isNotEmpty) 'password': password,
+    });
     if (!response.isSuccessful) {
       throw Exception(response.errorMessage);
     }
@@ -368,14 +386,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String documentType,
     required String documentNumber,
     required String fullName,
+    String? documentExpiryDate,
     required String documentImageUrl,
+    String? documentBackImageUrl,
     required String selfieImageUrl,
   }) async {
     final response = await _apiService.submitKYC({
       'documentType': documentType,
       'documentNumber': documentNumber,
       'fullName': fullName,
+      if (documentExpiryDate != null && documentExpiryDate.isNotEmpty)
+        'documentExpiryDate': documentExpiryDate,
       'documentImageUrl': documentImageUrl,
+      if (documentBackImageUrl != null && documentBackImageUrl.isNotEmpty)
+        'documentBackImageUrl': documentBackImageUrl,
       'selfieImageUrl': selfieImageUrl,
     });
 

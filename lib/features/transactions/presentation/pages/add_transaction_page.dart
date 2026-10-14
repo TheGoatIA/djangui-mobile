@@ -17,7 +17,7 @@ import '../../../budgets/presentation/bloc/budgets_state.dart';
 import '../../../../core/constants/app_categories.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
@@ -89,23 +89,42 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   }
 
   /// Démarre le tutoriel pour la création de transactions.
+  ///
+  /// La cible de scan OCR n'est construite que si le feature flag est actif
+  /// (voir le BlocBuilder du SystemBloc dans l'AppBar) : on ne l'inclut donc
+  /// dans la séquence que dans ce cas, sinon le tutoriel resterait bloqué.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('add_transaction')) {
-      if (ModalRoute.of(context)?.isCurrent != true) return;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_scanKey, _amountKey]);
-        tutorialService.markTutorialAsSeen('add_transaction');
-      });
-    }
+    if (tutorialService.hasSeenTutorial('add_transaction')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final showScanStep = context
+          .read<SystemBloc>()
+          .state
+          .featureFlags
+          .featScanUpload
+          .isEnabled;
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'add_transaction', [
+        if (showScanStep)
+          TutorialStep(
+            targetKey: _scanKey,
+            title: l10n.tutorialOCRTitle,
+            description: l10n.tutorialOCRDesc,
+          ),
+        TutorialStep(
+          targetKey: _amountKey,
+          title: l10n.tutorialAddTransactionTitle,
+          description: l10n.tutorialAddTransactionDesc,
+        ),
+      ]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     _amountController.dispose();
     _descriptionController.dispose();
     _subcategoryController.dispose();
@@ -129,7 +148,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           content: Text(AppLocalizations.of(context)!.ocrPremiumRestriction),
           action: SnackBarAction(
             label: AppLocalizations.of(context)!.seeOffers,
-            onPressed: () => context.push(RouteConstants.subscription),
+            onPressed: () {
+              if (!mounted) return;
+              context.push(RouteConstants.subscription);
+            },
           ),
         ),
       );
@@ -174,6 +196,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
     final image = await ocrService.pickImage(source);
     if (image == null) return;
+    if (!mounted) return;
 
     setState(() => _isScanning = true);
 
@@ -195,6 +218,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         },
       );
 
+      if (!mounted) return;
       setState(() {
         if (result.amount != null) {
           _amountController.text = result.amount!.toStringAsFixed(0);
@@ -249,7 +273,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         }
       }
     } catch (e) {
-      setState(() => _isScanning = false);
       getIt<LogService>().error(
         'Erreur technique lors du scan OCR',
         error: e,
@@ -257,6 +280,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         page: 'AddTransaction',
       );
       if (mounted) {
+        setState(() => _isScanning = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.receiptScannedError),
@@ -405,12 +429,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         ),
                       );
                     }
-                    return Showcase(
+                    return KeyedSubtree(
                       key: _scanKey,
-                      title: AppLocalizations.of(context)!.tutorialOCRTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialOCRDesc,
                       child: IconButton(
                         icon: const Icon(Icons.qr_code_scanner),
                         onPressed: _onScanReceipt,
@@ -457,14 +477,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     const SizedBox(height: 24),
 
                     // Champ Montant
-                    Showcase(
+                    KeyedSubtree(
                       key: _amountKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialAddTransactionTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialAddTransactionDesc,
                       child: AppTextField(
                         controller: _amountController,
                         label: AppLocalizations.of(context)!.amountLabel,

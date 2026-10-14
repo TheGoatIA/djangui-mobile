@@ -12,6 +12,8 @@ import '../../domain/repositories/auth_repository.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../core/mixins/secure_screen_mixin.dart';
+import '../../../../core/services/tutorial_service.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
@@ -27,6 +29,7 @@ class _SecurityPageState extends State<SecurityPage>
   List<BiometricType>? _availableBiometrics;
   bool _isPasswordProvider = false;
   bool _isLoadingProvider = true;
+  final GlobalKey _biometricKey = GlobalKey();
 
   @override
   void initState() {
@@ -37,6 +40,37 @@ class _SecurityPageState extends State<SecurityPage>
     );
     _checkBiometrics();
     _checkLoginProvider();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTutorial());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.watch<TutorialService>();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTutorial());
+  }
+
+  void _startTutorial() {
+    final tutorialService = getIt<TutorialService>();
+    if (tutorialService.hasSeenTutorial('security')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'security', [
+        TutorialStep(
+          targetKey: _biometricKey,
+          title: l10n.tutorialSecurityBiometricTitle,
+          description: l10n.tutorialSecurityBiometricDesc,
+        ),
+      ]);
+    });
+  }
+
+  @override
+  void dispose() {
+    getIt<TutorialService>().cancelActiveTutorial(context);
+    super.dispose();
   }
 
   Future<void> _checkLoginProvider() async {
@@ -67,6 +101,7 @@ class _SecurityPageState extends State<SecurityPage>
     if (canCheckBiometrics) {
       try {
         final availableBiometrics = await auth.getAvailableBiometrics();
+        if (!mounted) return;
         setState(() {
           _availableBiometrics = availableBiometrics;
         });
@@ -77,6 +112,7 @@ class _SecurityPageState extends State<SecurityPage>
   }
 
   void _showDeleteAccountConfirmation() {
+    final passwordController = TextEditingController();
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -84,20 +120,44 @@ class _SecurityPageState extends State<SecurityPage>
           AppLocalizations.of(context)!.deleteAccount,
           style: TextStyle(color: Theme.of(context).colorScheme.error),
         ),
-        content: Text(AppLocalizations.of(context)!.deleteAccountDescription),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppLocalizations.of(context)!.deleteAccountDescription),
+            const SizedBox(height: 16),
+            // Re-authentication: the API refuses to delete a password-based
+            // account without it (a stolen session alone is not enough).
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              autocorrect: false,
+              enableSuggestions: false,
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.password,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
+            onPressed: () {
+              Navigator.pop(dialogContext);
+            },
             child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
+              final password = passwordController.text;
               Navigator.pop(dialogContext);
               getIt<LogService>().info(
                 'Action: Suppression de compte confirmée',
                 component: 'SecurityPage',
               );
-              context.read<AuthBloc>().add(AuthDeleteAccountRequested());
+              context.read<AuthBloc>().add(
+                AuthDeleteAccountRequested(password: password),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
@@ -162,58 +222,61 @@ class _SecurityPageState extends State<SecurityPage>
               const SizedBox(height: 12),
               BlocBuilder<SettingsBloc, SettingsState>(
                 builder: (context, state) {
-                  return SwitchListTile(
-                    secondary: Icon(
-                      _getBiometricIcon(),
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    title: Text(l10n.enableBiometrics),
-                    subtitle: Text(l10n.biometricsDescription),
-                    value: state.biometricsEnabled,
-                    onChanged:
-                        (_canCheckBiometrics &&
-                            (_availableBiometrics?.isNotEmpty ?? false))
-                        ? (value) async {
-                            if (value) {
-                              // If enabling, check if we need to save credentials
-                              final repo = getIt<AuthRepository>();
-                              final credentials = await repo
-                                  .getBiometricCredentials();
-                              final provider = await repo.getLoginProvider();
+                  return KeyedSubtree(
+                    key: _biometricKey,
+                    child: SwitchListTile(
+                      secondary: Icon(
+                        _getBiometricIcon(),
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: Text(l10n.enableBiometrics),
+                      subtitle: Text(l10n.biometricsDescription),
+                      value: state.biometricsEnabled,
+                      onChanged:
+                          (_canCheckBiometrics &&
+                              (_availableBiometrics?.isNotEmpty ?? false))
+                          ? (value) async {
+                              if (value) {
+                                // Toujours repasser par la collecte de
+                                // consentement à l'activation — ne JAMAIS
+                                // sonder l'existence d'un jeton biométrique
+                                // via getBiometricToken() ici : ce stockage
+                                // est protégé matériellement (audit F-01), un
+                                // simple test de présence y déclencherait une
+                                // invite biométrique réelle et inattendue au
+                                // seul geste d'afficher cet écran.
+                                final provider = await getIt<AuthRepository>()
+                                    .getLoginProvider();
 
-                              if (!context.mounted) return;
+                                if (!context.mounted) return;
 
-                              if (credentials == null &&
-                                  provider == 'password') {
-                                _showPasswordDialog(context);
-                              } else if (credentials == null &&
-                                  provider != null &&
-                                  provider != 'password') {
-                                // For social logins, just save the token
-                                context.read<AuthBloc>().add(
-                                  AuthSetupBiometricsSocialRequested(),
-                                );
+                                if (provider == 'password') {
+                                  _showPasswordDialog(context);
+                                } else {
+                                  // Connexion sociale/téléphone : pas de mot
+                                  // de passe à vérifier, la session déjà
+                                  // active suffit de preuve d'identité.
+                                  context.read<AuthBloc>().add(
+                                    AuthSetupBiometricsSocialRequested(),
+                                  );
+                                }
                               } else {
                                 context.read<SettingsBloc>().add(
                                   ToggleBiometrics(value),
                                 );
                               }
-                            } else {
-                              context.read<SettingsBloc>().add(
-                                ToggleBiometrics(value),
-                              );
                             }
-                          }
-                        : (value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Please enroll biometrics in your device settings first.',
+                          : (value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please enroll biometrics in your device settings first.',
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                    activeThumbColor: Theme.of(context).colorScheme.primary,
+                              );
+                            },
+                      activeThumbColor: Theme.of(context).colorScheme.primary,
+                    ),
                   );
                 },
               ),
@@ -328,6 +391,8 @@ class _SecurityPageState extends State<SecurityPage>
                   TextFormField(
                     controller: passwordController,
                     obscureText: true,
+                    autocorrect: false,
+                    enableSuggestions: false,
                     decoration: const InputDecoration(
                       labelText: 'Password',
                       border: OutlineInputBorder(),

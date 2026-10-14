@@ -6,6 +6,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
 import '../bloc/auth_bloc.dart';
+import '../../../../core/utils/password_validator.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -30,6 +31,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       'Affichage de la page de changement de mot de passe.',
       component: 'ChangePasswordPage',
     );
+  }
+
+  @override
+  void dispose() {
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -75,6 +84,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 TextFormField(
                   controller: _currentPasswordController,
                   obscureText: _obscureCurrent,
+                  autocorrect: false,
+                  enableSuggestions: false,
                   decoration: InputDecoration(
                     labelText: l10n.currentPassword,
                     prefixIcon: const Icon(Icons.lock_outline),
@@ -96,6 +107,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 TextFormField(
                   controller: _newPasswordController,
                   obscureText: _obscureNew,
+                  autocorrect: false,
+                  enableSuggestions: false,
                   decoration: InputDecoration(
                     labelText: l10n.newPassword,
                     prefixIcon: const Icon(Icons.lock_reset),
@@ -107,20 +120,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           setState(() => _obscureNew = !_obscureNew),
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return l10n.requiredField;
-                    }
-                    if (value.length < 6) {
-                      return l10n.passwordTooShort;
-                    }
-                    return null;
-                  },
+                  validator: (value) => PasswordValidator.validate(
+                    value,
+                    emptyError: l10n.requiredField,
+                    complexityError: l10n.passwordTooShort,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirm,
+                  autocorrect: false,
+                  enableSuggestions: false,
                   decoration: InputDecoration(
                     labelText: l10n.confirmNewPassword,
                     prefixIcon: const Icon(Icons.check_circle_outline),

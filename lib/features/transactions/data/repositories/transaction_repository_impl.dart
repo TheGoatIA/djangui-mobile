@@ -10,6 +10,7 @@ import '../models/transaction_model.dart';
 import '../../../../core/database/database.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: TransactionRepository)
 class TransactionRepositoryImpl implements TransactionRepository {
@@ -62,7 +63,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
           error: e,
           component: 'TransactionRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       final localTransactions = await _localDataSource.getTransactions();
@@ -110,15 +111,17 @@ class TransactionRepositoryImpl implements TransactionRepository {
         );
         return Right(remoteTransaction);
       } catch (e) {
+        // Rollback de l'écriture optimiste locale en cas de rejet synchrone du serveur (K-16)
+        await _localDataSource.deleteTransaction(transaction.id);
         _logger.error(
-          'Échec de la création de la transaction sur le serveur',
+          'Échec de la création de la transaction sur le serveur - rollback local effectué',
           error: e,
           component: 'TransactionRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
-      // Offline: Queue it
+      // Offline: Queue it with unique idempotency key (K-17)
       _logger.info(
         'Mode hors-ligne: Transaction ajoutée à la file d\'attente de synchronisation.',
         component: 'TransactionRepository',
@@ -159,7 +162,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
           error: e,
           component: 'TransactionRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       // Offline: Queue it

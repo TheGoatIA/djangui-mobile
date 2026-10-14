@@ -31,4 +31,28 @@ abstract class GoalApiService extends ChopperService {
     @Path('id') String id,
     @Body() Map<String, dynamic> body,
   );
+
+  @POST(path: '/{id}/share')
+  Future<Response<BaseResponse<Map<String, dynamic>>>> shareGoal(
+    @Path('id') String id,
+  );
+
+  @POST(path: '/join')
+  Future<Response<BaseResponse<GoalModel>>> joinGoal(
+    @Body() Map<String, dynamic> body,
+  );
+
+  @GET(path: '/{id}/participants')
+  Future<Response<BaseListResponse<GoalParticipantModel>>> getParticipants(
+    @Path('id') String id,
+  );
+
+  @DELETE(path: '/{id}/participants/{participantId}')
+  Future<Response<BaseResponse<dynamic>>> removeParticipant(
+    @Path('id') String id,
+    @Path('participantId') String participantId,
+  );
+
+  @POST(path: '/{id}/leave')
+  Future<Response<BaseResponse<dynamic>>> leaveGoal(@Path('id') String id);
 }

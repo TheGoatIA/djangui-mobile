@@ -11,6 +11,7 @@ class DashboardReportModel extends Equatable {
   final double savingsRate;
   final String currency;
   final BudgetHealthModel? budgetHealth;
+  final ResteAVivreModel? resteAVivre;
 
   const DashboardReportModel({
     required this.walletBalance,
@@ -19,6 +20,7 @@ class DashboardReportModel extends Equatable {
     required this.savingsRate,
     this.currency = 'XAF',
     this.budgetHealth,
+    this.resteAVivre,
   });
 
   factory DashboardReportModel.fromJson(Map<String, dynamic> json) =>
@@ -33,7 +35,25 @@ class DashboardReportModel extends Equatable {
     savingsRate,
     currency,
     budgetHealth,
+    resteAVivre,
   ];
+}
+
+/// Somme (allocated - spent) du budget propre + de tous les budgets partagés
+/// où l'utilisateur est participant actif, pour le mois en cours.
+@JsonSerializable()
+class ResteAVivreModel extends Equatable {
+  final double amount;
+  final String currency;
+
+  const ResteAVivreModel({required this.amount, this.currency = 'XAF'});
+
+  factory ResteAVivreModel.fromJson(Map<String, dynamic> json) =>
+      _$ResteAVivreModelFromJson(json);
+  Map<String, dynamic> toJson() => _$ResteAVivreModelToJson(this);
+
+  @override
+  List<Object?> get props => [amount, currency];
 }
 
 @JsonSerializable()
@@ -125,4 +145,54 @@ class NarrativeReportModel extends Equatable {
     tone,
     healthScore,
   ];
+}
+
+@JsonSerializable()
+class ForecastPointModel extends Equatable {
+  final String date;
+  final double balance;
+
+  const ForecastPointModel({required this.date, required this.balance});
+
+  factory ForecastPointModel.fromJson(Map<String, dynamic> json) =>
+      _$ForecastPointModelFromJson(json);
+  Map<String, dynamic> toJson() => _$ForecastPointModelToJson(this);
+
+  @override
+  List<Object?> get props => [date, balance];
+}
+
+@JsonSerializable()
+class ForecastReportModel extends Equatable {
+  final List<ForecastPointModel> forecast;
+  final List<String> insights;
+  final String? criticalAlert;
+
+  const ForecastReportModel({
+    this.forecast = const [],
+    this.insights = const [],
+    this.criticalAlert,
+  });
+
+  factory ForecastReportModel.fromJson(Map<String, dynamic> json) =>
+      _$ForecastReportModelFromJson(json);
+  Map<String, dynamic> toJson() => _$ForecastReportModelToJson(this);
+
+  @override
+  List<Object?> get props => [forecast, insights, criticalAlert];
+}
+
+@JsonSerializable()
+class HealthScorePointModel extends Equatable {
+  final String period;
+  final int score;
+
+  const HealthScorePointModel({required this.period, required this.score});
+
+  factory HealthScorePointModel.fromJson(Map<String, dynamic> json) =>
+      _$HealthScorePointModelFromJson(json);
+  Map<String, dynamic> toJson() => _$HealthScorePointModelToJson(this);
+
+  @override
+  List<Object?> get props => [period, score];
 }

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:sqlite3/sqlite3.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -95,10 +96,19 @@ class Goals extends Table {
   DateTimeColumn get deadline => dateTime()();
   TextColumn get category => text().nullable()();
   TextColumn get status => text().withDefault(const Constant('active'))();
+  TextColumn get priority => text().withDefault(const Constant('medium'))();
+  RealColumn get progress => real().withDefault(const Constant(0.0))();
   TextColumn get strategy => text().nullable()(); // JSON
   TextColumn get autoSaveRules => text().nullable()(); // JSON
+  TextColumn get contributions =>
+      text().withDefault(const Constant('[]'))(); // JSON
   BoolColumn get isShared => boolean().withDefault(const Constant(false))();
+  // Colonne conservée mais plus utilisée depuis le passage aux vrais objectifs
+  // collaboratifs (GoalParticipant côté serveur) — aucune migration existante
+  // dans ce fichier ne supprime de colonne, on ne commence pas ici.
   TextColumn get participants => text().withDefault(const Constant('[]'))();
+  TextColumn get inviteCode => text().nullable()();
+  BoolColumn get isOwner => boolean().withDefault(const Constant(true))();
   TextColumn get image => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
@@ -135,6 +145,9 @@ class ChatMessages extends Table {
   TextColumn get content => text()();
   TextColumn get sender => text()();
   DateTimeColumn get timestamp => dateTime()();
+  // 'sent' (défaut, y compris tout l'historique distant) / 'sending' /
+  // 'failed' — voir ChatMessageModel.status.
+  TextColumn get status => text().withDefault(const Constant('sent'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -240,6 +253,9 @@ class TontineMessages extends Table {
   TextColumn get tontineId => text()();
   TextColumn get senderId => text()();
   TextColumn get content => text()();
+  TextColumn get type => text().withDefault(const Constant('text'))();
+  TextColumn get audioUrl => text().nullable()();
+  IntColumn get audioDuration => integer().nullable()();
   DateTimeColumn get createdAt => dateTime()();
 
   @override
@@ -262,6 +278,78 @@ class TontineContributions extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+// Singleton row (fixed id) caching the last dashboard report fetched — there
+// is only ever one, per logged-in user, so a single-row table is simpler
+// than a list-shaped one for this.
+class DashboardReports extends Table {
+  IntColumn get id => integer().withDefault(const Constant(1))();
+  RealColumn get walletBalance => real()();
+  RealColumn get monthlyIncome => real()();
+  RealColumn get totalSpent => real()();
+  RealColumn get savingsRate => real()();
+  TextColumn get currency => text().withDefault(const Constant('XAF'))();
+  TextColumn get budgetHealth => text().nullable()(); // JSON
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Un cache par période ('weekly'/'monthly'/'yearly') : changer de sélecteur
+// dans Insights doit pouvoir repeindre instantanément depuis un cache déjà
+// vu pour cette période, sans écraser celui des deux autres.
+class SpendingAnalysisCache extends Table {
+  TextColumn get period => text()();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {period};
+}
+
+class SavingsTrendCache extends Table {
+  TextColumn get period => text()();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {period};
+}
+
+// Le rapport narratif IA n'est jamais paramétré par période (toujours centré
+// sur le mois calendaire courant côté backend) — une seule ligne suffit,
+// même convention que DashboardReports.
+class NarrativeReportCache extends Table {
+  IntColumn get id => integer().withDefault(const Constant(1))();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Prévision de solde à 30 jours — même convention à ligne unique : une seule
+// prévision à la fois par utilisateur, régénérée en écrasant la précédente.
+class ForecastCache extends Table {
+  IntColumn get id => integer().withDefault(const Constant(1))();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Historique du score de santé financière (une liste de points, pas une
+// période individuelle) — ligne unique contenant tout l'historique connu.
+class HealthScoreHistoryCache extends Table {
+  IntColumn get id => integer().withDefault(const Constant(1))();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(
   tables: [
     Users,
@@ -278,13 +366,19 @@ class TontineContributions extends Table {
     TontineMembers,
     TontineMessages,
     TontineContributions,
+    DashboardReports,
+    SpendingAnalysisCache,
+    SavingsTrendCache,
+    NarrativeReportCache,
+    ForecastCache,
+    HealthScoreHistoryCache,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 27;
 
   @override
   MigrationStrategy get migration {
@@ -318,6 +412,35 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(tontineMembers);
           await m.createTable(tontineMessages);
           await m.createTable(tontineContributions);
+        }
+        if (from < 21) {
+          await m.addColumn(tontineMessages, tontineMessages.type);
+          await m.addColumn(tontineMessages, tontineMessages.audioUrl);
+          await m.addColumn(tontineMessages, tontineMessages.audioDuration);
+        }
+        if (from < 22) {
+          await m.createTable(dashboardReports);
+        }
+        if (from < 23) {
+          await m.createTable(spendingAnalysisCache);
+          await m.createTable(savingsTrendCache);
+          await m.createTable(narrativeReportCache);
+        }
+        if (from < 24) {
+          await m.createTable(forecastCache);
+          await m.createTable(healthScoreHistoryCache);
+        }
+        if (from < 25) {
+          await m.addColumn(chatMessages, chatMessages.status);
+        }
+        if (from < 26) {
+          await m.addColumn(goals, goals.priority);
+          await m.addColumn(goals, goals.progress);
+          await m.addColumn(goals, goals.contributions);
+        }
+        if (from < 27) {
+          await m.addColumn(goals, goals.inviteCode);
+          await m.addColumn(goals, goals.isOwner);
         }
       },
       beforeOpen: (details) async {
@@ -373,12 +496,22 @@ class AppDatabase extends _$AppDatabase {
       final executor = NativeDatabase(
         file,
         setup: (db) {
-          // Verify that the sqlite3 library uses SQLCipher
-          // (Requires sqlcipher_flutter_libs instead of sqlite3_flutter_libs)
           db.execute("PRAGMA key = '$dbKey';");
+          // Fails fast (debug builds only) if the linked SQLite build doesn't
+          // actually support encryption — e.g. if the `sqlite3mc` hook in
+          // pubspec.yaml was ever reverted to plain `sqlite3`, PRAGMA key
+          // above would silently no-op and the database would be stored
+          // in plaintext without any other visible symptom.
+          assert(_debugCheckHasCipher(db));
         },
       );
       return TelemetryQueryExecutor(executor);
     });
   }
+}
+
+/// Verifies the native SQLite build actually understands `PRAGMA cipher`
+/// (i.e. it's an encryption-capable build, not plain SQLite). Debug-only.
+bool _debugCheckHasCipher(Database database) {
+  return database.select('PRAGMA cipher;').isNotEmpty;
 }

@@ -15,6 +15,7 @@ ChatMessageModel _$ChatMessageModelFromJson(Map<String, dynamic> json) =>
       type: json['type'] as String? ?? 'text',
       metadata: json['metadata'] as Map<String, dynamic>?,
       actions: json['actions'] as List<dynamic>?,
+      status: json['status'] as String? ?? 'sent',
     );
 
 Map<String, dynamic> _$ChatMessageModelToJson(ChatMessageModel instance) =>
@@ -26,4 +27,5 @@ Map<String, dynamic> _$ChatMessageModelToJson(ChatMessageModel instance) =>
       'type': instance.type,
       'metadata': instance.metadata,
       'actions': instance.actions,
+      'status': instance.status,
     };

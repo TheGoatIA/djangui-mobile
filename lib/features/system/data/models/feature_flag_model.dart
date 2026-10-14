@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
+import '../../../../core/config/env_config.dart';
 
 part 'feature_flag_model.g.dart';
 
@@ -59,6 +60,20 @@ class FeatureFlagModel extends Equatable {
   final FeatureConfig featNotifications;
   @JsonKey(name: 'feat_subscriptions')
   final FeatureConfig featSubscriptions;
+  // Server-controlled master switch: whether Stripe/NotchPay real-money
+  // deposits/subscriptions and Mobile Money withdrawals are currently active.
+  // Unlike the other flags (which default to enabled), this one falls back to
+  // EnvConfig.enableRealMoney (itself defaulting to false) if the flags fetch
+  // fails — the safe/conservative choice for a real-money kill switch is to
+  // assume simulation mode, not silently assume real payments are live.
+  @JsonKey(name: 'feat_real_money')
+  final FeatureConfig featRealMoney;
+  // Countries currently allowed to move real money — mirrors the backend's
+  // admin-editable allowlist (FeatureFlagService.getRealMoneyCountries) so
+  // the client never needs its own hardcoded country literal that could
+  // drift from the real, server-side source of truth.
+  @JsonKey(name: 'real_money_countries')
+  final List<String> realMoneyCountries;
 
   const FeatureFlagModel({
     this.authGoogle = const FeatureConfig(),
@@ -80,8 +95,16 @@ class FeatureFlagModel extends Equatable {
     this.featChallenges = const FeatureConfig(),
     this.featNotifications = const FeatureConfig(),
     this.featSubscriptions = const FeatureConfig(),
+    this.featRealMoney = const FeatureConfig(isEnabled: EnvConfig.enableRealMoney),
+    this.realMoneyCountries = const ['CM'],
   });
 
+  // json_serializable correctly threads this constructor's default
+  // expression (`FeatureConfig(isEnabled: EnvConfig.enableRealMoney)`) into
+  // the generated fromJson fallback for a missing `feat_real_money` key —
+  // verified in feature_flag_model.g.dart after regeneration. No custom
+  // override needed; a stale generated file is what previously caused this
+  // fallback to resolve to `FeatureConfig()`'s own `isEnabled: true` default.
   factory FeatureFlagModel.fromJson(Map<String, dynamic> json) =>
       _$FeatureFlagModelFromJson(json);
 
@@ -108,5 +131,7 @@ class FeatureFlagModel extends Equatable {
     featChallenges,
     featNotifications,
     featSubscriptions,
+    featRealMoney,
+    realMoneyCountries,
   ];
 }

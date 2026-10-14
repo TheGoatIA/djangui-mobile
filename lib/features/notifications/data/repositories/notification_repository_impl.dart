@@ -7,6 +7,7 @@ import '../../data/models/notification_model.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: NotificationRepository)
 class NotificationRepositoryImpl implements NotificationRepository {
@@ -44,7 +45,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
           error: e,
           component: 'NotificationRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       _logger.warning(
@@ -75,7 +76,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
           error: e,
           component: 'NotificationRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       _logger.warning(
@@ -106,7 +107,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
           error: e,
           component: 'NotificationRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       _logger.warning(
@@ -124,7 +125,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         await _remoteDataSource.deleteNotification(id);
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return const Left(NetworkFailure('No internet connection'));
@@ -151,7 +152,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
           error: e,
           component: 'NotificationRepository',
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return const Left(NetworkFailure('No internet connection'));

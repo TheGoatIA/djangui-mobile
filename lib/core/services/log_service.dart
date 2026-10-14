@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kauri/core/config/env_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
-import 'package:kauri/di/injection.dart';
-import 'package:kauri/features/auth/domain/repositories/auth_repository.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:uuid/uuid.dart';
 
 enum LogLevel { info, warning, error, debug }
 
@@ -19,7 +19,7 @@ class LogService {
   Map<String, dynamic> _deviceMetadata = {};
 
   LogService() {
-    _endpoint = dotenv.env['API_LOGS_ENDPOINT'] ?? '';
+    _endpoint = EnvConfig.apiLogsEndpoint;
     _initMetadata();
   }
 
@@ -56,7 +56,12 @@ class LogService {
   String? _userId;
 
   void setUserId(String? userId) {
-    _userId = userId;
+    if (userId == null || userId.isEmpty) {
+      _userId = null;
+    } else {
+      // Hachage SHA-256 systématique de l'ID utilisateur (K-30)
+      _userId = sha256.convert(utf8.encode(userId)).toString();
+    }
   }
 
   /// Sends a log to the remote Graylog collector
@@ -67,17 +72,27 @@ class LogService {
     String? component,
     String? page,
   }) async {
+    // In development: log to console
+    if (kDebugMode) {
+      debugPrint('[${level.name.toUpperCase()}] $message | Meta: $metadata');
+    }
+
     if (_endpoint.isEmpty) return;
 
+    // En production, ne remonter à distance que les warnings et erreurs critiques (K-07)
+    if (kReleaseMode && (level == LogLevel.debug || level == LogLevel.info)) {
+      return;
+    }
+
     try {
-      final authRepository = getIt<AuthRepository>();
-      final token = await authRepository.getAccessToken();
+      final traceId = const Uuid().v4();
 
       final payload = {
         'level': level.name,
         'message': message,
         'metadata': {
           ..._deviceMetadata,
+          'trace_id': traceId,
           if (_userId != null) 'user_id': _userId,
           if (metadata != null) ...metadata,
           if (component != null) 'component': component,
@@ -86,9 +101,15 @@ class LogService {
         },
       };
 
+      // Ne jamais transmettre le Bearer token dans les en-têtes de télémétrie/logs (K-07).
+      // X-Client-Key identifie un client mobile officiel (pas un secret de session) —
+      // voir F-14 de l'audit sécurité : cet endpoint reste volontairement accessible
+      // sans connexion, mais ne doit pas non plus être ouvert à n'importe qui.
       final headers = {
         'Content-Type': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+        'X-Trace-Id': traceId,
+        if (EnvConfig.logsClientKey.isNotEmpty)
+          'X-Client-Key': EnvConfig.logsClientKey,
       };
 
       // Fire and forget to not block UI, but with error handling
@@ -99,22 +120,21 @@ class LogService {
             body: jsonEncode(payload),
           )
           .then((response) {
-            if (response.statusCode >= 400) {
+            if (response.statusCode >= 400 && kDebugMode) {
               debugPrint(
                 '❌ [LogService] Failed to send log (${response.statusCode}): ${response.body}',
               );
             }
           })
           .catchError((e) {
-            debugPrint('❌ [LogService] Network error sending log: $e');
+            if (kDebugMode) {
+              debugPrint('❌ [LogService] Network error sending log: $e');
+            }
           });
-
-      // Also log to local console in development
-      if (kDebugMode) {
-        debugPrint('[${level.name.toUpperCase()}] $message | Meta: $metadata');
-      }
     } catch (e) {
-      debugPrint('❌ [LogService] Error preparing log: $e');
+      if (kDebugMode) {
+        debugPrint('❌ [LogService] Error preparing log: $e');
+      }
     }
   }
 

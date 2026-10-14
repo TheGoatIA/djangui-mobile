@@ -3,6 +3,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:uuid/uuid.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
@@ -27,6 +29,7 @@ import '../../../../di/injection.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 /// Implémentation concrète de [AuthRepository].
 ///
@@ -38,6 +41,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource _localDataSource;
   final NetworkInfo _networkInfo;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   AuthRepositoryImpl(
     this._remoteDataSource,
@@ -46,6 +50,56 @@ class AuthRepositoryImpl implements AuthRepository {
   );
 
   LogService get _logger => getIt<LogService>();
+
+  /// Stable per-installation identifier, generated once and persisted — lets
+  /// the backend recognize "this is the same device" across logins (dedup
+  /// its `sessions[]` entry, and correctly attribute the device info synced
+  /// right after login instead of guessing at the most recent session).
+  Future<String> _getOrCreateDeviceId() async {
+    const key = 'kauri_device_id';
+    final existing = await _secureStorage.read(key: key);
+    if (existing != null && existing.isNotEmpty) return existing;
+    final generated = const Uuid().v4();
+    await _secureStorage.write(key: key, value: generated);
+    return generated;
+  }
+
+  /// Reads the real device model/OS/app version — shared by [login] (sent
+  /// with the credentials so the session is created with it from the start)
+  /// and [updateDeviceInfo] (kept as a fallback sync point for login methods
+  /// that don't go through [login], e.g. social/phone/biometric refresh).
+  Future<DeviceInfoRequest> _collectDeviceInfo() async {
+    final deviceInfoPlugin = DeviceInfoPlugin();
+    final packageInfo = await PackageInfo.fromPlatform();
+    String model = 'Unknown';
+    String os = 'Unknown';
+    String osVersion = 'Unknown';
+    String platform = 'unknown';
+
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfoPlugin.androidInfo;
+      model = '${androidInfo.manufacturer} ${androidInfo.model}';
+      os = 'Android';
+      osVersion = androidInfo.version.release;
+      platform = 'android';
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfoPlugin.iosInfo;
+      model = iosInfo.utsname.machine;
+      os = 'iOS';
+      osVersion = iosInfo.systemVersion;
+      platform = 'ios';
+    }
+
+    return DeviceInfoRequest(
+      deviceInfo: DeviceInfoDetails(
+        model: model,
+        os: os,
+        osVersion: osVersion,
+        platform: platform,
+      ),
+      appVersion: packageInfo.version,
+    );
+  }
 
   @override
   Future<Either<Failure, void>> verifyPhoneNumber(
@@ -70,7 +124,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return const Right(null);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -118,7 +172,7 @@ class AuthRepositoryImpl implements AuthRepository {
         error: e,
         component: 'AuthRepository',
       );
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -172,7 +226,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return const Right(null);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -235,7 +289,7 @@ class AuthRepositoryImpl implements AuthRepository {
         error: e,
         component: 'AuthRepository',
       );
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -303,7 +357,7 @@ class AuthRepositoryImpl implements AuthRepository {
         error: e,
         component: 'AuthRepository',
       );
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -330,7 +384,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _localDataSource.saveUser(user);
       return Right(user);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -338,7 +392,26 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, AuthResponse>> login(LoginRequest request) async {
     if (await _networkInfo.isConnected) {
       try {
-        final response = await _remoteDataSource.login(request);
+        // Best-effort: device info is only used to label the session in the
+        // Security page, never a login requirement — a collection failure
+        // (e.g. secure storage unavailable) must not block the login itself.
+        var enrichedRequest = request;
+        try {
+          final deviceId = await _getOrCreateDeviceId();
+          final device = await _collectDeviceInfo();
+          enrichedRequest = LoginRequest(
+            email: request.email,
+            password: request.password,
+            deviceId: deviceId,
+            deviceInfo: device.deviceInfo.toJson(),
+            appVersion: device.appVersion,
+          );
+        } catch (e) {
+          debugPrint(
+            '⚠️ [AuthRepository] Failed to collect device info for login: $e',
+          );
+        }
+        final response = await _remoteDataSource.login(enrichedRequest);
         // Sauvegarde persistante des jetons et de l'utilisateur.
         await _localDataSource.saveTokens(
           accessToken: response.tokens.accessToken,
@@ -346,11 +419,9 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         await _localDataSource.saveUser(response.user);
         await _localDataSource.saveLoginProvider('password');
-        // Sauvegarde des identifiants chiffrés pour permettre la connexion biométrique ultérieure.
-        await _localDataSource.saveCredentials(request.email, request.password);
         return Right(response);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -370,11 +441,9 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         await _localDataSource.saveUser(response.user);
         await _localDataSource.saveLoginProvider('password');
-        // Save credentials for biometrics
-        await _localDataSource.saveCredentials(request.email, request.password);
         return Right(response);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -394,7 +463,7 @@ class AuthRepositoryImpl implements AuthRepository {
         // Fallback to local cache if network fails
         final user = await _localDataSource.getUser();
         if (user != null) return Right(user);
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       final user = await _localDataSource.getUser();
@@ -406,8 +475,19 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> logout() async {
     try {
-      // 1. Call remote logout if needed (optional)
-      // await _remoteDataSource.logout();
+      // 1. Revoke server session first (best-effort, 5s timeout)
+      try {
+        final refresh = await _localDataSource.getRefreshToken();
+        if (refresh != null && refresh.isNotEmpty) {
+          await _remoteDataSource
+              .logout(refresh)
+              .timeout(const Duration(seconds: 5));
+        }
+      } catch (e) {
+        debugPrint(
+          '⚠️ [AuthRepository] Server logout failed (proceeding with local cleanup): $e',
+        );
+      }
 
       // 2. Clear local storage
       await _localDataSource.clearTokens();
@@ -451,7 +531,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.forgotPassword(email);
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -468,7 +548,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.resetPassword(token, newPassword);
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -482,7 +562,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.verifyEmail(token);
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -508,7 +588,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Right(null);
       } catch (e) {
         debugPrint('🌐 [AuthRepository] Token refresh failed: $e');
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -522,7 +602,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.updateFcmToken(token);
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -533,35 +613,12 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> updateDeviceInfo() async {
     if (await _networkInfo.isConnected) {
       try {
-        final deviceInfoPlugin = DeviceInfoPlugin();
-        final packageInfo = await PackageInfo.fromPlatform();
-        String model = 'Unknown';
-        String os = 'Unknown';
-        String osVersion = 'Unknown';
-        String platform = 'unknown';
-
-        if (Platform.isAndroid) {
-          final androidInfo = await deviceInfoPlugin.androidInfo;
-          model = '${androidInfo.manufacturer} ${androidInfo.model}';
-          os = 'Android';
-          osVersion = androidInfo.version.release;
-          platform = 'android';
-        } else if (Platform.isIOS) {
-          final iosInfo = await deviceInfoPlugin.iosInfo;
-          model = iosInfo.utsname.machine;
-          os = 'iOS';
-          osVersion = iosInfo.systemVersion;
-          platform = 'ios';
-        }
-
+        final deviceId = await _getOrCreateDeviceId();
+        final device = await _collectDeviceInfo();
         final request = DeviceInfoRequest(
-          deviceInfo: DeviceInfoDetails(
-            model: model,
-            os: os,
-            osVersion: osVersion,
-            platform: platform,
-          ),
-          appVersion: packageInfo.version,
+          deviceInfo: device.deviceInfo,
+          appVersion: device.appVersion,
+          deviceId: deviceId,
         );
 
         await _remoteDataSource.updateDeviceInfo(request);
@@ -580,14 +637,11 @@ class AuthRepositoryImpl implements AuthRepository {
     if (await _networkInfo.isConnected) {
       try {
         await _remoteDataSource.changePassword(currentPassword, newPassword);
-        // Update credentials for biometrics if they exist
-        final user = await _localDataSource.getUser();
-        if (user != null) {
-          await _localDataSource.saveCredentials(user.email, newPassword);
-        }
+        // Biometric unlock is backed by the refresh token, not the password,
+        // so it keeps working across a password change with nothing to update here.
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -595,15 +649,15 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteAccount() async {
+  Future<Either<Failure, void>> deleteAccount({String? password}) async {
     if (await _networkInfo.isConnected) {
       try {
-        await _remoteDataSource.deleteAccount();
+        await _remoteDataSource.deleteAccount(password: password);
         // Clear local data after deletion
         await logout();
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -617,7 +671,7 @@ class AuthRepositoryImpl implements AuthRepository {
         final sessions = await _remoteDataSource.getSessions();
         return Right(sessions);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -631,7 +685,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.revokeSession(sessionId);
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -645,21 +699,11 @@ class AuthRepositoryImpl implements AuthRepository {
         await _remoteDataSource.revokeAllOtherSessions();
         return const Right(null);
       } catch (e) {
-        return Left(AuthFailure(e.toString()));
+        return Left(AuthFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
     }
-  }
-
-  @override
-  Future<Map<String, String>?> getBiometricCredentials() async {
-    return _localDataSource.getCredentials();
-  }
-
-  @override
-  Future<void> clearBiometricCredentials() async {
-    await _localDataSource.clearCredentials();
   }
 
   @override
@@ -722,7 +766,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final request = await _remoteDataSource.requestCountryChange(countryCode);
       return Right(request);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -734,7 +778,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _remoteDataSource.updateLanguage(languageCode);
       return const Right(null);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -759,11 +803,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> clearBiometricToken() async {
+    await _localDataSource.clearBiometricToken();
+  }
+
+  @override
   Future<Either<Failure, Map<String, dynamic>>> submitKYC({
     required String documentType,
     required String documentNumber,
     required String fullName,
+    String? documentExpiryDate,
     required String documentImageUrl,
+    String? documentBackImageUrl,
     required String selfieImageUrl,
   }) async {
     if (!await _networkInfo.isConnected) return Left(NetworkFailure());
@@ -773,12 +824,14 @@ class AuthRepositoryImpl implements AuthRepository {
         documentType: documentType,
         documentNumber: documentNumber,
         fullName: fullName,
+        documentExpiryDate: documentExpiryDate,
         documentImageUrl: documentImageUrl,
+        documentBackImageUrl: documentBackImageUrl,
         selfieImageUrl: selfieImageUrl,
       );
       return Right(data);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
 

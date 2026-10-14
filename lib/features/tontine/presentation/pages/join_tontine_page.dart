@@ -24,10 +24,6 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
   final _codeController = TextEditingController();
   final _nameController = TextEditingController();
   final _partsController = TextEditingController(text: '1');
-  String _payoutType = 'mobile_money';
-  String _payoutProvider = 'MTN';
-  final _payoutAccountNumberController = TextEditingController();
-  final _payoutAccountNameController = TextEditingController();
 
   @override
   void initState() {
@@ -53,8 +49,6 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
     _codeController.dispose();
     _nameController.dispose();
     _partsController.dispose();
-    _payoutAccountNumberController.dispose();
-    _payoutAccountNameController.dispose();
     super.dispose();
   }
 
@@ -174,95 +168,6 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
                         ),
                         keyboardType: TextInputType.number,
                       ),
-                      const SizedBox(height: 24),
-                      Text(
-                        l10n.payoutDetails,
-                        style: AppTextStyles.h3.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        initialValue: _payoutType,
-                        decoration: InputDecoration(
-                          labelText: l10n.accountType,
-                          prefixIcon: const Icon(Icons.category_outlined),
-                        ),
-                        items: [
-                          DropdownMenuItem(
-                            value: 'mobile_money',
-                            child: Text(l10n.mobileMoney),
-                          ),
-                          DropdownMenuItem(
-                            value: 'bank_card',
-                            child: Text(l10n.bankCard),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() => _payoutType = value);
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        initialValue: _payoutProvider,
-                        decoration: InputDecoration(
-                          labelText: l10n.provider,
-                          prefixIcon: const Icon(
-                            Icons.account_balance_outlined,
-                          ),
-                        ),
-                        items: _payoutType == 'mobile_money'
-                            ? [
-                                const DropdownMenuItem(
-                                  value: 'MTN',
-                                  child: Text('MTN Mobile Money'),
-                                ),
-                                const DropdownMenuItem(
-                                  value: 'Orange',
-                                  child: Text('Orange Money'),
-                                ),
-                              ]
-                            : [
-                                const DropdownMenuItem(
-                                  value: 'UBA',
-                                  child: Text('UBA Bank'),
-                                ),
-                                const DropdownMenuItem(
-                                  value: 'Afriland',
-                                  child: Text('Afriland First Bank'),
-                                ),
-                              ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() => _payoutProvider = value);
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _payoutAccountNumberController,
-                        decoration: InputDecoration(
-                          labelText: l10n.accountNumber,
-                          hintText: _payoutType == 'mobile_money'
-                              ? '6xx xxx xxx'
-                              : 'RIB / IBAN',
-                          prefixIcon: const Icon(Icons.numbers_outlined),
-                        ),
-                        keyboardType: _payoutType == 'mobile_money'
-                            ? TextInputType.phone
-                            : TextInputType.text,
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _payoutAccountNameController,
-                        decoration: InputDecoration(
-                          labelText: l10n.accountName,
-                          hintText: l10n.lastNameHint,
-                          prefixIcon: const Icon(Icons.badge_outlined),
-                        ),
-                      ),
                       const SizedBox(height: 32),
                       BlocBuilder<TontineBloc, TontineState>(
                         builder: (context, state) {
@@ -277,17 +182,8 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
                                           _partsController.text.trim(),
                                         ) ??
                                         1;
-                                    final payoutNumber =
-                                        _payoutAccountNumberController.text
-                                            .trim();
-                                    final payoutName =
-                                        _payoutAccountNameController.text
-                                            .trim();
 
-                                    if (code.isNotEmpty &&
-                                        name.isNotEmpty &&
-                                        payoutNumber.isNotEmpty &&
-                                        payoutName.isNotEmpty) {
+                                    if (code.isNotEmpty && name.isNotEmpty) {
                                       getIt<LogService>().info(
                                         'Action: Tentative de rejoindre tontine $code',
                                         component: 'JoinTontinePage',
@@ -297,12 +193,6 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
                                           inviteCode: code,
                                           displayName: name,
                                           parts: parts,
-                                          payoutDetails: {
-                                            'type': _payoutType,
-                                            'provider': _payoutProvider,
-                                            'accountNumber': payoutNumber,
-                                            'accountName': payoutName,
-                                          },
                                         ),
                                       );
                                     } else {

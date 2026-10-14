@@ -2,9 +2,11 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/network_info.dart';
+import '../../../../core/network/api_response_extensions.dart';
 import 'package:kauri/features/payments/domain/repositories/payment_repository.dart';
 import 'package:kauri/features/payments/data/models/payment_model.dart';
 import 'package:kauri/features/payments/data/datasources/payments_api_service.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: PaymentRepository)
 class PaymentRepositoryImpl implements PaymentRepository {
@@ -28,9 +30,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
       if (response.isSuccessful && response.body?.data != null) {
         return Right(response.body!.data!);
       }
-      return Left(ServerFailure(response.error?.toString() ?? 'Erreur Stripe'));
+      return Left(ServerFailure(response.errorMessage));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -51,11 +53,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
       if (response.isSuccessful && response.body?.data != null) {
         return Right(response.body!.data!);
       }
-      return Left(
-        ServerFailure(response.error?.toString() ?? 'Erreur NotchPay'),
-      );
+      return Left(ServerFailure(response.errorMessage));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -70,11 +70,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
       if (response.isSuccessful && response.body?.data != null) {
         return Right(response.body!.data!);
       }
-      return Left(
-        ServerFailure(response.error?.toString() ?? 'Erreur Vérification'),
-      );
+      return Left(ServerFailure(response.errorMessage));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 }

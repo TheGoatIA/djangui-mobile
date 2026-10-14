@@ -1,3 +1,4 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
@@ -9,17 +10,34 @@ import '../../domain/repositories/subscription_repository.dart';
 part 'subscription_event.dart';
 part 'subscription_state.dart';
 
-@injectable
+@lazySingleton
 class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
   final SubscriptionRepository _repository;
   LogService get _logger => getIt<LogService>();
 
   SubscriptionBloc(this._repository) : super(const SubscriptionState()) {
     on<GetSubscriptionsRequested>(_onGetSubscriptionsRequested);
-    on<AddSubscriptionRequested>(_onAddSubscriptionRequested);
-    on<UpdateSubscriptionRequested>(_onUpdateSubscriptionRequested);
-    on<DeleteSubscriptionRequested>(_onDeleteSubscriptionRequested);
+    on<AddSubscriptionRequested>(
+      _onAddSubscriptionRequested,
+      transformer: droppable(),
+    );
+    on<UpdateSubscriptionRequested>(
+      _onUpdateSubscriptionRequested,
+      transformer: droppable(),
+    );
+    on<DeleteSubscriptionRequested>(
+      _onDeleteSubscriptionRequested,
+      transformer: droppable(),
+    );
     on<DetectSubscriptionsRequested>(_onDetectSubscriptionsRequested);
+    on<ResetSubscriptionRequested>(_onResetSubscriptionRequested);
+  }
+
+  void _onResetSubscriptionRequested(
+    ResetSubscriptionRequested event,
+    Emitter<SubscriptionState> emit,
+  ) {
+    emit(const SubscriptionState());
   }
 
   Future<void> _onGetSubscriptionsRequested(
@@ -42,7 +60,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         emit(
           state.copyWith(
             status: SubscriptionStatus.failure,
-            errorMessage: failure.toString(),
+            errorMessage: failure.message,
           ),
         );
       },
@@ -82,7 +100,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         emit(
           state.copyWith(
             status: SubscriptionStatus.failure,
-            errorMessage: failure.toString(),
+            errorMessage: failure.message,
           ),
         );
       },
@@ -119,7 +137,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         emit(
           state.copyWith(
             status: SubscriptionStatus.failure,
-            errorMessage: failure.toString(),
+            errorMessage: failure.message,
           ),
         );
       },
@@ -153,7 +171,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         emit(
           state.copyWith(
             status: SubscriptionStatus.failure,
-            errorMessage: failure.toString(),
+            errorMessage: failure.message,
           ),
         );
       },
@@ -187,7 +205,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         emit(
           state.copyWith(
             status: SubscriptionStatus.failure,
-            errorMessage: failure.toString(),
+            errorMessage: failure.message,
           ),
         );
       },

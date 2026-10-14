@@ -56,6 +56,12 @@ class BudgetModel extends Equatable {
   final double totalSpent;
   final String status; // 'active', 'completed', 'exceeded'
   final String currency;
+  @JsonKey(defaultValue: false)
+  final bool isShared;
+  final String? inviteCode;
+  @JsonKey(defaultValue: true)
+  final bool isOwner;
+  final String? linkedGoalId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -72,6 +78,10 @@ class BudgetModel extends Equatable {
     required this.totalSpent,
     required this.status,
     this.currency = 'XAF',
+    this.isShared = false,
+    this.inviteCode,
+    this.isOwner = true,
+    this.linkedGoalId,
     this.createdAt,
     this.updatedAt,
   });
@@ -90,6 +100,10 @@ class BudgetModel extends Equatable {
     double? totalSpent,
     String? status,
     String? currency,
+    bool? isShared,
+    String? inviteCode,
+    bool? isOwner,
+    String? linkedGoalId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -101,6 +115,10 @@ class BudgetModel extends Equatable {
       totalSpent: totalSpent ?? this.totalSpent,
       status: status ?? this.status,
       currency: currency ?? this.currency,
+      isShared: isShared ?? this.isShared,
+      inviteCode: inviteCode ?? this.inviteCode,
+      isOwner: isOwner ?? this.isOwner,
+      linkedGoalId: linkedGoalId ?? this.linkedGoalId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -115,7 +133,54 @@ class BudgetModel extends Equatable {
     totalSpent,
     status,
     currency,
+    isShared,
+    inviteCode,
+    isOwner,
+    linkedGoalId,
     createdAt,
     updatedAt,
   ];
+}
+
+@JsonSerializable()
+class BudgetParticipantModel extends Equatable {
+  @JsonKey(name: '_id', fromJson: BudgetModel._idFromJson)
+  final String id;
+  final String displayName;
+  final DateTime? joinedAt;
+
+  const BudgetParticipantModel({
+    required this.id,
+    required this.displayName,
+    this.joinedAt,
+  });
+
+  factory BudgetParticipantModel.fromJson(Map<String, dynamic> json) =>
+      _$BudgetParticipantModelFromJson(json);
+  Map<String, dynamic> toJson() => _$BudgetParticipantModelToJson(this);
+
+  @override
+  List<Object?> get props => [id, displayName, joinedAt];
+}
+
+@JsonSerializable()
+class BudgetCategoryHistoryPointModel extends Equatable {
+  final int month;
+  final int year;
+  final double allocated;
+  final double spent;
+
+  const BudgetCategoryHistoryPointModel({
+    required this.month,
+    required this.year,
+    required this.allocated,
+    required this.spent,
+  });
+
+  factory BudgetCategoryHistoryPointModel.fromJson(Map<String, dynamic> json) =>
+      _$BudgetCategoryHistoryPointModelFromJson(json);
+  Map<String, dynamic> toJson() => _$BudgetCategoryHistoryPointModelToJson(this);
+
+  @override
+  List<Object?> get props => [month, year, allocated, spent];
 }

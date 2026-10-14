@@ -5,6 +5,7 @@ import '../../../../core/network/network_info.dart';
 import '../datasources/insight_api_service.dart';
 
 import '../../domain/repositories/insight_repository.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: InsightRepository)
 class InsightRepositoryImpl implements InsightRepository {
@@ -23,7 +24,7 @@ class InsightRepositoryImpl implements InsightRepository {
         }
         return Left(ServerFailure('Failed to fetch dashboard summary'));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     }
     return Left(NetworkFailure());
@@ -45,7 +46,7 @@ class InsightRepositoryImpl implements InsightRepository {
         }
         return Left(ServerFailure('Failed to fetch spending analysis'));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     }
     return Left(NetworkFailure());
@@ -64,7 +65,7 @@ class InsightRepositoryImpl implements InsightRepository {
         }
         return Left(ServerFailure('Failed to fetch narrative'));
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     }
     return Left(NetworkFailure());

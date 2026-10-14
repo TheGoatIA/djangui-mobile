@@ -1,5 +1,6 @@
+﻿import 'package:kauri/features/reseller/data/datasources/reseller_api_service.dart';
 import 'package:chopper/chopper.dart' hide HttpLoggingInterceptor;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kauri/core/config/env_config.dart';
 import 'package:kauri/core/network/tracing_http_client.dart';
 import 'package:kauri/features/ai_tools/data/models/ai_tools_model.dart';
 import 'package:kauri/features/auth/data/models/auth_response.dart';
@@ -42,14 +43,14 @@ class KauriApiClient {
   /// Crée et configure une instance de [ChopperClient].
   /// Inclut le décodage JSON automatique pour tous les modèles du projet.
   static ChopperClient create() {
-    final baseUrl =
-        dotenv.env['API_BASE_URL'] ?? 'https://api.kauri-app.com/api/v1';
+    final baseUrl = EnvConfig.apiBaseUrl;
 
     return ChopperClient(
       baseUrl: Uri.parse(baseUrl),
       client: TracingHttpClient(),
       interceptors: [
         AuthInterceptor(),
+        IdempotencyKeyInterceptor(),
         HttpLoggingInterceptor(),
         RemoteLoggingInterceptor(),
       ],
@@ -107,11 +108,18 @@ class KauriApiClient {
         FintechTransactionsResponseModel: (json) =>
             FintechTransactionsResponseModel.fromJson(json),
         InvoiceResponseModel: (json) => InvoiceResponseModel.fromJson(json),
+        BudgetParticipantModel: (json) => BudgetParticipantModel.fromJson(json),
+        BudgetCategoryHistoryPointModel: (json) =>
+            BudgetCategoryHistoryPointModel.fromJson(json),
+        ForecastReportModel: (json) => ForecastReportModel.fromJson(json),
+        ForecastPointModel: (json) => ForecastPointModel.fromJson(json),
+        HealthScorePointModel: (json) => HealthScorePointModel.fromJson(json),
       }),
       services: [
         AuthApiService.create(),
         FintechApiService.create(),
         PremiumApiService.create(),
+        ResellerApiService.create(),
       ],
       // Convertisseur d'erreur spécifique pour les retours 4xx/5xx ayant une structure JSON.
       errorConverter: JsonToTypeConverter({
@@ -121,3 +129,4 @@ class KauriApiClient {
     );
   }
 }
+

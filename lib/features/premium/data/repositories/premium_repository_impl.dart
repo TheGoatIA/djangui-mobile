@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:kauri/core/errors/failures.dart';
 import '../../domain/repositories/premium_repository.dart';
 import '../datasources/premium_api_service.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: PremiumRepository)
 class PremiumRepositoryImpl implements PremiumRepository {
@@ -20,7 +21,7 @@ class PremiumRepositoryImpl implements PremiumRepository {
       }
       return Left(ServerFailure('Échec de la communication avec le coach'));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -36,7 +37,7 @@ class PremiumRepositoryImpl implements PremiumRepository {
         ServerFailure('Échec de la récupération du budget automatique'),
       );
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 
@@ -50,7 +51,7 @@ class PremiumRepositoryImpl implements PremiumRepository {
       }
       return Left(ServerFailure('Échec de la récupération du rapport premium'));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 }

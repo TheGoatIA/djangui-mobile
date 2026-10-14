@@ -11,6 +11,7 @@ import '../../../upload/domain/repositories/upload_repository.dart';
 
 import 'package:kauri/core/analytics/analytics_service.dart';
 import 'package:kauri/core/analytics/events.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
@@ -394,7 +395,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       'Auth: Login',
       kind: SpanKind.internal,
     );
-    span.setAttribute(Attribute.fromString('auth.email', event.email));
 
     try {
       emit(state.copyWith(status: AuthStatus.loading));
@@ -406,12 +406,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           span.setStatus(StatusCode.error, failure.message);
           _telemetry.recordEvent('auth.login.failure', {
             'reason': failure.message,
-            'email': event.email,
           });
           _logger.warning(
             'Échec de connexion email/mot de passe',
             component: 'AuthBloc',
-            metadata: {'email': event.email, 'error': failure.message},
+            metadata: {'error': failure.message},
           );
           emit(
             state.copyWith(
@@ -424,12 +423,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           span.setAttribute(Attribute.fromString('user.id', response.user.id));
           _telemetry.recordEvent('auth.login.success', {
             'user.id': response.user.id,
-            'email': event.email,
           });
           _logger.info(
             'Connexion réussie',
             component: 'AuthBloc',
-            metadata: {'email': event.email, 'user_id': response.user.id},
+            metadata: {'user_id': response.user.id},
           );
           _authRepository.updateDeviceInfo();
           _authRepository.logConnection();
@@ -459,7 +457,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       'Auth: Register',
       kind: SpanKind.internal,
     );
-    span.setAttribute(Attribute.fromString('auth.email', event.email));
     span.setAttribute(
       Attribute.fromString('user.country', event.country ?? 'unknown'),
     );
@@ -482,7 +479,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           _logger.error(
             'Échec de l\'inscription',
             component: 'AuthBloc',
-            metadata: {'email': event.email, 'error': failure.message},
+            metadata: {'error': failure.message},
           );
           emit(
             state.copyWith(
@@ -497,7 +494,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           _logger.info(
             'Nouvelle inscription réussie',
             component: 'AuthBloc',
-            metadata: {'email': event.email, 'user_id': response.user.id},
+            metadata: {'user_id': response.user.id},
           );
           _authRepository.updateDeviceInfo();
           _authRepository.logConnection();
@@ -639,7 +636,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _authRepository.deleteAccount();
+    final result = await _authRepository.deleteAccount(
+      password: event.password,
+    );
     result.fold(
       (failure) => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
@@ -671,36 +670,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    final provider = await _authRepository.getLoginProvider();
 
-    if (provider == 'password') {
-      final credentials = await _authRepository.getBiometricCredentials();
-      if (credentials != null) {
-        add(
-          AuthLoginRequested(
-            email: credentials['email']!,
-            password: credentials['password']!,
+    // Biometric unlock is always backed by a stored refresh token, never the
+    // password — this works the same way regardless of login provider
+    // (password, Google, Apple, phone).
+    final token = await _authRepository.getBiometricToken();
+    if (token != null) {
+      final result = await _authRepository.refreshToken(token);
+      result.fold(
+        (failure) => emit(
+          state.copyWith(
+            status: AuthStatus.error,
+            errorMessage: 'Session expired. Please login again.',
           ),
-        );
-        return;
-      }
-    } else if (provider != null) {
-      // For social/phone, recover session using biometric token
-      final token = await _authRepository.getBiometricToken();
-      if (token != null) {
-        final result = await _authRepository.refreshToken(token);
-        result.fold(
-          (failure) => emit(
-            state.copyWith(
-              status: AuthStatus.error,
-              errorMessage:
-                  'Session expired. Please login with ${provider.toUpperCase()} again.',
-            ),
-          ),
-          (_) => add(AuthCheckRequested()),
-        );
-        return;
-      }
+        ),
+        (_) => add(AuthCheckRequested()),
+      );
+      return;
     }
 
     emit(
@@ -804,17 +790,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
 
-    // Verify the password before saving
+    // Verify the password before enabling biometrics, but never store it:
+    // only the refresh token issued by this login is persisted, exactly
+    // like the social/phone provider flow (_onAuthSetupBiometricsSocialRequested).
     final result = await _authRepository.login(
       LoginRequest(email: event.email, password: event.password),
     );
 
-    result.fold(
-      (failure) => emit(
+    await result.fold(
+      (failure) async => emit(
         state.copyWith(status: AuthStatus.error, errorMessage: failure.message),
       ),
-      (response) {
-        // Repository's login already saved the credentials
+      (response) async {
+        await _authRepository.saveBiometricToken(response.tokens.refreshToken);
         emit(state.copyWith(status: AuthStatus.biometricCredentialsSaved));
       },
     );
@@ -860,33 +848,62 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
 
     try {
-      // 1. Upload du document
-      final docResult = await _uploadRepository.uploadDocument(
-        event.docFilePath,
-      );
-      final docUrl = docResult.fold(
-        (failure) => throw Exception(
-          'Échec de l\'upload du document: ${failure.message}',
-        ),
-        (response) => response.finalUrl,
-      );
+      // 1. Upload du document recto s'il a été modifié, sinon conserver l'existant
+      String? docUrl = event.existingDocUrl;
+      if (event.docFilePath != null && event.docFilePath!.isNotEmpty) {
+        final docResult = await _uploadRepository.uploadDocument(
+          event.docFilePath!,
+        );
+        docUrl = docResult.fold(
+          (failure) => throw Exception(
+            'Échec de l\'upload du document recto: ${failure.message}',
+          ),
+          (response) => response.finalUrl,
+        );
+      }
 
-      // 2. Upload du selfie
-      final selfieResult = await _uploadRepository.uploadDocument(
-        event.selfieFilePath,
-      );
-      final selfieUrl = selfieResult.fold(
-        (failure) =>
-            throw Exception('Échec de l\'upload du selfie: ${failure.message}'),
-        (response) => response.finalUrl,
-      );
+      if (docUrl == null || docUrl.isEmpty) {
+        throw Exception('Veuillez fournir la pièce d\'identité (Recto).');
+      }
+
+      // 1b. Upload optionnel du document verso
+      String? docBackUrl = event.existingDocBackUrl;
+      if (event.docBackFilePath != null && event.docBackFilePath!.isNotEmpty) {
+        final backResult = await _uploadRepository.uploadDocument(
+          event.docBackFilePath!,
+        );
+        docBackUrl = backResult.fold(
+          (failure) => null, // facultatif
+          (response) => response.finalUrl,
+        );
+      }
+
+      // 2. Upload du selfie s'il a été modifié, sinon conserver l'existant
+      String? selfieUrl = event.existingSelfieUrl;
+      if (event.selfieFilePath != null && event.selfieFilePath!.isNotEmpty) {
+        final selfieResult = await _uploadRepository.uploadDocument(
+          event.selfieFilePath!,
+        );
+        selfieUrl = selfieResult.fold(
+          (failure) => throw Exception(
+            'Échec de l\'upload du selfie: ${failure.message}',
+          ),
+          (response) => response.finalUrl,
+        );
+      }
+
+      if (selfieUrl == null || selfieUrl.isEmpty) {
+        throw Exception('Veuillez fournir le selfie de vérification.');
+      }
 
       // 3. Soumission finale au backend Auth/Fintech
       final result = await _authRepository.submitKYC(
         fullName: event.fullName,
         documentType: event.documentType.toLowerCase().replaceAll(' ', '_'),
         documentNumber: event.documentNumber,
+        documentExpiryDate: event.expiryDate?.toIso8601String(),
         documentImageUrl: docUrl,
+        documentBackImageUrl: docBackUrl,
         selfieImageUrl: selfieUrl,
       );
 
@@ -916,7 +933,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         component: 'AuthBloc',
       );
       emit(
-        state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
+        state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: ErrorMapper.safeMessage(e),
+        ),
       );
     }
   }

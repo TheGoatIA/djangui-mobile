@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kauri/core/analytics/events.dart';
+import 'package:kauri/core/config/env_config.dart';
 import 'package:injectable/injectable.dart';
 import 'package:opentelemetry/api.dart';
 import 'package:opentelemetry/sdk.dart' as otel_sdk;
@@ -30,7 +33,7 @@ class TelemetryService {
 
   Future<void> initialize() async {
     try {
-      final otelUrl = dotenv.env['OTEL_EXPORTER_OTLP_ENDPOINT'];
+      final otelUrl = EnvConfig.otelEndpoint;
 
       final resource = otel_sdk.Resource([
         Attribute.fromString('service.name', 'kauri-mobile'),
@@ -41,7 +44,7 @@ class TelemetryService {
       ]);
 
       // --- TRACES CONFIG (System) ---
-      if (otelUrl != null && otelUrl.isNotEmpty) {
+      if (otelUrl.isNotEmpty) {
         final uri = Uri.parse(otelUrl);
         // Using basic CollectorExporter which defaults to OTLP/HTTP Protobuf
         final processor = otel_sdk.BatchSpanProcessor(
@@ -126,14 +129,36 @@ class TelemetryService {
     }
   }
 
-  /// Internal helper to record an event as a span
+  /// Internal helper to record an event as a span with strict privacy sanitization
   void _recordInternal(
     Tracer targetTracer,
     String name,
     Map<String, Object> attributes,
   ) {
     final span = targetTracer.startSpan(name, kind: SpanKind.internal);
+    
+    // Privacy sanitization (K-30, K-31)
     attributes.forEach((key, value) {
+      final lowerKey = key.toLowerCase();
+
+      // 1. User ID hashing (K-30)
+      if (lowerKey == 'user.id' || lowerKey == 'user_id' || lowerKey == 'userid') {
+        final rawId = value.toString();
+        final isAlreadySha256 = rawId.length == 64 && RegExp(r'^[0-9a-fA-F]{64}$').hasMatch(rawId);
+        final hashedId = isAlreadySha256 ? rawId : sha256.convert(utf8.encode(rawId)).toString();
+        span.setAttribute(Attribute.fromString(key, hashedId));
+        return;
+      }
+
+      // 2. Exact amount anonymization (K-31)
+      if (lowerKey == 'amount' || lowerKey == 'total_amount' || lowerKey == 'balance') {
+        if (value is num) {
+          final range = AnalyticsAmountRange.fromAmount(value);
+          span.setAttribute(Attribute.fromString('${key}_range', range));
+          return;
+        }
+      }
+
       if (value is String) {
         span.setAttribute(Attribute.fromString(key, value));
       } else if (value is int) {

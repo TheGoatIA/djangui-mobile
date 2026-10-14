@@ -6,7 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 
 import '../../../../core/constants/route_constants.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -17,6 +17,7 @@ import '../../../../core/utils/currency_helper.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/widgets/transaction_status_badge.dart';
 import '../../../../di/injection.dart';
 
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -36,6 +37,7 @@ import '../../../payments/presentation/bloc/fintech_bloc.dart';
 import '../../../payments/presentation/bloc/fintech_state.dart';
 import '../../../payments/presentation/bloc/fintech_event.dart';
 import '../widgets/real_money_welcome_carousel.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 /// Page d'accueil (Tableau de bord) de l'application.
 ///
@@ -58,7 +60,8 @@ class DashboardView extends StatefulWidget {
   State<DashboardView> createState() => _DashboardViewState();
 }
 
-class _DashboardViewState extends State<DashboardView> {
+class _DashboardViewState extends State<DashboardView>
+    with WidgetsBindingObserver, SecureScreenMixin<DashboardView> {
   // Clés utilisées pour le tutoriel interactif (Showcase)
   final GlobalKey _gamificationKey = GlobalKey();
   final GlobalKey _balanceKey = GlobalKey();
@@ -100,7 +103,19 @@ class _DashboardViewState extends State<DashboardView> {
     final tutorialService = getIt<TutorialService>();
     if (!tutorialService.hasSeenTutorial('real_money_welcome')) {
       final user = context.read<AuthBloc>().state.authResponse?.user;
-      if (user != null && (user.country == 'CM' || user.currency == 'XAF')) {
+      // Server-driven: the admin can flip real-money mode on/off at any time
+      // (see SystemBloc's featureFlags, fetched at splash from GET /config/features).
+      // Falls back to EnvConfig.enableRealMoney (default: false) if the flags
+      // fetch itself fails — assume simulation mode, not real money, when unsure.
+      final featureFlags = context.read<SystemBloc>().state.featureFlags;
+      final isRealMoneyEnabled = featureFlags.featRealMoney.isEnabled;
+      // Same allowlist the server actually enforces (never a hardcoded
+      // country/currency literal here) — see the equivalent fix in
+      // app_router.dart. Otherwise this popup could tell a user real money
+      // has arrived for them while the server still rejects their deposits.
+      final isCountryAllowed =
+          user != null && featureFlags.realMoneyCountries.contains(user.country);
+      if (isRealMoneyEnabled && isCountryAllowed) {
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
         await showDialog(
@@ -125,34 +140,63 @@ class _DashboardViewState extends State<DashboardView> {
 
   @override
   void dispose() {
-    try {
-      // Ferme les infobulles du tutoriel si la page est quittée
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    // Ferme les infobulles du tutoriel si la page est quittée
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
   /// Démarre le tutoriel interactif si l'utilisateur ne l'a pas encore vu sur cet écran.
+  ///
+  /// La liste des cibles est recalculée à chaque appel à partir de l'état
+  /// courant (feature flags, pays, ordre du dashboard choisi par
+  /// l'utilisateur) : une carte masquée (flag désactivé, section retirée par
+  /// l'utilisateur, pays non éligible) ne doit jamais être incluse, sinon la
+  /// séquence entière reste bloquée sur cette étape.
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('dashboard_v2')) {
-      try {
-        final shell = StatefulNavigationShell.of(context);
-        if (shell.currentIndex != 0) return;
-      } catch (_) {
-        if (ModalRoute.of(context)?.isCurrent != true) return;
-      }
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([
-          _gamificationKey,
-          _balanceKey,
-          _incomeKey,
-          _quickActionsKey,
-        ]);
-        tutorialService.markTutorialAsSeen('dashboard_v2');
-      });
+    if (tutorialService.hasSeenTutorial('dashboard_v2')) return;
+    try {
+      final shell = StatefulNavigationShell.of(context);
+      if (shell.currentIndex != 0) return;
+    } catch (_) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
     }
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final order = context.read<SettingsBloc>().state.dashboardOrder;
+      final flags = context.read<SystemBloc>().state.featureFlags;
+      final isCameroon =
+          context.read<AuthBloc>().state.authResponse?.user.country == 'CM';
+
+      final l10n = AppLocalizations.of(context)!;
+      final steps = <TutorialStep>[
+        if (order.contains('gamification') && flags.featGamification.isEnabled)
+          TutorialStep(
+            targetKey: _gamificationKey,
+            title: l10n.tutorialGamificationTitle,
+            description: l10n.tutorialGamificationDesc,
+          ),
+        if (order.contains('balance') && isCameroon) ...[
+          TutorialStep(
+            targetKey: _balanceKey,
+            title: l10n.tutorialBalanceCardTitle,
+            description: l10n.tutorialBalanceCardDesc,
+          ),
+          TutorialStep(
+            targetKey: _incomeKey,
+            title: l10n.tutorialIncomeTitle,
+            description: l10n.tutorialIncomeDesc,
+            shape: const CircleBorder(),
+          ),
+        ],
+        TutorialStep(
+          targetKey: _quickActionsKey,
+          title: l10n.tutorialQuickActionsTitle,
+          description: l10n.tutorialQuickActionsDesc,
+        ),
+      ];
+      tutorialService.startTutorial(context, 'dashboard_v2', steps);
+    });
   }
 
   @override
@@ -255,8 +299,7 @@ class _DashboardViewState extends State<DashboardView> {
                         horizontal: 10,
                         vertical: 20,
                       ),
-                      onReorder: (oldIndex, newIndex) {
-                        if (newIndex > oldIndex) newIndex -= 1;
+                      onReorderItem: (oldIndex, newIndex) {
                         final items = List<String>.from(
                           settingsState.dashboardOrder,
                         );
@@ -322,12 +365,8 @@ class _DashboardViewState extends State<DashboardView> {
   ) {
     final Map<String, Widget> widgetMap = {
       'gamification': flags.featGamification.isEnabled
-          ? Showcase(
+          ? KeyedSubtree(
               key: _gamificationKey,
-              title: AppLocalizations.of(context)!.tutorialGamificationTitle,
-              description: AppLocalizations.of(
-                context,
-              )!.tutorialGamificationDesc,
               child: const GamificationHeader(),
             )
           : const SizedBox.shrink(),
@@ -340,12 +379,8 @@ class _DashboardViewState extends State<DashboardView> {
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Showcase(
+                    child: KeyedSubtree(
                       key: _balanceKey,
-                      title: AppLocalizations.of(context)!.tutorialWalletTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialWalletDesc,
                       child: GestureDetector(
                         onTap: () async {
                           await context.push(RouteConstants.wallet);
@@ -374,17 +409,17 @@ class _DashboardViewState extends State<DashboardView> {
                 .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad)
           : const SizedBox.shrink(),
       'quick_actions':
-          Showcase(
+          KeyedSubtree(
                 key: _quickActionsKey,
-                title: AppLocalizations.of(context)!.tutorialQuickActionsTitle,
-                description: AppLocalizations.of(
-                  context,
-                )!.tutorialQuickActionsDesc,
                 child: _buildQuickActions(context, flags),
               )
               .animate(delay: 200.ms)
               .fade(duration: 500.ms)
               .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
+      'other_tools': _buildOtherToolsCard(context, flags)
+          .animate(delay: 250.ms)
+          .fade(duration: 500.ms)
+          .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
       'recent_activities': Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -564,7 +599,6 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  /// Construit la carte principale affichant le solde, les revenus et les dépenses.
   Widget _buildBalanceCard(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -797,15 +831,9 @@ class _DashboardViewState extends State<DashboardView> {
       ],
     );
 
-    // Intégration du Showcase si c'est la section Revenus
+    // Cible du tutoriel si c'est la section Revenus
     if (isIncome) {
-      return Showcase(
-        key: _incomeKey,
-        title: AppLocalizations.of(context)!.tutorialIncomeTitle,
-        description: AppLocalizations.of(context)!.tutorialIncomeDesc,
-        targetShapeBorder: const CircleBorder(),
-        child: content,
-      );
+      return KeyedSubtree(key: _incomeKey, child: content);
     }
 
     return content;
@@ -893,12 +921,6 @@ class _DashboardViewState extends State<DashboardView> {
         const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
-            final investmentsStatus = context
-                .read<SystemBloc>()
-                .getFeatureStatus(flags.featInvestments);
-            final insightsStatus = context.read<SystemBloc>().getFeatureStatus(
-              flags.aiInsights,
-            );
             final tontinesStatus = context.read<SystemBloc>().getFeatureStatus(
               flags.featTontines,
             );
@@ -918,25 +940,6 @@ class _DashboardViewState extends State<DashboardView> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      if (investmentsStatus != FeatureStatus.disabled)
-                        _buildActionItem(
-                          Icons.add_circle_outline,
-                          AppLocalizations.of(context)!.invest,
-                          Theme.of(context).colorScheme.primary,
-                          isUpdateRequired:
-                              investmentsStatus == FeatureStatus.updateRequired,
-                          onTap: () =>
-                              context.push('${RouteConstants.investments}/add'),
-                        ),
-                      if (insightsStatus != FeatureStatus.disabled)
-                        _buildActionItem(
-                          Icons.bar_chart_outlined,
-                          AppLocalizations.of(context)!.insights,
-                          Theme.of(context).colorScheme.secondary,
-                          isUpdateRequired:
-                              insightsStatus == FeatureStatus.updateRequired,
-                          onTap: () => context.push(RouteConstants.insights),
-                        ),
                       if (tontinesStatus != FeatureStatus.disabled)
                         _buildActionItem(
                           Icons.groups_outlined,
@@ -946,6 +949,12 @@ class _DashboardViewState extends State<DashboardView> {
                               tontinesStatus == FeatureStatus.updateRequired,
                           onTap: () => context.push(RouteConstants.tontines),
                         ),
+                      _buildActionItem(
+                        Icons.storefront_rounded,
+                        'Revendeur',
+                        AppColors.primary,
+                        onTap: () => context.push(RouteConstants.resellerHub),
+                      ),
                       if (subscriptionsStatus != FeatureStatus.disabled)
                         _buildActionItem(
                           Icons.receipt_long_outlined,
@@ -974,6 +983,135 @@ class _DashboardViewState extends State<DashboardView> {
           },
         ),
       ],
+    );
+  }
+
+  /// Construit la carte "Autres outils" pour regrouper Investir, Analyses, etc.
+  Widget _buildOtherToolsCard(BuildContext context, FeatureFlagModel flags) {
+    final investmentsStatus = context.read<SystemBloc>().getFeatureStatus(
+      flags.featInvestments,
+    );
+    final insightsStatus = context.read<SystemBloc>().getFeatureStatus(
+      flags.aiInsights,
+    );
+
+    final hasVisibleTools =
+        investmentsStatus != FeatureStatus.disabled ||
+        insightsStatus != FeatureStatus.disabled;
+
+    if (!hasVisibleTools) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.otherTools,
+            style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surfaceDark : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: AppShadows.card,
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.05),
+              ),
+            ),
+            child: Row(
+              children: [
+                if (investmentsStatus != FeatureStatus.disabled)
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        if (investmentsStatus == FeatureStatus.updateRequired) {
+                          _showUpdateRequiredDialog(context);
+                        } else {
+                          context.push('${RouteConstants.investments}/add');
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.trending_up_rounded,
+                              color: AppColors.primary,
+                              size: 26,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              AppLocalizations.of(context)!.invest,
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                if (investmentsStatus != FeatureStatus.disabled &&
+                    insightsStatus != FeatureStatus.disabled)
+                  const SizedBox(width: 12),
+                if (insightsStatus != FeatureStatus.disabled)
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        if (insightsStatus == FeatureStatus.updateRequired) {
+                          _showUpdateRequiredDialog(context);
+                        } else {
+                          context.push(RouteConstants.insights);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.insights_rounded,
+                              color: Colors.blue,
+                              size: 26,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              AppLocalizations.of(context)!.insights,
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1155,13 +1293,22 @@ class _DashboardViewState extends State<DashboardView> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          t.category,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              t.category,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            TransactionStatusBadge(
+                              status: t.status,
+                              compact: true,
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -1193,3 +1340,4 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 }
+

@@ -37,12 +37,20 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
   }
 
   Future<void> _verifyPayment() async {
-    // If no ref provided, we can't verify, but maybe it was a direct success redirect?
-    // Assuming ref is required for verification.
-    if (widget.ref != null) {
+    final ref = widget.ref;
+    if (ref != null && ref.trim().isNotEmpty) {
       setState(() => _isLoading = true);
       final paymentService = getIt<PaymentService>();
-      final success = await paymentService.verifyTransaction(widget.ref!);
+      // L'utilisateur peut revenir avant que l'opérateur ait confirmé : on
+      // réessaie quelques fois avant de conclure à un échec.
+      var success = false;
+      for (var attempt = 0; attempt < 5 && !success; attempt++) {
+        if (attempt > 0) {
+          await Future.delayed(const Duration(seconds: 3));
+          if (!mounted) return;
+        }
+        success = await paymentService.verifyTransaction(ref.trim());
+      }
 
       if (mounted) {
         setState(() {
@@ -56,6 +64,8 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
             component: 'PaymentSuccessPage',
           );
           context.read<AuthBloc>().add(AuthRefreshUserRequested());
+          context.read<FintechBloc>().add(FetchWalletBalance());
+          context.read<FintechBloc>().add(FetchWalletTransactions());
         } else {
           getIt<LogService>().warning(
             'Échec vérification paiement: ${widget.ref}',
@@ -64,14 +74,17 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
         }
       }
     } else {
-      // Fallback if no ref (e.g. testing)
-      setState(() {
-        _isLoading = false;
-        _isVerified = true; // Optimistic or handle error
-      });
-      context.read<AuthBloc>().add(AuthRefreshUserRequested());
-      context.read<FintechBloc>().add(FetchWalletBalance());
-      context.read<FintechBloc>().add(FetchWalletTransactions());
+      // Pas de référence de transaction fournie : impossible de valider le paiement (K-18)
+      getIt<LogService>().warning(
+        'Tentative d\'accès à PaymentSuccessPage sans référence de transaction.',
+        component: 'PaymentSuccessPage',
+      );
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isVerified = false;
+        });
+      }
     }
   }
 
@@ -124,14 +137,22 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
                     style: AppTextStyles.h1,
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    _isVerified
-                        ? 'Votre abonnement Premium a été activé avec succès.\nProfitez de toutes les fonctionnalités !'
-                        : 'Nous n\'avons pas pu confirmer votre paiement.\nVeuillez contacter le support si vous avez été débité.',
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  Builder(
+                    builder: (context) {
+                      final user = context.watch<AuthBloc>().state.authResponse?.user;
+                      final isBusiness = user?.isBusiness ?? false;
+                      final planLabel = isBusiness ? 'Super Premium (Business)' : 'Premium';
+
+                      return Text(
+                        _isVerified
+                            ? 'Votre abonnement $planLabel a été activé avec succès.\nProfitez de toutes vos fonctionnalités exclusives !'
+                            : 'Nous n\'avons pas pu confirmer votre paiement.\nVeuillez contacter le support si vous avez été débité.',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      );
+                    },
                   ),
                   if (widget.ref != null) ...[
                     const SizedBox(height: 24),

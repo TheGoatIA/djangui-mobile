@@ -11,6 +11,7 @@ import '../bloc/auth_bloc.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../../di/injection.dart';
 import '../../../../features/system/presentation/bloc/system_bloc.dart';
+import '../../../../core/utils/password_validator.dart';
 
 /// Page d'inscription de l'application.
 ///
@@ -198,17 +199,15 @@ class _RegisterPageState extends State<RegisterPage> {
                         _isPasswordVisible = !_isPasswordVisible;
                       }),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return AppLocalizations.of(context)!.enterPasswordError;
-                      }
-                      if (value.length < 6) {
-                        return AppLocalizations.of(
-                          context,
-                        )!.passwordLengthError;
-                      }
-                      return null;
-                    },
+                    validator: (value) => PasswordValidator.validate(
+                      value,
+                      emptyError: AppLocalizations.of(
+                        context,
+                      )!.enterPasswordError,
+                      complexityError: AppLocalizations.of(
+                        context,
+                      )!.passwordLengthError,
+                    ),
                   ),
                   const SizedBox(height: 24),
 

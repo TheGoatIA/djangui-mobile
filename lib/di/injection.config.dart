@@ -18,6 +18,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart'
 import 'package:kauri/core/database/database.dart' as _i777;
 import 'package:kauri/core/network/network_info.dart' as _i935;
 import 'package:kauri/core/services/app_icon_service.dart' as _i40;
+import 'package:kauri/core/services/biometric_gated_storage.dart' as _i163;
 import 'package:kauri/core/services/log_service.dart' as _i169;
 import 'package:kauri/core/services/notification_service.dart' as _i273;
 import 'package:kauri/core/services/ocr_service.dart' as _i950;
@@ -155,6 +156,8 @@ import 'package:kauri/features/premium/presentation/bloc/premium_bloc.dart'
     as _i325;
 import 'package:kauri/features/reports/data/datasources/reports_api_service.dart'
     as _i158;
+import 'package:kauri/features/reports/data/datasources/reports_local_datasource.dart'
+    as _i515;
 import 'package:kauri/features/reports/data/repositories/reports_repository_impl.dart'
     as _i423;
 import 'package:kauri/features/reports/domain/repositories/reports_repository.dart'
@@ -246,6 +249,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i892.TelemetryService>(() => _i892.TelemetryService());
     gh.lazySingleton<_i40.AppIconService>(() => _i40.AppIconService());
+    gh.lazySingleton<_i163.BiometricGatedStorage>(
+      () => _i163.BiometricGatedStorage(),
+    );
     gh.lazySingleton<_i169.LogService>(() => _i169.LogService());
     gh.lazySingleton<_i273.NotificationService>(
       () => _i273.NotificationService(),
@@ -286,6 +292,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i158.ReportsApiService>(
       () => registerModule.reportsApiService,
     );
+    gh.lazySingleton<_i158.ForecastApiService>(
+      () => registerModule.forecastApiService,
+    );
     gh.lazySingleton<_i33.SystemApiService>(
       () => registerModule.systemApiService,
     );
@@ -324,13 +333,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i973.InternetConnectionChecker>(
       () => registerModule.connectionChecker,
     );
-    gh.lazySingleton<_i617.CoachRemoteDataSource>(
-      () => _i617.CoachRemoteDataSourceImpl(gh<_i621.CoachApiService>()),
-    );
     gh.lazySingleton<_i356.NotificationRemoteDataSource>(
       () => _i756.NotificationRemoteDataSourceImpl(
         gh<_i921.NotificationApiService>(),
       ),
+    );
+    gh.lazySingleton<_i991.UploadRemoteDataSource>(
+      () => _i991.UploadRemoteDataSourceImpl(gh<_i242.UploadApiService>()),
     );
     gh.lazySingleton<_i302.BudgetLocalDataSource>(
       () => _i302.BudgetLocalDataSourceImpl(gh<_i777.AppDatabase>()),
@@ -344,6 +353,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i680.TransactionLocalDataSource>(
       () => _i680.TransactionLocalDataSourceImpl(gh<_i777.AppDatabase>()),
     );
+    gh.lazySingleton<_i515.ReportsLocalDataSource>(
+      () => _i515.ReportsLocalDataSourceImpl(gh<_i777.AppDatabase>()),
+    );
     gh.lazySingleton<_i895.ChallengeLocalDataSource>(
       () => _i895.ChallengeLocalDataSourceImpl(gh<_i777.AppDatabase>()),
     );
@@ -354,13 +366,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i143.SystemRepositoryImpl(
         gh<_i33.SystemApiService>(),
         gh<_i92.ConfigApiService>(),
-      ),
-    );
-    gh.lazySingleton<_i240.AuthLocalDataSource>(
-      () => _i240.AuthLocalDataSourceImpl(
-        gh<_i558.FlutterSecureStorage>(),
-        gh<_i777.AppDatabase>(),
-        gh<_i974.Logger>(),
       ),
     );
     gh.lazySingleton<_i612.GoalLocalDataSource>(
@@ -396,22 +401,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.lazySingleton<_i760.ReportsRepository>(
-      () => _i423.ReportsRepositoryImpl(
-        gh<_i158.ReportsApiService>(),
-        gh<_i935.NetworkInfo>(),
-      ),
-    );
     gh.lazySingleton<_i534.TransactionRemoteDataSource>(
       () => _i534.TransactionRemoteDataSourceImpl(
         gh<_i982.TransactionApiService>(),
-      ),
-    );
-    gh.lazySingleton<_i160.CoachRepository>(
-      () => _i307.CoachRepositoryImpl(
-        gh<_i617.CoachRemoteDataSource>(),
-        gh<_i580.CoachLocalDataSource>(),
-        gh<_i935.NetworkInfo>(),
       ),
     );
     gh.lazySingleton<_i1033.VoiceRepository>(
@@ -423,10 +415,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i342.PaymentService>(
       () => _i342.PaymentService(gh<_i1020.PaymentApiService>()),
     );
-    gh.lazySingleton<_i991.UploadRemoteDataSource>(
-      () => _i991.UploadRemoteDataSourceImpl(gh<_i240.AuthLocalDataSource>()),
+    gh.lazySingleton<_i240.AuthLocalDataSource>(
+      () => _i240.AuthLocalDataSourceImpl(
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i777.AppDatabase>(),
+        gh<_i974.Logger>(),
+        gh<_i163.BiometricGatedStorage>(),
+      ),
     );
-    gh.factory<_i376.SystemBloc>(
+    gh.lazySingleton<_i376.SystemBloc>(
       () => _i376.SystemBloc(gh<_i608.SystemRepository>()),
     );
     gh.lazySingleton<_i996.TontineRepository>(
@@ -452,14 +449,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i565.InvestmentApiService>(),
       ),
     );
-    gh.factory<_i725.PaymentBloc>(
+    gh.lazySingleton<_i725.PaymentBloc>(
       () => _i725.PaymentBloc(gh<_i593.PaymentRepository>()),
-    );
-    gh.factory<_i570.DashboardBloc>(
-      () => _i570.DashboardBloc(gh<_i760.ReportsRepository>()),
-    );
-    gh.factory<_i717.InsightsBloc>(
-      () => _i717.InsightsBloc(gh<_i760.ReportsRepository>()),
     );
     gh.lazySingleton<_i116.BudgetRepository>(
       () => _i136.BudgetRepositoryImpl(
@@ -477,7 +468,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i777.AppDatabase>(),
       ),
     );
-    gh.factory<_i697.FintechBloc>(
+    gh.lazySingleton<_i697.FintechBloc>(
       () => _i697.FintechBloc(gh<_i958.FintechRepository>()),
     );
     gh.lazySingleton<_i224.NotificationRepository>(
@@ -492,7 +483,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.factory<_i686.InvestmentsBloc>(
+    gh.lazySingleton<_i686.InvestmentsBloc>(
       () => _i686.InvestmentsBloc(gh<_i71.InvestmentRepository>()),
     );
     gh.lazySingleton<_i105.SubscriptionRepository>(
@@ -517,7 +508,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.factory<_i786.NotificationsBloc>(
+    gh.lazySingleton<_i786.NotificationsBloc>(
       () => _i786.NotificationsBloc(gh<_i224.NotificationRepository>()),
     );
     gh.lazySingleton<_i344.AuthRepository>(
@@ -527,7 +518,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i935.NetworkInfo>(),
       ),
     );
-    gh.factory<_i434.BudgetsBloc>(
+    gh.lazySingleton<_i434.BudgetsBloc>(
       () => _i434.BudgetsBloc(gh<_i116.BudgetRepository>()),
     );
     gh.lazySingleton<_i924.AnalyticsRepository>(
@@ -535,9 +526,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i769.AnalyticsApiService>(),
         gh<_i935.NetworkInfo>(),
       ),
-    );
-    gh.factory<_i405.CoachBloc>(
-      () => _i405.CoachBloc(gh<_i160.CoachRepository>()),
     );
     gh.lazySingleton<_i714.AuthBloc>(
       () => _i714.AuthBloc(
@@ -554,11 +542,32 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i325.PremiumBloc>(
       () => _i325.PremiumBloc(gh<_i283.PremiumRepository>()),
     );
-    gh.factory<_i415.VoiceBloc>(
+    gh.lazySingleton<_i415.VoiceBloc>(
       () => _i415.VoiceBloc(gh<_i1033.VoiceRepository>()),
     );
-    gh.factory<_i946.GoalsBloc>(
+    gh.lazySingleton<_i946.GoalsBloc>(
       () => _i946.GoalsBloc(gh<_i751.GoalRepository>()),
+    );
+    gh.lazySingleton<_i617.CoachRemoteDataSource>(
+      () => _i617.CoachRemoteDataSourceImpl(
+        gh<_i621.CoachApiService>(),
+        gh<_i344.AuthRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i760.ReportsRepository>(
+      () => _i423.ReportsRepositoryImpl(
+        gh<_i158.ReportsApiService>(),
+        gh<_i158.ForecastApiService>(),
+        gh<_i935.NetworkInfo>(),
+        gh<_i515.ReportsLocalDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i160.CoachRepository>(
+      () => _i307.CoachRepositoryImpl(
+        gh<_i617.CoachRemoteDataSource>(),
+        gh<_i580.CoachLocalDataSource>(),
+        gh<_i935.NetworkInfo>(),
+      ),
     );
     gh.lazySingleton<_i375.ChallengeRepository>(
       () => _i380.ChallengeRepositoryImpl(
@@ -568,7 +577,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i777.AppDatabase>(),
       ),
     );
-    gh.factory<_i96.TontineBloc>(
+    gh.lazySingleton<_i96.TontineBloc>(
       () => _i96.TontineBloc(gh<_i996.TontineRepository>()),
     );
     gh.lazySingleton<_i1035.AnalyticsManager>(
@@ -580,7 +589,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i714.TransactionsBloc>(
       () => _i714.TransactionsBloc(gh<_i245.TransactionRepository>()),
     );
-    gh.factory<_i111.SupportBloc>(
+    gh.factory<_i717.InsightsBloc>(
+      () => _i717.InsightsBloc(gh<_i760.ReportsRepository>()),
+    );
+    gh.lazySingleton<_i570.DashboardBloc>(
+      () => _i570.DashboardBloc(gh<_i760.ReportsRepository>()),
+    );
+    gh.lazySingleton<_i111.SupportBloc>(
       () => _i111.SupportBloc(gh<_i810.SupportRepository>()),
     );
     gh.lazySingleton<_i75.SyncService>(
@@ -597,16 +612,19 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i973.InternetConnectionChecker>(),
       ),
     );
-    gh.factory<_i53.SettingsBloc>(
+    gh.lazySingleton<_i53.SettingsBloc>(
       () => _i53.SettingsBloc(
         gh<_i460.SharedPreferences>(),
         gh<_i344.AuthRepository>(),
       ),
     );
-    gh.factory<_i673.SubscriptionBloc>(
+    gh.lazySingleton<_i673.SubscriptionBloc>(
       () => _i673.SubscriptionBloc(gh<_i105.SubscriptionRepository>()),
     );
-    gh.factory<_i506.ChallengesBloc>(
+    gh.factory<_i405.CoachBloc>(
+      () => _i405.CoachBloc(gh<_i160.CoachRepository>()),
+    );
+    gh.lazySingleton<_i506.ChallengesBloc>(
       () => _i506.ChallengesBloc(gh<_i375.ChallengeRepository>()),
     );
     return this;

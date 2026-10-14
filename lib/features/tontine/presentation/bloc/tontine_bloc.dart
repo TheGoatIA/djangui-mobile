@@ -1,3 +1,4 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/repositories/tontine_repository.dart';
 import 'tontine_event.dart';
@@ -11,7 +12,7 @@ import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:opentelemetry/api.dart';
 
-@injectable
+@lazySingleton
 class TontineBloc extends Bloc<TontineEvent, TontineState> {
   final TontineRepository _repository;
   TelemetryService get _telemetry => getIt<TelemetryService>();
@@ -20,21 +21,38 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
   TontineBloc(this._repository) : super(const TontineState()) {
     on<TontinesLoadRequested>(_onTontinesLoadRequested);
     on<TontineDetailsLoadRequested>(_onTontineDetailsLoadRequested);
-    on<CreateTontineRequested>(_onCreateTontineRequested);
-    on<JoinTontineRequested>(_onJoinTontineRequested);
-    on<ContributeToTontineRequested>(_onContributeToTontineRequested);
+    on<CreateTontineRequested>(_onCreateTontineRequested, transformer: droppable());
+    on<JoinTontineRequested>(_onJoinTontineRequested, transformer: droppable());
+    on<ContributeToTontineRequested>(
+      _onContributeToTontineRequested,
+      transformer: droppable(),
+    );
     on<TontineMessagesLoadRequested>(_onTontineMessagesLoadRequested);
     on<SendTontineMessageRequested>(_onSendTontineMessageRequested);
+    on<SendTontineVoiceMessageRequested>(
+      _onSendTontineVoiceMessageRequested,
+      transformer: droppable(),
+    );
     on<TontineContributionsLoadRequested>(_onTontineContributionsLoadRequested);
     on<ValidateTontineContributionRequested>(
       _onValidateTontineContributionRequested,
+      transformer: droppable(),
     );
-    on<StartTontineRequested>(_onStartTontineRequested);
+    on<StartTontineRequested>(_onStartTontineRequested, transformer: droppable());
     on<TontineRemoveMemberRequested>(_onTontineRemoveMemberRequested);
-    on<DeleteTontineRequested>(_onDeleteTontineRequested);
-    on<UpdateTontineRequested>(_onUpdateTontineRequested);
-    on<RotateTurnRequested>(_onRotateTurnRequested);
+    on<DeleteTontineRequested>(_onDeleteTontineRequested, transformer: droppable());
+    on<UpdateTontineRequested>(_onUpdateTontineRequested, transformer: droppable());
+    on<RotateTurnRequested>(_onRotateTurnRequested, transformer: droppable());
     on<ToggleAutoDebitRequested>(_onToggleAutoDebitRequested);
+    on<PaySocialFundRequested>(_onPaySocialFundRequested, transformer: droppable());
+    on<ResetTontineRequested>(_onResetTontineRequested);
+  }
+
+  void _onResetTontineRequested(
+    ResetTontineRequested event,
+    Emitter<TontineState> emit,
+  ) {
+    emit(const TontineState());
   }
 
   Future<void> _onTontinesLoadRequested(
@@ -45,7 +63,19 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
       'Récupération de la liste des tontines...',
       component: 'TontineBloc',
     );
-    emit(state.copyWith(status: TontineStatus.loading));
+    // Paint the list from the local cache immediately — getTontines() below
+    // always waits for the network when online, so without this the cache
+    // never actually made the list feel faster while connected, only while
+    // fully offline. The network call below still runs and replaces this
+    // with the authoritative list once it resolves.
+    final cached = await _repository.getCachedTontines();
+    cached.fold((_) {}, (tontines) {
+      if (tontines.isNotEmpty) {
+        emit(state.copyWith(status: TontineStatus.loading, tontines: tontines));
+      } else {
+        emit(state.copyWith(status: TontineStatus.loading));
+      }
+    });
     final result = await _repository.getTontines();
     result.fold(
       (failure) {
@@ -79,9 +109,19 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
       'Récupération des détails de la tontine: ${event.tontineId}',
       component: 'TontineBloc',
     );
-    emit(state.copyWith(status: TontineStatus.loading));
-    final detailsResult = await _repository.getTontineDetails(event.tontineId);
-    final membersResult = await _repository.getTontineMembers(event.tontineId);
+    // Not `status`: that field is reserved for explicit user actions
+    // (start/rotate/validate/pay/...), which a dedicated listener on the
+    // details page turns into a loading dialog + success toast. Simply
+    // opening — or re-opening — a tontine is not an action; using the same
+    // field here made every plain navigation trigger that same dialog/toast.
+    emit(state.copyWith(isLoadingDetails: true));
+    // Independent requests — start both before awaiting either, so they run
+    // concurrently instead of one after the other, which was needlessly
+    // doubling the wait on every details load.
+    final detailsFuture = _repository.getTontineDetails(event.tontineId);
+    final membersFuture = _repository.getTontineMembers(event.tontineId);
+    final detailsResult = await detailsFuture;
+    final membersResult = await membersFuture;
 
     detailsResult.fold(
       (failure) {
@@ -92,7 +132,7 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
         );
         emit(
           state.copyWith(
-            status: TontineStatus.error,
+            isLoadingDetails: false,
             errorMessage: failure.message,
           ),
         );
@@ -111,7 +151,7 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
             );
             emit(
               state.copyWith(
-                status: TontineStatus.success,
+                isLoadingDetails: false,
                 selectedTontine: tontine,
                 errorMessage: failure.message,
               ),
@@ -124,7 +164,7 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
             );
             emit(
               state.copyWith(
-                status: TontineStatus.success,
+                isLoadingDetails: false,
                 selectedTontine: tontine,
                 selectedTontineMembers: members,
               ),
@@ -219,7 +259,6 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
         event.inviteCode,
         displayName: event.displayName,
         parts: event.parts,
-        payoutDetails: event.payoutDetails,
       );
       result.fold(
         (failure) {
@@ -370,10 +409,46 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     TontineMessagesLoadRequested event,
     Emitter<TontineState> emit,
   ) async {
+    // This handler also runs on every silent 5s poll (see TontineChatTab) —
+    // only treat it as a "loading" moment (cache-seed + spinner) on a
+    // genuine first load with nothing to show yet. Otherwise, toggling
+    // isLoadingMessages true/false on every single poll made the state
+    // differ from before even when the message list itself hadn't changed,
+    // forcing a visible rebuild every 5 seconds for nothing. Left alone, a
+    // poll whose result is identical to what's already shown now produces an
+    // equal TontineState, which Bloc silently drops without rebuilding —
+    // the chat only visibly updates when a message actually changed.
+    final isFirstLoad = state.selectedTontineMessages.isEmpty;
+
+    if (isFirstLoad) {
+      // Paint the chat from the local cache immediately — getTontineMessages()
+      // below always waits for the network when online, so without this the
+      // chat sat blank (no spinner, no messages) until the network call
+      // resolved even when a perfectly good cached history existed on disk.
+      final cached = await _repository.getCachedTontineMessages(
+        event.tontineId,
+      );
+      cached.fold((_) {}, (messages) {
+        emit(
+          state.copyWith(
+            isLoadingMessages: true,
+            selectedTontineMessages: messages,
+          ),
+        );
+      });
+    }
+
     final result = await _repository.getTontineMessages(event.tontineId);
     result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.message)),
-      (messages) => emit(state.copyWith(selectedTontineMessages: messages)),
+      (failure) => emit(
+        state.copyWith(isLoadingMessages: false, errorMessage: failure.message),
+      ),
+      (messages) => emit(
+        state.copyWith(
+          isLoadingMessages: false,
+          selectedTontineMessages: messages,
+        ),
+      ),
     );
   }
 
@@ -384,6 +459,25 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     final result = await _repository.sendMessage(
       event.tontineId,
       event.content,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(errorMessage: failure.message)),
+      (message) => emit(
+        state.copyWith(
+          selectedTontineMessages: [...state.selectedTontineMessages, message],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onSendTontineVoiceMessageRequested(
+    SendTontineVoiceMessageRequested event,
+    Emitter<TontineState> emit,
+  ) async {
+    final result = await _repository.sendVoiceMessage(
+      event.tontineId,
+      event.audioFile,
+      event.durationSeconds,
     );
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.message)),
@@ -413,6 +507,7 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
   ) async {
     emit(state.copyWith(status: TontineStatus.loading));
     final result = await _repository.validateContribution(
+      event.tontineId,
       event.contributionId,
       event.status,
     );
@@ -577,6 +672,49 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
     );
   }
 
+  Future<void> _onPaySocialFundRequested(
+    PaySocialFundRequested event,
+    Emitter<TontineState> emit,
+  ) async {
+    _logger.info(
+      'Paiement du fonds social pour la tontine: ${event.tontineId}',
+      component: 'TontineBloc',
+    );
+    emit(state.copyWith(status: TontineStatus.loading));
+    final result = await _repository.paySocialFund(event.tontineId);
+    result.fold(
+      (failure) {
+        _logger.error(
+          'Échec du paiement du fonds social',
+          error: failure.message,
+          component: 'TontineBloc',
+        );
+        emit(
+          state.copyWith(
+            status: TontineStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (updatedMember) {
+        _logger.info(
+          'Paiement du fonds social réussi.',
+          component: 'TontineBloc',
+        );
+        final updatedMembers = state.selectedTontineMembers.map((m) {
+          return m.id == updatedMember.id ? updatedMember : m;
+        }).toList();
+        emit(
+          state.copyWith(
+            status: TontineStatus.success,
+            selectedTontineMembers: updatedMembers,
+          ),
+        );
+        add(TontineDetailsLoadRequested(event.tontineId));
+      },
+    );
+  }
+
   Future<void> _onRotateTurnRequested(
     RotateTurnRequested event,
     Emitter<TontineState> emit,
@@ -688,7 +826,6 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
           trustScore: updatedMember.trustScore,
           hasPaidSocialFund: updatedMember.hasPaidSocialFund,
           autoDebitEnabled: event.enabled,
-          payoutDetails: updatedMember.payoutDetails,
         );
 
         final updatedMembers = state.selectedTontineMembers.map((m) {

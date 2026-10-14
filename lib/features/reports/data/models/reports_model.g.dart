@@ -19,6 +19,9 @@ DashboardReportModel _$DashboardReportModelFromJson(
       : BudgetHealthModel.fromJson(
           json['budgetHealth'] as Map<String, dynamic>,
         ),
+  resteAVivre: json['resteAVivre'] == null
+      ? null
+      : ResteAVivreModel.fromJson(json['resteAVivre'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$DashboardReportModelToJson(
@@ -30,7 +33,17 @@ Map<String, dynamic> _$DashboardReportModelToJson(
   'savingsRate': instance.savingsRate,
   'currency': instance.currency,
   'budgetHealth': instance.budgetHealth,
+  'resteAVivre': instance.resteAVivre,
 };
+
+ResteAVivreModel _$ResteAVivreModelFromJson(Map<String, dynamic> json) =>
+    ResteAVivreModel(
+      amount: (json['amount'] as num).toDouble(),
+      currency: json['currency'] as String? ?? 'XAF',
+    );
+
+Map<String, dynamic> _$ResteAVivreModelToJson(ResteAVivreModel instance) =>
+    <String, dynamic>{'amount': instance.amount, 'currency': instance.currency};
 
 BudgetHealthModel _$BudgetHealthModelFromJson(Map<String, dynamic> json) =>
     BudgetHealthModel(
@@ -105,3 +118,45 @@ Map<String, dynamic> _$NarrativeReportModelToJson(
   'tone': instance.tone,
   'health_score': instance.healthScore,
 };
+
+ForecastPointModel _$ForecastPointModelFromJson(Map<String, dynamic> json) =>
+    ForecastPointModel(
+      date: json['date'] as String,
+      balance: (json['balance'] as num).toDouble(),
+    );
+
+Map<String, dynamic> _$ForecastPointModelToJson(ForecastPointModel instance) =>
+    <String, dynamic>{'date': instance.date, 'balance': instance.balance};
+
+ForecastReportModel _$ForecastReportModelFromJson(
+  Map<String, dynamic> json,
+) => ForecastReportModel(
+  forecast:
+      (json['forecast'] as List<dynamic>?)
+          ?.map((e) => ForecastPointModel.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  insights:
+      (json['insights'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  criticalAlert: json['criticalAlert'] as String?,
+);
+
+Map<String, dynamic> _$ForecastReportModelToJson(
+  ForecastReportModel instance,
+) => <String, dynamic>{
+  'forecast': instance.forecast,
+  'insights': instance.insights,
+  'criticalAlert': instance.criticalAlert,
+};
+
+HealthScorePointModel _$HealthScorePointModelFromJson(
+  Map<String, dynamic> json,
+) => HealthScorePointModel(
+  period: json['period'] as String,
+  score: (json['score'] as num).toInt(),
+);
+
+Map<String, dynamic> _$HealthScorePointModelToJson(
+  HealthScorePointModel instance,
+) => <String, dynamic>{'period': instance.period, 'score': instance.score};

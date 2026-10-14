@@ -2599,6 +2599,30 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     requiredDuringInsert: false,
     defaultValue: const Constant('active'),
   );
+  static const VerificationMeta _priorityMeta = const VerificationMeta(
+    'priority',
+  );
+  @override
+  late final GeneratedColumn<String> priority = GeneratedColumn<String>(
+    'priority',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('medium'),
+  );
+  static const VerificationMeta _progressMeta = const VerificationMeta(
+    'progress',
+  );
+  @override
+  late final GeneratedColumn<double> progress = GeneratedColumn<double>(
+    'progress',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
   static const VerificationMeta _strategyMeta = const VerificationMeta(
     'strategy',
   );
@@ -2620,6 +2644,18 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contributionsMeta = const VerificationMeta(
+    'contributions',
+  );
+  @override
+  late final GeneratedColumn<String> contributions = GeneratedColumn<String>(
+    'contributions',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
   );
   static const VerificationMeta _isSharedMeta = const VerificationMeta(
     'isShared',
@@ -2647,6 +2683,32 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
     defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _inviteCodeMeta = const VerificationMeta(
+    'inviteCode',
+  );
+  @override
+  late final GeneratedColumn<String> inviteCode = GeneratedColumn<String>(
+    'invite_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isOwnerMeta = const VerificationMeta(
+    'isOwner',
+  );
+  @override
+  late final GeneratedColumn<bool> isOwner = GeneratedColumn<bool>(
+    'is_owner',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_owner" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
   );
   static const VerificationMeta _imageMeta = const VerificationMeta('image');
   @override
@@ -2692,10 +2754,15 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     deadline,
     category,
     status,
+    priority,
+    progress,
     strategy,
     autoSaveRules,
+    contributions,
     isShared,
     participants,
+    inviteCode,
+    isOwner,
     image,
     createdAt,
     updatedAt,
@@ -2794,6 +2861,18 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         status.isAcceptableOrUnknown(data['status']!, _statusMeta),
       );
     }
+    if (data.containsKey('priority')) {
+      context.handle(
+        _priorityMeta,
+        priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta),
+      );
+    }
+    if (data.containsKey('progress')) {
+      context.handle(
+        _progressMeta,
+        progress.isAcceptableOrUnknown(data['progress']!, _progressMeta),
+      );
+    }
     if (data.containsKey('strategy')) {
       context.handle(
         _strategyMeta,
@@ -2806,6 +2885,15 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         autoSaveRules.isAcceptableOrUnknown(
           data['auto_save_rules']!,
           _autoSaveRulesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('contributions')) {
+      context.handle(
+        _contributionsMeta,
+        contributions.isAcceptableOrUnknown(
+          data['contributions']!,
+          _contributionsMeta,
         ),
       );
     }
@@ -2822,6 +2910,18 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
           data['participants']!,
           _participantsMeta,
         ),
+      );
+    }
+    if (data.containsKey('invite_code')) {
+      context.handle(
+        _inviteCodeMeta,
+        inviteCode.isAcceptableOrUnknown(data['invite_code']!, _inviteCodeMeta),
+      );
+    }
+    if (data.containsKey('is_owner')) {
+      context.handle(
+        _isOwnerMeta,
+        isOwner.isAcceptableOrUnknown(data['is_owner']!, _isOwnerMeta),
       );
     }
     if (data.containsKey('image')) {
@@ -2897,6 +2997,14 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         DriftSqlType.string,
         data['${effectivePrefix}status'],
       )!,
+      priority: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}priority'],
+      )!,
+      progress: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}progress'],
+      )!,
       strategy: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}strategy'],
@@ -2905,6 +3013,10 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         DriftSqlType.string,
         data['${effectivePrefix}auto_save_rules'],
       ),
+      contributions: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contributions'],
+      )!,
       isShared: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_shared'],
@@ -2912,6 +3024,14 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
       participants: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}participants'],
+      )!,
+      inviteCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}invite_code'],
+      ),
+      isOwner: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_owner'],
       )!,
       image: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -2946,10 +3066,15 @@ class Goal extends DataClass implements Insertable<Goal> {
   final DateTime deadline;
   final String? category;
   final String status;
+  final String priority;
+  final double progress;
   final String? strategy;
   final String? autoSaveRules;
+  final String contributions;
   final bool isShared;
   final String participants;
+  final String? inviteCode;
+  final bool isOwner;
   final String? image;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -2965,10 +3090,15 @@ class Goal extends DataClass implements Insertable<Goal> {
     required this.deadline,
     this.category,
     required this.status,
+    required this.priority,
+    required this.progress,
     this.strategy,
     this.autoSaveRules,
+    required this.contributions,
     required this.isShared,
     required this.participants,
+    this.inviteCode,
+    required this.isOwner,
     this.image,
     required this.createdAt,
     this.updatedAt,
@@ -2993,14 +3123,21 @@ class Goal extends DataClass implements Insertable<Goal> {
       map['category'] = Variable<String>(category);
     }
     map['status'] = Variable<String>(status);
+    map['priority'] = Variable<String>(priority);
+    map['progress'] = Variable<double>(progress);
     if (!nullToAbsent || strategy != null) {
       map['strategy'] = Variable<String>(strategy);
     }
     if (!nullToAbsent || autoSaveRules != null) {
       map['auto_save_rules'] = Variable<String>(autoSaveRules);
     }
+    map['contributions'] = Variable<String>(contributions);
     map['is_shared'] = Variable<bool>(isShared);
     map['participants'] = Variable<String>(participants);
+    if (!nullToAbsent || inviteCode != null) {
+      map['invite_code'] = Variable<String>(inviteCode);
+    }
+    map['is_owner'] = Variable<bool>(isOwner);
     if (!nullToAbsent || image != null) {
       map['image'] = Variable<String>(image);
     }
@@ -3030,14 +3167,21 @@ class Goal extends DataClass implements Insertable<Goal> {
           ? const Value.absent()
           : Value(category),
       status: Value(status),
+      priority: Value(priority),
+      progress: Value(progress),
       strategy: strategy == null && nullToAbsent
           ? const Value.absent()
           : Value(strategy),
       autoSaveRules: autoSaveRules == null && nullToAbsent
           ? const Value.absent()
           : Value(autoSaveRules),
+      contributions: Value(contributions),
       isShared: Value(isShared),
       participants: Value(participants),
+      inviteCode: inviteCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(inviteCode),
+      isOwner: Value(isOwner),
       image: image == null && nullToAbsent
           ? const Value.absent()
           : Value(image),
@@ -3065,10 +3209,15 @@ class Goal extends DataClass implements Insertable<Goal> {
       deadline: serializer.fromJson<DateTime>(json['deadline']),
       category: serializer.fromJson<String?>(json['category']),
       status: serializer.fromJson<String>(json['status']),
+      priority: serializer.fromJson<String>(json['priority']),
+      progress: serializer.fromJson<double>(json['progress']),
       strategy: serializer.fromJson<String?>(json['strategy']),
       autoSaveRules: serializer.fromJson<String?>(json['autoSaveRules']),
+      contributions: serializer.fromJson<String>(json['contributions']),
       isShared: serializer.fromJson<bool>(json['isShared']),
       participants: serializer.fromJson<String>(json['participants']),
+      inviteCode: serializer.fromJson<String?>(json['inviteCode']),
+      isOwner: serializer.fromJson<bool>(json['isOwner']),
       image: serializer.fromJson<String?>(json['image']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
@@ -3089,10 +3238,15 @@ class Goal extends DataClass implements Insertable<Goal> {
       'deadline': serializer.toJson<DateTime>(deadline),
       'category': serializer.toJson<String?>(category),
       'status': serializer.toJson<String>(status),
+      'priority': serializer.toJson<String>(priority),
+      'progress': serializer.toJson<double>(progress),
       'strategy': serializer.toJson<String?>(strategy),
       'autoSaveRules': serializer.toJson<String?>(autoSaveRules),
+      'contributions': serializer.toJson<String>(contributions),
       'isShared': serializer.toJson<bool>(isShared),
       'participants': serializer.toJson<String>(participants),
+      'inviteCode': serializer.toJson<String?>(inviteCode),
+      'isOwner': serializer.toJson<bool>(isOwner),
       'image': serializer.toJson<String?>(image),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
@@ -3111,10 +3265,15 @@ class Goal extends DataClass implements Insertable<Goal> {
     DateTime? deadline,
     Value<String?> category = const Value.absent(),
     String? status,
+    String? priority,
+    double? progress,
     Value<String?> strategy = const Value.absent(),
     Value<String?> autoSaveRules = const Value.absent(),
+    String? contributions,
     bool? isShared,
     String? participants,
+    Value<String?> inviteCode = const Value.absent(),
+    bool? isOwner,
     Value<String?> image = const Value.absent(),
     DateTime? createdAt,
     Value<DateTime?> updatedAt = const Value.absent(),
@@ -3130,12 +3289,17 @@ class Goal extends DataClass implements Insertable<Goal> {
     deadline: deadline ?? this.deadline,
     category: category.present ? category.value : this.category,
     status: status ?? this.status,
+    priority: priority ?? this.priority,
+    progress: progress ?? this.progress,
     strategy: strategy.present ? strategy.value : this.strategy,
     autoSaveRules: autoSaveRules.present
         ? autoSaveRules.value
         : this.autoSaveRules,
+    contributions: contributions ?? this.contributions,
     isShared: isShared ?? this.isShared,
     participants: participants ?? this.participants,
+    inviteCode: inviteCode.present ? inviteCode.value : this.inviteCode,
+    isOwner: isOwner ?? this.isOwner,
     image: image.present ? image.value : this.image,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
@@ -3159,14 +3323,23 @@ class Goal extends DataClass implements Insertable<Goal> {
       deadline: data.deadline.present ? data.deadline.value : this.deadline,
       category: data.category.present ? data.category.value : this.category,
       status: data.status.present ? data.status.value : this.status,
+      priority: data.priority.present ? data.priority.value : this.priority,
+      progress: data.progress.present ? data.progress.value : this.progress,
       strategy: data.strategy.present ? data.strategy.value : this.strategy,
       autoSaveRules: data.autoSaveRules.present
           ? data.autoSaveRules.value
           : this.autoSaveRules,
+      contributions: data.contributions.present
+          ? data.contributions.value
+          : this.contributions,
       isShared: data.isShared.present ? data.isShared.value : this.isShared,
       participants: data.participants.present
           ? data.participants.value
           : this.participants,
+      inviteCode: data.inviteCode.present
+          ? data.inviteCode.value
+          : this.inviteCode,
+      isOwner: data.isOwner.present ? data.isOwner.value : this.isOwner,
       image: data.image.present ? data.image.value : this.image,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -3187,10 +3360,15 @@ class Goal extends DataClass implements Insertable<Goal> {
           ..write('deadline: $deadline, ')
           ..write('category: $category, ')
           ..write('status: $status, ')
+          ..write('priority: $priority, ')
+          ..write('progress: $progress, ')
           ..write('strategy: $strategy, ')
           ..write('autoSaveRules: $autoSaveRules, ')
+          ..write('contributions: $contributions, ')
           ..write('isShared: $isShared, ')
           ..write('participants: $participants, ')
+          ..write('inviteCode: $inviteCode, ')
+          ..write('isOwner: $isOwner, ')
           ..write('image: $image, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -3199,7 +3377,7 @@ class Goal extends DataClass implements Insertable<Goal> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     name,
     description,
@@ -3211,14 +3389,19 @@ class Goal extends DataClass implements Insertable<Goal> {
     deadline,
     category,
     status,
+    priority,
+    progress,
     strategy,
     autoSaveRules,
+    contributions,
     isShared,
     participants,
+    inviteCode,
+    isOwner,
     image,
     createdAt,
     updatedAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3234,10 +3417,15 @@ class Goal extends DataClass implements Insertable<Goal> {
           other.deadline == this.deadline &&
           other.category == this.category &&
           other.status == this.status &&
+          other.priority == this.priority &&
+          other.progress == this.progress &&
           other.strategy == this.strategy &&
           other.autoSaveRules == this.autoSaveRules &&
+          other.contributions == this.contributions &&
           other.isShared == this.isShared &&
           other.participants == this.participants &&
+          other.inviteCode == this.inviteCode &&
+          other.isOwner == this.isOwner &&
           other.image == this.image &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -3255,10 +3443,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<DateTime> deadline;
   final Value<String?> category;
   final Value<String> status;
+  final Value<String> priority;
+  final Value<double> progress;
   final Value<String?> strategy;
   final Value<String?> autoSaveRules;
+  final Value<String> contributions;
   final Value<bool> isShared;
   final Value<String> participants;
+  final Value<String?> inviteCode;
+  final Value<bool> isOwner;
   final Value<String?> image;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
@@ -3275,10 +3468,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.deadline = const Value.absent(),
     this.category = const Value.absent(),
     this.status = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.progress = const Value.absent(),
     this.strategy = const Value.absent(),
     this.autoSaveRules = const Value.absent(),
+    this.contributions = const Value.absent(),
     this.isShared = const Value.absent(),
     this.participants = const Value.absent(),
+    this.inviteCode = const Value.absent(),
+    this.isOwner = const Value.absent(),
     this.image = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -3296,10 +3494,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     required DateTime deadline,
     this.category = const Value.absent(),
     this.status = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.progress = const Value.absent(),
     this.strategy = const Value.absent(),
     this.autoSaveRules = const Value.absent(),
+    this.contributions = const Value.absent(),
     this.isShared = const Value.absent(),
     this.participants = const Value.absent(),
+    this.inviteCode = const Value.absent(),
+    this.isOwner = const Value.absent(),
     this.image = const Value.absent(),
     required DateTime createdAt,
     this.updatedAt = const Value.absent(),
@@ -3322,10 +3525,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Expression<DateTime>? deadline,
     Expression<String>? category,
     Expression<String>? status,
+    Expression<String>? priority,
+    Expression<double>? progress,
     Expression<String>? strategy,
     Expression<String>? autoSaveRules,
+    Expression<String>? contributions,
     Expression<bool>? isShared,
     Expression<String>? participants,
+    Expression<String>? inviteCode,
+    Expression<bool>? isOwner,
     Expression<String>? image,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -3343,10 +3551,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       if (deadline != null) 'deadline': deadline,
       if (category != null) 'category': category,
       if (status != null) 'status': status,
+      if (priority != null) 'priority': priority,
+      if (progress != null) 'progress': progress,
       if (strategy != null) 'strategy': strategy,
       if (autoSaveRules != null) 'auto_save_rules': autoSaveRules,
+      if (contributions != null) 'contributions': contributions,
       if (isShared != null) 'is_shared': isShared,
       if (participants != null) 'participants': participants,
+      if (inviteCode != null) 'invite_code': inviteCode,
+      if (isOwner != null) 'is_owner': isOwner,
       if (image != null) 'image': image,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -3366,10 +3579,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Value<DateTime>? deadline,
     Value<String?>? category,
     Value<String>? status,
+    Value<String>? priority,
+    Value<double>? progress,
     Value<String?>? strategy,
     Value<String?>? autoSaveRules,
+    Value<String>? contributions,
     Value<bool>? isShared,
     Value<String>? participants,
+    Value<String?>? inviteCode,
+    Value<bool>? isOwner,
     Value<String?>? image,
     Value<DateTime>? createdAt,
     Value<DateTime?>? updatedAt,
@@ -3387,10 +3605,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       deadline: deadline ?? this.deadline,
       category: category ?? this.category,
       status: status ?? this.status,
+      priority: priority ?? this.priority,
+      progress: progress ?? this.progress,
       strategy: strategy ?? this.strategy,
       autoSaveRules: autoSaveRules ?? this.autoSaveRules,
+      contributions: contributions ?? this.contributions,
       isShared: isShared ?? this.isShared,
       participants: participants ?? this.participants,
+      inviteCode: inviteCode ?? this.inviteCode,
+      isOwner: isOwner ?? this.isOwner,
       image: image ?? this.image,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -3434,17 +3657,32 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
+    if (priority.present) {
+      map['priority'] = Variable<String>(priority.value);
+    }
+    if (progress.present) {
+      map['progress'] = Variable<double>(progress.value);
+    }
     if (strategy.present) {
       map['strategy'] = Variable<String>(strategy.value);
     }
     if (autoSaveRules.present) {
       map['auto_save_rules'] = Variable<String>(autoSaveRules.value);
     }
+    if (contributions.present) {
+      map['contributions'] = Variable<String>(contributions.value);
+    }
     if (isShared.present) {
       map['is_shared'] = Variable<bool>(isShared.value);
     }
     if (participants.present) {
       map['participants'] = Variable<String>(participants.value);
+    }
+    if (inviteCode.present) {
+      map['invite_code'] = Variable<String>(inviteCode.value);
+    }
+    if (isOwner.present) {
+      map['is_owner'] = Variable<bool>(isOwner.value);
     }
     if (image.present) {
       map['image'] = Variable<String>(image.value);
@@ -3475,10 +3713,15 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
           ..write('deadline: $deadline, ')
           ..write('category: $category, ')
           ..write('status: $status, ')
+          ..write('priority: $priority, ')
+          ..write('progress: $progress, ')
           ..write('strategy: $strategy, ')
           ..write('autoSaveRules: $autoSaveRules, ')
+          ..write('contributions: $contributions, ')
           ..write('isShared: $isShared, ')
           ..write('participants: $participants, ')
+          ..write('inviteCode: $inviteCode, ')
+          ..write('isOwner: $isOwner, ')
           ..write('image: $image, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -4500,8 +4743,24 @@ class $ChatMessagesTable extends ChatMessages
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
-  List<GeneratedColumn> get $columns => [id, content, sender, timestamp];
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('sent'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    content,
+    sender,
+    timestamp,
+    status,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4543,6 +4802,12 @@ class $ChatMessagesTable extends ChatMessages
     } else if (isInserting) {
       context.missing(_timestampMeta);
     }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
     return context;
   }
 
@@ -4568,6 +4833,10 @@ class $ChatMessagesTable extends ChatMessages
         DriftSqlType.dateTime,
         data['${effectivePrefix}timestamp'],
       )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
     );
   }
 
@@ -4582,11 +4851,13 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
   final String content;
   final String sender;
   final DateTime timestamp;
+  final String status;
   const ChatMessage({
     required this.id,
     required this.content,
     required this.sender,
     required this.timestamp,
+    required this.status,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4595,6 +4866,7 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
     map['content'] = Variable<String>(content);
     map['sender'] = Variable<String>(sender);
     map['timestamp'] = Variable<DateTime>(timestamp);
+    map['status'] = Variable<String>(status);
     return map;
   }
 
@@ -4604,6 +4876,7 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
       content: Value(content),
       sender: Value(sender),
       timestamp: Value(timestamp),
+      status: Value(status),
     );
   }
 
@@ -4617,6 +4890,7 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
       content: serializer.fromJson<String>(json['content']),
       sender: serializer.fromJson<String>(json['sender']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      status: serializer.fromJson<String>(json['status']),
     );
   }
   @override
@@ -4627,6 +4901,7 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
       'content': serializer.toJson<String>(content),
       'sender': serializer.toJson<String>(sender),
       'timestamp': serializer.toJson<DateTime>(timestamp),
+      'status': serializer.toJson<String>(status),
     };
   }
 
@@ -4635,11 +4910,13 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
     String? content,
     String? sender,
     DateTime? timestamp,
+    String? status,
   }) => ChatMessage(
     id: id ?? this.id,
     content: content ?? this.content,
     sender: sender ?? this.sender,
     timestamp: timestamp ?? this.timestamp,
+    status: status ?? this.status,
   );
   ChatMessage copyWithCompanion(ChatMessagesCompanion data) {
     return ChatMessage(
@@ -4647,6 +4924,7 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
       content: data.content.present ? data.content.value : this.content,
       sender: data.sender.present ? data.sender.value : this.sender,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      status: data.status.present ? data.status.value : this.status,
     );
   }
 
@@ -4656,13 +4934,14 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
           ..write('id: $id, ')
           ..write('content: $content, ')
           ..write('sender: $sender, ')
-          ..write('timestamp: $timestamp')
+          ..write('timestamp: $timestamp, ')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, content, sender, timestamp);
+  int get hashCode => Object.hash(id, content, sender, timestamp, status);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4670,7 +4949,8 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
           other.id == this.id &&
           other.content == this.content &&
           other.sender == this.sender &&
-          other.timestamp == this.timestamp);
+          other.timestamp == this.timestamp &&
+          other.status == this.status);
 }
 
 class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
@@ -4678,12 +4958,14 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
   final Value<String> content;
   final Value<String> sender;
   final Value<DateTime> timestamp;
+  final Value<String> status;
   final Value<int> rowid;
   const ChatMessagesCompanion({
     this.id = const Value.absent(),
     this.content = const Value.absent(),
     this.sender = const Value.absent(),
     this.timestamp = const Value.absent(),
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ChatMessagesCompanion.insert({
@@ -4691,6 +4973,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     required String content,
     required String sender,
     required DateTime timestamp,
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        content = Value(content),
@@ -4701,6 +4984,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     Expression<String>? content,
     Expression<String>? sender,
     Expression<DateTime>? timestamp,
+    Expression<String>? status,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4708,6 +4992,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
       if (content != null) 'content': content,
       if (sender != null) 'sender': sender,
       if (timestamp != null) 'timestamp': timestamp,
+      if (status != null) 'status': status,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4717,6 +5002,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     Value<String>? content,
     Value<String>? sender,
     Value<DateTime>? timestamp,
+    Value<String>? status,
     Value<int>? rowid,
   }) {
     return ChatMessagesCompanion(
@@ -4724,6 +5010,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
       content: content ?? this.content,
       sender: sender ?? this.sender,
       timestamp: timestamp ?? this.timestamp,
+      status: status ?? this.status,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4743,6 +5030,9 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     if (timestamp.present) {
       map['timestamp'] = Variable<DateTime>(timestamp.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -4756,6 +5046,7 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
           ..write('content: $content, ')
           ..write('sender: $sender, ')
           ..write('timestamp: $timestamp, ')
+          ..write('status: $status, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8750,6 +9041,38 @@ class $TontineMessagesTable extends TontineMessages
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('text'),
+  );
+  static const VerificationMeta _audioUrlMeta = const VerificationMeta(
+    'audioUrl',
+  );
+  @override
+  late final GeneratedColumn<String> audioUrl = GeneratedColumn<String>(
+    'audio_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _audioDurationMeta = const VerificationMeta(
+    'audioDuration',
+  );
+  @override
+  late final GeneratedColumn<int> audioDuration = GeneratedColumn<int>(
+    'audio_duration',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -8767,6 +9090,9 @@ class $TontineMessagesTable extends TontineMessages
     tontineId,
     senderId,
     content,
+    type,
+    audioUrl,
+    audioDuration,
     createdAt,
   ];
   @override
@@ -8810,6 +9136,27 @@ class $TontineMessagesTable extends TontineMessages
     } else if (isInserting) {
       context.missing(_contentMeta);
     }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    }
+    if (data.containsKey('audio_url')) {
+      context.handle(
+        _audioUrlMeta,
+        audioUrl.isAcceptableOrUnknown(data['audio_url']!, _audioUrlMeta),
+      );
+    }
+    if (data.containsKey('audio_duration')) {
+      context.handle(
+        _audioDurationMeta,
+        audioDuration.isAcceptableOrUnknown(
+          data['audio_duration']!,
+          _audioDurationMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -8843,6 +9190,18 @@ class $TontineMessagesTable extends TontineMessages
         DriftSqlType.string,
         data['${effectivePrefix}content'],
       )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      audioUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}audio_url'],
+      ),
+      audioDuration: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}audio_duration'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -8861,12 +9220,18 @@ class TontineMessage extends DataClass implements Insertable<TontineMessage> {
   final String tontineId;
   final String senderId;
   final String content;
+  final String type;
+  final String? audioUrl;
+  final int? audioDuration;
   final DateTime createdAt;
   const TontineMessage({
     required this.id,
     required this.tontineId,
     required this.senderId,
     required this.content,
+    required this.type,
+    this.audioUrl,
+    this.audioDuration,
     required this.createdAt,
   });
   @override
@@ -8876,6 +9241,13 @@ class TontineMessage extends DataClass implements Insertable<TontineMessage> {
     map['tontine_id'] = Variable<String>(tontineId);
     map['sender_id'] = Variable<String>(senderId);
     map['content'] = Variable<String>(content);
+    map['type'] = Variable<String>(type);
+    if (!nullToAbsent || audioUrl != null) {
+      map['audio_url'] = Variable<String>(audioUrl);
+    }
+    if (!nullToAbsent || audioDuration != null) {
+      map['audio_duration'] = Variable<int>(audioDuration);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -8886,6 +9258,13 @@ class TontineMessage extends DataClass implements Insertable<TontineMessage> {
       tontineId: Value(tontineId),
       senderId: Value(senderId),
       content: Value(content),
+      type: Value(type),
+      audioUrl: audioUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audioUrl),
+      audioDuration: audioDuration == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audioDuration),
       createdAt: Value(createdAt),
     );
   }
@@ -8900,6 +9279,9 @@ class TontineMessage extends DataClass implements Insertable<TontineMessage> {
       tontineId: serializer.fromJson<String>(json['tontineId']),
       senderId: serializer.fromJson<String>(json['senderId']),
       content: serializer.fromJson<String>(json['content']),
+      type: serializer.fromJson<String>(json['type']),
+      audioUrl: serializer.fromJson<String?>(json['audioUrl']),
+      audioDuration: serializer.fromJson<int?>(json['audioDuration']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -8911,6 +9293,9 @@ class TontineMessage extends DataClass implements Insertable<TontineMessage> {
       'tontineId': serializer.toJson<String>(tontineId),
       'senderId': serializer.toJson<String>(senderId),
       'content': serializer.toJson<String>(content),
+      'type': serializer.toJson<String>(type),
+      'audioUrl': serializer.toJson<String?>(audioUrl),
+      'audioDuration': serializer.toJson<int?>(audioDuration),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -8920,12 +9305,20 @@ class TontineMessage extends DataClass implements Insertable<TontineMessage> {
     String? tontineId,
     String? senderId,
     String? content,
+    String? type,
+    Value<String?> audioUrl = const Value.absent(),
+    Value<int?> audioDuration = const Value.absent(),
     DateTime? createdAt,
   }) => TontineMessage(
     id: id ?? this.id,
     tontineId: tontineId ?? this.tontineId,
     senderId: senderId ?? this.senderId,
     content: content ?? this.content,
+    type: type ?? this.type,
+    audioUrl: audioUrl.present ? audioUrl.value : this.audioUrl,
+    audioDuration: audioDuration.present
+        ? audioDuration.value
+        : this.audioDuration,
     createdAt: createdAt ?? this.createdAt,
   );
   TontineMessage copyWithCompanion(TontineMessagesCompanion data) {
@@ -8934,6 +9327,11 @@ class TontineMessage extends DataClass implements Insertable<TontineMessage> {
       tontineId: data.tontineId.present ? data.tontineId.value : this.tontineId,
       senderId: data.senderId.present ? data.senderId.value : this.senderId,
       content: data.content.present ? data.content.value : this.content,
+      type: data.type.present ? data.type.value : this.type,
+      audioUrl: data.audioUrl.present ? data.audioUrl.value : this.audioUrl,
+      audioDuration: data.audioDuration.present
+          ? data.audioDuration.value
+          : this.audioDuration,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -8945,13 +9343,25 @@ class TontineMessage extends DataClass implements Insertable<TontineMessage> {
           ..write('tontineId: $tontineId, ')
           ..write('senderId: $senderId, ')
           ..write('content: $content, ')
+          ..write('type: $type, ')
+          ..write('audioUrl: $audioUrl, ')
+          ..write('audioDuration: $audioDuration, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, tontineId, senderId, content, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    tontineId,
+    senderId,
+    content,
+    type,
+    audioUrl,
+    audioDuration,
+    createdAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8960,6 +9370,9 @@ class TontineMessage extends DataClass implements Insertable<TontineMessage> {
           other.tontineId == this.tontineId &&
           other.senderId == this.senderId &&
           other.content == this.content &&
+          other.type == this.type &&
+          other.audioUrl == this.audioUrl &&
+          other.audioDuration == this.audioDuration &&
           other.createdAt == this.createdAt);
 }
 
@@ -8968,6 +9381,9 @@ class TontineMessagesCompanion extends UpdateCompanion<TontineMessage> {
   final Value<String> tontineId;
   final Value<String> senderId;
   final Value<String> content;
+  final Value<String> type;
+  final Value<String?> audioUrl;
+  final Value<int?> audioDuration;
   final Value<DateTime> createdAt;
   final Value<int> rowid;
   const TontineMessagesCompanion({
@@ -8975,6 +9391,9 @@ class TontineMessagesCompanion extends UpdateCompanion<TontineMessage> {
     this.tontineId = const Value.absent(),
     this.senderId = const Value.absent(),
     this.content = const Value.absent(),
+    this.type = const Value.absent(),
+    this.audioUrl = const Value.absent(),
+    this.audioDuration = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -8983,6 +9402,9 @@ class TontineMessagesCompanion extends UpdateCompanion<TontineMessage> {
     required String tontineId,
     required String senderId,
     required String content,
+    this.type = const Value.absent(),
+    this.audioUrl = const Value.absent(),
+    this.audioDuration = const Value.absent(),
     required DateTime createdAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -8995,6 +9417,9 @@ class TontineMessagesCompanion extends UpdateCompanion<TontineMessage> {
     Expression<String>? tontineId,
     Expression<String>? senderId,
     Expression<String>? content,
+    Expression<String>? type,
+    Expression<String>? audioUrl,
+    Expression<int>? audioDuration,
     Expression<DateTime>? createdAt,
     Expression<int>? rowid,
   }) {
@@ -9003,6 +9428,9 @@ class TontineMessagesCompanion extends UpdateCompanion<TontineMessage> {
       if (tontineId != null) 'tontine_id': tontineId,
       if (senderId != null) 'sender_id': senderId,
       if (content != null) 'content': content,
+      if (type != null) 'type': type,
+      if (audioUrl != null) 'audio_url': audioUrl,
+      if (audioDuration != null) 'audio_duration': audioDuration,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -9013,6 +9441,9 @@ class TontineMessagesCompanion extends UpdateCompanion<TontineMessage> {
     Value<String>? tontineId,
     Value<String>? senderId,
     Value<String>? content,
+    Value<String>? type,
+    Value<String?>? audioUrl,
+    Value<int?>? audioDuration,
     Value<DateTime>? createdAt,
     Value<int>? rowid,
   }) {
@@ -9021,6 +9452,9 @@ class TontineMessagesCompanion extends UpdateCompanion<TontineMessage> {
       tontineId: tontineId ?? this.tontineId,
       senderId: senderId ?? this.senderId,
       content: content ?? this.content,
+      type: type ?? this.type,
+      audioUrl: audioUrl ?? this.audioUrl,
+      audioDuration: audioDuration ?? this.audioDuration,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
@@ -9041,6 +9475,15 @@ class TontineMessagesCompanion extends UpdateCompanion<TontineMessage> {
     if (content.present) {
       map['content'] = Variable<String>(content.value);
     }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (audioUrl.present) {
+      map['audio_url'] = Variable<String>(audioUrl.value);
+    }
+    if (audioDuration.present) {
+      map['audio_duration'] = Variable<int>(audioDuration.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -9057,6 +9500,9 @@ class TontineMessagesCompanion extends UpdateCompanion<TontineMessage> {
           ..write('tontineId: $tontineId, ')
           ..write('senderId: $senderId, ')
           ..write('content: $content, ')
+          ..write('type: $type, ')
+          ..write('audioUrl: $audioUrl, ')
+          ..write('audioDuration: $audioDuration, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -9637,6 +10083,1834 @@ class TontineContributionsCompanion
   }
 }
 
+class $DashboardReportsTable extends DashboardReports
+    with TableInfo<$DashboardReportsTable, DashboardReport> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DashboardReportsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _walletBalanceMeta = const VerificationMeta(
+    'walletBalance',
+  );
+  @override
+  late final GeneratedColumn<double> walletBalance = GeneratedColumn<double>(
+    'wallet_balance',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _monthlyIncomeMeta = const VerificationMeta(
+    'monthlyIncome',
+  );
+  @override
+  late final GeneratedColumn<double> monthlyIncome = GeneratedColumn<double>(
+    'monthly_income',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalSpentMeta = const VerificationMeta(
+    'totalSpent',
+  );
+  @override
+  late final GeneratedColumn<double> totalSpent = GeneratedColumn<double>(
+    'total_spent',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _savingsRateMeta = const VerificationMeta(
+    'savingsRate',
+  );
+  @override
+  late final GeneratedColumn<double> savingsRate = GeneratedColumn<double>(
+    'savings_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('XAF'),
+  );
+  static const VerificationMeta _budgetHealthMeta = const VerificationMeta(
+    'budgetHealth',
+  );
+  @override
+  late final GeneratedColumn<String> budgetHealth = GeneratedColumn<String>(
+    'budget_health',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    walletBalance,
+    monthlyIncome,
+    totalSpent,
+    savingsRate,
+    currency,
+    budgetHealth,
+    cachedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'dashboard_reports';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DashboardReport> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('wallet_balance')) {
+      context.handle(
+        _walletBalanceMeta,
+        walletBalance.isAcceptableOrUnknown(
+          data['wallet_balance']!,
+          _walletBalanceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_walletBalanceMeta);
+    }
+    if (data.containsKey('monthly_income')) {
+      context.handle(
+        _monthlyIncomeMeta,
+        monthlyIncome.isAcceptableOrUnknown(
+          data['monthly_income']!,
+          _monthlyIncomeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_monthlyIncomeMeta);
+    }
+    if (data.containsKey('total_spent')) {
+      context.handle(
+        _totalSpentMeta,
+        totalSpent.isAcceptableOrUnknown(data['total_spent']!, _totalSpentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_totalSpentMeta);
+    }
+    if (data.containsKey('savings_rate')) {
+      context.handle(
+        _savingsRateMeta,
+        savingsRate.isAcceptableOrUnknown(
+          data['savings_rate']!,
+          _savingsRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_savingsRateMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    }
+    if (data.containsKey('budget_health')) {
+      context.handle(
+        _budgetHealthMeta,
+        budgetHealth.isAcceptableOrUnknown(
+          data['budget_health']!,
+          _budgetHealthMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DashboardReport map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DashboardReport(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      walletBalance: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}wallet_balance'],
+      )!,
+      monthlyIncome: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}monthly_income'],
+      )!,
+      totalSpent: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}total_spent'],
+      )!,
+      savingsRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}savings_rate'],
+      )!,
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      budgetHealth: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}budget_health'],
+      ),
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $DashboardReportsTable createAlias(String alias) {
+    return $DashboardReportsTable(attachedDatabase, alias);
+  }
+}
+
+class DashboardReport extends DataClass implements Insertable<DashboardReport> {
+  final int id;
+  final double walletBalance;
+  final double monthlyIncome;
+  final double totalSpent;
+  final double savingsRate;
+  final String currency;
+  final String? budgetHealth;
+  final DateTime cachedAt;
+  const DashboardReport({
+    required this.id,
+    required this.walletBalance,
+    required this.monthlyIncome,
+    required this.totalSpent,
+    required this.savingsRate,
+    required this.currency,
+    this.budgetHealth,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['wallet_balance'] = Variable<double>(walletBalance);
+    map['monthly_income'] = Variable<double>(monthlyIncome);
+    map['total_spent'] = Variable<double>(totalSpent);
+    map['savings_rate'] = Variable<double>(savingsRate);
+    map['currency'] = Variable<String>(currency);
+    if (!nullToAbsent || budgetHealth != null) {
+      map['budget_health'] = Variable<String>(budgetHealth);
+    }
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  DashboardReportsCompanion toCompanion(bool nullToAbsent) {
+    return DashboardReportsCompanion(
+      id: Value(id),
+      walletBalance: Value(walletBalance),
+      monthlyIncome: Value(monthlyIncome),
+      totalSpent: Value(totalSpent),
+      savingsRate: Value(savingsRate),
+      currency: Value(currency),
+      budgetHealth: budgetHealth == null && nullToAbsent
+          ? const Value.absent()
+          : Value(budgetHealth),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory DashboardReport.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DashboardReport(
+      id: serializer.fromJson<int>(json['id']),
+      walletBalance: serializer.fromJson<double>(json['walletBalance']),
+      monthlyIncome: serializer.fromJson<double>(json['monthlyIncome']),
+      totalSpent: serializer.fromJson<double>(json['totalSpent']),
+      savingsRate: serializer.fromJson<double>(json['savingsRate']),
+      currency: serializer.fromJson<String>(json['currency']),
+      budgetHealth: serializer.fromJson<String?>(json['budgetHealth']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'walletBalance': serializer.toJson<double>(walletBalance),
+      'monthlyIncome': serializer.toJson<double>(monthlyIncome),
+      'totalSpent': serializer.toJson<double>(totalSpent),
+      'savingsRate': serializer.toJson<double>(savingsRate),
+      'currency': serializer.toJson<String>(currency),
+      'budgetHealth': serializer.toJson<String?>(budgetHealth),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  DashboardReport copyWith({
+    int? id,
+    double? walletBalance,
+    double? monthlyIncome,
+    double? totalSpent,
+    double? savingsRate,
+    String? currency,
+    Value<String?> budgetHealth = const Value.absent(),
+    DateTime? cachedAt,
+  }) => DashboardReport(
+    id: id ?? this.id,
+    walletBalance: walletBalance ?? this.walletBalance,
+    monthlyIncome: monthlyIncome ?? this.monthlyIncome,
+    totalSpent: totalSpent ?? this.totalSpent,
+    savingsRate: savingsRate ?? this.savingsRate,
+    currency: currency ?? this.currency,
+    budgetHealth: budgetHealth.present ? budgetHealth.value : this.budgetHealth,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
+  DashboardReport copyWithCompanion(DashboardReportsCompanion data) {
+    return DashboardReport(
+      id: data.id.present ? data.id.value : this.id,
+      walletBalance: data.walletBalance.present
+          ? data.walletBalance.value
+          : this.walletBalance,
+      monthlyIncome: data.monthlyIncome.present
+          ? data.monthlyIncome.value
+          : this.monthlyIncome,
+      totalSpent: data.totalSpent.present
+          ? data.totalSpent.value
+          : this.totalSpent,
+      savingsRate: data.savingsRate.present
+          ? data.savingsRate.value
+          : this.savingsRate,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      budgetHealth: data.budgetHealth.present
+          ? data.budgetHealth.value
+          : this.budgetHealth,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DashboardReport(')
+          ..write('id: $id, ')
+          ..write('walletBalance: $walletBalance, ')
+          ..write('monthlyIncome: $monthlyIncome, ')
+          ..write('totalSpent: $totalSpent, ')
+          ..write('savingsRate: $savingsRate, ')
+          ..write('currency: $currency, ')
+          ..write('budgetHealth: $budgetHealth, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    walletBalance,
+    monthlyIncome,
+    totalSpent,
+    savingsRate,
+    currency,
+    budgetHealth,
+    cachedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DashboardReport &&
+          other.id == this.id &&
+          other.walletBalance == this.walletBalance &&
+          other.monthlyIncome == this.monthlyIncome &&
+          other.totalSpent == this.totalSpent &&
+          other.savingsRate == this.savingsRate &&
+          other.currency == this.currency &&
+          other.budgetHealth == this.budgetHealth &&
+          other.cachedAt == this.cachedAt);
+}
+
+class DashboardReportsCompanion extends UpdateCompanion<DashboardReport> {
+  final Value<int> id;
+  final Value<double> walletBalance;
+  final Value<double> monthlyIncome;
+  final Value<double> totalSpent;
+  final Value<double> savingsRate;
+  final Value<String> currency;
+  final Value<String?> budgetHealth;
+  final Value<DateTime> cachedAt;
+  const DashboardReportsCompanion({
+    this.id = const Value.absent(),
+    this.walletBalance = const Value.absent(),
+    this.monthlyIncome = const Value.absent(),
+    this.totalSpent = const Value.absent(),
+    this.savingsRate = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.budgetHealth = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+  });
+  DashboardReportsCompanion.insert({
+    this.id = const Value.absent(),
+    required double walletBalance,
+    required double monthlyIncome,
+    required double totalSpent,
+    required double savingsRate,
+    this.currency = const Value.absent(),
+    this.budgetHealth = const Value.absent(),
+    required DateTime cachedAt,
+  }) : walletBalance = Value(walletBalance),
+       monthlyIncome = Value(monthlyIncome),
+       totalSpent = Value(totalSpent),
+       savingsRate = Value(savingsRate),
+       cachedAt = Value(cachedAt);
+  static Insertable<DashboardReport> custom({
+    Expression<int>? id,
+    Expression<double>? walletBalance,
+    Expression<double>? monthlyIncome,
+    Expression<double>? totalSpent,
+    Expression<double>? savingsRate,
+    Expression<String>? currency,
+    Expression<String>? budgetHealth,
+    Expression<DateTime>? cachedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (walletBalance != null) 'wallet_balance': walletBalance,
+      if (monthlyIncome != null) 'monthly_income': monthlyIncome,
+      if (totalSpent != null) 'total_spent': totalSpent,
+      if (savingsRate != null) 'savings_rate': savingsRate,
+      if (currency != null) 'currency': currency,
+      if (budgetHealth != null) 'budget_health': budgetHealth,
+      if (cachedAt != null) 'cached_at': cachedAt,
+    });
+  }
+
+  DashboardReportsCompanion copyWith({
+    Value<int>? id,
+    Value<double>? walletBalance,
+    Value<double>? monthlyIncome,
+    Value<double>? totalSpent,
+    Value<double>? savingsRate,
+    Value<String>? currency,
+    Value<String?>? budgetHealth,
+    Value<DateTime>? cachedAt,
+  }) {
+    return DashboardReportsCompanion(
+      id: id ?? this.id,
+      walletBalance: walletBalance ?? this.walletBalance,
+      monthlyIncome: monthlyIncome ?? this.monthlyIncome,
+      totalSpent: totalSpent ?? this.totalSpent,
+      savingsRate: savingsRate ?? this.savingsRate,
+      currency: currency ?? this.currency,
+      budgetHealth: budgetHealth ?? this.budgetHealth,
+      cachedAt: cachedAt ?? this.cachedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (walletBalance.present) {
+      map['wallet_balance'] = Variable<double>(walletBalance.value);
+    }
+    if (monthlyIncome.present) {
+      map['monthly_income'] = Variable<double>(monthlyIncome.value);
+    }
+    if (totalSpent.present) {
+      map['total_spent'] = Variable<double>(totalSpent.value);
+    }
+    if (savingsRate.present) {
+      map['savings_rate'] = Variable<double>(savingsRate.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (budgetHealth.present) {
+      map['budget_health'] = Variable<String>(budgetHealth.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DashboardReportsCompanion(')
+          ..write('id: $id, ')
+          ..write('walletBalance: $walletBalance, ')
+          ..write('monthlyIncome: $monthlyIncome, ')
+          ..write('totalSpent: $totalSpent, ')
+          ..write('savingsRate: $savingsRate, ')
+          ..write('currency: $currency, ')
+          ..write('budgetHealth: $budgetHealth, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SpendingAnalysisCacheTable extends SpendingAnalysisCache
+    with TableInfo<$SpendingAnalysisCacheTable, SpendingAnalysisCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SpendingAnalysisCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _periodMeta = const VerificationMeta('period');
+  @override
+  late final GeneratedColumn<String> period = GeneratedColumn<String>(
+    'period',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dataJsonMeta = const VerificationMeta(
+    'dataJson',
+  );
+  @override
+  late final GeneratedColumn<String> dataJson = GeneratedColumn<String>(
+    'data_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [period, dataJson, cachedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'spending_analysis_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SpendingAnalysisCacheData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('period')) {
+      context.handle(
+        _periodMeta,
+        period.isAcceptableOrUnknown(data['period']!, _periodMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_periodMeta);
+    }
+    if (data.containsKey('data_json')) {
+      context.handle(
+        _dataJsonMeta,
+        dataJson.isAcceptableOrUnknown(data['data_json']!, _dataJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataJsonMeta);
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {period};
+  @override
+  SpendingAnalysisCacheData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SpendingAnalysisCacheData(
+      period: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}period'],
+      )!,
+      dataJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}data_json'],
+      )!,
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SpendingAnalysisCacheTable createAlias(String alias) {
+    return $SpendingAnalysisCacheTable(attachedDatabase, alias);
+  }
+}
+
+class SpendingAnalysisCacheData extends DataClass
+    implements Insertable<SpendingAnalysisCacheData> {
+  final String period;
+  final String dataJson;
+  final DateTime cachedAt;
+  const SpendingAnalysisCacheData({
+    required this.period,
+    required this.dataJson,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['period'] = Variable<String>(period);
+    map['data_json'] = Variable<String>(dataJson);
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  SpendingAnalysisCacheCompanion toCompanion(bool nullToAbsent) {
+    return SpendingAnalysisCacheCompanion(
+      period: Value(period),
+      dataJson: Value(dataJson),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory SpendingAnalysisCacheData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SpendingAnalysisCacheData(
+      period: serializer.fromJson<String>(json['period']),
+      dataJson: serializer.fromJson<String>(json['dataJson']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'period': serializer.toJson<String>(period),
+      'dataJson': serializer.toJson<String>(dataJson),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  SpendingAnalysisCacheData copyWith({
+    String? period,
+    String? dataJson,
+    DateTime? cachedAt,
+  }) => SpendingAnalysisCacheData(
+    period: period ?? this.period,
+    dataJson: dataJson ?? this.dataJson,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
+  SpendingAnalysisCacheData copyWithCompanion(
+    SpendingAnalysisCacheCompanion data,
+  ) {
+    return SpendingAnalysisCacheData(
+      period: data.period.present ? data.period.value : this.period,
+      dataJson: data.dataJson.present ? data.dataJson.value : this.dataJson,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SpendingAnalysisCacheData(')
+          ..write('period: $period, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(period, dataJson, cachedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SpendingAnalysisCacheData &&
+          other.period == this.period &&
+          other.dataJson == this.dataJson &&
+          other.cachedAt == this.cachedAt);
+}
+
+class SpendingAnalysisCacheCompanion
+    extends UpdateCompanion<SpendingAnalysisCacheData> {
+  final Value<String> period;
+  final Value<String> dataJson;
+  final Value<DateTime> cachedAt;
+  final Value<int> rowid;
+  const SpendingAnalysisCacheCompanion({
+    this.period = const Value.absent(),
+    this.dataJson = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SpendingAnalysisCacheCompanion.insert({
+    required String period,
+    required String dataJson,
+    required DateTime cachedAt,
+    this.rowid = const Value.absent(),
+  }) : period = Value(period),
+       dataJson = Value(dataJson),
+       cachedAt = Value(cachedAt);
+  static Insertable<SpendingAnalysisCacheData> custom({
+    Expression<String>? period,
+    Expression<String>? dataJson,
+    Expression<DateTime>? cachedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (period != null) 'period': period,
+      if (dataJson != null) 'data_json': dataJson,
+      if (cachedAt != null) 'cached_at': cachedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SpendingAnalysisCacheCompanion copyWith({
+    Value<String>? period,
+    Value<String>? dataJson,
+    Value<DateTime>? cachedAt,
+    Value<int>? rowid,
+  }) {
+    return SpendingAnalysisCacheCompanion(
+      period: period ?? this.period,
+      dataJson: dataJson ?? this.dataJson,
+      cachedAt: cachedAt ?? this.cachedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (period.present) {
+      map['period'] = Variable<String>(period.value);
+    }
+    if (dataJson.present) {
+      map['data_json'] = Variable<String>(dataJson.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SpendingAnalysisCacheCompanion(')
+          ..write('period: $period, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('cachedAt: $cachedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SavingsTrendCacheTable extends SavingsTrendCache
+    with TableInfo<$SavingsTrendCacheTable, SavingsTrendCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SavingsTrendCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _periodMeta = const VerificationMeta('period');
+  @override
+  late final GeneratedColumn<String> period = GeneratedColumn<String>(
+    'period',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dataJsonMeta = const VerificationMeta(
+    'dataJson',
+  );
+  @override
+  late final GeneratedColumn<String> dataJson = GeneratedColumn<String>(
+    'data_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [period, dataJson, cachedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'savings_trend_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SavingsTrendCacheData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('period')) {
+      context.handle(
+        _periodMeta,
+        period.isAcceptableOrUnknown(data['period']!, _periodMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_periodMeta);
+    }
+    if (data.containsKey('data_json')) {
+      context.handle(
+        _dataJsonMeta,
+        dataJson.isAcceptableOrUnknown(data['data_json']!, _dataJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataJsonMeta);
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {period};
+  @override
+  SavingsTrendCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SavingsTrendCacheData(
+      period: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}period'],
+      )!,
+      dataJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}data_json'],
+      )!,
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SavingsTrendCacheTable createAlias(String alias) {
+    return $SavingsTrendCacheTable(attachedDatabase, alias);
+  }
+}
+
+class SavingsTrendCacheData extends DataClass
+    implements Insertable<SavingsTrendCacheData> {
+  final String period;
+  final String dataJson;
+  final DateTime cachedAt;
+  const SavingsTrendCacheData({
+    required this.period,
+    required this.dataJson,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['period'] = Variable<String>(period);
+    map['data_json'] = Variable<String>(dataJson);
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  SavingsTrendCacheCompanion toCompanion(bool nullToAbsent) {
+    return SavingsTrendCacheCompanion(
+      period: Value(period),
+      dataJson: Value(dataJson),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory SavingsTrendCacheData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SavingsTrendCacheData(
+      period: serializer.fromJson<String>(json['period']),
+      dataJson: serializer.fromJson<String>(json['dataJson']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'period': serializer.toJson<String>(period),
+      'dataJson': serializer.toJson<String>(dataJson),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  SavingsTrendCacheData copyWith({
+    String? period,
+    String? dataJson,
+    DateTime? cachedAt,
+  }) => SavingsTrendCacheData(
+    period: period ?? this.period,
+    dataJson: dataJson ?? this.dataJson,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
+  SavingsTrendCacheData copyWithCompanion(SavingsTrendCacheCompanion data) {
+    return SavingsTrendCacheData(
+      period: data.period.present ? data.period.value : this.period,
+      dataJson: data.dataJson.present ? data.dataJson.value : this.dataJson,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SavingsTrendCacheData(')
+          ..write('period: $period, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(period, dataJson, cachedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SavingsTrendCacheData &&
+          other.period == this.period &&
+          other.dataJson == this.dataJson &&
+          other.cachedAt == this.cachedAt);
+}
+
+class SavingsTrendCacheCompanion
+    extends UpdateCompanion<SavingsTrendCacheData> {
+  final Value<String> period;
+  final Value<String> dataJson;
+  final Value<DateTime> cachedAt;
+  final Value<int> rowid;
+  const SavingsTrendCacheCompanion({
+    this.period = const Value.absent(),
+    this.dataJson = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SavingsTrendCacheCompanion.insert({
+    required String period,
+    required String dataJson,
+    required DateTime cachedAt,
+    this.rowid = const Value.absent(),
+  }) : period = Value(period),
+       dataJson = Value(dataJson),
+       cachedAt = Value(cachedAt);
+  static Insertable<SavingsTrendCacheData> custom({
+    Expression<String>? period,
+    Expression<String>? dataJson,
+    Expression<DateTime>? cachedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (period != null) 'period': period,
+      if (dataJson != null) 'data_json': dataJson,
+      if (cachedAt != null) 'cached_at': cachedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SavingsTrendCacheCompanion copyWith({
+    Value<String>? period,
+    Value<String>? dataJson,
+    Value<DateTime>? cachedAt,
+    Value<int>? rowid,
+  }) {
+    return SavingsTrendCacheCompanion(
+      period: period ?? this.period,
+      dataJson: dataJson ?? this.dataJson,
+      cachedAt: cachedAt ?? this.cachedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (period.present) {
+      map['period'] = Variable<String>(period.value);
+    }
+    if (dataJson.present) {
+      map['data_json'] = Variable<String>(dataJson.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SavingsTrendCacheCompanion(')
+          ..write('period: $period, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('cachedAt: $cachedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $NarrativeReportCacheTable extends NarrativeReportCache
+    with TableInfo<$NarrativeReportCacheTable, NarrativeReportCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NarrativeReportCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _dataJsonMeta = const VerificationMeta(
+    'dataJson',
+  );
+  @override
+  late final GeneratedColumn<String> dataJson = GeneratedColumn<String>(
+    'data_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, dataJson, cachedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'narrative_report_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NarrativeReportCacheData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('data_json')) {
+      context.handle(
+        _dataJsonMeta,
+        dataJson.isAcceptableOrUnknown(data['data_json']!, _dataJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataJsonMeta);
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NarrativeReportCacheData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NarrativeReportCacheData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      dataJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}data_json'],
+      )!,
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $NarrativeReportCacheTable createAlias(String alias) {
+    return $NarrativeReportCacheTable(attachedDatabase, alias);
+  }
+}
+
+class NarrativeReportCacheData extends DataClass
+    implements Insertable<NarrativeReportCacheData> {
+  final int id;
+  final String dataJson;
+  final DateTime cachedAt;
+  const NarrativeReportCacheData({
+    required this.id,
+    required this.dataJson,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['data_json'] = Variable<String>(dataJson);
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  NarrativeReportCacheCompanion toCompanion(bool nullToAbsent) {
+    return NarrativeReportCacheCompanion(
+      id: Value(id),
+      dataJson: Value(dataJson),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory NarrativeReportCacheData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NarrativeReportCacheData(
+      id: serializer.fromJson<int>(json['id']),
+      dataJson: serializer.fromJson<String>(json['dataJson']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'dataJson': serializer.toJson<String>(dataJson),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  NarrativeReportCacheData copyWith({
+    int? id,
+    String? dataJson,
+    DateTime? cachedAt,
+  }) => NarrativeReportCacheData(
+    id: id ?? this.id,
+    dataJson: dataJson ?? this.dataJson,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
+  NarrativeReportCacheData copyWithCompanion(
+    NarrativeReportCacheCompanion data,
+  ) {
+    return NarrativeReportCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      dataJson: data.dataJson.present ? data.dataJson.value : this.dataJson,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NarrativeReportCacheData(')
+          ..write('id: $id, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, dataJson, cachedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NarrativeReportCacheData &&
+          other.id == this.id &&
+          other.dataJson == this.dataJson &&
+          other.cachedAt == this.cachedAt);
+}
+
+class NarrativeReportCacheCompanion
+    extends UpdateCompanion<NarrativeReportCacheData> {
+  final Value<int> id;
+  final Value<String> dataJson;
+  final Value<DateTime> cachedAt;
+  const NarrativeReportCacheCompanion({
+    this.id = const Value.absent(),
+    this.dataJson = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+  });
+  NarrativeReportCacheCompanion.insert({
+    this.id = const Value.absent(),
+    required String dataJson,
+    required DateTime cachedAt,
+  }) : dataJson = Value(dataJson),
+       cachedAt = Value(cachedAt);
+  static Insertable<NarrativeReportCacheData> custom({
+    Expression<int>? id,
+    Expression<String>? dataJson,
+    Expression<DateTime>? cachedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (dataJson != null) 'data_json': dataJson,
+      if (cachedAt != null) 'cached_at': cachedAt,
+    });
+  }
+
+  NarrativeReportCacheCompanion copyWith({
+    Value<int>? id,
+    Value<String>? dataJson,
+    Value<DateTime>? cachedAt,
+  }) {
+    return NarrativeReportCacheCompanion(
+      id: id ?? this.id,
+      dataJson: dataJson ?? this.dataJson,
+      cachedAt: cachedAt ?? this.cachedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (dataJson.present) {
+      map['data_json'] = Variable<String>(dataJson.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NarrativeReportCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ForecastCacheTable extends ForecastCache
+    with TableInfo<$ForecastCacheTable, ForecastCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ForecastCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _dataJsonMeta = const VerificationMeta(
+    'dataJson',
+  );
+  @override
+  late final GeneratedColumn<String> dataJson = GeneratedColumn<String>(
+    'data_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, dataJson, cachedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'forecast_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ForecastCacheData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('data_json')) {
+      context.handle(
+        _dataJsonMeta,
+        dataJson.isAcceptableOrUnknown(data['data_json']!, _dataJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataJsonMeta);
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ForecastCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ForecastCacheData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      dataJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}data_json'],
+      )!,
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ForecastCacheTable createAlias(String alias) {
+    return $ForecastCacheTable(attachedDatabase, alias);
+  }
+}
+
+class ForecastCacheData extends DataClass
+    implements Insertable<ForecastCacheData> {
+  final int id;
+  final String dataJson;
+  final DateTime cachedAt;
+  const ForecastCacheData({
+    required this.id,
+    required this.dataJson,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['data_json'] = Variable<String>(dataJson);
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  ForecastCacheCompanion toCompanion(bool nullToAbsent) {
+    return ForecastCacheCompanion(
+      id: Value(id),
+      dataJson: Value(dataJson),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory ForecastCacheData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ForecastCacheData(
+      id: serializer.fromJson<int>(json['id']),
+      dataJson: serializer.fromJson<String>(json['dataJson']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'dataJson': serializer.toJson<String>(dataJson),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  ForecastCacheData copyWith({int? id, String? dataJson, DateTime? cachedAt}) =>
+      ForecastCacheData(
+        id: id ?? this.id,
+        dataJson: dataJson ?? this.dataJson,
+        cachedAt: cachedAt ?? this.cachedAt,
+      );
+  ForecastCacheData copyWithCompanion(ForecastCacheCompanion data) {
+    return ForecastCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      dataJson: data.dataJson.present ? data.dataJson.value : this.dataJson,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ForecastCacheData(')
+          ..write('id: $id, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, dataJson, cachedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ForecastCacheData &&
+          other.id == this.id &&
+          other.dataJson == this.dataJson &&
+          other.cachedAt == this.cachedAt);
+}
+
+class ForecastCacheCompanion extends UpdateCompanion<ForecastCacheData> {
+  final Value<int> id;
+  final Value<String> dataJson;
+  final Value<DateTime> cachedAt;
+  const ForecastCacheCompanion({
+    this.id = const Value.absent(),
+    this.dataJson = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+  });
+  ForecastCacheCompanion.insert({
+    this.id = const Value.absent(),
+    required String dataJson,
+    required DateTime cachedAt,
+  }) : dataJson = Value(dataJson),
+       cachedAt = Value(cachedAt);
+  static Insertable<ForecastCacheData> custom({
+    Expression<int>? id,
+    Expression<String>? dataJson,
+    Expression<DateTime>? cachedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (dataJson != null) 'data_json': dataJson,
+      if (cachedAt != null) 'cached_at': cachedAt,
+    });
+  }
+
+  ForecastCacheCompanion copyWith({
+    Value<int>? id,
+    Value<String>? dataJson,
+    Value<DateTime>? cachedAt,
+  }) {
+    return ForecastCacheCompanion(
+      id: id ?? this.id,
+      dataJson: dataJson ?? this.dataJson,
+      cachedAt: cachedAt ?? this.cachedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (dataJson.present) {
+      map['data_json'] = Variable<String>(dataJson.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ForecastCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $HealthScoreHistoryCacheTable extends HealthScoreHistoryCache
+    with TableInfo<$HealthScoreHistoryCacheTable, HealthScoreHistoryCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HealthScoreHistoryCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _dataJsonMeta = const VerificationMeta(
+    'dataJson',
+  );
+  @override
+  late final GeneratedColumn<String> dataJson = GeneratedColumn<String>(
+    'data_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, dataJson, cachedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'health_score_history_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HealthScoreHistoryCacheData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('data_json')) {
+      context.handle(
+        _dataJsonMeta,
+        dataJson.isAcceptableOrUnknown(data['data_json']!, _dataJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataJsonMeta);
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  HealthScoreHistoryCacheData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HealthScoreHistoryCacheData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      dataJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}data_json'],
+      )!,
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $HealthScoreHistoryCacheTable createAlias(String alias) {
+    return $HealthScoreHistoryCacheTable(attachedDatabase, alias);
+  }
+}
+
+class HealthScoreHistoryCacheData extends DataClass
+    implements Insertable<HealthScoreHistoryCacheData> {
+  final int id;
+  final String dataJson;
+  final DateTime cachedAt;
+  const HealthScoreHistoryCacheData({
+    required this.id,
+    required this.dataJson,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['data_json'] = Variable<String>(dataJson);
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  HealthScoreHistoryCacheCompanion toCompanion(bool nullToAbsent) {
+    return HealthScoreHistoryCacheCompanion(
+      id: Value(id),
+      dataJson: Value(dataJson),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory HealthScoreHistoryCacheData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HealthScoreHistoryCacheData(
+      id: serializer.fromJson<int>(json['id']),
+      dataJson: serializer.fromJson<String>(json['dataJson']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'dataJson': serializer.toJson<String>(dataJson),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  HealthScoreHistoryCacheData copyWith({
+    int? id,
+    String? dataJson,
+    DateTime? cachedAt,
+  }) => HealthScoreHistoryCacheData(
+    id: id ?? this.id,
+    dataJson: dataJson ?? this.dataJson,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
+  HealthScoreHistoryCacheData copyWithCompanion(
+    HealthScoreHistoryCacheCompanion data,
+  ) {
+    return HealthScoreHistoryCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      dataJson: data.dataJson.present ? data.dataJson.value : this.dataJson,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HealthScoreHistoryCacheData(')
+          ..write('id: $id, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, dataJson, cachedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HealthScoreHistoryCacheData &&
+          other.id == this.id &&
+          other.dataJson == this.dataJson &&
+          other.cachedAt == this.cachedAt);
+}
+
+class HealthScoreHistoryCacheCompanion
+    extends UpdateCompanion<HealthScoreHistoryCacheData> {
+  final Value<int> id;
+  final Value<String> dataJson;
+  final Value<DateTime> cachedAt;
+  const HealthScoreHistoryCacheCompanion({
+    this.id = const Value.absent(),
+    this.dataJson = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+  });
+  HealthScoreHistoryCacheCompanion.insert({
+    this.id = const Value.absent(),
+    required String dataJson,
+    required DateTime cachedAt,
+  }) : dataJson = Value(dataJson),
+       cachedAt = Value(cachedAt);
+  static Insertable<HealthScoreHistoryCacheData> custom({
+    Expression<int>? id,
+    Expression<String>? dataJson,
+    Expression<DateTime>? cachedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (dataJson != null) 'data_json': dataJson,
+      if (cachedAt != null) 'cached_at': cachedAt,
+    });
+  }
+
+  HealthScoreHistoryCacheCompanion copyWith({
+    Value<int>? id,
+    Value<String>? dataJson,
+    Value<DateTime>? cachedAt,
+  }) {
+    return HealthScoreHistoryCacheCompanion(
+      id: id ?? this.id,
+      dataJson: dataJson ?? this.dataJson,
+      cachedAt: cachedAt ?? this.cachedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (dataJson.present) {
+      map['data_json'] = Variable<String>(dataJson.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HealthScoreHistoryCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('dataJson: $dataJson, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -9658,6 +11932,18 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $TontineContributionsTable tontineContributions =
       $TontineContributionsTable(this);
+  late final $DashboardReportsTable dashboardReports = $DashboardReportsTable(
+    this,
+  );
+  late final $SpendingAnalysisCacheTable spendingAnalysisCache =
+      $SpendingAnalysisCacheTable(this);
+  late final $SavingsTrendCacheTable savingsTrendCache =
+      $SavingsTrendCacheTable(this);
+  late final $NarrativeReportCacheTable narrativeReportCache =
+      $NarrativeReportCacheTable(this);
+  late final $ForecastCacheTable forecastCache = $ForecastCacheTable(this);
+  late final $HealthScoreHistoryCacheTable healthScoreHistoryCache =
+      $HealthScoreHistoryCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9677,6 +11963,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     tontineMembers,
     tontineMessages,
     tontineContributions,
+    dashboardReports,
+    spendingAnalysisCache,
+    savingsTrendCache,
+    narrativeReportCache,
+    forecastCache,
+    healthScoreHistoryCache,
   ];
 }
 
@@ -10832,10 +13124,15 @@ typedef $$GoalsTableCreateCompanionBuilder =
       required DateTime deadline,
       Value<String?> category,
       Value<String> status,
+      Value<String> priority,
+      Value<double> progress,
       Value<String?> strategy,
       Value<String?> autoSaveRules,
+      Value<String> contributions,
       Value<bool> isShared,
       Value<String> participants,
+      Value<String?> inviteCode,
+      Value<bool> isOwner,
       Value<String?> image,
       required DateTime createdAt,
       Value<DateTime?> updatedAt,
@@ -10854,10 +13151,15 @@ typedef $$GoalsTableUpdateCompanionBuilder =
       Value<DateTime> deadline,
       Value<String?> category,
       Value<String> status,
+      Value<String> priority,
+      Value<double> progress,
       Value<String?> strategy,
       Value<String?> autoSaveRules,
+      Value<String> contributions,
       Value<bool> isShared,
       Value<String> participants,
+      Value<String?> inviteCode,
+      Value<bool> isOwner,
       Value<String?> image,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
@@ -10927,6 +13229,16 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get strategy => $composableBuilder(
     column: $table.strategy,
     builder: (column) => ColumnFilters(column),
@@ -10937,6 +13249,11 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get contributions => $composableBuilder(
+    column: $table.contributions,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<bool> get isShared => $composableBuilder(
     column: $table.isShared,
     builder: (column) => ColumnFilters(column),
@@ -10944,6 +13261,16 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
 
   ColumnFilters<String> get participants => $composableBuilder(
     column: $table.participants,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get inviteCode => $composableBuilder(
+    column: $table.inviteCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isOwner => $composableBuilder(
+    column: $table.isOwner,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11027,6 +13354,16 @@ class $$GoalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get strategy => $composableBuilder(
     column: $table.strategy,
     builder: (column) => ColumnOrderings(column),
@@ -11037,6 +13374,11 @@ class $$GoalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get contributions => $composableBuilder(
+    column: $table.contributions,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isShared => $composableBuilder(
     column: $table.isShared,
     builder: (column) => ColumnOrderings(column),
@@ -11044,6 +13386,16 @@ class $$GoalsTableOrderingComposer
 
   ColumnOrderings<String> get participants => $composableBuilder(
     column: $table.participants,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get inviteCode => $composableBuilder(
+    column: $table.inviteCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isOwner => $composableBuilder(
+    column: $table.isOwner,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -11111,11 +13463,22 @@ class $$GoalsTableAnnotationComposer
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
+  GeneratedColumn<String> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<double> get progress =>
+      $composableBuilder(column: $table.progress, builder: (column) => column);
+
   GeneratedColumn<String> get strategy =>
       $composableBuilder(column: $table.strategy, builder: (column) => column);
 
   GeneratedColumn<String> get autoSaveRules => $composableBuilder(
     column: $table.autoSaveRules,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contributions => $composableBuilder(
+    column: $table.contributions,
     builder: (column) => column,
   );
 
@@ -11126,6 +13489,14 @@ class $$GoalsTableAnnotationComposer
     column: $table.participants,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get inviteCode => $composableBuilder(
+    column: $table.inviteCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isOwner =>
+      $composableBuilder(column: $table.isOwner, builder: (column) => column);
 
   GeneratedColumn<String> get image =>
       $composableBuilder(column: $table.image, builder: (column) => column);
@@ -11176,10 +13547,15 @@ class $$GoalsTableTableManager
                 Value<DateTime> deadline = const Value.absent(),
                 Value<String?> category = const Value.absent(),
                 Value<String> status = const Value.absent(),
+                Value<String> priority = const Value.absent(),
+                Value<double> progress = const Value.absent(),
                 Value<String?> strategy = const Value.absent(),
                 Value<String?> autoSaveRules = const Value.absent(),
+                Value<String> contributions = const Value.absent(),
                 Value<bool> isShared = const Value.absent(),
                 Value<String> participants = const Value.absent(),
+                Value<String?> inviteCode = const Value.absent(),
+                Value<bool> isOwner = const Value.absent(),
                 Value<String?> image = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -11196,10 +13572,15 @@ class $$GoalsTableTableManager
                 deadline: deadline,
                 category: category,
                 status: status,
+                priority: priority,
+                progress: progress,
                 strategy: strategy,
                 autoSaveRules: autoSaveRules,
+                contributions: contributions,
                 isShared: isShared,
                 participants: participants,
+                inviteCode: inviteCode,
+                isOwner: isOwner,
                 image: image,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -11218,10 +13599,15 @@ class $$GoalsTableTableManager
                 required DateTime deadline,
                 Value<String?> category = const Value.absent(),
                 Value<String> status = const Value.absent(),
+                Value<String> priority = const Value.absent(),
+                Value<double> progress = const Value.absent(),
                 Value<String?> strategy = const Value.absent(),
                 Value<String?> autoSaveRules = const Value.absent(),
+                Value<String> contributions = const Value.absent(),
                 Value<bool> isShared = const Value.absent(),
                 Value<String> participants = const Value.absent(),
+                Value<String?> inviteCode = const Value.absent(),
+                Value<bool> isOwner = const Value.absent(),
                 Value<String?> image = const Value.absent(),
                 required DateTime createdAt,
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -11238,10 +13624,15 @@ class $$GoalsTableTableManager
                 deadline: deadline,
                 category: category,
                 status: status,
+                priority: priority,
+                progress: progress,
                 strategy: strategy,
                 autoSaveRules: autoSaveRules,
+                contributions: contributions,
                 isShared: isShared,
                 participants: participants,
+                inviteCode: inviteCode,
+                isOwner: isOwner,
                 image: image,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -11714,6 +14105,7 @@ typedef $$ChatMessagesTableCreateCompanionBuilder =
       required String content,
       required String sender,
       required DateTime timestamp,
+      Value<String> status,
       Value<int> rowid,
     });
 typedef $$ChatMessagesTableUpdateCompanionBuilder =
@@ -11722,6 +14114,7 @@ typedef $$ChatMessagesTableUpdateCompanionBuilder =
       Value<String> content,
       Value<String> sender,
       Value<DateTime> timestamp,
+      Value<String> status,
       Value<int> rowid,
     });
 
@@ -11751,6 +14144,11 @@ class $$ChatMessagesTableFilterComposer
 
   ColumnFilters<DateTime> get timestamp => $composableBuilder(
     column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -11783,6 +14181,11 @@ class $$ChatMessagesTableOrderingComposer
     column: $table.timestamp,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ChatMessagesTableAnnotationComposer
@@ -11805,6 +14208,9 @@ class $$ChatMessagesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get timestamp =>
       $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
 }
 
 class $$ChatMessagesTableTableManager
@@ -11842,12 +14248,14 @@ class $$ChatMessagesTableTableManager
                 Value<String> content = const Value.absent(),
                 Value<String> sender = const Value.absent(),
                 Value<DateTime> timestamp = const Value.absent(),
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ChatMessagesCompanion(
                 id: id,
                 content: content,
                 sender: sender,
                 timestamp: timestamp,
+                status: status,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -11856,12 +14264,14 @@ class $$ChatMessagesTableTableManager
                 required String content,
                 required String sender,
                 required DateTime timestamp,
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ChatMessagesCompanion.insert(
                 id: id,
                 content: content,
                 sender: sender,
                 timestamp: timestamp,
+                status: status,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -13803,6 +16213,9 @@ typedef $$TontineMessagesTableCreateCompanionBuilder =
       required String tontineId,
       required String senderId,
       required String content,
+      Value<String> type,
+      Value<String?> audioUrl,
+      Value<int?> audioDuration,
       required DateTime createdAt,
       Value<int> rowid,
     });
@@ -13812,6 +16225,9 @@ typedef $$TontineMessagesTableUpdateCompanionBuilder =
       Value<String> tontineId,
       Value<String> senderId,
       Value<String> content,
+      Value<String> type,
+      Value<String?> audioUrl,
+      Value<int?> audioDuration,
       Value<DateTime> createdAt,
       Value<int> rowid,
     });
@@ -13842,6 +16258,21 @@ class $$TontineMessagesTableFilterComposer
 
   ColumnFilters<String> get content => $composableBuilder(
     column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get audioUrl => $composableBuilder(
+    column: $table.audioUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get audioDuration => $composableBuilder(
+    column: $table.audioDuration,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13880,6 +16311,21 @@ class $$TontineMessagesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get audioUrl => $composableBuilder(
+    column: $table.audioUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get audioDuration => $composableBuilder(
+    column: $table.audioDuration,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -13906,6 +16352,17 @@ class $$TontineMessagesTableAnnotationComposer
 
   GeneratedColumn<String> get content =>
       $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get audioUrl =>
+      $composableBuilder(column: $table.audioUrl, builder: (column) => column);
+
+  GeneratedColumn<int> get audioDuration => $composableBuilder(
+    column: $table.audioDuration,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -13952,6 +16409,9 @@ class $$TontineMessagesTableTableManager
                 Value<String> tontineId = const Value.absent(),
                 Value<String> senderId = const Value.absent(),
                 Value<String> content = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String?> audioUrl = const Value.absent(),
+                Value<int?> audioDuration = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TontineMessagesCompanion(
@@ -13959,6 +16419,9 @@ class $$TontineMessagesTableTableManager
                 tontineId: tontineId,
                 senderId: senderId,
                 content: content,
+                type: type,
+                audioUrl: audioUrl,
+                audioDuration: audioDuration,
                 createdAt: createdAt,
                 rowid: rowid,
               ),
@@ -13968,6 +16431,9 @@ class $$TontineMessagesTableTableManager
                 required String tontineId,
                 required String senderId,
                 required String content,
+                Value<String> type = const Value.absent(),
+                Value<String?> audioUrl = const Value.absent(),
+                Value<int?> audioDuration = const Value.absent(),
                 required DateTime createdAt,
                 Value<int> rowid = const Value.absent(),
               }) => TontineMessagesCompanion.insert(
@@ -13975,6 +16441,9 @@ class $$TontineMessagesTableTableManager
                 tontineId: tontineId,
                 senderId: senderId,
                 content: content,
+                type: type,
+                audioUrl: audioUrl,
+                audioDuration: audioDuration,
                 createdAt: createdAt,
                 rowid: rowid,
               ),
@@ -14303,6 +16772,1136 @@ typedef $$TontineContributionsTableProcessedTableManager =
       TontineContribution,
       PrefetchHooks Function()
     >;
+typedef $$DashboardReportsTableCreateCompanionBuilder =
+    DashboardReportsCompanion Function({
+      Value<int> id,
+      required double walletBalance,
+      required double monthlyIncome,
+      required double totalSpent,
+      required double savingsRate,
+      Value<String> currency,
+      Value<String?> budgetHealth,
+      required DateTime cachedAt,
+    });
+typedef $$DashboardReportsTableUpdateCompanionBuilder =
+    DashboardReportsCompanion Function({
+      Value<int> id,
+      Value<double> walletBalance,
+      Value<double> monthlyIncome,
+      Value<double> totalSpent,
+      Value<double> savingsRate,
+      Value<String> currency,
+      Value<String?> budgetHealth,
+      Value<DateTime> cachedAt,
+    });
+
+class $$DashboardReportsTableFilterComposer
+    extends Composer<_$AppDatabase, $DashboardReportsTable> {
+  $$DashboardReportsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get walletBalance => $composableBuilder(
+    column: $table.walletBalance,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get monthlyIncome => $composableBuilder(
+    column: $table.monthlyIncome,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get totalSpent => $composableBuilder(
+    column: $table.totalSpent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get savingsRate => $composableBuilder(
+    column: $table.savingsRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get currency => $composableBuilder(
+    column: $table.currency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get budgetHealth => $composableBuilder(
+    column: $table.budgetHealth,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DashboardReportsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DashboardReportsTable> {
+  $$DashboardReportsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get walletBalance => $composableBuilder(
+    column: $table.walletBalance,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get monthlyIncome => $composableBuilder(
+    column: $table.monthlyIncome,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get totalSpent => $composableBuilder(
+    column: $table.totalSpent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get savingsRate => $composableBuilder(
+    column: $table.savingsRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get currency => $composableBuilder(
+    column: $table.currency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get budgetHealth => $composableBuilder(
+    column: $table.budgetHealth,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DashboardReportsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DashboardReportsTable> {
+  $$DashboardReportsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get walletBalance => $composableBuilder(
+    column: $table.walletBalance,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get monthlyIncome => $composableBuilder(
+    column: $table.monthlyIncome,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get totalSpent => $composableBuilder(
+    column: $table.totalSpent,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get savingsRate => $composableBuilder(
+    column: $table.savingsRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
+
+  GeneratedColumn<String> get budgetHealth => $composableBuilder(
+    column: $table.budgetHealth,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$DashboardReportsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DashboardReportsTable,
+          DashboardReport,
+          $$DashboardReportsTableFilterComposer,
+          $$DashboardReportsTableOrderingComposer,
+          $$DashboardReportsTableAnnotationComposer,
+          $$DashboardReportsTableCreateCompanionBuilder,
+          $$DashboardReportsTableUpdateCompanionBuilder,
+          (
+            DashboardReport,
+            BaseReferences<
+              _$AppDatabase,
+              $DashboardReportsTable,
+              DashboardReport
+            >,
+          ),
+          DashboardReport,
+          PrefetchHooks Function()
+        > {
+  $$DashboardReportsTableTableManager(
+    _$AppDatabase db,
+    $DashboardReportsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DashboardReportsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DashboardReportsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DashboardReportsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<double> walletBalance = const Value.absent(),
+                Value<double> monthlyIncome = const Value.absent(),
+                Value<double> totalSpent = const Value.absent(),
+                Value<double> savingsRate = const Value.absent(),
+                Value<String> currency = const Value.absent(),
+                Value<String?> budgetHealth = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+              }) => DashboardReportsCompanion(
+                id: id,
+                walletBalance: walletBalance,
+                monthlyIncome: monthlyIncome,
+                totalSpent: totalSpent,
+                savingsRate: savingsRate,
+                currency: currency,
+                budgetHealth: budgetHealth,
+                cachedAt: cachedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required double walletBalance,
+                required double monthlyIncome,
+                required double totalSpent,
+                required double savingsRate,
+                Value<String> currency = const Value.absent(),
+                Value<String?> budgetHealth = const Value.absent(),
+                required DateTime cachedAt,
+              }) => DashboardReportsCompanion.insert(
+                id: id,
+                walletBalance: walletBalance,
+                monthlyIncome: monthlyIncome,
+                totalSpent: totalSpent,
+                savingsRate: savingsRate,
+                currency: currency,
+                budgetHealth: budgetHealth,
+                cachedAt: cachedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DashboardReportsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DashboardReportsTable,
+      DashboardReport,
+      $$DashboardReportsTableFilterComposer,
+      $$DashboardReportsTableOrderingComposer,
+      $$DashboardReportsTableAnnotationComposer,
+      $$DashboardReportsTableCreateCompanionBuilder,
+      $$DashboardReportsTableUpdateCompanionBuilder,
+      (
+        DashboardReport,
+        BaseReferences<_$AppDatabase, $DashboardReportsTable, DashboardReport>,
+      ),
+      DashboardReport,
+      PrefetchHooks Function()
+    >;
+typedef $$SpendingAnalysisCacheTableCreateCompanionBuilder =
+    SpendingAnalysisCacheCompanion Function({
+      required String period,
+      required String dataJson,
+      required DateTime cachedAt,
+      Value<int> rowid,
+    });
+typedef $$SpendingAnalysisCacheTableUpdateCompanionBuilder =
+    SpendingAnalysisCacheCompanion Function({
+      Value<String> period,
+      Value<String> dataJson,
+      Value<DateTime> cachedAt,
+      Value<int> rowid,
+    });
+
+class $$SpendingAnalysisCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $SpendingAnalysisCacheTable> {
+  $$SpendingAnalysisCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SpendingAnalysisCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $SpendingAnalysisCacheTable> {
+  $$SpendingAnalysisCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SpendingAnalysisCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SpendingAnalysisCacheTable> {
+  $$SpendingAnalysisCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get period =>
+      $composableBuilder(column: $table.period, builder: (column) => column);
+
+  GeneratedColumn<String> get dataJson =>
+      $composableBuilder(column: $table.dataJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$SpendingAnalysisCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SpendingAnalysisCacheTable,
+          SpendingAnalysisCacheData,
+          $$SpendingAnalysisCacheTableFilterComposer,
+          $$SpendingAnalysisCacheTableOrderingComposer,
+          $$SpendingAnalysisCacheTableAnnotationComposer,
+          $$SpendingAnalysisCacheTableCreateCompanionBuilder,
+          $$SpendingAnalysisCacheTableUpdateCompanionBuilder,
+          (
+            SpendingAnalysisCacheData,
+            BaseReferences<
+              _$AppDatabase,
+              $SpendingAnalysisCacheTable,
+              SpendingAnalysisCacheData
+            >,
+          ),
+          SpendingAnalysisCacheData,
+          PrefetchHooks Function()
+        > {
+  $$SpendingAnalysisCacheTableTableManager(
+    _$AppDatabase db,
+    $SpendingAnalysisCacheTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SpendingAnalysisCacheTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$SpendingAnalysisCacheTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SpendingAnalysisCacheTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> period = const Value.absent(),
+                Value<String> dataJson = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SpendingAnalysisCacheCompanion(
+                period: period,
+                dataJson: dataJson,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String period,
+                required String dataJson,
+                required DateTime cachedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => SpendingAnalysisCacheCompanion.insert(
+                period: period,
+                dataJson: dataJson,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SpendingAnalysisCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SpendingAnalysisCacheTable,
+      SpendingAnalysisCacheData,
+      $$SpendingAnalysisCacheTableFilterComposer,
+      $$SpendingAnalysisCacheTableOrderingComposer,
+      $$SpendingAnalysisCacheTableAnnotationComposer,
+      $$SpendingAnalysisCacheTableCreateCompanionBuilder,
+      $$SpendingAnalysisCacheTableUpdateCompanionBuilder,
+      (
+        SpendingAnalysisCacheData,
+        BaseReferences<
+          _$AppDatabase,
+          $SpendingAnalysisCacheTable,
+          SpendingAnalysisCacheData
+        >,
+      ),
+      SpendingAnalysisCacheData,
+      PrefetchHooks Function()
+    >;
+typedef $$SavingsTrendCacheTableCreateCompanionBuilder =
+    SavingsTrendCacheCompanion Function({
+      required String period,
+      required String dataJson,
+      required DateTime cachedAt,
+      Value<int> rowid,
+    });
+typedef $$SavingsTrendCacheTableUpdateCompanionBuilder =
+    SavingsTrendCacheCompanion Function({
+      Value<String> period,
+      Value<String> dataJson,
+      Value<DateTime> cachedAt,
+      Value<int> rowid,
+    });
+
+class $$SavingsTrendCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $SavingsTrendCacheTable> {
+  $$SavingsTrendCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SavingsTrendCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $SavingsTrendCacheTable> {
+  $$SavingsTrendCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get period => $composableBuilder(
+    column: $table.period,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SavingsTrendCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SavingsTrendCacheTable> {
+  $$SavingsTrendCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get period =>
+      $composableBuilder(column: $table.period, builder: (column) => column);
+
+  GeneratedColumn<String> get dataJson =>
+      $composableBuilder(column: $table.dataJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$SavingsTrendCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SavingsTrendCacheTable,
+          SavingsTrendCacheData,
+          $$SavingsTrendCacheTableFilterComposer,
+          $$SavingsTrendCacheTableOrderingComposer,
+          $$SavingsTrendCacheTableAnnotationComposer,
+          $$SavingsTrendCacheTableCreateCompanionBuilder,
+          $$SavingsTrendCacheTableUpdateCompanionBuilder,
+          (
+            SavingsTrendCacheData,
+            BaseReferences<
+              _$AppDatabase,
+              $SavingsTrendCacheTable,
+              SavingsTrendCacheData
+            >,
+          ),
+          SavingsTrendCacheData,
+          PrefetchHooks Function()
+        > {
+  $$SavingsTrendCacheTableTableManager(
+    _$AppDatabase db,
+    $SavingsTrendCacheTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SavingsTrendCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SavingsTrendCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SavingsTrendCacheTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> period = const Value.absent(),
+                Value<String> dataJson = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SavingsTrendCacheCompanion(
+                period: period,
+                dataJson: dataJson,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String period,
+                required String dataJson,
+                required DateTime cachedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => SavingsTrendCacheCompanion.insert(
+                period: period,
+                dataJson: dataJson,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SavingsTrendCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SavingsTrendCacheTable,
+      SavingsTrendCacheData,
+      $$SavingsTrendCacheTableFilterComposer,
+      $$SavingsTrendCacheTableOrderingComposer,
+      $$SavingsTrendCacheTableAnnotationComposer,
+      $$SavingsTrendCacheTableCreateCompanionBuilder,
+      $$SavingsTrendCacheTableUpdateCompanionBuilder,
+      (
+        SavingsTrendCacheData,
+        BaseReferences<
+          _$AppDatabase,
+          $SavingsTrendCacheTable,
+          SavingsTrendCacheData
+        >,
+      ),
+      SavingsTrendCacheData,
+      PrefetchHooks Function()
+    >;
+typedef $$NarrativeReportCacheTableCreateCompanionBuilder =
+    NarrativeReportCacheCompanion Function({
+      Value<int> id,
+      required String dataJson,
+      required DateTime cachedAt,
+    });
+typedef $$NarrativeReportCacheTableUpdateCompanionBuilder =
+    NarrativeReportCacheCompanion Function({
+      Value<int> id,
+      Value<String> dataJson,
+      Value<DateTime> cachedAt,
+    });
+
+class $$NarrativeReportCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $NarrativeReportCacheTable> {
+  $$NarrativeReportCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$NarrativeReportCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $NarrativeReportCacheTable> {
+  $$NarrativeReportCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NarrativeReportCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NarrativeReportCacheTable> {
+  $$NarrativeReportCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get dataJson =>
+      $composableBuilder(column: $table.dataJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$NarrativeReportCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NarrativeReportCacheTable,
+          NarrativeReportCacheData,
+          $$NarrativeReportCacheTableFilterComposer,
+          $$NarrativeReportCacheTableOrderingComposer,
+          $$NarrativeReportCacheTableAnnotationComposer,
+          $$NarrativeReportCacheTableCreateCompanionBuilder,
+          $$NarrativeReportCacheTableUpdateCompanionBuilder,
+          (
+            NarrativeReportCacheData,
+            BaseReferences<
+              _$AppDatabase,
+              $NarrativeReportCacheTable,
+              NarrativeReportCacheData
+            >,
+          ),
+          NarrativeReportCacheData,
+          PrefetchHooks Function()
+        > {
+  $$NarrativeReportCacheTableTableManager(
+    _$AppDatabase db,
+    $NarrativeReportCacheTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NarrativeReportCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NarrativeReportCacheTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$NarrativeReportCacheTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> dataJson = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+              }) => NarrativeReportCacheCompanion(
+                id: id,
+                dataJson: dataJson,
+                cachedAt: cachedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String dataJson,
+                required DateTime cachedAt,
+              }) => NarrativeReportCacheCompanion.insert(
+                id: id,
+                dataJson: dataJson,
+                cachedAt: cachedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$NarrativeReportCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NarrativeReportCacheTable,
+      NarrativeReportCacheData,
+      $$NarrativeReportCacheTableFilterComposer,
+      $$NarrativeReportCacheTableOrderingComposer,
+      $$NarrativeReportCacheTableAnnotationComposer,
+      $$NarrativeReportCacheTableCreateCompanionBuilder,
+      $$NarrativeReportCacheTableUpdateCompanionBuilder,
+      (
+        NarrativeReportCacheData,
+        BaseReferences<
+          _$AppDatabase,
+          $NarrativeReportCacheTable,
+          NarrativeReportCacheData
+        >,
+      ),
+      NarrativeReportCacheData,
+      PrefetchHooks Function()
+    >;
+typedef $$ForecastCacheTableCreateCompanionBuilder =
+    ForecastCacheCompanion Function({
+      Value<int> id,
+      required String dataJson,
+      required DateTime cachedAt,
+    });
+typedef $$ForecastCacheTableUpdateCompanionBuilder =
+    ForecastCacheCompanion Function({
+      Value<int> id,
+      Value<String> dataJson,
+      Value<DateTime> cachedAt,
+    });
+
+class $$ForecastCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $ForecastCacheTable> {
+  $$ForecastCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ForecastCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $ForecastCacheTable> {
+  $$ForecastCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ForecastCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ForecastCacheTable> {
+  $$ForecastCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get dataJson =>
+      $composableBuilder(column: $table.dataJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$ForecastCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ForecastCacheTable,
+          ForecastCacheData,
+          $$ForecastCacheTableFilterComposer,
+          $$ForecastCacheTableOrderingComposer,
+          $$ForecastCacheTableAnnotationComposer,
+          $$ForecastCacheTableCreateCompanionBuilder,
+          $$ForecastCacheTableUpdateCompanionBuilder,
+          (
+            ForecastCacheData,
+            BaseReferences<
+              _$AppDatabase,
+              $ForecastCacheTable,
+              ForecastCacheData
+            >,
+          ),
+          ForecastCacheData,
+          PrefetchHooks Function()
+        > {
+  $$ForecastCacheTableTableManager(_$AppDatabase db, $ForecastCacheTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ForecastCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ForecastCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ForecastCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> dataJson = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+              }) => ForecastCacheCompanion(
+                id: id,
+                dataJson: dataJson,
+                cachedAt: cachedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String dataJson,
+                required DateTime cachedAt,
+              }) => ForecastCacheCompanion.insert(
+                id: id,
+                dataJson: dataJson,
+                cachedAt: cachedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ForecastCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ForecastCacheTable,
+      ForecastCacheData,
+      $$ForecastCacheTableFilterComposer,
+      $$ForecastCacheTableOrderingComposer,
+      $$ForecastCacheTableAnnotationComposer,
+      $$ForecastCacheTableCreateCompanionBuilder,
+      $$ForecastCacheTableUpdateCompanionBuilder,
+      (
+        ForecastCacheData,
+        BaseReferences<_$AppDatabase, $ForecastCacheTable, ForecastCacheData>,
+      ),
+      ForecastCacheData,
+      PrefetchHooks Function()
+    >;
+typedef $$HealthScoreHistoryCacheTableCreateCompanionBuilder =
+    HealthScoreHistoryCacheCompanion Function({
+      Value<int> id,
+      required String dataJson,
+      required DateTime cachedAt,
+    });
+typedef $$HealthScoreHistoryCacheTableUpdateCompanionBuilder =
+    HealthScoreHistoryCacheCompanion Function({
+      Value<int> id,
+      Value<String> dataJson,
+      Value<DateTime> cachedAt,
+    });
+
+class $$HealthScoreHistoryCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $HealthScoreHistoryCacheTable> {
+  $$HealthScoreHistoryCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$HealthScoreHistoryCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $HealthScoreHistoryCacheTable> {
+  $$HealthScoreHistoryCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dataJson => $composableBuilder(
+    column: $table.dataJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$HealthScoreHistoryCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HealthScoreHistoryCacheTable> {
+  $$HealthScoreHistoryCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get dataJson =>
+      $composableBuilder(column: $table.dataJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$HealthScoreHistoryCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $HealthScoreHistoryCacheTable,
+          HealthScoreHistoryCacheData,
+          $$HealthScoreHistoryCacheTableFilterComposer,
+          $$HealthScoreHistoryCacheTableOrderingComposer,
+          $$HealthScoreHistoryCacheTableAnnotationComposer,
+          $$HealthScoreHistoryCacheTableCreateCompanionBuilder,
+          $$HealthScoreHistoryCacheTableUpdateCompanionBuilder,
+          (
+            HealthScoreHistoryCacheData,
+            BaseReferences<
+              _$AppDatabase,
+              $HealthScoreHistoryCacheTable,
+              HealthScoreHistoryCacheData
+            >,
+          ),
+          HealthScoreHistoryCacheData,
+          PrefetchHooks Function()
+        > {
+  $$HealthScoreHistoryCacheTableTableManager(
+    _$AppDatabase db,
+    $HealthScoreHistoryCacheTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HealthScoreHistoryCacheTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$HealthScoreHistoryCacheTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$HealthScoreHistoryCacheTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> dataJson = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+              }) => HealthScoreHistoryCacheCompanion(
+                id: id,
+                dataJson: dataJson,
+                cachedAt: cachedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String dataJson,
+                required DateTime cachedAt,
+              }) => HealthScoreHistoryCacheCompanion.insert(
+                id: id,
+                dataJson: dataJson,
+                cachedAt: cachedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$HealthScoreHistoryCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $HealthScoreHistoryCacheTable,
+      HealthScoreHistoryCacheData,
+      $$HealthScoreHistoryCacheTableFilterComposer,
+      $$HealthScoreHistoryCacheTableOrderingComposer,
+      $$HealthScoreHistoryCacheTableAnnotationComposer,
+      $$HealthScoreHistoryCacheTableCreateCompanionBuilder,
+      $$HealthScoreHistoryCacheTableUpdateCompanionBuilder,
+      (
+        HealthScoreHistoryCacheData,
+        BaseReferences<
+          _$AppDatabase,
+          $HealthScoreHistoryCacheTable,
+          HealthScoreHistoryCacheData
+        >,
+      ),
+      HealthScoreHistoryCacheData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -14335,4 +17934,19 @@ class $AppDatabaseManager {
       $$TontineMessagesTableTableManager(_db, _db.tontineMessages);
   $$TontineContributionsTableTableManager get tontineContributions =>
       $$TontineContributionsTableTableManager(_db, _db.tontineContributions);
+  $$DashboardReportsTableTableManager get dashboardReports =>
+      $$DashboardReportsTableTableManager(_db, _db.dashboardReports);
+  $$SpendingAnalysisCacheTableTableManager get spendingAnalysisCache =>
+      $$SpendingAnalysisCacheTableTableManager(_db, _db.spendingAnalysisCache);
+  $$SavingsTrendCacheTableTableManager get savingsTrendCache =>
+      $$SavingsTrendCacheTableTableManager(_db, _db.savingsTrendCache);
+  $$NarrativeReportCacheTableTableManager get narrativeReportCache =>
+      $$NarrativeReportCacheTableTableManager(_db, _db.narrativeReportCache);
+  $$ForecastCacheTableTableManager get forecastCache =>
+      $$ForecastCacheTableTableManager(_db, _db.forecastCache);
+  $$HealthScoreHistoryCacheTableTableManager get healthScoreHistoryCache =>
+      $$HealthScoreHistoryCacheTableTableManager(
+        _db,
+        _db.healthScoreHistoryCache,
+      );
 }

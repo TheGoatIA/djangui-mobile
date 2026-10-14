@@ -31,27 +31,18 @@ class TracingHttpClient extends http.BaseClient {
     span.setAttribute(Attribute.fromString('http.url', request.url.toString()));
     span.setAttribute(Attribute.fromString('http.host', request.url.host));
 
-    // Inject W3C Trace Context
+    // Inject W3C Trace Context directly on the request headers
     final traceId = span.spanContext.traceId.toString();
     final spanId = span.spanContext.spanId.toString();
     final traceFlags = span.spanContext.traceFlags.toString().padLeft(2, '0');
     final traceParent = '00-$traceId-$spanId-$traceFlags';
 
-    // Copy request with new headers
-    final modifiedRequest = http.Request(request.method, request.url)
-      ..headers.addAll(request.headers)
-      ..headers['traceparent'] = traceParent;
-
-    if (request is http.Request) {
-      modifiedRequest.bodyBytes = request.bodyBytes;
-      modifiedRequest.encoding = request.encoding;
-      modifiedRequest.followRedirects = request.followRedirects;
-      modifiedRequest.maxRedirects = request.maxRedirects;
-      modifiedRequest.persistentConnection = request.persistentConnection;
-    }
+    request.headers['traceparent'] = traceParent;
 
     try {
-      final response = await _inner.send(modifiedRequest);
+      final response = await _inner.send(request).timeout(
+        const Duration(seconds: 20),
+      );
 
       // Record Status
       span.setAttribute(

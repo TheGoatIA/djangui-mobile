@@ -36,6 +36,7 @@ class UserModel {
 
   final UserPreferences? preferences;
   final UserSubscription? subscription;
+  final KycDataModel? kycData;
 
   UserModel({
     required this.id,
@@ -65,6 +66,7 @@ class UserModel {
     this.badges = const [],
     this.preferences,
     this.subscription,
+    this.kycData,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -72,6 +74,20 @@ class UserModel {
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
   String get fullName => '$firstName $lastName';
+
+  /// Même règle que l'API (utils/subscription.ts) : un abonnement résilié reste
+  /// valable jusqu'à sa date de fin, mais pas s'il n'en a pas.
+  bool get isBusiness {
+    final sub = subscription;
+    if (sub == null || sub.plan != 'business') return false;
+    final end = sub.endDate;
+    final notExpired = end == null || end.isAfter(DateTime.now());
+    if (sub.status == 'active') return notExpired;
+    if (sub.status == 'cancelled') return end != null && notExpired;
+    return false;
+  }
+
+  String get currentPlan => subscription?.plan ?? 'free';
 }
 
 @JsonSerializable()
@@ -110,4 +126,33 @@ class UserSubscription {
   factory UserSubscription.fromJson(Map<String, dynamic> json) =>
       _$UserSubscriptionFromJson(json);
   Map<String, dynamic> toJson() => _$UserSubscriptionToJson(this);
+}
+
+@JsonSerializable()
+class KycDataModel {
+  final String? documentType;
+  final String? documentNumber;
+  final String? fullName;
+  final DateTime? documentExpiryDate;
+  final String? documentImageUrl;
+  final String? documentBackImageUrl;
+  final String? selfieImageUrl;
+  final String? rejectionReason;
+  final DateTime? verifiedAt;
+
+  KycDataModel({
+    this.documentType,
+    this.documentNumber,
+    this.fullName,
+    this.documentExpiryDate,
+    this.documentImageUrl,
+    this.documentBackImageUrl,
+    this.selfieImageUrl,
+    this.rejectionReason,
+    this.verifiedAt,
+  });
+
+  factory KycDataModel.fromJson(Map<String, dynamic> json) =>
+      _$KycDataModelFromJson(json);
+  Map<String, dynamic> toJson() => _$KycDataModelToJson(this);
 }

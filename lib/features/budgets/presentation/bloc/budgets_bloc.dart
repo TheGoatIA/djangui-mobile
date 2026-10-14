@@ -1,3 +1,4 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../data/models/budget_model.dart';
@@ -10,7 +11,7 @@ import 'package:kauri/core/services/telemetry_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:opentelemetry/api.dart';
 
-@injectable
+@lazySingleton
 class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
   final BudgetRepository _budgetRepository;
   TelemetryService get _telemetry => getIt<TelemetryService>();
@@ -18,19 +19,28 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
 
   BudgetsBloc(this._budgetRepository) : super(BudgetsState.initial()) {
     on<GetBudgetsRequested>(_onGetBudgetsRequested);
-    on<AddBudgetRequested>(_onAddBudgetRequested);
-    on<DeleteBudgetRequested>(_onDeleteBudgetRequested);
-    on<UpdateBudgetRequested>(_onUpdateBudgetRequested);
-    on<GenerateAutoBudgetRequested>(_onGenerateAutoBudgetRequested);
+    on<AddBudgetRequested>(_onAddBudgetRequested, transformer: droppable());
+    on<DeleteBudgetRequested>(_onDeleteBudgetRequested, transformer: droppable());
+    on<UpdateBudgetRequested>(_onUpdateBudgetRequested, transformer: droppable());
+    on<GenerateAutoBudgetRequested>(
+      _onGenerateAutoBudgetRequested,
+      transformer: droppable(),
+    );
     on<ClearAutoBudgetResponse>(_onClearAutoBudgetResponse);
     on<ResetBudgetsStatus>(_onResetBudgetsStatus);
+    on<GetCategoryHistoryRequested>(_onGetCategoryHistoryRequested);
+    on<ShareBudgetRequested>(_onShareBudgetRequested, transformer: droppable());
+    on<JoinBudgetRequested>(_onJoinBudgetRequested, transformer: droppable());
+    on<GetBudgetParticipantsRequested>(_onGetBudgetParticipantsRequested);
+    on<RemoveBudgetParticipantRequested>(_onRemoveBudgetParticipantRequested);
+    on<LeaveBudgetRequested>(_onLeaveBudgetRequested, transformer: droppable());
   }
 
   void _onResetBudgetsStatus(
     ResetBudgetsStatus event,
     Emitter<BudgetsState> emit,
   ) {
-    emit(state.copyWith(status: BudgetsStatus.initial));
+    emit(BudgetsState.initial());
   }
 
   void _onClearAutoBudgetResponse(
@@ -185,6 +195,14 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
           emit(
             state.copyWith(status: BudgetsStatus.success, budgets: updatedList),
           );
+          // Resynchronise avec le serveur en arrière-plan : la page qui a
+          // déclenché cette création peut avoir été atteinte par un `pop()`
+          // jamais attendu ailleurs (ex. depuis la fiche détail d'un
+          // budget), donc rien ne garantissait qu'un rechargement de la
+          // liste soit déclenché au retour. Sans danger d'affichage : la
+          // liste contient déjà des données (celles ci-dessus), donc pas de
+          // spinner plein écran pendant ce rafraîchissement silencieux.
+          add(const GetBudgetsRequested(forceRefresh: true));
         },
       );
     } catch (e, s) {
@@ -227,6 +245,7 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
         emit(
           state.copyWith(status: BudgetsStatus.success, budgets: updatedList),
         );
+        add(const GetBudgetsRequested(forceRefresh: true));
       },
     );
   }
@@ -263,6 +282,210 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
         final List<BudgetModel> updatedList = state.budgets.map((b) {
           return b.id == event.budget.id ? updatedBudget : b;
         }).toList();
+        emit(
+          state.copyWith(status: BudgetsStatus.success, budgets: updatedList),
+        );
+        // Toujours resynchroniser avec le serveur après une modification :
+        // 1) certains chemins de navigation (ex. "Modifier" depuis la fiche
+        //    détail d'un budget) poussent la page d'édition sans jamais
+        //    attendre son résultat, donc rien ne déclenchait de rechargement
+        //    de la liste au retour ; 2) si `state.budgets` était déjà vide
+        //    (quelle qu'en soit la raison) au moment de cette mise à jour, le
+        //    `.map()` ci-dessus ne peut rien "mettre à jour" et produit une
+        //    liste toujours vide — seul un vrai rechargement peut corriger
+        //    cet état.
+        add(const GetBudgetsRequested(forceRefresh: true));
+      },
+    );
+  }
+
+  Future<void> _onGetCategoryHistoryRequested(
+    GetCategoryHistoryRequested event,
+    Emitter<BudgetsState> emit,
+  ) async {
+    emit(state.copyWith(categoryHistoryStatus: BudgetSideStatus.loading));
+    final result = await _budgetRepository.getCategoryHistory(
+      event.category,
+      months: event.monthsBack,
+    );
+    result.fold<void>(
+      (failure) {
+        _logger.error(
+          "Échec de la récupération de l'historique",
+          error: failure.message,
+          component: 'BudgetsBloc',
+        );
+        emit(
+          state.copyWith(
+            categoryHistoryStatus: BudgetSideStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (history) => emit(
+        state.copyWith(
+          categoryHistoryStatus: BudgetSideStatus.success,
+          categoryHistory: history,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onShareBudgetRequested(
+    ShareBudgetRequested event,
+    Emitter<BudgetsState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        shareStatus: BudgetSideStatus.loading,
+        shareInviteCode: () => null,
+      ),
+    );
+    final result = await _budgetRepository.shareBudget(event.budgetId);
+    result.fold<void>(
+      (failure) {
+        _logger.error(
+          'Échec du partage du budget',
+          error: failure.message,
+          component: 'BudgetsBloc',
+        );
+        emit(
+          state.copyWith(
+            shareStatus: BudgetSideStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (inviteCode) => emit(
+        state.copyWith(
+          shareStatus: BudgetSideStatus.success,
+          shareInviteCode: () => inviteCode,
+          budgets: state.budgets
+              .map(
+                (b) => b.id == event.budgetId
+                    ? b.copyWith(isShared: true, inviteCode: inviteCode)
+                    : b,
+              )
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onJoinBudgetRequested(
+    JoinBudgetRequested event,
+    Emitter<BudgetsState> emit,
+  ) async {
+    emit(state.copyWith(status: BudgetsStatus.loading));
+    final result = await _budgetRepository.joinBudget(event.inviteCode);
+    result.fold<void>(
+      (failure) {
+        _logger.error(
+          'Échec pour rejoindre le budget',
+          error: failure.message,
+          component: 'BudgetsBloc',
+        );
+        emit(
+          state.copyWith(
+            status: BudgetsStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (budget) {
+        final updatedList = List<BudgetModel>.from(state.budgets)..add(budget);
+        emit(
+          state.copyWith(status: BudgetsStatus.success, budgets: updatedList),
+        );
+      },
+    );
+  }
+
+  Future<void> _onGetBudgetParticipantsRequested(
+    GetBudgetParticipantsRequested event,
+    Emitter<BudgetsState> emit,
+  ) async {
+    emit(state.copyWith(participantsStatus: BudgetSideStatus.loading));
+    final result = await _budgetRepository.getParticipants(event.budgetId);
+    result.fold<void>(
+      (failure) {
+        _logger.error(
+          'Échec de la récupération des participants',
+          error: failure.message,
+          component: 'BudgetsBloc',
+        );
+        emit(
+          state.copyWith(
+            participantsStatus: BudgetSideStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (participants) => emit(
+        state.copyWith(
+          participantsStatus: BudgetSideStatus.success,
+          participants: participants,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onRemoveBudgetParticipantRequested(
+    RemoveBudgetParticipantRequested event,
+    Emitter<BudgetsState> emit,
+  ) async {
+    final result = await _budgetRepository.removeParticipant(
+      event.budgetId,
+      event.participantId,
+    );
+    result.fold<void>(
+      (failure) {
+        _logger.error(
+          'Échec du retrait du participant',
+          error: failure.message,
+          component: 'BudgetsBloc',
+        );
+        emit(
+          state.copyWith(
+            participantsStatus: BudgetSideStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (_) => emit(
+        state.copyWith(
+          participants: state.participants
+              .where((p) => p.id != event.participantId)
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onLeaveBudgetRequested(
+    LeaveBudgetRequested event,
+    Emitter<BudgetsState> emit,
+  ) async {
+    emit(state.copyWith(status: BudgetsStatus.loading));
+    final result = await _budgetRepository.leaveBudget(event.budgetId);
+    result.fold<void>(
+      (failure) {
+        _logger.error(
+          'Échec pour quitter le budget',
+          error: failure.message,
+          component: 'BudgetsBloc',
+        );
+        emit(
+          state.copyWith(
+            status: BudgetsStatus.error,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (_) {
+        final updatedList = state.budgets
+            .where((b) => b.id != event.budgetId)
+            .toList();
         emit(
           state.copyWith(status: BudgetsStatus.success, budgets: updatedList),
         );

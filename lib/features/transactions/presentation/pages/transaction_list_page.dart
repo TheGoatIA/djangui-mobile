@@ -18,15 +18,17 @@ import '../../../../core/utils/currency_helper.dart';
 import '../../../payments/presentation/bloc/fintech_bloc.dart';
 import '../../../payments/presentation/bloc/fintech_event.dart';
 import '../../../payments/presentation/bloc/fintech_state.dart';
+import '../../../../core/widgets/transaction_status_badge.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/utils/toast_utils.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import '../../../../core/widgets/tutorial/tutorial_step.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../di/injection.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
 import '../../../../core/services/log_service.dart';
+import '../../../../core/mixins/secure_screen_mixin.dart';
 
 class TransactionListPage extends StatelessWidget {
   const TransactionListPage({super.key});
@@ -63,7 +65,8 @@ class TransactionListView extends StatefulWidget {
   State<TransactionListView> createState() => _TransactionListViewState();
 }
 
-class _TransactionListViewState extends State<TransactionListView> {
+class _TransactionListViewState extends State<TransactionListView>
+    with WidgetsBindingObserver, SecureScreenMixin<TransactionListView> {
   final GlobalKey _listKey = GlobalKey();
   final GlobalKey _addKey = GlobalKey();
 
@@ -90,21 +93,29 @@ class _TransactionListViewState extends State<TransactionListView> {
 
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('transactions')) {
-      if (ModalRoute.of(context)?.isCurrent != true) return;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_listKey, _addKey]);
-        tutorialService.markTutorialAsSeen('transactions');
-      });
-    }
+    if (tutorialService.hasSeenTutorial('transactions')) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'transactions', [
+        TutorialStep(
+          targetKey: _listKey,
+          title: l10n.tutorialTransactionsTitle,
+          description: l10n.tutorialTransactionsDesc,
+        ),
+        TutorialStep(
+          targetKey: _addKey,
+          title: l10n.tutorialAddTransactionTitle,
+          description: l10n.tutorialAddTransactionDesc,
+        ),
+      ]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
@@ -129,7 +140,17 @@ class _TransactionListViewState extends State<TransactionListView> {
           ),
         ],
       ),
-      body: BlocBuilder<TransactionsBloc, TransactionsState>(
+      body: BlocConsumer<TransactionsBloc, TransactionsState>(
+        listenWhen: (previous, current) =>
+            current.status == TransactionsStatus.success &&
+            previous.status != TransactionsStatus.success,
+        listener: (context, state) {
+          // La liste ne monte son Showcase qu'une fois les transactions
+          // chargées : on retente ici dès que c'est le cas.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _startTutorial();
+          });
+        },
         builder: (context, state) {
           if (state.status == TransactionsStatus.loading &&
               state.transactions.isEmpty) {
@@ -148,12 +169,8 @@ class _TransactionListViewState extends State<TransactionListView> {
 
           if (state.transactions.isEmpty) {
             return Center(
-              child: Showcase(
+              child: KeyedSubtree(
                 key: _listKey,
-                title: AppLocalizations.of(context)!.tutorialTransactionsTitle,
-                description: AppLocalizations.of(
-                  context,
-                )!.tutorialTransactionsDesc,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -218,14 +235,8 @@ class _TransactionListViewState extends State<TransactionListView> {
                   final widget = _TransactionItem(transaction: transaction);
 
                   if (index == 0) {
-                    return Showcase(
+                    return KeyedSubtree(
                       key: _listKey,
-                      title: AppLocalizations.of(
-                        context,
-                      )!.tutorialTransactionsTitle,
-                      description: AppLocalizations.of(
-                        context,
-                      )!.tutorialTransactionsDesc,
                       child: widget,
                     );
                   }
@@ -237,10 +248,8 @@ class _TransactionListViewState extends State<TransactionListView> {
           );
         },
       ),
-      floatingActionButton: Showcase(
+      floatingActionButton: KeyedSubtree(
         key: _addKey,
-        title: AppLocalizations.of(context)!.tutorialAddTransactionTitle,
-        description: AppLocalizations.of(context)!.tutorialAddTransactionDesc,
         child: FloatingActionButton(
           heroTag: 'transactions_fab',
           onPressed: () async {
@@ -359,8 +368,13 @@ class _TransactionItem extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
+                      const SizedBox(width: 6),
+                      TransactionStatusBadge(
+                        status: transaction.status,
+                        compact: true,
+                      ),
                       if (isManual) ...[
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,

@@ -1,3 +1,4 @@
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kauri/core/analytics/analytics_service.dart';
@@ -14,7 +15,7 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
   FintechBloc(this._repository) : super(const FintechState()) {
     on<FetchWalletBalance>(_onFetchWalletBalance);
     on<FetchWalletTransactions>(_onFetchWalletTransactions);
-    on<RequestWithdrawal>(_onRequestWithdrawal);
+    on<RequestWithdrawal>(_onRequestWithdrawal, transformer: droppable());
     on<DownloadReceipt>(_onDownloadReceipt);
     on<DownloadPaymentReceipt>(_onDownloadPaymentReceipt);
     on<ClearFintechData>(_onClearFintechData);
@@ -66,13 +67,28 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
     RequestWithdrawal event,
     Emitter<FintechState> emit,
   ) async {
+    if (event.amount <= 0 || event.amount.isNaN || event.amount.isInfinite) {
+      emit(
+        state.copyWith(
+          status: FintechStatus.withdrawalError,
+          message: 'Le montant de retrait doit être strictement supérieur à 0.',
+        ),
+      );
+      return;
+    }
+
     final startMs = DateTime.now().millisecondsSinceEpoch;
     _analytics.logWithdrawalInitiated(
       currency: 'XAF',
       amount: event.amount,
       provider: event.provider,
     );
-    emit(state.copyWith(status: FintechStatus.loading));
+    emit(
+      state.copyWith(
+        status: FintechStatus.loading,
+        isProcessingWithdrawal: true,
+      ),
+    );
     final result = await _repository.requestPayout(
       amount: event.amount,
       phoneNumber: event.phoneNumber,
@@ -88,8 +104,11 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
           state.copyWith(
             status: FintechStatus.withdrawalError,
             message: failure.message,
+            isProcessingWithdrawal: false,
           ),
         );
+        add(FetchWalletBalance());
+        add(FetchWalletTransactions());
       },
       (message) {
         _analytics.logWithdrawalCompleted(
@@ -102,8 +121,11 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
           state.copyWith(
             status: FintechStatus.withdrawalSuccess,
             message: message,
+            isProcessingWithdrawal: false,
           ),
         );
+        add(FetchWalletBalance());
+        add(FetchWalletTransactions());
       },
     );
   }

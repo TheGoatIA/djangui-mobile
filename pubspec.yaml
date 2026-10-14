@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 3.0.4+29
+version: 4.0.1+31
 
 environment:
   sdk: ^3.10.1
@@ -35,6 +35,7 @@ dependencies:
 
   # State Management
   flutter_bloc: ^9.1.1
+  bloc_concurrency: ^0.3.0
   equatable: ^2.0.8
 
   # Routing
@@ -50,8 +51,13 @@ dependencies:
   http_parser: ^4.1.2
 
   # Database & Local Storage
-  drift: ^2.21.0
-  drift_flutter: ^0.2.7
+  # drift >= 2.32 uses sqlite3's build hooks (see `hooks:` below) to bundle
+  # an encryption-capable SQLite build. sqlcipher_flutter_libs is EOL/dead
+  # since 0.7.0 and has been removed — see the `hooks` section for its
+  # replacement (sqlite3mc, selected via user_defines).
+  drift: ^2.32.0
+  drift_flutter: ^0.3.1
+  sqlite3: ^3.5.1
   flutter_secure_storage: ^10.0.0
   shared_preferences: ^2.5.4
 
@@ -60,7 +66,7 @@ dependencies:
   firebase_messaging: ^16.1.0
 
   # Charts & UI Components
-  fl_chart: ^1.1.1
+  fl_chart: ^1.2.0
   cached_network_image: ^3.4.1
   flutter_svg: ^2.2.3
   lottie: ^3.3.2
@@ -71,23 +77,28 @@ dependencies:
   intl: ^0.20.2
   path: ^1.9.0
   url_launcher: ^6.3.2
-  uuid: ^4.5.1
+  uuid: ^4.6.0
   share_plus: ^12.0.1
   path_provider: ^2.1.5
   permission_handler: ^12.0.1
-  image_picker: ^1.2.1
+  image_picker: ^1.2.3
   file_picker: ^10.3.8
   fpdart: ^1.2.0
   package_info_plus: ^9.0.0
   device_info_plus: ^12.3.0
 
   # PDF & QR
-  pdf: ^3.11.3
+  pdf: ^3.12.0
   printing: ^5.14.2
   qr_flutter: ^4.1.0
 
   # Biometrics
   local_auth: ^3.0.0
+  # Stockage protégé par une clé Keystore/Keychain qui EXIGE elle-même une
+  # authentification biométrique matérielle pour être déchiffrée (audit F-01)
+  # — contrairement à local_auth seul, qui ne renvoie qu'un booléen que le
+  # code appelant est libre d'ignorer ou qu'un hook peut falsifier.
+  biometric_storage: ^5.0.1
 
   # Icons
   cupertino_icons: ^1.0.8
@@ -96,9 +107,8 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   google_fonts: ^8.0.1
   flutter_animate: ^4.5.2
-  logger: ^2.6.2
+  logger: ^2.7.0
   collection: ^1.19.0
-  flutter_dotenv: ^6.0.0
   google_mlkit_text_recognition: ^0.15.1
   firebase_auth: ^6.1.4
   google_sign_in: ^7.2.0
@@ -107,20 +117,16 @@ dependencies:
   firebase_performance: ^0.11.1+3
   pinput: ^6.0.2
   flutter_markdown: ^0.7.7+1
-  dartz: ^0.10.1
   timeago: ^3.7.1
-  showcaseview: ^3.0.0
   provider: ^6.1.5+1
   intl_phone_field: ^3.2.0
   record: ^6.2.0
   audioplayers: ^6.1.0
   crypto: ^3.0.7
   confetti: ^0.8.0
-  speech_to_text: ^7.3.0
   flutter_dynamic_icon_plus: ^1.4.0
-  opentelemetry: any
+  opentelemetry: ^0.18.10
   freerasp: ^7.5.1
-  sqlcipher_flutter_libs: ^0.7.0+eol
 
 
 dev_dependencies:
@@ -131,13 +137,22 @@ dev_dependencies:
   build_runner: ^2.4.13
   injectable_generator: ^2.6.2
   chopper_generator: ^8.6.1
-  drift_dev: ^2.21.2
+  drift_dev: ^2.32.0
   json_serializable: ^6.8.0
 
   flutter_lints: ^6.0.0
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
   mocktail: ^1.0.4
   bloc_test: ^10.0.0
+
+# Selects the encryption-capable (SQLite3MultipleCiphers) build of SQLite
+# instead of the plain, unencrypted one — required for the `PRAGMA key`
+# call in lib/core/database/database.dart to actually encrypt the local
+# database rather than silently no-op.
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlite3mc
 
 flutter_launcher_icons:
   android: true
@@ -170,8 +185,9 @@ flutter:
     - assets/images/placeholders/
     - assets/images/icons/
     - assets/images/animations/
-    - .env
-
+    # NOTE: .env a ete retire des assets intentionnellement.
+    # Les URLs d'API passent via --dart-define-from-file=dart_defines.json
+    # a la compilation. Ne jamais bundler des fichiers de secrets dans les assets.
   fonts:
     - family: Outfit
       fonts:

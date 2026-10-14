@@ -5,6 +5,12 @@ import 'package:injectable/injectable.dart';
 abstract class NetworkInfo {
   /// Retourne [true] si l'appareil dispose d'un accès à internet.
   Future<bool> get isConnected;
+
+  /// Flux réactif de l'état de connexion, pour les widgets qui doivent
+  /// signaler à l'utilisateur qu'un écran affiche des données en cache
+  /// (voir [CachedDataBanner]) sans avoir à replumber ce signal à travers
+  /// chaque couche repository/bloc.
+  Stream<bool> get onConnectivityChanged;
 }
 
 /// Implémentation du service NetworkInfo utilisant 'internet_connection_checker'.
@@ -16,4 +22,8 @@ class NetworkInfoImpl implements NetworkInfo {
 
   @override
   Future<bool> get isConnected => _connectionChecker.hasConnection;
+
+  @override
+  Stream<bool> get onConnectivityChanged => _connectionChecker.onStatusChange
+      .map((status) => status == InternetConnectionStatus.connected);
 }

@@ -106,6 +106,107 @@ class AppLocalizationsFr extends AppLocalizations {
   String get totalBalance => 'Solde Total';
 
   @override
+  String get resteAVivreLabel => 'Reste à vivre ce mois-ci';
+
+  @override
+  String get resteAVivreOverspentLabel => 'Dépassement de budget ce mois-ci';
+
+  @override
+  String get joinBudget => 'Rejoindre un budget';
+
+  @override
+  String get joinBudgetDescription =>
+      'Entrez le code d\'invitation partagé par le propriétaire du budget pour le rejoindre.';
+
+  @override
+  String get successJoinBudget => 'Vous avez rejoint le budget avec succès';
+
+  @override
+  String get shareBudget => 'Partager ce budget';
+
+  @override
+  String get shareBudgetDescription =>
+      'Partagez ce code avec les personnes que vous voulez inviter à contribuer à ce budget.';
+
+  @override
+  String get budgetParticipants => 'Participants';
+
+  @override
+  String get leaveBudget => 'Quitter ce budget';
+
+  @override
+  String get leaveBudgetConfirm =>
+      'Voulez-vous vraiment quitter ce budget partagé ?';
+
+  @override
+  String get removeParticipant => 'Retirer';
+
+  @override
+  String get joinGoal => 'Rejoindre un objectif';
+
+  @override
+  String get joinGoalDescription =>
+      'Entrez le code d\'invitation partagé par le propriétaire de l\'objectif pour le rejoindre.';
+
+  @override
+  String get successJoinGoal => 'Vous avez rejoint l\'objectif avec succès';
+
+  @override
+  String get shareGoal => 'Partager cet objectif';
+
+  @override
+  String get shareGoalDescription =>
+      'Partagez ce code avec les personnes que vous voulez inviter à contribuer à cet objectif.';
+
+  @override
+  String get goalParticipants => 'Participants';
+
+  @override
+  String get leaveGoal => 'Quitter cet objectif';
+
+  @override
+  String get leaveGoalConfirm =>
+      'Voulez-vous vraiment quitter cet objectif partagé ?';
+
+  @override
+  String contributionByLabel(String name) {
+    return 'Par $name';
+  }
+
+  @override
+  String get contributionByYou => 'Par vous';
+
+  @override
+  String sharedByLabel(String name) {
+    return 'Partagé par $name';
+  }
+
+  @override
+  String get sharedBadge => 'Partagé';
+
+  @override
+  String get spendingHistory => 'Historique des dépenses';
+
+  @override
+  String get selectCategory => 'Choisir une catégorie';
+
+  @override
+  String get linkedGoalLabel => 'Objectif lié';
+
+  @override
+  String get linkedGoalNone => 'Aucun objectif lié';
+
+  @override
+  String get linkedGoalDescription =>
+      'Le surplus non dépensé en fin de mois vous sera suggéré comme contribution à cet objectif.';
+
+  @override
+  String get copyToClipboard => 'Copier';
+
+  @override
+  String get copiedToClipboard => 'Copié dans le presse-papiers';
+
+  @override
   String get recentActivities => 'Activités Récentes';
 
   @override
@@ -163,6 +264,65 @@ class AppLocalizationsFr extends AppLocalizations {
   String get next => 'Suivant';
 
   @override
+  String get tutorialFinish => 'Compris';
+
+  @override
+  String get replayOnboarding => 'Revoir l\'introduction';
+
+  @override
+  String get replayOnboardingDesc =>
+      'Revoir les écrans de bienvenue — les trois pages vues lors de votre tout premier lancement de l\'application.';
+
+  @override
+  String get tutorialGoalContributeTitle => 'Alimentez cet objectif';
+
+  @override
+  String get tutorialGoalContributeDesc =>
+      'Ajoutez de l\'argent quand vous le souhaitez, ou récupérez votre épargne une fois prête.';
+
+  @override
+  String get tutorialTontineContributeTitle => 'Effectuez votre contribution';
+
+  @override
+  String get tutorialTontineContributeDesc =>
+      'Déposez ici la preuve de paiement pour ce tour — le créateur la valide avant qu\'elle ne compte.';
+
+  @override
+  String get tutorialTontineTurnTitle => 'Suivez la rotation';
+
+  @override
+  String get tutorialTontineTurnDesc =>
+      'Voyez à qui c\'est le tour de recevoir la cagnotte et combien de membres ont déjà payé.';
+
+  @override
+  String get tutorialCreateTontineRulesTitle => 'Définissez les règles';
+
+  @override
+  String get tutorialCreateTontineRulesDesc =>
+      'Choisissez le mode de rotation des paiements et de validation des contributions — non modifiables une fois que des membres ont rejoint.';
+
+  @override
+  String get tutorialResellerVaultTitle => 'Votre coffre-fort sécurisé';
+
+  @override
+  String get tutorialResellerVaultDesc =>
+      'Les identifiants des comptes maîtres sont stockés ici. Appuyez pour les révéler uniquement quand vous en avez besoin.';
+
+  @override
+  String get tutorialResellerAddAccountTitle => 'Ajoutez un compte maître';
+
+  @override
+  String get tutorialResellerAddAccountDesc =>
+      'Enregistrez un compte de streaming que vous revendez — suivez ses profils, sa facturation et sa marge au même endroit.';
+
+  @override
+  String get tutorialSecurityBiometricTitle => 'Sécurisez votre compte';
+
+  @override
+  String get tutorialSecurityBiometricDesc =>
+      'Activez ici la connexion biométrique pour que vous seul puissiez accéder à votre argent, même si quelqu\'un a votre téléphone.';
+
+  @override
   String get welcomeBack => 'Bon retour !';
 
   @override
@@ -183,10 +343,18 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get passwordLengthError =>
-      'Le mot de passe doit contenir au moins 6 caractères';
+      'Le mot de passe doit contenir au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial';
 
   @override
   String get genericError => 'Une erreur est survenue';
+
+  @override
+  String get networkErrorGeneric =>
+      'Pas de connexion internet. Vérifiez votre réseau et réessayez.';
+
+  @override
+  String get timeoutErrorGeneric =>
+      'Le serveur met trop de temps à répondre. Veuillez réessayer.';
 
   @override
   String get loading => 'Chargement...';
@@ -377,6 +545,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get invalidNumber => 'Nombre invalide';
 
   @override
+  String get amountMustBePositive => 'Le montant doit être supérieur à zéro';
+
+  @override
+  String get percentageMustBeInRange =>
+      'Le pourcentage doit être entre 0 et 100';
+
+  @override
   String get notifications => 'Notifications';
 
   @override
@@ -500,6 +675,73 @@ class AppLocalizationsFr extends AppLocalizations {
   String get categoryDetails => 'Détails par Catégorie';
 
   @override
+  String get forecastSectionTitle => 'Prévision de solde (30 jours)';
+
+  @override
+  String get forecastCriticalAlertPrefix => 'Alerte :';
+
+  @override
+  String get forecastInsightsLabel => 'Ce que Kauri observe';
+
+  @override
+  String get forecastUnavailable => 'Prévision indisponible pour le moment.';
+
+  @override
+  String get healthScoreHistoryTitle => 'Évolution de votre santé financière';
+
+  @override
+  String get healthScoreHistoryEmpty =>
+      'Revenez le mois prochain pour voir apparaître votre courbe d\'évolution.';
+
+  @override
+  String get autoBudgetNoIncomeHint =>
+      'Renseignez votre revenu mensuel dans votre profil pour obtenir un budget recommandé personnalisé.';
+
+  @override
+  String get autoBudgetNeeds => 'Besoins essentiels (50%)';
+
+  @override
+  String get autoBudgetWants => 'Envies (30%)';
+
+  @override
+  String get autoBudgetSavings => 'Épargne (20%)';
+
+  @override
+  String autoBudgetActualSpent(String spent, String income) {
+    return 'Dépensé ce mois-ci : $spent sur un revenu de $income';
+  }
+
+  @override
+  String premiumReportReady(String month) {
+    return 'Votre Rapport de $month est prêt !';
+  }
+
+  @override
+  String premiumReportPreparing(String month) {
+    return 'Votre Rapport de $month arrive bientôt...';
+  }
+
+  @override
+  String get premiumReportShareAction => 'Partager mon rapport';
+
+  @override
+  String get reportPdfKeyInsights => 'Points clés';
+
+  @override
+  String get reportPdfRecommendations => 'Recommandations de Kauri';
+
+  @override
+  String reportPdfGeneratedOn(String date) {
+    return 'Généré par Kauri le $date';
+  }
+
+  @override
+  String get reportPdfGenerating => 'Préparation du PDF...';
+
+  @override
+  String get reportPdfError => 'Impossible de générer le PDF du rapport.';
+
+  @override
   String get weekly => 'Hebdomadaire';
 
   @override
@@ -510,6 +752,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noDataAvailable => 'Aucune donnée disponible';
+
+  @override
+  String get insightsLoadErrorBanner =>
+      'Impossible de mettre à jour vos analyses. Les données affichées peuvent être obsolètes.';
+
+  @override
+  String get financialHealthScoreLabel => 'Score de santé financière';
 
   @override
   String get orContinueWith => 'Ou continuer avec';
@@ -722,26 +971,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get errorOccurred => 'Une erreur est survenue';
 
   @override
-  String get importGoal => 'Importer Objectif';
-
-  @override
-  String get goalImportedSuccess => 'Objectif importé avec succès !';
-
-  @override
-  String get sharedGoal => 'Objectif Partagé';
-
-  @override
   String get targetAmount => 'Montant Cible';
 
   @override
   String get deadline => 'Date Limite';
-
-  @override
-  String get addGoalToListPrompt =>
-      'Voulez-vous ajouter cet objectif à votre liste ?';
-
-  @override
-  String get acceptGoal => 'Accepter l\'objectif';
 
   @override
   String get aiAnalysisTitle => 'Analyse Financière IA';
@@ -749,6 +982,21 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get aiAnalysisUnavailable =>
       'L\'analyse IA est temporairement indisponible';
+
+  @override
+  String get tontineAiAnalysisTitle => 'Analyse IA du reçu';
+
+  @override
+  String get tontineAiDetectedAmount => 'Montant détecté';
+
+  @override
+  String get tontineAiDetectedRef => 'Référence détectée';
+
+  @override
+  String get tontineAiDetectedDate => 'Date détectée';
+
+  @override
+  String get tontineAiConfidence => 'Confiance de l\'IA';
 
   @override
   String get countryLabel => 'Pays';
@@ -779,7 +1027,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Kauri est une solution moderne pour gérer vos épargnes et tontines de manière autonome. Notre mission est de démocratiser la gestion financière grâce à la technologie.';
 
   @override
-  String get developedBy => 'Développé avec ❤️ par l\'équipe Kauri';
+  String get developedBy => 'Développé avec â¤ï¸ par l\'équipe Kauri';
 
   @override
   String get contact => 'Contact';
@@ -795,6 +1043,71 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get chooseFromGallery => 'Choisir depuis la galerie';
+
+  @override
+  String get avatarOptionsTitle => 'Photo de profil';
+
+  @override
+  String get generateAvatarWithAi => 'Générer avec l\'IA';
+
+  @override
+  String get generateAvatarWithAiDesc =>
+      'Créez un avatar unique à partir d\'un style, en quelques secondes.';
+
+  @override
+  String get aiAvatarStyleLabel => 'Choisissez un style';
+
+  @override
+  String get aiAvatarRefinementHint => 'Ajoutez des détails (optionnel)';
+
+  @override
+  String get aiAvatarGenerateButton => 'Générer mon avatar';
+
+  @override
+  String get aiAvatarGenerating => 'Génération en cours...';
+
+  @override
+  String get aiAvatarSuccess => 'Nouvel avatar généré avec succès !';
+
+  @override
+  String get aiAvatarStyleProfessional => 'Professionnel';
+
+  @override
+  String get aiAvatarStyleIllustrated => 'Illustré';
+
+  @override
+  String get aiAvatarStyleCyberpunk => 'Cyberpunk';
+
+  @override
+  String get aiAvatarStyleMinimalist => 'Minimaliste';
+
+  @override
+  String get aiAvatarStyleFantasy => 'Fantaisie';
+
+  @override
+  String get aiAvatarStyleWatercolor => 'Aquarelle';
+
+  @override
+  String get aiAvatarStyleCartoon => 'Cartoon';
+
+  @override
+  String get aiAvatarPreviewHint =>
+      'Aperçu — vous pouvez le régénérer ou modifier vos réglages avant de l\'appliquer.';
+
+  @override
+  String get aiAvatarUseButton => 'Utiliser cet avatar';
+
+  @override
+  String get aiAvatarApplying => 'Application en cours...';
+
+  @override
+  String get aiAvatarRegenerateButton => 'Régénérer';
+
+  @override
+  String get aiAvatarEditButton => 'Modifier';
+
+  @override
+  String get avatarViewerTitle => 'Photo de profil';
 
   @override
   String get receiptScannedSuccess => 'Reçu scanné avec succès';
@@ -834,7 +1147,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get premiumPlan => 'Premium';
 
   @override
-  String get premiumPrice => '2000 FCFA/mois';
+  String get premiumPrice => '2 000 FCFA/mois';
 
   @override
   String get premiumFeature1 => 'Budgets Illimités';
@@ -948,6 +1261,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get enableSurplusLabel => 'Épargner le surplus';
+
+  @override
+  String get surplusDayOfMonthLabel => 'Jour du mois pour la suggestion';
+
+  @override
+  String surplusDayOfMonthValue(int day) {
+    return 'Le $day';
+  }
 
   @override
   String get enableRoundupLabel => 'Arrondir les transactions';
@@ -1150,7 +1471,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get passwordTooShort =>
-      'Le mot de passe doit faire au moins 6 caractères';
+      'Le mot de passe doit contenir au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial';
 
   @override
   String get noSessionsFound => 'Aucune session active trouvée';
@@ -1396,6 +1717,20 @@ class AppLocalizationsFr extends AppLocalizations {
       'Filtrez par période pour voir votre évolution financière.';
 
   @override
+  String get tutorialAiReportTitle => 'Votre rapport IA';
+
+  @override
+  String get tutorialAiReportDesc =>
+      'Kauri analyse vos transactions et rédige un résumé en langage simple de vos habitudes de dépense, avec des conseils personnalisés.';
+
+  @override
+  String get tutorialChartsTitle => 'Répartition des dépenses';
+
+  @override
+  String get tutorialChartsDesc =>
+      'Ce graphique répartit vos dépenses par catégorie pour repérer instantanément où part votre argent.';
+
+  @override
   String get resetTutorials => 'Réinitialiser les tutoriels';
 
   @override
@@ -1452,11 +1787,25 @@ class AppLocalizationsFr extends AppLocalizations {
       'Gérez vos informations personnelles, votre abonnement et vos paramètres.';
 
   @override
+  String get tutorialSettingsSectionTitle => 'Paramètres';
+
+  @override
+  String get tutorialSettingsSectionDesc =>
+      'Langue, thème, sécurité, notifications, KYC : toutes vos préférences de l\'application se trouvent ici.';
+
+  @override
+  String get tutorialCoachInputTitle => 'Posez une question à votre Coach IA';
+
+  @override
+  String get tutorialCoachInputDesc =>
+      'Écrivez n\'importe quelle question sur votre argent — \"Puis-je me permettre cet achat ?\", \"Comment épargner plus vite ?\" — et obtenez une réponse personnalisée basée sur vos données réelles.';
+
+  @override
   String get tutorialAddTransactionTitle => 'Ajouter une Transaction';
 
   @override
   String get tutorialAddTransactionDesc =>
-      'Saisissez les détails pour garder un œil sur votre budget.';
+      'Saisissez les détails pour garder un Å“il sur votre budget.';
 
   @override
   String get tutorialAddGoalTitle => 'Nouvel Objectif';
@@ -1471,6 +1820,75 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get tutorialAddBudgetDesc =>
       'Allouez un montant précis à une catégorie pour ce mois.';
+
+  @override
+  String get tutorialGoalNameFieldTitle => 'Nommez votre objectif';
+
+  @override
+  String get tutorialGoalNameFieldDesc =>
+      'Choisissez un nom clair et motivant (ex. \"Voyage à Paris\") : c\'est lui que vous verrez à chaque fois que vous suivrez votre progression.';
+
+  @override
+  String get tutorialGoalAmountFieldTitle => 'Fixez votre objectif';
+
+  @override
+  String get tutorialGoalAmountFieldDesc =>
+      'Indiquez le montant total que vous souhaitez épargner. Kauri l\'utilise pour calculer votre progression et suggérer un rythme d\'épargne.';
+
+  @override
+  String get tutorialBudgetCategoryFieldTitle => 'Choisissez une catégorie';
+
+  @override
+  String get tutorialBudgetCategoryFieldDesc =>
+      'Sélectionnez la catégorie de dépense concernée par ce budget, pour que Kauri puisse la suivre automatiquement à partir de vos transactions.';
+
+  @override
+  String get tutorialBudgetAmountFieldTitle => 'Fixez votre limite';
+
+  @override
+  String get tutorialBudgetAmountFieldDesc =>
+      'Indiquez le montant maximum à dépenser dans cette catégorie ce mois-ci. Vous serez alerté(e) en vous en approchant.';
+
+  @override
+  String get budgetInfoTooltip => 'Comment fonctionnent les budgets ?';
+
+  @override
+  String get budgetInfoTitle => 'Comment fonctionnent les budgets';
+
+  @override
+  String get budgetInfoTrackingTitle => 'Suivi automatique';
+
+  @override
+  String get budgetInfoTrackingDesc =>
+      'Créez un budget mensuel en allouant un montant à une ou plusieurs catégories (ex. Alimentation, Transport). Chaque nouvelle dépense correspondant à cette catégorie est comptabilisée automatiquement — pas besoin de la saisir deux fois.';
+
+  @override
+  String get budgetInfoAlertsTitle => 'Alertes de dépassement';
+
+  @override
+  String get budgetInfoAlertsDesc =>
+      'Vous recevez une notification dès qu\'une catégorie atteint 80% du montant alloué, puis une seconde si elle est dépassée.';
+
+  @override
+  String get budgetInfoSharingTitle => 'Partage';
+
+  @override
+  String get budgetInfoSharingDesc =>
+      'Partagez un budget avec d\'autres personnes via un code d\'invitation : elles participent aux mêmes catégories, mais vous restez seul(e), en tant que propriétaire, à pouvoir modifier les montants alloués.';
+
+  @override
+  String get budgetInfoGoalTitle => 'Objectif lié';
+
+  @override
+  String get budgetInfoGoalDesc =>
+      'Associez un budget à l\'un de vos objectifs d\'épargne pour garder le lien entre vos dépenses du mois et ce vers quoi vous économisez.';
+
+  @override
+  String get budgetInfoAutoTitle => 'Génération automatique';
+
+  @override
+  String get budgetInfoAutoDesc =>
+      'Anne peut analyser vos revenus et vos habitudes de dépenses pour vous proposer un budget déjà réparti par catégorie, que vous pouvez ensuite ajuster.';
 
   @override
   String get tutorialAddInvestmentTitle => 'Nouvel Investissement';
@@ -1603,6 +2021,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rotationMode => 'Mode de rotation';
 
   @override
+  String get rotationModeLockedHint =>
+      'Ne peut plus être modifié après la création';
+
+  @override
   String get manualRotation => 'Manuel';
 
   @override
@@ -1670,6 +2092,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get contributors => 'Contributeurs';
 
   @override
+  String get turnBeneficiaryLabel => 'Bénéficiaire de ce tour';
+
+  @override
   String get noMembersFound => 'Aucun membre trouvé';
 
   @override
@@ -1680,6 +2105,22 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get typeAMessage => 'Tapez un message...';
+
+  @override
+  String get recordingHint => 'Maintenez pour enregistrer...';
+
+  @override
+  String get micPermissionDenied =>
+      'Permission microphone refusée. Activez-la dans les paramètres.';
+
+  @override
+  String get recordingTooShort => 'Enregistrement trop court.';
+
+  @override
+  String get voiceNoteFallbackLabel => 'Note vocale';
+
+  @override
+  String get voiceNotePlaybackError => 'Impossible de lire cette note vocale.';
 
   @override
   String get successContribution => 'Cotisation envoyée avec succès';
@@ -1741,7 +2182,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get whatIsTontineDesc =>
-      'La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun 🇨🇲 et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.';
+      'La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun ðŸ‡¨ðŸ‡² et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.';
 
   @override
   String get tontineLifecycleTitle => 'Comprendre les Statuts';
@@ -1772,14 +2213,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get guideRotationDesc =>
-      '• Fixe : L\'ordre est prédéfini.\n• Aléatoire : La chance décide du gagnant.\n• Enchères/Score : Les membres les plus rigoureux ou ayant besoin de fonds sont prioritaires.';
+      'â€¢ Fixe : L\'ordre est prédéfini.\nâ€¢ Aléatoire : La chance décide du gagnant.';
 
   @override
-  String get guideValidationTitle => 'IA & Factures';
+  String get guideValidationTitle => 'Vérification assistée par IA';
 
   @override
   String get guideValidationDesc =>
-      'Envoyez une capture de votre reçu NotchPay/Mobile Money dans le chat. Notre IA valide la preuve en temps réel pour confirmer votre tour.';
+      'Envoyez une capture de votre reçu NotchPay/Mobile Money dans le chat. Notre IA lit le montant et la référence pour aider le créateur de la tontine à confirmer votre cotisation.';
 
   @override
   String get guideSocialFundTitle => 'Solidarité : Fonds Social';
@@ -1820,7 +2261,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tontineRestrictionCM =>
-      'La création et l\'adhésion aux tontines sont réservées aux utilisateurs au Cameroun 🇨🇲.';
+      'La création et l\'adhésion aux tontines sont réservées aux utilisateurs au Cameroun ðŸ‡¨ðŸ‡².';
 
   @override
   String get tontineStarted => 'Tontine démarrée avec succès';
@@ -1836,6 +2277,25 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get enableSocialFund => 'Activer le fonds social';
+
+  @override
+  String get socialFundPaymentRequired => 'Fonds social requis';
+
+  @override
+  String get socialFundPaymentDescription =>
+      'Payez votre part unique du fonds social avant le démarrage de la tontine.';
+
+  @override
+  String get paySocialFundNow => 'Payer maintenant';
+
+  @override
+  String get socialFundPaidConfirmation => 'Fonds social payé avec succès !';
+
+  @override
+  String get socialFundPaidLabel => 'Fonds social payé';
+
+  @override
+  String get socialFundUnpaidLabel => 'Fonds social non payé';
 
   @override
   String get sanctions => 'Sanctions';
@@ -2051,6 +2511,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get midnightRoyalThemeLabel => 'Royal de Minuit';
 
   @override
+  String get roseVelvetThemeLabel => 'Velours Rose';
+
+  @override
+  String get rubyEmberThemeLabel => 'Braise Rubis';
+
+  @override
+  String get oceanAbyssThemeLabel => 'Abysse Océanique';
+
+  @override
+  String get cyberNeonThemeLabel => 'Néon Cyber';
+
+  @override
+  String get champagnePearlThemeLabel => 'Nacre Champagne';
+
+  @override
+  String get standardThemesLabel => 'STANDARD';
+
+  @override
+  String get premiumThemesLabel => 'PREMIUM';
+
+  @override
   String get fontFamily => 'Police d\'écriture';
 
   @override
@@ -2187,12 +2668,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get contributionLabel => 'Contribution';
 
   @override
+  String get withdrawalLabel => 'Retrait';
+
+  @override
   String get goalForcedExpenseHint =>
       'L\'épargne pour un objectif est enregistrée comme une dépense de votre portefeuille.';
 
   @override
+  String get debtRepaymentWarningHint =>
+      'Ce remboursement est enregistré comme une dépense de votre portefeuille et débite votre solde Kauri immédiatement.';
+
+  @override
   String get enableSurplusDesc =>
-      'Épargne automatiquement ce qui reste de votre budget à la fin du mois.';
+      'Vous suggère chaque mois de verser dans cet objectif ce qu\'il vous reste après vos dépenses — c\'est vous qui décidez, aucun débit automatique.';
 
   @override
   String get enableRoundupDesc =>
@@ -2215,7 +2703,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get fintechOnlyCameroon =>
-      'Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun 🇨🇲.';
+      'Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun ðŸ‡¨ðŸ‡².';
 
   @override
   String get featureRestrictedCountry =>
@@ -2482,4 +2970,399 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get rechargeLimitError =>
       'Le montant de recharge est limité à 50 000 FCFA par transaction.';
+
+  @override
+  String get kycDocInfoTitle => 'Informations du document';
+
+  @override
+  String get kycDocFrontTitle => '1. Pièce d\'identité - Recto (Face avant)';
+
+  @override
+  String get kycDocFrontSubtitle => 'Photo claire ou document PDF (Requis)';
+
+  @override
+  String get kycDocBackTitle => '2. Pièce d\'identité - Verso (Face arrière)';
+
+  @override
+  String get kycDocBackSubtitle =>
+      'Photo du dos de la pièce (Facultatif mais conseillé)';
+
+  @override
+  String get kycDocTypeCni => 'Carte Nationale d\'Identité (CNI)';
+
+  @override
+  String get kycDocTypePassport => 'Passeport';
+
+  @override
+  String get kycDocTypeLicense => 'Permis de conduire';
+
+  @override
+  String get kycDocTypeResidence => 'Titre de séjour / Résident';
+
+  @override
+  String get kycImportMethodTitle =>
+      'Choisissez le moyen d\'importer votre document :';
+
+  @override
+  String get kycImportMethodCamera => 'Prendre une photo';
+
+  @override
+  String get kycImportMethodCameraSub => 'Caméra arrière (cadrage net)';
+
+  @override
+  String get kycImportMethodGallery => 'Choisir une image';
+
+  @override
+  String get kycImportMethodGallerySub =>
+      'Depuis votre galerie (JPG, PNG, WEBP)';
+
+  @override
+  String get kycImportMethodPdf => 'Importer un document PDF';
+
+  @override
+  String get kycImportMethodPdfSub => 'Fichier PDF (scan officiel, max 10 Mo)';
+
+  @override
+  String get kycSelfieStepTitle => '3. Selfie de vérification';
+
+  @override
+  String get kycSelfieStepSubtitle =>
+      'Photo nette de votre visage prise avec la caméra avant';
+
+  @override
+  String get kycSelfieSheetTitle => 'Prendre votre Selfie';
+
+  @override
+  String get kycSelfieSheetSubtitle =>
+      'Positionnez votre visage bien au centre, sans lunettes de soleil ni chapeau :';
+
+  @override
+  String get kycSelfieCameraTitle => 'Prendre un selfie maintenant';
+
+  @override
+  String get kycSelfieCameraSub => 'Caméra frontale nette et centrée';
+
+  @override
+  String get kycSelfieGalleryTitle => 'Choisir une photo récente';
+
+  @override
+  String get kycSelfieGallerySub => 'Depuis votre galerie photo';
+
+  @override
+  String get kycSelfieAction => 'Prendre un selfie (Caméra avant)';
+
+  @override
+  String get kycSelfieActionSub => 'Touchez pour lancer la caméra avant';
+
+  @override
+  String get kycSelfieRetake => 'Reprendre';
+
+  @override
+  String get kycSelfieMirrorActive => 'Miroir activé';
+
+  @override
+  String get kycSelfieMirrorToggle => 'Inverser / Miroir';
+
+  @override
+  String get kycDocPdfLabel => 'Document PDF';
+
+  @override
+  String get kycDocPdfAccepted => 'Format PDF accepté';
+
+  @override
+  String get kycDocPhotoOrPdf => 'Photo ou PDF (JPG, PNG, PDF)';
+
+  @override
+  String get kycDocTapToUpload => 'Touchez pour importer le document';
+
+  @override
+  String get kycDocChange => 'Changer';
+
+  @override
+  String get kycUploadingTitle => 'Téléversement en cours...';
+
+  @override
+  String get kycUploadStep1 =>
+      '1/3 - Préparation des fichiers et chiffrement...';
+
+  @override
+  String get kycUploadStep2 => '2/3 - Téléversement de la pièce d\'identité...';
+
+  @override
+  String get kycUploadStep3 =>
+      '3/3 - Validation et vérification biométrique...';
+
+  @override
+  String get kycSuccessTitle => 'Vérification validée avec succès !';
+
+  @override
+  String get kycSuccessSubtitle =>
+      'Vos documents KYC ont été soumis avec succès.';
+
+  @override
+  String get kycMissingFront =>
+      'Veuillez fournir le document d\'identité (Recto).';
+
+  @override
+  String get kycMissingSelfie => 'Veuillez prendre un selfie de vérification.';
+
+  @override
+  String get kycPendingDialogTitle => 'Vérification en cours';
+
+  @override
+  String get kycPendingDialogMessage =>
+      'Vos documents d\'identité sont actuellement en cours d\'examen par notre équipe. Ce processus prend généralement entre 24h et 48h. Vous recevrez une notification dès que la validation sera effectuée.';
+
+  @override
+  String get kycVerifiedDialogTitle => 'Identité vérifiée';
+
+  @override
+  String get kycVerifiedDialogMessage =>
+      'Votre compte est certifié et votre identité est validée. Toutes les limites et opérations sont débloquées.';
+
+  @override
+  String get kycPendingPageTitle => 'Dossier en cours d\'examen';
+
+  @override
+  String get kycPendingPageSubtitle =>
+      'Nous analysons actuellement vos documents et votre selfie. Vous n\'avez aucune action supplémentaire à effectuer.';
+
+  @override
+  String get kycPendingEstimatedTime => 'Délai moyen de traitement : 24h à 48h';
+
+  @override
+  String get kycPendingUnderReviewBadge => 'Examen en cours';
+
+  @override
+  String get kycPendingDocumentsSent => 'Pièce d\'identité et selfie transmis';
+
+  @override
+  String get kycBackToProfile => 'Retour au profil';
+
+  @override
+  String get kycBackToHome => 'Retour à l\'accueil';
+
+  @override
+  String get kycRejectedNotice =>
+      'Votre précédente soumission a été rejetée. Veuillez vérifier la netteté de vos documents et soumettre à nouveau.';
+
+  @override
+  String get kycDocExpiryLabel => 'Date d\'expiration du document';
+
+  @override
+  String get kycDocExpiryHint => 'Sélectionner la date d\'expiration';
+
+  @override
+  String get kycDocExpiryRequired =>
+      'Veuillez renseigner la date d\'expiration du document';
+
+  @override
+  String get kycDocExpiryInvalid =>
+      'Le document est expiré ou la date est dépassée';
+
+  @override
+  String get kycUpdateRequiredNotice =>
+      'Votre dossier KYC nécessite une mise à jour (document expiré ou informations à renouveler). Vos précédentes informations ont été pré-remplies ci-dessous.';
+
+  @override
+  String get kycExistingDocKept => 'Document actuel enregistré';
+
+  @override
+  String get kycReplaceDoc => 'Remplacer le fichier';
+
+  @override
+  String get kycStatusExpired => 'Document Expiré';
+
+  @override
+  String get kycStatusUpdateRequired => 'Mise à jour requise';
+
+  @override
+  String get txStatusCompleted => 'Réussie';
+
+  @override
+  String get txStatusPending => 'En attente';
+
+  @override
+  String get txStatusFailed => 'Échouée';
+
+  @override
+  String get txStatusCancelled => 'Annulée';
+
+  @override
+  String get withdrawSummaryTitle => 'Détail de l\'opération';
+
+  @override
+  String get withdrawAmountRequested => 'Montant du retrait';
+
+  @override
+  String get withdrawFeesLabel => 'Frais de retrait';
+
+  @override
+  String get withdrawTotalDebited => 'Total débité';
+
+  @override
+  String get withdrawRemainingBalance => 'Solde restant après retrait';
+
+  @override
+  String get withdrawPremiumDiscountTag => 'Réduction Premium -50%';
+
+  @override
+  String get withdrawFreeFeeHint =>
+      'Frais standards de 3% (min 100 FCFA). Passez à Premium pour bénéficier de 1.5% !';
+
+  @override
+  String get withdrawPremiumFeeHint =>
+      'Frais réduits Premium de 1.5% (min 100 FCFA) appliqués !';
+
+  @override
+  String get withdrawMinAmountError =>
+      'Le montant minimum de retrait est de 500 FCFA';
+
+  @override
+  String get withdrawMaxAmountError =>
+      'Le montant maximum par retrait est de 50 000 FCFA';
+
+  @override
+  String get withdrawInsufficientFundsForFees =>
+      'Solde insuffisant pour couvrir le montant et les frais';
+
+  @override
+  String get withdrawInProgress => 'Traitement de votre retrait...';
+
+  @override
+  String get withdrawInProgressHint =>
+      'Veuillez patienter, ne fermez pas l\'application.';
+
+  @override
+  String get budgetSavingInProgress => 'Enregistrement du budget...';
+
+  @override
+  String get walletPaymentMethod => 'Portefeuille Kauri';
+
+  @override
+  String walletPaymentSubtitle(Object balance) {
+    return 'Payer instantanément avec votre solde ($balance)';
+  }
+
+  @override
+  String get walletInsufficientBalance =>
+      'Solde insuffisant dans votre portefeuille pour souscrire';
+
+  @override
+  String get walletSubscriptionSuccess =>
+      'Félicitations ! Votre abonnement Premium est maintenant actif.';
+
+  @override
+  String get walletSubscriptionConfirmTitle => 'Payer avec le portefeuille';
+
+  @override
+  String walletSubscriptionConfirmMessage(Object amount) {
+    return 'Voulez-vous débiter $amount de votre portefeuille Kauri pour activer l\'abonnement Premium (1 mois) ?';
+  }
+
+  @override
+  String get otherTools => 'Autres outils';
+
+  @override
+  String get resellerGuideTitle => 'Guide Espace Revendeur';
+
+  @override
+  String get resellerGuideSubtitle =>
+      'Comment fonctionne la gestion des abonnements partagés ?';
+
+  @override
+  String get resellerGuideMasterTitle => '1. Comptes Maîtres (Vos abonnements)';
+
+  @override
+  String get resellerGuideMasterDesc =>
+      'Vous enregistrez ici vos comptes d\'origine (Netflix, Spotify, Canva...). Vous y définissez ce que vous payez au fournisseur et la date de renouvellement de votre abonnement.';
+
+  @override
+  String get resellerGuideSlotsTitle => '2. Profils & Slots Clients';
+
+  @override
+  String get resellerGuideSlotsDesc =>
+      'Chaque compte est découpé en slots (écrans/profils). Vous attribuez chaque slot à un client avec son nom, son numéro WhatsApp, son prix de revente et sa date de début.';
+
+  @override
+  String get resellerGuidePaymentTitle => '3. \'Marquer comme payé\'';
+
+  @override
+  String get resellerGuidePaymentDesc =>
+      'Quand votre client vous règle, cliquez sur son profil puis \'Marquer comme payé\'. Le système enregistre l\'historique et prolonge automatiquement son accès d\'un mois (le badge repasse au vert).';
+
+  @override
+  String get resellerGuideQuotasTitle => '4. Quotas par Forfait';
+
+  @override
+  String get resellerGuideQuotasFree =>
+      '• Forfait Gratuit : Jusqu\'à 2 comptes maîtres et 3 profils clients.';
+
+  @override
+  String get resellerGuideQuotasPremium =>
+      '• Forfait Premium : Jusqu\'à 3 comptes maîtres et 10 profils clients.';
+
+  @override
+  String get resellerGuideQuotasBusiness =>
+      '• Forfait Business : Comptes et profils illimités, exports comptables et statistiques avancées.';
+
+  @override
+  String get businessPlan => 'Business (Reseller Hub Pro)';
+
+  @override
+  String get businessPlanDesc =>
+      'La formule ultime pour gérer vos finances et votre activité de revendeur d\'abonnements.';
+
+  @override
+  String get businessFeatureResellerUnlimited =>
+      'Hub Revendeur : Comptes & Profils illimités';
+
+  @override
+  String get businessFeatureAutoReminders =>
+      'Relances & Rappels WhatsApp automatisés';
+
+  @override
+  String get businessFeatureAccountingExports =>
+      'Exports comptables & bilans en 1 clic';
+
+  @override
+  String get businessFeatureAdvancedStats =>
+      'Statistiques & prévisions financières avancées';
+
+  @override
+  String get businessFeatureVIPSupport => 'Support VIP dédié & prioritaire';
+
+  @override
+  String get upgradeToBusiness => 'Passer à Super Premium';
+
+  @override
+  String get currentBusinessPlan => 'Votre forfait Business actif';
+
+  @override
+  String get businessPrice => '5 000 FCFA/mois';
+
+  @override
+  String get businessFeature1 => 'Tout le forfait Premium inclus';
+
+  @override
+  String get businessFeature2 => 'Services & Comptes Maîtres Illimités';
+
+  @override
+  String get businessFeature3 => 'Slots & Profils Clients Illimités';
+
+  @override
+  String get businessFeature4 => 'Relances Automatiques WhatsApp / SMS / Push';
+
+  @override
+  String get businessFeature5 =>
+      'Coffre-fort d\'Identifiants Sécurisé (AES-256)';
+
+  @override
+  String get businessFeature6 => 'Exports Comptables & Fiscaux (CSV / Excel)';
+
+  @override
+  String get businessFeature7 => 'Tableau de Bord & MRR en Temps Réel';
+
+  @override
+  String get businessFeature8 => 'Support VIP Dédié 24/7';
 }

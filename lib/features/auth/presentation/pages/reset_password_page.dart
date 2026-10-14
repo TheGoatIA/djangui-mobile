@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../core/utils/password_validator.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   final String token;
@@ -22,6 +23,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   @override
   void dispose() {
@@ -82,22 +85,42 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       label: l10n.newPassword,
                       hint: '********',
                       controller: _passwordController,
-                      isPassword: true,
+                      isPassword: !_isPasswordVisible,
                       prefixIcon: Icons.lock_outline,
-                      validator: (value) {
-                        if (value == null || value.length < 6) {
-                          return l10n.passwordLengthError;
-                        }
-                        return null;
-                      },
+                      suffix: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
+                        onPressed: () => setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        }),
+                      ),
+                      validator: (value) => PasswordValidator.validate(
+                        value,
+                        emptyError: l10n.enterPasswordError,
+                        complexityError: l10n.passwordLengthError,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     AppTextField(
                       label: l10n.confirmPassword,
                       hint: '********',
                       controller: _confirmPasswordController,
-                      isPassword: true,
+                      isPassword: !_isConfirmPasswordVisible,
                       prefixIcon: Icons.lock,
+                      suffix: IconButton(
+                        icon: Icon(
+                          _isConfirmPasswordVisible
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
+                        onPressed: () => setState(() {
+                          _isConfirmPasswordVisible =
+                              !_isConfirmPasswordVisible;
+                        }),
+                      ),
                       validator: (value) {
                         if (value != _passwordController.text) {
                           return l10n.passwordsDoNotMatch;

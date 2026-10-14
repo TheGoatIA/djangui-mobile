@@ -1,0 +1,12 @@
+{
+  "_comment": "Copier ce fichier en dart_defines.dev.json, dart_defines.staging.json ou dart_defines.prod.json selon l'environnement cible. ENV doit valoir exactement 'development', 'staging' ou 'production' (voir EnvConfig).",
+  "_comment2": "Ne jamais committer dart_defines.dev.json, dart_defines.staging.json ou dart_defines.prod.json — deja exclus via .gitignore.",
+  "_comment3": "Usage: flutter build apk --dart-define-from-file=dart_defines.staging.json",
+  "API_BASE_URL": "https://api.kauri-app.com/api/v1",
+  "OTEL_ENDPOINT": "https://otel.kauri-app.com:4318/v1/traces",
+  "OTEL_SERVICE_NAME": "kauri-mobile",
+  "API_LOGS_ENDPOINT": "https://logs.kauri-app.com/ingest",
+  "LOGS_CLIENT_KEY": "même valeur que MOBILE_CLIENT_API_KEY côté backend (.env) — pas un secret, juste un identifiant de client officiel",
+  "ENV": "production",
+  "ENABLE_REAL_MONEY": "true"
+}

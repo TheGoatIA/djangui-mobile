@@ -12,12 +12,14 @@ DeviceInfoRequest _$DeviceInfoRequestFromJson(Map<String, dynamic> json) =>
         json['deviceInfo'] as Map<String, dynamic>,
       ),
       appVersion: json['appVersion'] as String,
+      deviceId: json['deviceId'] as String?,
     );
 
 Map<String, dynamic> _$DeviceInfoRequestToJson(DeviceInfoRequest instance) =>
     <String, dynamic>{
       'deviceInfo': instance.deviceInfo,
       'appVersion': instance.appVersion,
+      'deviceId': ?instance.deviceId,
     };
 
 DeviceInfoDetails _$DeviceInfoDetailsFromJson(Map<String, dynamic> json) =>

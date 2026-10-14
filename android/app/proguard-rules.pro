@@ -6,8 +6,8 @@
 -keep class io.flutter.**  { *; }
 -keep class io.flutter.plugins.**  { *; }
 
-# Kauri
--keep class cm.tbg.kauri.** { *; }
+# Kauri - Keep only Android entrypoints and JNI boundaries, allowing R8 to obfuscate internal classes (K-20)
+-keep class cm.tbg.kauri.MainActivity { *; }
 
 # Drift
 -keep class androidx.room.db.** { *; }

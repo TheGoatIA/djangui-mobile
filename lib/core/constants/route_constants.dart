@@ -1,4 +1,4 @@
-/// Définition des constantes de navigation (Routes) du projet.
+﻿/// Définition des constantes de navigation (Routes) du projet.
 /// Ce fichier centralise tous les noms et chemins de routes pour GoRouter.
 class RouteConstants {
   /// Écran d'accueil dynamique (Splash Screen).
@@ -25,9 +25,6 @@ class RouteConstants {
   /// Écran définitif de réinitialisation du mot de passe.
   static const String resetPassword = '/reset-password';
 
-  /// Route pour l'importation d'un objectif partagé via lien.
-  static const String shareGoal = '/share/goal';
-
   /// Écran de présentation (Onboarding) pour les nouveaux utilisateurs.
   static const String onBoarding = '/onboarding';
 
@@ -45,6 +42,8 @@ class RouteConstants {
 
   /// Écran de gestion des budgets.
   static const String budgets = '/budgets';
+  /// Rejoindre un budget partagé par code d'invitation.
+  static const String joinBudget = '/budgets/join';
 
   /// Écran de gestion du portefeuille d'investissements.
   static const String investments = '/investments';
@@ -54,6 +53,8 @@ class RouteConstants {
 
   /// Détail d'un objectif d'épargne.
   static const String goalDetails = '/goals/:id';
+  /// Rejoindre un objectif partagé par code d'invitation.
+  static const String joinGoal = '/goals/join';
 
   /// Chat avec le Coach financier IA.
   static const String coach = '/coach';
@@ -69,6 +70,9 @@ class RouteConstants {
 
   /// Écran de gestion de l'abonnement Premium.
   static const String subscription = '/subscription';
+
+  /// Espace Revendeur d'abonnements partagés
+  static const String resellerHub = '/reseller';
 
   /// Page d'informations sur l'application.
   static const String about = '/about';

@@ -5,6 +5,7 @@ import '../../../../core/network/network_info.dart';
 import '../datasources/upload_remote_datasource.dart';
 import '../models/upload_model.dart';
 import '../../domain/repositories/upload_repository.dart';
+import 'package:kauri/core/error/error_mapper.dart';
 
 @LazySingleton(as: UploadRepository)
 class UploadRepositoryImpl implements UploadRepository {
@@ -22,7 +23,43 @@ class UploadRepositoryImpl implements UploadRepository {
         final result = await _remoteDataSource.uploadAvatar(filePath);
         return Right(result);
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, UploadResponseModel>> generateAvatar(
+    String style,
+    String? refinement,
+  ) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final result = await _remoteDataSource.generateAvatar(
+          style,
+          refinement,
+        );
+        return Right(result);
+      } catch (e) {
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, UploadResponseModel>> applyGeneratedAvatar(
+    String avatarUrl,
+  ) async {
+    if (await _networkInfo.isConnected) {
+      try {
+        final result = await _remoteDataSource.applyGeneratedAvatar(avatarUrl);
+        return Right(result);
+      } catch (e) {
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -38,7 +75,7 @@ class UploadRepositoryImpl implements UploadRepository {
         final result = await _remoteDataSource.uploadReceipt(filePath);
         return Right(result);
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());
@@ -54,7 +91,7 @@ class UploadRepositoryImpl implements UploadRepository {
         final result = await _remoteDataSource.uploadDocument(filePath);
         return Right(result);
       } catch (e) {
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());

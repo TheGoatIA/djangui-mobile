@@ -23,7 +23,11 @@ class DashboardState extends Equatable {
     return DashboardState(
       status: status ?? this.status,
       report: report ?? this.report,
-      errorMessage: errorMessage ?? this.errorMessage,
+      // Deliberately not `errorMessage ?? this.errorMessage` — that made a
+      // stale error re-surface on every later emit that didn't bother to
+      // explicitly re-state it, including successful ones (same bug fixed in
+      // TontineState.copyWith).
+      errorMessage: errorMessage,
     );
   }
 

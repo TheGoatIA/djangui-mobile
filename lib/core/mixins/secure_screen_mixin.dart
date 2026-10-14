@@ -25,8 +25,14 @@ import 'package:flutter/widgets.dart';
 /// ## Implémentation technique
 /// - **Android** : FLAG_SECURE via MethodChannel natif
 ///   (bloque screenshots + enregistrement d'écran)
-/// - **iOS**     : Affiche une vue de recouvrement opaque lors du passage
-///   en background (iOS empêche nativement le screenshot en app store)
+/// - **iOS**     : iOS ne bloque PAS nativement les captures d'écran (contrairement
+///   à Android). La protection réelle vient d'un flou (`UIVisualEffectView`)
+///   posé sur la fenêtre dans `AppDelegate.swift` (`applicationWillResignActive`
+///   / `applicationDidBecomeActive`), qui masque le contenu à la fois lors d'une
+///   capture manuelle et dans la miniature de l'app switcher (K-24). Ce
+///   comportement est global à l'app (toute la fenêtre), pas spécifique à
+///   l'écran — ce mixin ne fait donc rien de plus côté iOS ; il existe pour
+///   garder une API unique entre les deux plateformes.
 ///
 /// > Note : Sur les autres plateformes (Web, Desktop), le mixin est no-op.
 mixin SecureScreenMixin<T extends StatefulWidget>

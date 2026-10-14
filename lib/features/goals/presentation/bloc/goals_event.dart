@@ -61,3 +61,49 @@ class RedeemGoalRequested extends GoalsEvent {
 }
 
 class ResetGoalsStatus extends GoalsEvent {}
+
+class ShareGoalRequested extends GoalsEvent {
+  final String goalId;
+
+  const ShareGoalRequested(this.goalId);
+
+  @override
+  List<Object?> get props => [goalId];
+}
+
+class JoinGoalRequested extends GoalsEvent {
+  final String inviteCode;
+
+  const JoinGoalRequested(this.inviteCode);
+
+  @override
+  List<Object?> get props => [inviteCode];
+}
+
+class GetGoalParticipantsRequested extends GoalsEvent {
+  final String goalId;
+
+  const GetGoalParticipantsRequested(this.goalId);
+
+  @override
+  List<Object?> get props => [goalId];
+}
+
+class RemoveGoalParticipantRequested extends GoalsEvent {
+  final String goalId;
+  final String participantId;
+
+  const RemoveGoalParticipantRequested(this.goalId, this.participantId);
+
+  @override
+  List<Object?> get props => [goalId, participantId];
+}
+
+class LeaveGoalRequested extends GoalsEvent {
+  final String goalId;
+
+  const LeaveGoalRequested(this.goalId);
+
+  @override
+  List<Object?> get props => [goalId];
+}

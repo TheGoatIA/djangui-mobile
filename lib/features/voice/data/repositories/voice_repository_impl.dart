@@ -10,6 +10,8 @@ import '../../../../core/network/network_info.dart';
 import '../../domain/repositories/voice_repository.dart';
 import '../datasources/voice_api_service.dart';
 import '../models/voice_response_model.dart';
+import 'package:kauri/core/error/error_mapper.dart';
+import 'package:kauri/core/network/api_response_extensions.dart';
 
 @LazySingleton(as: VoiceRepository)
 class VoiceRepositoryImpl implements VoiceRepository {
@@ -37,14 +39,21 @@ class VoiceRepositoryImpl implements VoiceRepository {
           if (baseResponse.success && baseResponse.data != null) {
             return Right(baseResponse.data!);
           } else {
-            return Left(ServerFailure(baseResponse.message ?? 'Unknown error'));
+            return Left(
+              ServerFailure(
+                ErrorMapper.safeMessage(
+                  null,
+                  backendMessage: baseResponse.message,
+                ),
+              ),
+            );
           }
         } else {
           getIt<LogService>().warning(
             'Réponse API voix invalide',
             component: 'VoiceRepository',
           );
-          return Left(ServerFailure('API call failed or empty response'));
+          return Left(ServerFailure(response.errorMessage));
         }
       } catch (e) {
         getIt<LogService>().error(
@@ -52,7 +61,7 @@ class VoiceRepositoryImpl implements VoiceRepository {
           component: 'VoiceRepository',
           error: e,
         );
-        return Left(ServerFailure(e.toString()));
+        return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
       return Left(NetworkFailure());

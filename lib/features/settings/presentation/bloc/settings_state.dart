@@ -17,6 +17,7 @@ class SettingsState extends Equatable {
       'balance',
       'invoices',
       'quick_actions',
+      'other_tools',
       'recent_activities',
     ],
     this.fontFamily = 'Outfit',

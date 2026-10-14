@@ -20,11 +20,11 @@ final class _$UploadApiService extends UploadApiService {
 
   @override
   Future<Response<BaseResponse<UploadResponseModel>>> uploadReceipt(
-    String filePath,
+    MultipartFile file,
   ) {
     final Uri $url = Uri.parse('/upload/receipt');
     final List<PartValue> $parts = <PartValue>[
-      PartValueFile<String>('receipt', filePath),
+      PartValueFile<MultipartFile>('receipt', file),
     ];
     final Request $request = Request(
       'POST',
@@ -40,11 +40,11 @@ final class _$UploadApiService extends UploadApiService {
 
   @override
   Future<Response<BaseResponse<UploadResponseModel>>> uploadAvatar(
-    String filePath,
+    MultipartFile file,
   ) {
     final Uri $url = Uri.parse('/upload/avatar');
     final List<PartValue> $parts = <PartValue>[
-      PartValueFile<String>('avatar', filePath),
+      PartValueFile<MultipartFile>('avatar', file),
     ];
     final Request $request = Request(
       'POST',
@@ -59,12 +59,36 @@ final class _$UploadApiService extends UploadApiService {
   }
 
   @override
+  Future<Response<BaseResponse<UploadResponseModel>>> generateAvatar(
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/upload/avatar/generate');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<UploadResponseModel>, UploadResponseModel>(
+      $request,
+    );
+  }
+
+  @override
+  Future<Response<BaseResponse<UploadResponseModel>>> applyGeneratedAvatar(
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/upload/avatar/apply');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<UploadResponseModel>, UploadResponseModel>(
+      $request,
+    );
+  }
+
+  @override
   Future<Response<BaseResponse<UploadResponseModel>>> uploadDocument(
-    String filePath,
+    MultipartFile file,
   ) {
     final Uri $url = Uri.parse('/upload/document');
     final List<PartValue> $parts = <PartValue>[
-      PartValueFile<String>('document', filePath),
+      PartValueFile<MultipartFile>('document', file),
     ];
     final Request $request = Request(
       'POST',

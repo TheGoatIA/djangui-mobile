@@ -66,11 +66,10 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
         updatedAt: DateTime.now(),
       );
 
-      // Using getIt to access bloc since we might be outside the provider scope if navigated deeply
-      // Better approach: wrap Route in BlocProvider or use event bus, but for now assuming BlocProvider at Page level is sufficient if active.
-      // Wait... AddInvestmentPage is pushed onto stack. We need to pass the bloc or re-retrieve it.
-      // Since InvestmentsPage creates the bloc, we might need a Global/Feature scope bloc.
-      // For now, let's use getIt<InvestmentsBloc>() directly.
+      // Cette page est poussée hors du scope du BlocProvider local
+      // d'InvestmentsPage : on récupère donc l'instance via getIt, qui
+      // renvoie désormais le même singleton (voir @lazySingleton sur
+      // InvestmentsBloc) plutôt qu'une instance jetable déconnectée.
       getIt<LogService>().info(
         'Action: Création d\'investissement',
         component: 'AddInvestmentPage',

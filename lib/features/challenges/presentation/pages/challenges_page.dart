@@ -12,7 +12,7 @@ import 'package:kauri/features/challenges/presentation/widgets/challenge_detail_
 import 'package:kauri/l10n/app_localizations.dart';
 import 'package:kauri/core/theme/app_shadows.dart';
 
-import 'package:showcaseview/showcaseview.dart';
+import 'package:kauri/core/widgets/tutorial/tutorial_step.dart';
 import 'package:kauri/core/services/tutorial_service.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
@@ -67,26 +67,29 @@ class _ChallengesViewState extends State<ChallengesView> {
 
   void _startTutorial() {
     final tutorialService = getIt<TutorialService>();
-    if (!tutorialService.hasSeenTutorial('challenges')) {
-      try {
-        final shell = StatefulNavigationShell.of(context);
-        if (shell.currentIndex != 1) return;
-      } catch (_) {
-        if (ModalRoute.of(context)?.isCurrent != true) return;
-      }
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ShowCaseWidget.of(context).startShowCase([_listKey]);
-        tutorialService.markTutorialAsSeen('challenges');
-      });
+    if (tutorialService.hasSeenTutorial('challenges')) return;
+    try {
+      final shell = StatefulNavigationShell.of(context);
+      if (shell.currentIndex != 1) return;
+    } catch (_) {
+      if (ModalRoute.of(context)?.isCurrent != true) return;
     }
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      tutorialService.startTutorial(context, 'challenges', [
+        TutorialStep(
+          targetKey: _listKey,
+          title: l10n.tutorialChallengesTitle,
+          description: l10n.tutorialChallengesDesc,
+        ),
+      ]);
+    });
   }
 
   @override
   void dispose() {
-    try {
-      ShowCaseWidget.of(context).dismiss();
-    } catch (_) {}
+    getIt<TutorialService>().cancelActiveTutorial(context);
     super.dispose();
   }
 
@@ -125,6 +128,13 @@ class _ChallengesViewState extends State<ChallengesView> {
                     backgroundColor: Theme.of(context).colorScheme.error,
                   ),
                 );
+              }
+              if (state.status == ChallengesStatus.success) {
+                // La carte du premier challenge ne monte son Showcase
+                // qu'une fois les données chargées : on retente ici.
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _startTutorial();
+                });
               }
             },
             child: BlocBuilder<ChallengesBloc, ChallengesState>(
@@ -221,10 +231,8 @@ class _ChallengesViewState extends State<ChallengesView> {
                       );
 
                       if (index == 0) {
-                        return Showcase(
+                        return KeyedSubtree(
                           key: _listKey,
-                          title: l10n.tutorialChallengesTitle,
-                          description: l10n.tutorialChallengesDesc,
                           child: widget,
                         );
                       }

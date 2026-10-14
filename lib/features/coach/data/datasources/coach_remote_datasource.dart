@@ -1,88 +1,145 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
-import 'package:uuid/uuid.dart';
 import 'coach_api_service.dart';
 import '../models/chat_message_model.dart';
+import '../models/coach_stream_event.dart';
+import '../../../../core/config/env_config.dart';
 import '../../../../core/network/api_response_extensions.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
 
 abstract class CoachRemoteDataSource {
-  Future<ChatMessageModel> sendMessage(String text);
+  Stream<CoachStreamEvent> sendMessageStream(String text);
   Future<List<ChatMessageModel>> getChatHistory();
 }
 
+// Routé via un http.Client brut plutôt que Chopper (CoachApiService) : les
+// méthodes générées par Chopper attendent une réponse complète avant de la
+// convertir, incompatible avec une lecture progressive du corps au fil de
+// l'eau. Seul l'appel de streaming bypass Chopper ; l'historique continue de
+// passer par CoachApiService comme avant.
 @LazySingleton(as: CoachRemoteDataSource)
 class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
   final CoachApiService _apiService;
+  final AuthRepository _authRepository;
 
-  CoachRemoteDataSourceImpl(this._apiService);
+  CoachRemoteDataSourceImpl(this._apiService, this._authRepository);
 
   @override
-  Future<ChatMessageModel> sendMessage(String text) async {
-    debugPrint('🌐 [CoachRemote] Sending request to AI coach...');
-    final response = await _apiService.ask({'message': text});
-    if (response.isSuccessful && response.body != null) {
-      debugPrint('🌐 [CoachRemote] Success: Received AI response');
-
-      final dynamic body = response.body;
-      dynamic data;
-
-      if (body is Map) {
-        if (body['success'] == false) {
-          throw Exception(body['message'] ?? 'Failed to get coach response');
-        }
-        data = body['data'];
-      } else {
-        data = body;
+  Stream<CoachStreamEvent> sendMessageStream(String text) async* {
+    final client = http.Client();
+    try {
+      http.StreamedResponse? response;
+      try {
+        response = await _sendStreamRequest(client, text);
+      } on TimeoutException {
+        yield const CoachStreamFailure(
+          'Anne ne répond pas pour le moment. Réessayez.',
+        );
+        return;
+      }
+      if (response == null) {
+        yield const CoachStreamFailure(
+          'Session expirée. Veuillez vous reconnecter.',
+        );
+        return;
       }
 
-      String responseText = '';
-      List<dynamic>? actions;
+      if (response.statusCode != 200) {
+        final body = await response.stream.bytesToString();
+        yield CoachStreamFailure(
+          _extractErrorMessage(body, response.statusCode),
+        );
+        return;
+      }
 
-      if (data is Map) {
-        final resp = data['response'];
-        if (resp is String) {
+      final lines = response.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter());
+
+      try {
+        await for (final line in lines) {
+          if (line.trim().isEmpty) continue;
+          Map<String, dynamic> event;
           try {
-            // Try to parse the string as JSON (it might be the raw AI JSON)
-            final Map<String, dynamic> parsed = Map<String, dynamic>.from(
-              json.decode(resp),
-            );
-            responseText = parsed['text'] ?? resp;
-            actions = parsed['actions'];
-          } catch (e) {
-            responseText = resp;
+            event = jsonDecode(line) as Map<String, dynamic>;
+          } catch (_) {
+            continue; // ligne corrompue/partielle : ignorée plutôt que de casser tout le flux
           }
-        } else if (resp is Map) {
-          responseText = resp['text'] ?? '';
-          actions = resp['actions'];
-        } else {
-          responseText =
-              data['text'] ?? data['content'] ?? data['response'] ?? '';
-        }
-      } else if (data is String) {
-        try {
-          final Map<String, dynamic> parsed = Map<String, dynamic>.from(
-            json.decode(data),
-          );
-          responseText = parsed['text'] ?? data;
-          actions = parsed['actions'];
-        } catch (e) {
-          responseText = data;
-        }
-      }
 
-      // If the API doesn't return a full ChatMessageModel, we synthesize it
-      return ChatMessageModel(
-        id: const Uuid().v4(),
-        text: responseText,
-        sender: 'ai',
-        timestamp: DateTime.now(),
-        actions: actions,
-      );
-    } else {
-      debugPrint('🌐 [CoachRemote] Error: ${response.errorMessage}');
-      throw Exception(response.errorMessage);
+          if (event['delta'] != null) {
+            yield CoachStreamDelta(event['delta'] as String);
+          } else if (event['done'] == true) {
+            yield CoachStreamDone(
+              event['actions'] as List<dynamic>? ?? const [],
+            );
+          } else if (event['error'] != null) {
+            yield CoachStreamFailure(event['error'] as String);
+          }
+        }
+      } catch (e) {
+        debugPrint('🌐 [CoachRemote] Stream interrompu: $e');
+        yield CoachStreamFailure(
+          'La connexion avec Anne a été interrompue. Réessayez.',
+        );
+      }
+    } finally {
+      client.close();
     }
+  }
+
+  /// Envoie la requête de streaming ; en cas de 401, tente UN rafraîchissement
+  /// de token puis un seul nouvel essai (mêmes principes que
+  /// KauriAuthenticator, en plus simple : un seul appel en vol ici, pas
+  /// besoin de mutex inter-requêtes). Réutilise le même [client] (fermé par
+  /// l'appelant) pour que la deuxième tentative passe par la même connexion.
+  Future<http.StreamedResponse?> _sendStreamRequest(
+    http.Client client,
+    String text, {
+    bool isRetry = false,
+  }) async {
+    final token = await _authRepository.getAccessToken();
+    final uri = Uri.parse('${EnvConfig.apiBaseUrl}/coach/ask/stream');
+    final request = http.Request('POST', uri)
+      ..headers['Content-Type'] = 'application/json'
+      ..headers['Accept'] = 'application/x-ndjson'
+      ..body = jsonEncode({'message': text});
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+
+    // Timeout borné au démarrage du flux (réception des en-têtes) seulement —
+    // une fois le flux ouvert, sa durée totale n'est volontairement pas
+    // plafonnée ici (une réponse IA longue est légitime). Ça évite qu'une
+    // connexion qui ne répond jamais bloque indéfiniment sans jamais lever
+    // d'erreur exploitable par l'appelant.
+    final response = await client
+        .send(request)
+        .timeout(const Duration(seconds: 30));
+
+    if (response.statusCode == 401 && !isRetry) {
+      await response.stream.drain<void>().catchError((_) {});
+      final refreshResult = await _authRepository.refreshToken();
+      final refreshed = refreshResult.fold((_) => false, (_) => true);
+      if (!refreshed) return null;
+      return _sendStreamRequest(client, text, isRetry: true);
+    }
+
+    return response;
+  }
+
+  String _extractErrorMessage(String body, int statusCode) {
+    try {
+      final decoded = jsonDecode(body);
+      if (decoded is Map && decoded['message'] is String) {
+        return decoded['message'] as String;
+      }
+    } catch (_) {
+      // corps non-JSON : message générique ci-dessous
+    }
+    return 'Erreur serveur ($statusCode)';
   }
 
   @override
@@ -102,7 +159,7 @@ class CoachRemoteDataSourceImpl implements CoachRemoteDataSource {
       final history = messageList.map((m) {
         final map = m as Map<String, dynamic>;
         return ChatMessageModel(
-          id: map['_id'] ?? const Uuid().v4(),
+          id: map['_id'] ?? DateTime.now().microsecondsSinceEpoch.toString(),
           text: map['content'] ?? '',
           sender: map['role'] == 'model' ? 'ai' : (map['role'] ?? 'user'),
           timestamp: map['timestamp'] != null

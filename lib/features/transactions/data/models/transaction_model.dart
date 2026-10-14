@@ -85,6 +85,27 @@ class TransactionModel extends Equatable {
     return paymentMethod == null || paymentMethod == 'cash';
   }
 
+  /// Seules les transactions cash/manuelles restent modifiables et supprimables (F01).
+  /// Les transactions financières réelles (Stripe, NotchPay, Wallet) sont immuables.
+  bool get isMutable {
+    final method = (paymentMethod ?? '').toLowerCase().trim();
+    final src = (source ?? '').toLowerCase().trim();
+
+    if (method == 'stripe' ||
+        method == 'notchpay' ||
+        method == 'wallet' ||
+        src == 'stripe' ||
+        src == 'notchpay' ||
+        src == 'wallet') {
+      return false;
+    }
+
+    return method == 'cash' ||
+        src == 'manual' ||
+        src == 'cash' ||
+        (method.isEmpty && src.isEmpty);
+  }
+
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     final data = json['request'] ?? json;
     return _$TransactionModelFromJson(data as Map<String, dynamic>);
