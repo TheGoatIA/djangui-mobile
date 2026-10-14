@@ -99,3 +99,13 @@ Workflow `.github/workflows/main.yml` (chaque PR et push `dev`/`main`) — **la 
 | SonarQube (plugin Flutter) + Quality Gate | `sonar` | oui (si secrets définis) |
 
 Secrets GitHub requis : `SONAR_HOST_URL`, `SONAR_TOKEN` (jeton `ci-kauri-mobile`). Le plancher de couverture (`MIN_COVERAGE`, actuellement 2,5 %) est volontairement bas : la couverture initiale est de ~2,7 % — il doit **monter** à chaque PR de tests, jamais baisser.
+
+## 🧱 Toolchain Android — pièges connus
+
+| Symptôme (Codemagic) | Cause | Garde-fou |
+| :-- | :-- | :-- |
+| `Failed to find target with hash string 'android-37'` | Un plugin exige `compileSdk 37` (ex. `permission_handler_android` 14.x, tiré par `permission_handler` 13.x). L'API 37 s'installe sous `android-37.0`, que AGP 8.11 ne résout pas. | `tool/check_android_plugin_sdk.js` (job `quality`) échoue sur la PR ; Dependabot ignore ces majeures. |
+| `Failed to resolve ... 'firebase_core-X' depends on 'flutterfire' X ...` (iOS, SwiftPM) | Plugins FlutterFire à des versions décalées. | Dependabot regroupe `firebase_*` dans une seule PR ; garder la famille alignée (firebase_core 4.15 / auth 6.7 / messaging 16.7 / crashlytics 5.4 / performance 0.11.6). |
+| `No space left on device` (GitHub Actions) | Build debug 3 ABI sur runner de 14 Go. | Étape de nettoyage + `--target-platform android-arm64`. |
+
+Montée de toolchain : Flutter signale que Gradle 8.14, AGP 8.11 et Kotlin 2.2 seront bientôt abandonnés. À planifier : Gradle ≥ 9.1, AGP ≥ 9.0.1, Kotlin ≥ 2.3.20 — c'est ce qui permettra de réactiver les majeures ignorées ci-dessus.

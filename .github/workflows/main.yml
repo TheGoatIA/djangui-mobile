@@ -35,6 +35,10 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
+      - name: Compatibilité des plugins Android (compileSdk <= 36)
+        # Un plugin en compileSdk 37 (ex. permission_handler_android 14.x) casse la release
+        # Codemagic : "Failed to find target with hash string 'android-37'". Détecté ici, sur la PR.
+        run: node tool/check_android_plugin_sdk.js 36
       - name: Formatage (dart format)
         run: dart format --output=none --set-exit-if-changed lib test
       - name: Analyse statique (aucune alerte tolérée)

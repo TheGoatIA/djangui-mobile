@@ -15,6 +15,14 @@ updates:
     open-pull-requests-limit: 20
     commit-message:
       prefix: "chore(deps)"
+    ignore:
+      # permission_handler 13.x -> permission_handler_android 14.x exige compileSdk 37 ("android-37"),
+      # que la toolchain actuelle (AGP 8.11 / Gradle 8.14) ne sait pas résoudre : le build de release
+      # Codemagic échoue. À réactiver après migration vers AGP >= 9 (voir DEPLOYMENT.md).
+      - dependency-name: "permission_handler"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "permission_handler_android"
+        update-types: ["version-update:semver-major"]
     groups:
       # Les plugins FlutterFire DOIVENT évoluer ensemble (même version de firebase_core) : des versions
       # décalées font échouer la résolution Swift Package Manager côté iOS
