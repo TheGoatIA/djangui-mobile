@@ -16,6 +16,12 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     groups:
+      # Les plugins FlutterFire DOIVENT évoluer ensemble (même version de firebase_core) : des versions
+      # décalées font échouer la résolution Swift Package Manager côté iOS
+      # ("firebase_core-X depends on flutterfire X… and firebase_performance-Y depends on flutterfire Y…").
+      # Dependabot propose donc UNE seule PR pour tout le groupe, majeures comprises.
+      firebase:
+        patterns: ["firebase_*", "_flutterfire_internals"]
       pub-minor-patch:
         update-types: ["minor", "patch"]
 
