@@ -126,7 +126,7 @@ dependencies:
   confetti: ^0.8.0
   flutter_dynamic_icon_plus: ^1.4.0
   opentelemetry: ^0.18.10
-  freerasp: ^7.5.1
+  freerasp: ^8.2.4
 
 
 dev_dependencies:
