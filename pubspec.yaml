@@ -58,7 +58,7 @@ dependencies:
   drift: ^2.32.0
   drift_flutter: ^0.3.1
   sqlite3: ^3.5.1
-  flutter_secure_storage: ^10.0.0
+  flutter_secure_storage: ^10.3.4
   shared_preferences: ^2.5.4
 
   # Firebase & Notifications
