@@ -197,9 +197,7 @@ class TontineLocalDataSourceImpl implements TontineLocalDataSource {
 
   @override
   Future<void> deleteTontineMessage(String id) async {
-    await (_db.delete(
-      _db.tontineMessages,
-    )..where((t) => t.id.equals(id))).go();
+    await (_db.delete(_db.tontineMessages)..where((t) => t.id.equals(id))).go();
   }
 
   @override

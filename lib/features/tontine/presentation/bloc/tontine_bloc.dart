@@ -21,7 +21,10 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
   TontineBloc(this._repository) : super(const TontineState()) {
     on<TontinesLoadRequested>(_onTontinesLoadRequested);
     on<TontineDetailsLoadRequested>(_onTontineDetailsLoadRequested);
-    on<CreateTontineRequested>(_onCreateTontineRequested, transformer: droppable());
+    on<CreateTontineRequested>(
+      _onCreateTontineRequested,
+      transformer: droppable(),
+    );
     on<JoinTontineRequested>(_onJoinTontineRequested, transformer: droppable());
     on<ContributeToTontineRequested>(
       _onContributeToTontineRequested,
@@ -38,13 +41,25 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
       _onValidateTontineContributionRequested,
       transformer: droppable(),
     );
-    on<StartTontineRequested>(_onStartTontineRequested, transformer: droppable());
+    on<StartTontineRequested>(
+      _onStartTontineRequested,
+      transformer: droppable(),
+    );
     on<TontineRemoveMemberRequested>(_onTontineRemoveMemberRequested);
-    on<DeleteTontineRequested>(_onDeleteTontineRequested, transformer: droppable());
-    on<UpdateTontineRequested>(_onUpdateTontineRequested, transformer: droppable());
+    on<DeleteTontineRequested>(
+      _onDeleteTontineRequested,
+      transformer: droppable(),
+    );
+    on<UpdateTontineRequested>(
+      _onUpdateTontineRequested,
+      transformer: droppable(),
+    );
     on<RotateTurnRequested>(_onRotateTurnRequested, transformer: droppable());
     on<ToggleAutoDebitRequested>(_onToggleAutoDebitRequested);
-    on<PaySocialFundRequested>(_onPaySocialFundRequested, transformer: droppable());
+    on<PaySocialFundRequested>(
+      _onPaySocialFundRequested,
+      transformer: droppable(),
+    );
     on<ResetTontineRequested>(_onResetTontineRequested);
   }
 

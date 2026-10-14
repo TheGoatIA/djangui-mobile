@@ -100,9 +100,9 @@ void _showInviteCodeSheet(BuildContext context, String inviteCode) {
             child: OutlinedButton.icon(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: inviteCode));
-                ScaffoldMessenger.of(sheetContext).showSnackBar(
-                  SnackBar(content: Text(l10n.copiedToClipboard)),
-                );
+                ScaffoldMessenger.of(
+                  sheetContext,
+                ).showSnackBar(SnackBar(content: Text(l10n.copiedToClipboard)));
               },
               icon: const Icon(Icons.copy_outlined),
               label: Text(l10n.copyToClipboard),

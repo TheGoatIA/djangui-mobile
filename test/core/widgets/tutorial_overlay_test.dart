@@ -164,7 +164,8 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
 
-      final screenSize = tester.view.physicalSize / tester.view.devicePixelRatio;
+      final screenSize =
+          tester.view.physicalSize / tester.view.devicePixelRatio;
 
       // Le bouton doit exister ET se trouver dans les limites verticales de
       // l'écran de test — c'est précisément ce qui échouait avant le correctif

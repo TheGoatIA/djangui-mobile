@@ -1,3 +1,4 @@
+import '../widgets/delete_account_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -111,62 +112,20 @@ class _SecurityPageState extends State<SecurityPage>
     }
   }
 
-  void _showDeleteAccountConfirmation() {
-    final passwordController = TextEditingController();
-    showDialog(
+  Future<void> _showDeleteAccountConfirmation() async {
+    // Le mot de passe est redemandé : l'API refuse la suppression sans ré-authentification.
+    final password = await showDialog<String>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(
-          AppLocalizations.of(context)!.deleteAccount,
-          style: TextStyle(color: Theme.of(context).colorScheme.error),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(AppLocalizations.of(context)!.deleteAccountDescription),
-            const SizedBox(height: 16),
-            // Re-authentication: the API refuses to delete a password-based
-            // account without it (a stolen session alone is not enough).
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              autocorrect: false,
-              enableSuggestions: false,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.password,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-            },
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final password = passwordController.text;
-              Navigator.pop(dialogContext);
-              getIt<LogService>().info(
-                'Action: Suppression de compte confirmée',
-                component: 'SecurityPage',
-              );
-              context.read<AuthBloc>().add(
-                AuthDeleteAccountRequested(password: password),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Theme.of(context).colorScheme.onError,
-            ),
-            child: Text(AppLocalizations.of(context)!.delete),
-          ),
-        ],
-      ),
+      builder: (_) => const DeleteAccountDialog(),
+    );
+    if (password == null || !mounted) return;
+
+    getIt<LogService>().info(
+      'Action: Suppression de compte confirmée',
+      component: 'SecurityPage',
+    );
+    context.read<AuthBloc>().add(
+      AuthDeleteAccountRequested(password: password),
     );
   }
 

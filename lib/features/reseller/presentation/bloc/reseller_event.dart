@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 abstract class ResellerEvent extends Equatable {
   const ResellerEvent();
 

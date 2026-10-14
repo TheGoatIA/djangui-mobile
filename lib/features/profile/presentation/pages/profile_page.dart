@@ -399,8 +399,9 @@ class _ProfilePageState extends State<ProfilePage>
                         height: 4,
                         margin: const EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant
-                              .withValues(alpha: 0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -440,9 +441,7 @@ class _ProfilePageState extends State<ProfilePage>
                         l10n.aiAvatarPreviewHint,
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurfaceVariant,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -1594,9 +1593,7 @@ class _ProfilePageState extends State<ProfilePage>
         builder: (context, scrollController) => Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(28),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: Column(
             children: [
@@ -1877,103 +1874,108 @@ class _ProfilePageState extends State<ProfilePage>
     final isSelected = type == currentMode;
     final isLocked = type.isPremiumOnly && !isPremium;
     final colors = type.previewColors;
-    final isLightSwatch = type == AppThemeType.light ||
+    final isLightSwatch =
+        type == AppThemeType.light ||
         type == AppThemeType.champagnePearl ||
         type == AppThemeType.system;
     final labelColor = isLightSwatch ? Colors.black87 : Colors.white;
 
     return GestureDetector(
-      onTap: () {
-        Navigator.pop(sheetContext);
-        if (isLocked) {
-          context.push(RouteConstants.subscription);
-        } else {
-          context.read<SettingsBloc>().add(ThemeChanged(type));
-        }
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            colors: colors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Colors.transparent,
-            width: 3,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)
-                  : Colors.black.withValues(alpha: 0.12),
-              blurRadius: isSelected ? 16 : 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            if (isLocked)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.45),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.lock_outline,
-                    size: 13,
-                    color: Colors.white,
-                  ),
-                ),
-              )
-            else if (isSelected)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Icon(
-                  Icons.check_circle,
-                  color: labelColor,
-                  size: 20,
-                  shadows: const [
-                    Shadow(color: Colors.black38, blurRadius: 4),
-                  ],
-                ),
+          onTap: () {
+            Navigator.pop(sheetContext);
+            if (isLocked) {
+              context.push(RouteConstants.subscription);
+            } else {
+              context.read<SettingsBloc>().add(ThemeChanged(type));
+            }
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                colors: colors,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  type.getLabel(AppLocalizations.of(context)!),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: labelColor,
-                    fontWeight: FontWeight.bold,
-                    shadows: isLightSwatch
-                        ? null
-                        : const [Shadow(color: Colors.black38, blurRadius: 4)],
+              border: Border.all(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.transparent,
+                width: 3,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: isSelected
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.4)
+                      : Colors.black.withValues(alpha: 0.12),
+                  blurRadius: isSelected ? 16 : 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                if (isLocked)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.45),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.lock_outline,
+                        size: 13,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                else if (isSelected)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Icon(
+                      Icons.check_circle,
+                      color: labelColor,
+                      size: 20,
+                      shadows: const [
+                        Shadow(color: Colors.black38, blurRadius: 4),
+                      ],
+                    ),
+                  ),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Text(
+                      type.getLabel(AppLocalizations.of(context)!),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: labelColor,
+                        fontWeight: FontWeight.bold,
+                        shadows: isLightSwatch
+                            ? null
+                            : const [
+                                Shadow(color: Colors.black38, blurRadius: 4),
+                              ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
-    ).animate().fadeIn(duration: 250.ms).scale(
-          begin: const Offset(0.92, 0.92),
-          curve: Curves.easeOut,
-        );
+          ),
+        )
+        .animate()
+        .fadeIn(duration: 250.ms)
+        .scale(begin: const Offset(0.92, 0.92), curve: Curves.easeOut);
   }
 
   void _showLanguageSelectionDialog(

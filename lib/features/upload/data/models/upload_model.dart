@@ -30,4 +30,3 @@ class UploadResponseModel extends Equatable {
   @override
   List<Object?> get props => [avatarUrl, documentUrl, url, fileUrl, path];
 }
-

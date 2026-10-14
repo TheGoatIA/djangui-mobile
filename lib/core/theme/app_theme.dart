@@ -412,7 +412,9 @@ class AppTheme {
           side: const BorderSide(color: AppColors.rubyAccent, width: 0.5),
         ),
       ),
-      appBarTheme: base.appBarTheme.copyWith(backgroundColor: AppColors.rubyBlack),
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: AppColors.rubyBlack,
+      ),
       navigationBarTheme: base.navigationBarTheme.copyWith(
         backgroundColor: AppColors.rubyBlack,
       ),
@@ -440,7 +442,9 @@ class AppTheme {
           side: const BorderSide(color: AppColors.abyssAccent, width: 0.5),
         ),
       ),
-      appBarTheme: base.appBarTheme.copyWith(backgroundColor: AppColors.abyssDeep),
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: AppColors.abyssDeep,
+      ),
       navigationBarTheme: base.navigationBarTheme.copyWith(
         backgroundColor: AppColors.abyssDeep,
       ),
@@ -468,7 +472,9 @@ class AppTheme {
           side: const BorderSide(color: AppColors.cyberMagenta, width: 0.5),
         ),
       ),
-      appBarTheme: base.appBarTheme.copyWith(backgroundColor: AppColors.cyberVoid),
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: AppColors.cyberVoid,
+      ),
       navigationBarTheme: base.navigationBarTheme.copyWith(
         backgroundColor: AppColors.cyberVoid,
       ),

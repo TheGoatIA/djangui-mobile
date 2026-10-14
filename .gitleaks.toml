@@ -1,0 +1,19 @@
+# Configuration gitleaks (CI) — étend les règles par défaut.
+title = "Kauri Mobile gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Clés Firebase CLIENT (publiques par conception, à restreindre dans Google Cloud) et artefacts non versionnés"
+paths = [
+  '''(^|/)\.dart_tool/''',
+  '''(^|/)build/''',
+  '''(^|/)coverage/''',
+  '''(^|/)ios/Pods/''',
+  '''android/app/google-services\.json$''',
+  '''ios/Runner/GoogleService-Info\.plist$''',
+  '''lib/firebase_options\.dart$''',
+  '''dart_defines\.(dev|staging|prod)\.json$''',   # jamais versionnés (.gitignore)
+  '''pubspec\.lock$''',
+]

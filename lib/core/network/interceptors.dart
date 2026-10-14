@@ -173,7 +173,9 @@ class HttpLoggingInterceptor implements Interceptor {
       }
       debugPrint('📦 En-têtes : $safeHeaders');
       if (request.body != null) {
-        debugPrint(sensitive ? '📦 Corps : [redacted]' : '📦 Corps : ${request.body}');
+        debugPrint(
+          sensitive ? '📦 Corps : [redacted]' : '📦 Corps : ${request.body}',
+        );
       }
     }
 
@@ -184,7 +186,11 @@ class HttpLoggingInterceptor implements Interceptor {
         '✅ RÉPONSE : ${response.statusCode} ${response.base.request?.url}',
       );
       if (response.bodyString.isNotEmpty) {
-        debugPrint(sensitive ? '📥 Corps : [redacted]' : '📥 Corps : ${response.bodyString}');
+        debugPrint(
+          sensitive
+              ? '📥 Corps : [redacted]'
+              : '📥 Corps : ${response.bodyString}',
+        );
       }
       if (response.error != null) {
         debugPrint('❌ Erreur : ${response.error}');

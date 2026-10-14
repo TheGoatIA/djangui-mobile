@@ -164,9 +164,7 @@ class KauriAuthenticator extends Authenticator {
       }
 
       if (code == 'ACCOUNT_DEACTIVATED') {
-        logger.e(
-          '[Authenticator] Compte desactive detecte sur $requestUrl.',
-        );
+        logger.e('[Authenticator] Compte desactive detecte sur $requestUrl.');
         getIt<AuthBloc>().add(AuthAccountSuspended());
       } else {
         logger.w(

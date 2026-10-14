@@ -88,7 +88,8 @@ class ErrorMapper {
       try {
         final decoded = jsonDecode(text);
         if (decoded is Map) {
-          final msg = decoded['message'] ?? decoded['error'] ?? decoded['detail'];
+          final msg =
+              decoded['message'] ?? decoded['error'] ?? decoded['detail'];
           if (msg is String && msg.isNotEmpty) {
             text = msg;
           } else if (msg is List && msg.isNotEmpty) {
@@ -97,7 +98,9 @@ class ErrorMapper {
         }
       } catch (_) {
         // En cas de JSON malformé avec clés non citées, on tente d'extraire via regex
-        final match = RegExp(r'message[:\s]+["\x27]?([^"\x27,\}\n]+)["\x27]?').firstMatch(text);
+        final match = RegExp(
+          r'message[:\s]+["\x27]?([^"\x27,\}\n]+)["\x27]?',
+        ).firstMatch(text);
         if (match != null && match.group(1) != null) {
           text = match.group(1)!.trim();
         }
@@ -154,7 +157,9 @@ class ErrorMapper {
         lower.contains('vérification d\'identité') ||
         lower.contains('piece d\'identite') ||
         lower.contains('document verification')) {
-      if (lower.contains('pending') || lower.contains('en attente') || lower.contains('en cours')) {
+      if (lower.contains('pending') ||
+          lower.contains('en attente') ||
+          lower.contains('en cours')) {
         return 'Votre dossier KYC est en cours de validation. Les retraits seront disponibles dès son approbation.';
       }
       return 'Votre profil KYC n\'a pas encore été validé. Veuillez soumettre ou finaliser vos documents pour débloquer les retraits.';
@@ -200,6 +205,12 @@ class ErrorMapper {
         lower.contains('undefined is not') ||
         lower.contains('prisma') ||
         lower.contains('sequelize') ||
+        // Pilotes / erreurs de base de données remontés tels quels par un serveur mal configuré
+        lower.contains('mongo') ||
+        lower.contains('e11000') ||
+        lower.contains('duplicate key') ||
+        lower.contains('cast to objectid') ||
+        lower.contains('validationerror') ||
         lower.contains('econnrefused') ||
         lower.contains('query failed') ||
         lower.contains('sql') ||
@@ -232,7 +243,9 @@ class ErrorMapper {
     if (!trimmed.contains(' ') && trimmed.length > 30) return false;
 
     // Pas de balises HTML
-    if (trimmed.contains('<html') || trimmed.contains('<!doctype') || trimmed.contains('</div>')) {
+    if (trimmed.contains('<html') ||
+        trimmed.contains('<!doctype') ||
+        trimmed.contains('</div>')) {
       return false;
     }
 
@@ -254,6 +267,11 @@ class ErrorMapper {
       'node_modules',
       'prismaclient',
       'unhandled rejection',
+      // Sorties par défaut de Dart (toString d'objet) et pilotes DB : jamais destinées à l'utilisateur
+      'instance of',
+      'exception',
+      'mongoose',
+      'collection:',
     ];
     if (technicalMarkers.any(lower.contains)) return false;
 

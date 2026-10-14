@@ -660,11 +660,9 @@ class TontineRepositoryImpl implements TontineRepository {
   ) async {
     if (await _networkInfo.isConnected) {
       try {
-        final response = await _apiService.validateContribution(
-          tontineId,
-          id,
-          {'decision': status == 'creator_validated' ? 'approve' : 'reject'},
-        );
+        final response = await _apiService.validateContribution(tontineId, id, {
+          'decision': status == 'creator_validated' ? 'approve' : 'reject',
+        });
         if (response.isSuccessful && response.body?.data != null) {
           return Right(_mapContributionModelToEntity(response.body!.data!));
         }
@@ -801,8 +799,7 @@ class TontineRepositoryImpl implements TontineRepository {
               contributorsCount: model.turnSummary!.contributorsCount,
               totalMembers: model.turnSummary!.totalMembers,
               currentBeneficiaryId: model.turnSummary!.currentBeneficiaryId,
-              currentBeneficiaryName:
-                  model.turnSummary!.currentBeneficiaryName,
+              currentBeneficiaryName: model.turnSummary!.currentBeneficiaryName,
             )
           : null,
     );
@@ -853,7 +850,9 @@ class TontineRepositoryImpl implements TontineRepository {
   String _getErrorMessage(dynamic error) {
     if (error is Map) {
       final msg = error['message'] ?? error['error'] ?? error['detail'];
-      if (msg != null) return ErrorMapper.safeMessage(error, backendMessage: msg.toString());
+      if (msg != null) {
+        return ErrorMapper.safeMessage(error, backendMessage: msg.toString());
+      }
     }
     return ErrorMapper.safeMessage(error, backendMessage: error?.toString());
   }

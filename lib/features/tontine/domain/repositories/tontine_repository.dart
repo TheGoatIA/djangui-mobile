@@ -6,6 +6,7 @@ import '../entities/tontine_entities.dart';
 abstract class TontineRepository {
   Future<Either<Failure, Tontine>> createTontine(Map<String, dynamic> params);
   Future<Either<Failure, List<Tontine>>> getTontines();
+
   /// Local cache only, never touches the network — used to paint the list
   /// instantly while [getTontines] refreshes it in the background.
   Future<Either<Failure, List<Tontine>>> getCachedTontines();
@@ -32,6 +33,7 @@ abstract class TontineRepository {
     File proofImage,
   );
   Future<Either<Failure, List<TontineMessage>>> getTontineMessages(String id);
+
   /// Local cache only, never touches the network — used to paint the chat
   /// instantly while [getTontineMessages] refreshes it in the background.
   Future<Either<Failure, List<TontineMessage>>> getCachedTontineMessages(

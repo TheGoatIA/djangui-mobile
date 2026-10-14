@@ -179,7 +179,8 @@ class BudgetCategoryHistoryPointModel extends Equatable {
 
   factory BudgetCategoryHistoryPointModel.fromJson(Map<String, dynamic> json) =>
       _$BudgetCategoryHistoryPointModelFromJson(json);
-  Map<String, dynamic> toJson() => _$BudgetCategoryHistoryPointModelToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$BudgetCategoryHistoryPointModelToJson(this);
 
   @override
   List<Object?> get props => [month, year, allocated, spent];

@@ -95,7 +95,9 @@ class FeatureFlagModel extends Equatable {
     this.featChallenges = const FeatureConfig(),
     this.featNotifications = const FeatureConfig(),
     this.featSubscriptions = const FeatureConfig(),
-    this.featRealMoney = const FeatureConfig(isEnabled: EnvConfig.enableRealMoney),
+    this.featRealMoney = const FeatureConfig(
+      isEnabled: EnvConfig.enableRealMoney,
+    ),
     this.realMoneyCountries = const ['CM'],
   });
 

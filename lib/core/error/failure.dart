@@ -29,16 +29,21 @@ class CacheFailure extends Failure {
 
 /// Échec lié à la couche réseau (timeout, pas d'internet).
 class NetworkFailure extends Failure {
-  const NetworkFailure([super.message = 'Erreur de connexion réseau', super.code]);
+  const NetworkFailure([
+    super.message = 'Erreur de connexion réseau',
+    super.code,
+  ]);
 }
 
 /// Échec de validation de données (formulaires, contraintes métier).
 class ValidationFailure extends Failure {
-  const ValidationFailure([super.message = 'Erreur de validation des données', super.code]);
+  const ValidationFailure([
+    super.message = 'Erreur de validation des données',
+    super.code,
+  ]);
 }
 
 /// Échec spécifique aux processus d'authentification (jeton invalide, accès refusé).
 class AuthFailure extends Failure {
   const AuthFailure([super.message = 'Erreur d\'authentification', super.code]);
 }
-

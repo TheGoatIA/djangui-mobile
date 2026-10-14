@@ -173,9 +173,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage>
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 12),
-                            TransactionStatusBadge(
-                              status: transaction.status,
-                            ),
+                            TransactionStatusBadge(status: transaction.status),
                           ],
                         ),
                       ),

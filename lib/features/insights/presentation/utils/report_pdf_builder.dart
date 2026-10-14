@@ -191,7 +191,11 @@ class ReportPdfBuilder {
             pw.SizedBox(height: 20),
             pw.Text(
               keyInsightsLabel,
-              style: pw.TextStyle(font: boldFont, fontSize: 13, color: _emerald),
+              style: pw.TextStyle(
+                font: boldFont,
+                fontSize: 13,
+                color: _emerald,
+              ),
             ),
             pw.SizedBox(height: 8),
             ...narrative.topInsights.map(

@@ -24,7 +24,8 @@ class ResellerRepository {
   /// pour préserver exactement le comportement (et la signature) attendus par
   /// le bloc/l'écran existants.
   Future<List<ResellerAccountModel>> getAccounts() async {
-    const maxPages = 25; // garde-fou : 25 x 20 = 500 comptes, largement au-delà de tout usage réel
+    const maxPages =
+        25; // garde-fou : 25 x 20 = 500 comptes, largement au-delà de tout usage réel
     const pageSize = 20;
 
     final accounts = <ResellerAccountModel>[];
@@ -32,7 +33,10 @@ class ResellerRepository {
     var totalPages = 1;
 
     do {
-      final response = await _apiService.getAccounts(page: page, limit: pageSize);
+      final response = await _apiService.getAccounts(
+        page: page,
+        limit: pageSize,
+      );
       if (!response.isSuccessful || response.body?.data == null) {
         if (page == 1) {
           throw Exception('Erreur lors du chargement des comptes');

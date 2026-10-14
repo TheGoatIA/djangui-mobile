@@ -72,7 +72,8 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
 
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
-      final double cost = double.tryParse(_billingCostController.text.trim()) ?? 0.0;
+      final double cost =
+          double.tryParse(_billingCostController.text.trim()) ?? 0.0;
       final int maxSlots = int.tryParse(_maxSlotsController.text.trim()) ?? 4;
       final serviceName = _serviceNameController.text.trim();
 
@@ -80,7 +81,10 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
       String brandColor = '#059669';
       if (serviceName.toLowerCase().contains('netflix')) brandColor = '#E50914';
       if (serviceName.toLowerCase().contains('spotify')) brandColor = '#1DB954';
-      if (serviceName.toLowerCase().contains('prime') || serviceName.toLowerCase().contains('amazon')) brandColor = '#00A8E1';
+      if (serviceName.toLowerCase().contains('prime') ||
+          serviceName.toLowerCase().contains('amazon')) {
+        brandColor = '#00A8E1';
+      }
       if (serviceName.toLowerCase().contains('canva')) brandColor = '#00C4CC';
       if (serviceName.toLowerCase().contains('disney')) brandColor = '#113CCF';
       if (serviceName.toLowerCase().contains('youtube')) brandColor = '#FF0000';
@@ -94,9 +98,12 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
         'billingFrequency': 'monthly',
         'nextRenewalDate': _nextRenewalDate.toIso8601String(),
         'maxSlots': maxSlots,
-        if (_emailController.text.trim().isNotEmpty) 'email': _emailController.text.trim(),
-        if (_passwordController.text.trim().isNotEmpty) 'password': _passwordController.text.trim(),
-        if (_pinController.text.trim().isNotEmpty) 'pin': _pinController.text.trim(),
+        if (_emailController.text.trim().isNotEmpty)
+          'email': _emailController.text.trim(),
+        if (_passwordController.text.trim().isNotEmpty)
+          'password': _passwordController.text.trim(),
+        if (_pinController.text.trim().isNotEmpty)
+          'pin': _pinController.text.trim(),
       };
 
       Navigator.pop(context, accountData);
@@ -106,9 +113,7 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nouveau Compte Maître'),
-      ),
+      appBar: AppBar(title: const Text('Nouveau Compte Maître')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -124,7 +129,8 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
               AppTextField(
                 controller: _serviceNameController,
                 label: 'Nom du Service (ex: Netflix 4K, Spotify...)',
-                validator: (v) => v?.isEmpty ?? true ? 'Ce champ est requis' : null,
+                validator: (v) =>
+                    v?.isEmpty ?? true ? 'Ce champ est requis' : null,
               ),
               const SizedBox(height: 12),
               Row(
@@ -152,7 +158,8 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
                         DropdownMenuItem(value: 'EUR', child: Text('EUR')),
                         DropdownMenuItem(value: 'USD', child: Text('USD')),
                       ],
-                      onChanged: (v) => setState(() => _selectedCurrency = v ?? 'XAF'),
+                      onChanged: (v) =>
+                          setState(() => _selectedCurrency = v ?? 'XAF'),
                     ),
                   ),
                 ],
@@ -169,7 +176,9 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
                   final picked = await showDatePicker(
                     context: context,
                     initialDate: _nextRenewalDate,
-                    firstDate: DateTime.now().subtract(const Duration(days: 30)),
+                    firstDate: DateTime.now().subtract(
+                      const Duration(days: 30),
+                    ),
                     lastDate: DateTime.now().add(const Duration(days: 365)),
                   );
                   if (picked != null) {
@@ -178,7 +187,10 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade400),
                     borderRadius: BorderRadius.circular(12),
@@ -196,11 +208,18 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
                           const SizedBox(height: 4),
                           Text(
                             '${_nextRenewalDate.day.toString().padLeft(2, '0')}/${_nextRenewalDate.month.toString().padLeft(2, '0')}/${_nextRenewalDate.year}',
-                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
                           ),
                         ],
                       ),
-                      const Icon(Icons.calendar_today_rounded, size: 20, color: Colors.grey),
+                      const Icon(
+                        Icons.calendar_today_rounded,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
                     ],
                   ),
                 ),
@@ -214,7 +233,10 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
                   children: [
                     const Text(
                       'Coffre-fort Sécurisé (Chiffré AES-256)',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const Text(
                       'Vos accès sont stockés de manière chiffrée et restent privés.',
@@ -243,10 +265,7 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
               ),
               const SizedBox(height: 32),
 
-              AppButton(
-                text: 'Enregistrer le compte',
-                onPressed: _submit,
-              ),
+              AppButton(text: 'Enregistrer le compte', onPressed: _submit),
             ],
           ),
         ),

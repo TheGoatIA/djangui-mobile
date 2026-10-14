@@ -27,7 +27,12 @@ class PaymentService {
         final data = response.body!['data'] as List?;
         if (data != null && data.isNotEmpty) {
           return data
-              .map((e) => PlanConfigModel.fromJson(e as Map<String, dynamic>, language: language))
+              .map(
+                (e) => PlanConfigModel.fromJson(
+                  e as Map<String, dynamic>,
+                  language: language,
+                ),
+              )
               .toList();
         }
       }
@@ -265,7 +270,8 @@ class PaymentService {
         body: plan != null ? {'plan': plan} : null,
       );
       if (response.isSuccessful && response.body != null) {
-        final message = response.body!['data']?['message'] as String? ??
+        final message =
+            response.body!['data']?['message'] as String? ??
             response.body!['message'] as String? ??
             'Abonnement activé avec succès';
 
@@ -278,7 +284,8 @@ class PaymentService {
         return (success: true, message: message);
       }
 
-      final errorMsg = response.body?['message'] as String? ??
+      final errorMsg =
+          response.body?['message'] as String? ??
           response.error?.toString() ??
           'Échec du paiement avec le portefeuille';
       return (success: false, message: errorMsg);

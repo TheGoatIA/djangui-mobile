@@ -1,4 +1,4 @@
-﻿import 'package:chopper/chopper.dart';
+import 'package:chopper/chopper.dart';
 import 'package:kauri/core/constants/api_constants.dart';
 import 'package:kauri/core/network/models/base_response.dart';
 

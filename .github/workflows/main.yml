@@ -1,32 +1,152 @@
-name: Kauri CI/CD
+name: Mobile CI
 
+# Qualité · tests (unitaires, widgets, non-régression) · sécurité · SonarQube.
+# La RELEASE (APK/AAB/IPA signés) reste construite par Codemagic ; ce workflow garantit que
+# le code poussé sur dev/main est sain et que l'application compile pour l'API Android 36.
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [main, dev]
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: [main, dev]
+  workflow_dispatch:
+
+concurrency:
+  group: mobile-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.47.6'
+  # Plancher de non-régression de la couverture de lignes (hors code généré). À RELEVER au fil
+  # de l'ajout de tests, jamais à baisser.
+  MIN_COVERAGE: '2.5'
 
 jobs:
-  lint_and_test:
-    name: Lint and Test
+  quality:
+    name: 🧹 Format · Analyse statique
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.47.6'
-          channel: 'stable'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
           cache: true
-      - name: Cache Pub dependencies
-        uses: actions/cache@v4
+      - run: flutter pub get
+      - name: Formatage (dart format)
+        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Analyse statique (aucune alerte tolérée)
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+  test:
+    name: 🧪 Tests unitaires + widgets + non-régression (couverture)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
         with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-      - name: Install Dependencies
-        run: flutter pub get
-      - name: Analyze Code
-        run: flutter analyze
-      - name: Run tests
-        run: flutter test
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Tests avec couverture
+        run: flutter test --coverage --machine > test-report.json
+      - name: Plancher de couverture
+        run: bash tool/check_coverage.sh "$MIN_COVERAGE"
+      - name: Publier couverture et rapport de tests (utilisés par Sonar)
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-reports
+          path: |
+            coverage/lcov.info
+            test-report.json
+          retention-days: 7
+
+  android-build:
+    name: 🤖 Compilation Android (API 36)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Build APK debug (sans secrets, valeurs de test)
+        run: |
+          flutter build apk --debug \
+            --dart-define=API_BASE_URL=https://staging.kauri-app.com/api/v1 \
+            --dart-define=ENV=staging
+      - name: "Non-régression SDK : targetSdk et compileSdk = 36"
+        run: |
+          set -e
+          M=$(find build/app/intermediates/merged_manifest/debug -name AndroidManifest.xml | head -1)
+          grep -q 'android:targetSdkVersion="36"' "$M" || { echo "::error::targetSdkVersion != 36"; exit 1; }
+          grep -q 'compileSdk = 36' android/app/build.gradle.kts || { echo "::error::compileSdk != 36"; exit 1; }
+          grep -q 'targetSdk = 36' android/app/build.gradle.kts || { echo "::error::targetSdk != 36"; exit 1; }
+          echo "targetSdk 36 / compileSdk 36 : OK"
+      - name: "Non-régression : lien vérifié (App Links) du reset de mot de passe"
+        run: |
+          grep -q 'android:autoVerify="true"' android/app/src/main/AndroidManifest.xml
+          grep -q 'android:pathPrefix="/reset-password"' android/app/src/main/AndroidManifest.xml
+
+  security:
+    name: 🔒 Sécurité (secrets · dépendances)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Secrets (gitleaks)
+        run: |
+          docker run --rm -v "$PWD:/repo:ro" zricethezav/gitleaks:v8.21.2 \
+            detect --source /repo --no-git --no-banner --redact --config /repo/.gitleaks.toml
+      - name: Vulnérabilités des dépendances Dart (OSV)
+        run: |
+          docker run --rm -v "$PWD:/src:ro" ghcr.io/google/osv-scanner:v1.9.2 \
+            --lockfile=/src/pubspec.lock
+
+  sonar:
+    name: 📊 SonarQube (qualité + couverture + Quality Gate)
+    needs: [quality, test]
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      # Le plugin Dart exécute `dart analyze` : il lui faut le SDK et les dépendances résolues.
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - uses: actions/download-artifact@v4
+        with:
+          name: flutter-reports
+          path: .
+      - name: Vérifier la configuration Sonar
+        id: cfg
+        env:
+          T: ${{ secrets.SONAR_TOKEN }}
+          U: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          if [ -n "$T" ] && [ -n "$U" ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; else
+            echo "::warning::SONAR_TOKEN / SONAR_HOST_URL non définis : analyse Sonar ignorée"; fi
+      - name: Analyse + Quality Gate
+        if: steps.cfg.outputs.ready == 'true'
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+            -Dsonar.projectVersion=${{ github.sha }}

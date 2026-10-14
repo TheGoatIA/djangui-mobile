@@ -38,15 +38,18 @@ class _AddSlotPageState extends State<AddSlotPage> {
 
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
-      final double price = double.tryParse(_priceController.text.trim()) ?? 3000.0;
-      
+      final double price =
+          double.tryParse(_priceController.text.trim()) ?? 3000.0;
+
       // Calculer l'échéance selon le cycle et la date de départ choisie
       final currentPeriodStart = _startDate;
       final currentPeriodEnd = DateTime(
         _startDate.year,
         _selectedCycle == 'yearly'
             ? _startDate.month + 12
-            : (_selectedCycle == 'quarterly' ? _startDate.month + 3 : _startDate.month + 1),
+            : (_selectedCycle == 'quarterly'
+                  ? _startDate.month + 3
+                  : _startDate.month + 1),
         _startDate.day,
       );
 
@@ -72,9 +75,7 @@ class _AddSlotPageState extends State<AddSlotPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Nouveau Slot (${widget.serviceName})'),
-      ),
+      appBar: AppBar(title: Text('Nouveau Slot (${widget.serviceName})')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -90,7 +91,8 @@ class _AddSlotPageState extends State<AddSlotPage> {
               AppTextField(
                 controller: _profileNameController,
                 label: 'Nom du Profil / Écran (ex: Profil 2 - Marie)',
-                validator: (v) => v?.isEmpty ?? true ? 'Ce champ est requis' : null,
+                validator: (v) =>
+                    v?.isEmpty ?? true ? 'Ce champ est requis' : null,
               ),
               const SizedBox(height: 12),
               AppTextField(
@@ -103,7 +105,8 @@ class _AddSlotPageState extends State<AddSlotPage> {
                 controller: _clientPhoneController,
                 label: 'Numéro de téléphone / WhatsApp (+237...)',
                 keyboardType: TextInputType.phone,
-                validator: (v) => v?.isEmpty ?? true ? 'Requis pour les rappels' : null,
+                validator: (v) =>
+                    v?.isEmpty ?? true ? 'Requis pour les rappels' : null,
               ),
               const SizedBox(height: 12),
               Row(
@@ -125,11 +128,21 @@ class _AddSlotPageState extends State<AddSlotPage> {
                         border: OutlineInputBorder(),
                       ),
                       items: const [
-                        DropdownMenuItem(value: 'monthly', child: Text('Mensuel')),
-                        DropdownMenuItem(value: 'quarterly', child: Text('Trimestriel')),
-                        DropdownMenuItem(value: 'yearly', child: Text('Annuel')),
+                        DropdownMenuItem(
+                          value: 'monthly',
+                          child: Text('Mensuel'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'quarterly',
+                          child: Text('Trimestriel'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'yearly',
+                          child: Text('Annuel'),
+                        ),
                       ],
-                      onChanged: (v) => setState(() => _selectedCycle = v ?? 'monthly'),
+                      onChanged: (v) =>
+                          setState(() => _selectedCycle = v ?? 'monthly'),
                     ),
                   ),
                 ],
@@ -140,7 +153,9 @@ class _AddSlotPageState extends State<AddSlotPage> {
                   final picked = await showDatePicker(
                     context: context,
                     initialDate: _startDate,
-                    firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                    firstDate: DateTime.now().subtract(
+                      const Duration(days: 365),
+                    ),
                     lastDate: DateTime.now().add(const Duration(days: 365)),
                   );
                   if (picked != null) {
@@ -149,7 +164,10 @@ class _AddSlotPageState extends State<AddSlotPage> {
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade400),
                     borderRadius: BorderRadius.circular(12),
@@ -167,11 +185,18 @@ class _AddSlotPageState extends State<AddSlotPage> {
                           const SizedBox(height: 4),
                           Text(
                             '${_startDate.day.toString().padLeft(2, '0')}/${_startDate.month.toString().padLeft(2, '0')}/${_startDate.year}',
-                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
                           ),
                         ],
                       ),
-                      const Icon(Icons.event_available_rounded, size: 20, color: Colors.grey),
+                      const Icon(
+                        Icons.event_available_rounded,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
                     ],
                   ),
                 ),
@@ -188,13 +213,15 @@ class _AddSlotPageState extends State<AddSlotPage> {
                   ChoiceChip(
                     label: const Text('WhatsApp (Recommandé)'),
                     selected: _selectedChannel == 'whatsapp',
-                    onSelected: (val) => setState(() => _selectedChannel = 'whatsapp'),
+                    onSelected: (val) =>
+                        setState(() => _selectedChannel = 'whatsapp'),
                   ),
                   const SizedBox(width: 8),
                   ChoiceChip(
                     label: const Text('Push Kauri'),
                     selected: _selectedChannel == 'push',
-                    onSelected: (val) => setState(() => _selectedChannel = 'push'),
+                    onSelected: (val) =>
+                        setState(() => _selectedChannel = 'push'),
                   ),
                 ],
               ),

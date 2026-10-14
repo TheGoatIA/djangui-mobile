@@ -20,8 +20,14 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
   BudgetsBloc(this._budgetRepository) : super(BudgetsState.initial()) {
     on<GetBudgetsRequested>(_onGetBudgetsRequested);
     on<AddBudgetRequested>(_onAddBudgetRequested, transformer: droppable());
-    on<DeleteBudgetRequested>(_onDeleteBudgetRequested, transformer: droppable());
-    on<UpdateBudgetRequested>(_onUpdateBudgetRequested, transformer: droppable());
+    on<DeleteBudgetRequested>(
+      _onDeleteBudgetRequested,
+      transformer: droppable(),
+    );
+    on<UpdateBudgetRequested>(
+      _onUpdateBudgetRequested,
+      transformer: droppable(),
+    );
     on<GenerateAutoBudgetRequested>(
       _onGenerateAutoBudgetRequested,
       transformer: droppable(),

@@ -235,10 +235,7 @@ class _TransactionListViewState extends State<TransactionListView>
                   final widget = _TransactionItem(transaction: transaction);
 
                   if (index == 0) {
-                    return KeyedSubtree(
-                      key: _listKey,
-                      child: widget,
-                    );
+                    return KeyedSubtree(key: _listKey, child: widget);
                   }
 
                   return widget;

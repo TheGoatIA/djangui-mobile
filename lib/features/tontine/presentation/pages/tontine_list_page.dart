@@ -147,56 +147,61 @@ class _TontineListPageState extends State<TontineListPage>
               const CachedDataBanner(),
               Expanded(
                 child: BlocConsumer<TontineBloc, TontineState>(
-            listenWhen: (previous, current) =>
-                current.status == TontineStatus.success &&
-                previous.status != TontineStatus.success,
-            listener: (context, state) {
-              // La liste ne monte son Showcase qu'une fois les tontines
-              // chargées : on retente ici dès que c'est le cas.
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _startTutorial();
-              });
-            },
-            builder: (context, state) {
-              // État de chargement initial
-              if (state.status == TontineStatus.loading &&
-                  state.tontines.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              }
+                  listenWhen: (previous, current) =>
+                      current.status == TontineStatus.success &&
+                      previous.status != TontineStatus.success,
+                  listener: (context, state) {
+                    // La liste ne monte son Showcase qu'une fois les tontines
+                    // chargées : on retente ici dès que c'est le cas.
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _startTutorial();
+                    });
+                  },
+                  builder: (context, state) {
+                    // État de chargement initial
+                    if (state.status == TontineStatus.loading &&
+                        state.tontines.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-              // État vide si aucune tontine n'est rejointe
-              if (state.tontines.isEmpty) {
-                return KeyedSubtree(
-                  key: _listKey,
-                  child: _buildEmptyState(context, l10n),
-                );
-              }
+                    // État vide si aucune tontine n'est rejointe
+                    if (state.tontines.isEmpty) {
+                      return KeyedSubtree(
+                        key: _listKey,
+                        child: _buildEmptyState(context, l10n),
+                      );
+                    }
 
-              // Liste des tontines actives avec support du rafraîchissement
-              return RefreshIndicator(
-                onRefresh: () async {
-                  getIt<LogService>().info(
-                    'Action: Rafraîchissement manuel liste tontines',
-                    component: 'TontineListPage',
-                  );
-                  context.read<TontineBloc>().add(TontinesLoadRequested());
-                },
-                child: KeyedSubtree(
-                  key: _listKey,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.tontines.length,
-                    itemBuilder: (context, index) {
-                      final tontine = state.tontines[index];
-                      return _buildTontineCard(context, tontine, l10n)
-                          .animate()
-                          .fadeIn(duration: 400.ms, delay: (index * 100).ms)
-                          .slideX(begin: 0.2, end: 0);
-                    },
-                  ),
-                ),
-              );
-            },
+                    // Liste des tontines actives avec support du rafraîchissement
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        getIt<LogService>().info(
+                          'Action: Rafraîchissement manuel liste tontines',
+                          component: 'TontineListPage',
+                        );
+                        context.read<TontineBloc>().add(
+                          TontinesLoadRequested(),
+                        );
+                      },
+                      child: KeyedSubtree(
+                        key: _listKey,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: state.tontines.length,
+                          itemBuilder: (context, index) {
+                            final tontine = state.tontines[index];
+                            return _buildTontineCard(context, tontine, l10n)
+                                .animate()
+                                .fadeIn(
+                                  duration: 400.ms,
+                                  delay: (index * 100).ms,
+                                )
+                                .slideX(begin: 0.2, end: 0);
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

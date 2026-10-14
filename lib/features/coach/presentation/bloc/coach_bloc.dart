@@ -23,8 +23,14 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
     // pourraient sinon interlacer leurs emits (placeholders, textes en
     // streaming) de façon incohérente. Mis en file plutôt que jeté (à
     // l'inverse de droppable()) pour ne perdre aucun message.
-    on<SendMessageRequested>(_onSendMessageRequested, transformer: sequential());
-    on<RetryMessageRequested>(_onRetryMessageRequested, transformer: sequential());
+    on<SendMessageRequested>(
+      _onSendMessageRequested,
+      transformer: sequential(),
+    );
+    on<RetryMessageRequested>(
+      _onRetryMessageRequested,
+      transformer: sequential(),
+    );
     on<ClearHistoryRequested>(_onClearHistoryRequested);
   }
 
@@ -113,7 +119,9 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
 
     final alreadyPresent = state.messages.any((m) => m.id == messageId);
     final seededMessages = alreadyPresent
-        ? state.messages.map((m) => m.id == messageId ? userMessage : m).toList()
+        ? state.messages
+              .map((m) => m.id == messageId ? userMessage : m)
+              .toList()
         : (List<ChatMessageModel>.from(state.messages)..add(userMessage));
 
     emit(
@@ -152,9 +160,8 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
             final updatedId = aiMessageId;
             final updated = state.messages
                 .map(
-                  (m) => m.id == updatedId
-                      ? m.copyWith(text: cumulativeText)
-                      : m,
+                  (m) =>
+                      m.id == updatedId ? m.copyWith(text: cumulativeText) : m,
                 )
                 .toList();
             emit(state.copyWith(messages: updated));
@@ -234,9 +241,7 @@ class CoachBloc extends Bloc<CoachEvent, CoachState> {
           final failedAiId = aiMessageId;
           final messagesAfterFailure = state.messages
               .where((m) => m.id != failedAiId)
-              .map(
-                (m) => m.id == messageId ? m.copyWith(status: 'failed') : m,
-              )
+              .map((m) => m.id == messageId ? m.copyWith(status: 'failed') : m)
               .toList();
 
           emit(

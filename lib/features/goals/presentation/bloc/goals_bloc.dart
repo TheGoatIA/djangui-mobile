@@ -25,10 +25,7 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
       _onUpdateGoalAmountRequested,
       transformer: droppable(),
     );
-    on<RedeemGoalRequested>(
-      _onRedeemGoalRequested,
-      transformer: droppable(),
-    );
+    on<RedeemGoalRequested>(_onRedeemGoalRequested, transformer: droppable());
     on<ShareGoalRequested>(_onShareGoalRequested, transformer: droppable());
     on<JoinGoalRequested>(_onJoinGoalRequested, transformer: droppable());
     on<GetGoalParticipantsRequested>(_onGetGoalParticipantsRequested);
@@ -419,10 +416,7 @@ class GoalsBloc extends Bloc<GoalsEvent, GoalsState> {
         );
       },
       (_) {
-        _logger.info(
-          'Participant retiré avec succès.',
-          component: 'GoalsBloc',
-        );
+        _logger.info('Participant retiré avec succès.', component: 'GoalsBloc');
         emit(
           state.copyWith(
             participants: state.participants

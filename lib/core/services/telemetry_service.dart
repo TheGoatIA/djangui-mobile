@@ -136,22 +136,29 @@ class TelemetryService {
     Map<String, Object> attributes,
   ) {
     final span = targetTracer.startSpan(name, kind: SpanKind.internal);
-    
+
     // Privacy sanitization (K-30, K-31)
     attributes.forEach((key, value) {
       final lowerKey = key.toLowerCase();
 
       // 1. User ID hashing (K-30)
-      if (lowerKey == 'user.id' || lowerKey == 'user_id' || lowerKey == 'userid') {
+      if (lowerKey == 'user.id' ||
+          lowerKey == 'user_id' ||
+          lowerKey == 'userid') {
         final rawId = value.toString();
-        final isAlreadySha256 = rawId.length == 64 && RegExp(r'^[0-9a-fA-F]{64}$').hasMatch(rawId);
-        final hashedId = isAlreadySha256 ? rawId : sha256.convert(utf8.encode(rawId)).toString();
+        final isAlreadySha256 =
+            rawId.length == 64 && RegExp(r'^[0-9a-fA-F]{64}$').hasMatch(rawId);
+        final hashedId = isAlreadySha256
+            ? rawId
+            : sha256.convert(utf8.encode(rawId)).toString();
         span.setAttribute(Attribute.fromString(key, hashedId));
         return;
       }
 
       // 2. Exact amount anonymization (K-31)
-      if (lowerKey == 'amount' || lowerKey == 'total_amount' || lowerKey == 'balance') {
+      if (lowerKey == 'amount' ||
+          lowerKey == 'total_amount' ||
+          lowerKey == 'balance') {
         if (value is num) {
           final range = AnalyticsAmountRange.fromAmount(value);
           span.setAttribute(Attribute.fromString('${key}_range', range));

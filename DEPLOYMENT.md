@@ -84,3 +84,18 @@ Dans le dépôt `djangui-api` : `ci.yml` (lint + format + build + tests + `npm a
 
 ## 🆘 Support
 Pour les problèmes de déploiement, contactez l'équipe DevOps à devops@kauri-app.com.
+
+## 🔬 Qualité & SonarQube
+
+Workflow `.github/workflows/main.yml` (chaque PR et push `dev`/`main`) — **la release signée reste construite par Codemagic** :
+
+| Contrôle | Où | Bloquant |
+| :-- | :-- | :-- |
+| `dart format --set-exit-if-changed` | `quality` | oui |
+| `flutter analyze --fatal-infos --fatal-warnings` | `quality` | oui |
+| Tests unitaires + widgets + non-régression, couverture, plancher `MIN_COVERAGE` (`tool/check_coverage.sh`) | `test` | oui |
+| Compilation Android debug + **non-régression `targetSdk`/`compileSdk` = 36** + App Links du reset de mot de passe | `android-build` | oui |
+| gitleaks (`.gitleaks.toml`) + OSV (`pubspec.lock`) | `security` | oui |
+| SonarQube (plugin Flutter) + Quality Gate | `sonar` | oui (si secrets définis) |
+
+Secrets GitHub requis : `SONAR_HOST_URL`, `SONAR_TOKEN` (jeton `ci-kauri-mobile`). Le plancher de couverture (`MIN_COVERAGE`, actuellement 2,5 %) est volontairement bas : la couverture initiale est de ~2,7 % — il doit **monter** à chaque PR de tests, jamais baisser.

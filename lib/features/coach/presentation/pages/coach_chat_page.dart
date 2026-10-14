@@ -189,112 +189,109 @@ class _CoachChatViewState extends State<CoachChatView> {
                     ),
                   ],
                   child: BlocBuilder<CoachBloc, CoachState>(
-                  builder: (context, state) {
-                    // Chargement initial
-                    if (state.status == CoachStatus.loading &&
-                        state.messages.isEmpty) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+                    builder: (context, state) {
+                      // Chargement initial
+                      if (state.status == CoachStatus.loading &&
+                          state.messages.isEmpty) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                    // Échec du tout premier chargement (rien en cache, pas de
-                    // réseau) : à distinguer du "pas encore de messages" —
-                    // sinon un vrai échec ressemble à un simple écran de
-                    // bienvenue, sans aucune indication qu'il faut réessayer.
-                    if (state.status == CoachStatus.error &&
-                        state.messages.isEmpty) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
+                      // Échec du tout premier chargement (rien en cache, pas de
+                      // réseau) : à distinguer du "pas encore de messages" —
+                      // sinon un vrai échec ressemble à un simple écran de
+                      // bienvenue, sans aucune indication qu'il faut réessayer.
+                      if (state.status == CoachStatus.error &&
+                          state.messages.isEmpty) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.cloud_off_outlined,
+                                  size: 64,
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  state.errorMessage ?? l10n.genericError,
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                OutlinedButton(
+                                  onPressed: () => context
+                                      .read<CoachBloc>()
+                                      .add(GetChatHistoryRequested()),
+                                  child: Text(l10n.retry),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      // État vide (bienvenue)
+                      if (state.messages.isEmpty) {
+                        return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                Icons.cloud_off_outlined,
+                                Icons.chat_bubble_outline,
                                 size: 64,
                                 color: Theme.of(context).colorScheme.outline,
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                state.errorMessage ?? l10n.genericError,
-                                textAlign: TextAlign.center,
-                                style: AppTextStyles.bodyMedium.copyWith(
+                                l10n.coachWelcomeMessage,
+                                style: AppTextStyles.bodyLarge.copyWith(
                                   color: Theme.of(
                                     context,
                                   ).colorScheme.onSurfaceVariant,
                                 ),
                               ),
-                              const SizedBox(height: 16),
-                              OutlinedButton(
-                                onPressed: () => context
-                                    .read<CoachBloc>()
-                                    .add(GetChatHistoryRequested()),
-                                child: Text(l10n.retry),
-                              ),
                             ],
                           ),
-                        ),
-                      );
-                    }
-
-                    // État vide (bienvenue)
-                    if (state.messages.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.chat_bubble_outline,
-                              size: 64,
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              l10n.coachWelcomeMessage,
-                              style: AppTextStyles.bodyLarge.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    // Le placeholder de la bulle IA n'existe dans
-                    // `state.messages` qu'à partir du premier fragment reçu
-                    // (voir CoachBloc._sendAndStream) — tant qu'aucun texte
-                    // n'est encore arrivé, on affiche l'indicateur "Anne
-                    // réfléchit" à la place d'une bulle vide.
-                    final showThinkingIndicator =
-                        state.isSending && state.streamingMessageId == null;
-
-                    return ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(20),
-                      itemCount:
-                          state.messages.length +
-                          (showThinkingIndicator ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == state.messages.length) {
-                          return const _TypingIndicator();
-                        }
-                        final message = state.messages[index];
-                        return _MessageBubble(
-                          message: message,
-                          isStreaming: message.id == state.streamingMessageId,
                         );
-                      },
-                    );
-                  },
+                      }
+
+                      // Le placeholder de la bulle IA n'existe dans
+                      // `state.messages` qu'à partir du premier fragment reçu
+                      // (voir CoachBloc._sendAndStream) — tant qu'aucun texte
+                      // n'est encore arrivé, on affiche l'indicateur "Anne
+                      // réfléchit" à la place d'une bulle vide.
+                      final showThinkingIndicator =
+                          state.isSending && state.streamingMessageId == null;
+
+                      return ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(20),
+                        itemCount:
+                            state.messages.length +
+                            (showThinkingIndicator ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == state.messages.length) {
+                            return const _TypingIndicator();
+                          }
+                          final message = state.messages[index];
+                          return _MessageBubble(
+                            message: message,
+                            isStreaming: message.id == state.streamingMessageId,
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
               ),
               // Zone de saisie mise en avant par le tutoriel le cas échéant
-              KeyedSubtree(
-                key: _inputKey,
-                child: _buildInputArea(context),
-              ),
+              KeyedSubtree(key: _inputKey, child: _buildInputArea(context)),
             ],
           ),
         );
@@ -650,9 +647,7 @@ class _MessageBubble extends StatelessWidget {
                               ? Theme.of(
                                   context,
                                 ).colorScheme.onPrimary.withValues(alpha: 0.7)
-                              : Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant),
+                              : Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ),
               ],

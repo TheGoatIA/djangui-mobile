@@ -129,7 +129,8 @@ class ApiConstants {
 
   /// Vérification du statut d'un paiement via sa référence.
   static const String verifyPayment = '/payments/verify/{reference}';
-  static String verifyPaymentUrl(String reference) => '/payments/verify/$reference';
+  static String verifyPaymentUrl(String reference) =>
+      '/payments/verify/$reference';
 
   /// Historique des transactions de paiement.
   static const String paymentHistory = '/payments';
