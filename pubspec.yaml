@@ -101,7 +101,7 @@ dependencies:
   biometric_storage: ^5.0.1
 
   # Icons
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^2.0.0
   json_annotation: ^4.9.0
   internet_connection_checker: ^3.0.1
   flutter_local_notifications: ^18.0.1
