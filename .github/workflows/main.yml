@@ -67,6 +67,7 @@ jobs:
   android-build:
     name: 🤖 Compilation Android (API 36)
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-java@v4
@@ -78,6 +79,19 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
+      - name: Mémoire Gradle adaptée au runner
+        # android/gradle.properties demande -Xmx8G / MaxMetaspaceSize=4G (poste de dev). Un runner
+        # GitHub n'a que ~7 Go : le démon Gradle y est tué (OOM). Les propriétés du dossier
+        # utilisateur ont priorité sur celles du projet, sans modifier le dépôt.
+        run: |
+          mkdir -p ~/.gradle
+          {
+            echo "org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError"
+            echo "org.gradle.daemon=false"
+            echo "org.gradle.parallel=false"
+            echo "kotlin.daemon.jvm.options=-Xmx1g"
+          } >> ~/.gradle/gradle.properties
+          cat ~/.gradle/gradle.properties
       - run: flutter pub get
       - name: Build APK debug (sans secrets, valeurs de test)
         run: |
@@ -87,8 +101,9 @@ jobs:
       - name: "Non-régression SDK : targetSdk et compileSdk = 36"
         run: |
           set -e
-          M=$(find build/app/intermediates/merged_manifest/debug -name AndroidManifest.xml | head -1)
-          grep -q 'android:targetSdkVersion="36"' "$M" || { echo "::error::targetSdkVersion != 36"; exit 1; }
+          grep -rqs 'android:targetSdkVersion="36"' build/app/intermediates/merged_manifest/debug \
+            || { echo "::error::targetSdkVersion != 36"; \
+                 grep -rhs 'targetSdkVersion' build/app/intermediates/merged_manifest/debug || true; exit 1; }
           grep -q 'compileSdk = 36' android/app/build.gradle.kts || { echo "::error::compileSdk != 36"; exit 1; }
           grep -q 'targetSdk = 36' android/app/build.gradle.kts || { echo "::error::targetSdk != 36"; exit 1; }
           echo "targetSdk 36 / compileSdk 36 : OK"
@@ -96,6 +111,12 @@ jobs:
         run: |
           grep -q 'android:autoVerify="true"' android/app/src/main/AndroidManifest.xml
           grep -q 'android:pathPrefix="/reset-password"' android/app/src/main/AndroidManifest.xml
+      - name: Diagnostic en cas d'échec (journaux Gradle / mémoire)
+        if: failure()
+        run: |
+          free -h || true
+          ls -la android/*.log android/hs_err_pid*.log 2>/dev/null || true
+          find ~/.gradle/daemon -name '*.out.log' -type f 2>/dev/null | head -2 | xargs -r tail -n 60 || true
 
   security:
     name: 🔒 Sécurité (secrets · dépendances)
