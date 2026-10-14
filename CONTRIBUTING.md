@@ -1,43 +1,52 @@
-# Contribuer à Kauri
+# Contribuer à Kauri (mobile)
 
-Nous apprécions votre aide ! Nous voulons rendre la contribution à Kauri aussi facile et transparente que possible, qu'il s'agisse de :
+Nous apprécions votre aide ! Voici comment contribuer efficacement.
 
-- Signaler un bug
-- Discuter de l'état actuel du code
-- Soumettre un correctif
-- Proposer de nouvelles fonctionnalités
-- Devenir un mainteneur
+## 📝 Code de conduite
 
-## 📝 Code de Conduite
+Restez respectueux et professionnel dans toutes vos interactions.
 
-Veuillez rester respectueux et professionnel dans toutes vos interactions avec la communauté.
+## 🌿 Branches
 
-## 🚀 Notre Processus de Développement
+| Branche | Rôle | Build |
+| :-- | :-- | :-- |
+| `dev` | Intégration | CI GitHub (qualité, tests, compilation Android API 36, sécurité, Sonar) |
+| `main` | Production | Codemagic (release signée) |
 
-1. **Rapports de Bug** : Si vous trouvez un bug, veuillez ouvrir une issue et inclure autant de détails que possible (étapes pour reproduire, logs, etc.).
-2. **Demandes de Fonctionnalités** : Vous avez une idée ? Ouvrez une issue pour en discuter d'abord.
-3. **Pull Requests** :
-   - Forkez le dépôt et créez votre branche à partir de `main`.
-   - Si vous avez ajouté du code qui doit être testé, ajoutez des tests.
-   - Si vous avez modifié des APIs, mettez à jour la documentation.
-   - Assurez-vous que la suite de tests passe (`flutter test`).
-   - Assurez-vous que votre code passe l'analyse (`flutter analyze`).
-   - Formatez votre code (`dart format .`).
+Créez vos branches depuis `dev` et ouvrez la PR vers `dev`.
 
-## 🎨 Style de Codage
+## 🚀 Processus
 
-- Suivez le [guide de style officiel de Dart](https://dart.dev/guides/language/effective-dart/style).
-- Utilisez des noms de variables et de fonctions clairs et descriptifs.
-- Documentez la logique complexe avec des commentaires.
-- Gardez les widgets petits et concentrés sur une seule responsabilité.
+1. **Bug** : ouvrez une issue (étapes, logs, version de l'app).
+2. **Fonctionnalité** : discutez-en d'abord dans une issue.
+3. **Pull Request** — avant de pousser :
+   ```bash
+   flutter pub get
+   dart format lib test
+   flutter analyze
+   flutter test --coverage
+   bash tool/check_coverage.sh
+   node tool/check_android_plugin_sdk.js 36
+   ```
+4. Ajoutez des tests pour tout code testable (sécurité, parsing, mapping d'erreurs, widgets critiques).
+5. Mettez à jour la documentation (README, DEPLOYMENT, SECURITY_CHECKLIST) si le comportement change.
 
-## 📜 Messages de Commit
+## 🎨 Style
 
-- Utilisez le présent (« Ajoute une fonctionnalité » et non « Ajouté une fonctionnalité »).
-- Utilisez le mode impératif (« Déplace le curseur vers... »).
-- Limitez la première ligne à 72 caractères ou moins.
-- Référencez largement les issues et les pull requests après la première ligne.
+- [Effective Dart](https://dart.dev/guides/language/effective-dart/style), widgets petits et ciblés.
+- Aucun secret dans le dépôt (gitleaks bloque la CI) ; configuration via `--dart-define-from-file`.
+- Aucune donnée sensible dans les logs ; erreurs affichées via `error_mapper`.
+- Dépendances : ne montez pas un plugin au-delà de `compileSdk 36` (garde-fou CI) ; gardez les plugins FlutterFire alignés.
+- Après un changement de modèle/DI/l10n : `flutter gen-l10n` puis `dart run build_runner build --delete-conflicting-outputs`.
 
-## ❓ Des Questions ?
+## 📜 Commits
 
-N'hésitez pas à ouvrir une issue ou à contacter les mainteneurs à support@kauri-app.com.
+[Conventional Commits](https://www.conventionalcommits.org/) : `feat:`, `fix:`, `chore(deps):`, `docs:`, `test:` — première ligne ≤ 72 caractères, à l'impératif.
+
+## ❓ Questions
+
+Ouvrez une issue ou écrivez à support@kauri-app.com.
+
+## ⚖️ Licence
+
+Vos contributions sont sous licence [MIT](LICENSE).

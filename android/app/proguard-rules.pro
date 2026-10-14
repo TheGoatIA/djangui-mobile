@@ -35,3 +35,17 @@
 -dontwarn com.google.mlkit.vision.text.devanagari.**
 -dontwarn com.google.mlkit.vision.text.japanese.**
 -dontwarn com.google.mlkit.vision.text.korean.**
+
+# Apache Tika (dépendance transitive) référence des API JVM absentes d'Android :
+# javax.xml.stream (StAX), java.awt, javax.imageio... Sans ces règles, R8 échoue en release avec
+# "Missing class javax.xml.stream.XMLStreamException". Ces chemins de code ne sont jamais
+# exécutés sur Android.
+-dontwarn javax.xml.stream.**
+-dontwarn javax.xml.**
+-dontwarn java.awt.**
+-dontwarn javax.imageio.**
+-dontwarn javax.swing.**
+-dontwarn javax.script.**
+-dontwarn org.apache.tika.**
+-dontwarn org.w3c.dom.**
+-dontwarn org.slf4j.**
