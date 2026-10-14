@@ -70,7 +70,7 @@ dependencies:
   cached_network_image: ^4.0.4
   flutter_svg: ^2.2.3
   lottie: ^3.3.2
-  animations: ^2.1.1
+  animations: ^3.0.0
   shimmer: ^4.0.0
 
   # Utilities
