@@ -62,8 +62,8 @@ dependencies:
   shared_preferences: ^2.5.4
 
   # Firebase & Notifications
-  firebase_core: ^4.15.0
-  firebase_messaging: ^16.7.0
+  firebase_core: ^5.0.0
+  firebase_messaging: ^17.0.0
 
   # Charts & UI Components
   fl_chart: ^1.2.0
@@ -110,11 +110,11 @@ dependencies:
   logger: ^2.7.0
   collection: ^1.19.0
   google_mlkit_text_recognition: ^0.15.1
-  firebase_auth: ^6.7.0
+  firebase_auth: ^7.0.0
   google_sign_in: ^7.2.0
   sign_in_with_apple: ^6.1.1
-  firebase_crashlytics: ^5.4.0
-  firebase_performance: ^0.11.6
+  firebase_crashlytics: ^6.0.0
+  firebase_performance: ^0.12.0
   pinput: ^6.0.2
   flutter_markdown: ^0.7.7+1
   timeago: ^3.7.1
