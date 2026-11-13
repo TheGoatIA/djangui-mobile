@@ -3,7 +3,8 @@ name: iOS Staging — TestFlight
 # STAGING mobile = GitHub (ce workflow + android-staging.yml).
 # PRODUCTION mobile = Codemagic (éditeur visuel, branche main).
 #
-# Se déclenche UNIQUEMENT quand « Mobile CI » a réussi sur dev ; relançable à la main.
+# Se déclenche sur push dev, puis attend que « Mobile CI » ait ENTIÈREMENT réussi sur ce
+# même commit (Sonar compris) ; sinon rien n'est publié. Relançable à la main.
 # Distribution par TestFlight (testeurs internes) : aucun UDID d'iPhone à enregistrer,
 # contrairement à un profil Ad Hoc.
 # Séparation stricte avec la PRODUCTION (même app App Store) :
@@ -25,9 +26,7 @@ name: iOS Staging — TestFlight
 # Optionnels : DART_DEFINES_STAGING_JSON, SLACK_WEBHOOK_URL
 
 on:
-  workflow_run:
-    workflows: ['Mobile CI']
-    types: [completed]
+  push:
     branches: [dev]
   workflow_dispatch:
 
@@ -37,15 +36,38 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 env:
   FLUTTER_VERSION: '3.47.6'
   BUNDLE_ID: cm.tbg.kauri
 
 jobs:
+  wait-ci:
+    name: ⏳ Attente de « Mobile CI » sur ce commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: La CI complète doit réussir (format, tests, compilation, sécurité, Sonar)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          for i in $(seq 1 140); do
+            R=$(gh api "repos/$REPO/actions/workflows/main.yml/runs?head_sha=$SHA&event=push&per_page=1" \
+              --jq '.workflow_runs[0] | "\(.status) \(.conclusion)"' 2>/dev/null || echo "absent")
+            case "$R" in
+              "completed success") echo "Mobile CI réussie sur $SHA"; exit 0 ;;
+              completed*) echo "::error::Mobile CI en échec sur ce commit ($R) : rien n'est publié."; exit 1 ;;
+            esac
+            echo "Mobile CI : ${R:-en attente}…"; sleep 30
+          done
+          echo "::error::Mobile CI introuvable ou trop longue"; exit 1
+
   testflight:
     name: 🍏 Build IPA staging + TestFlight
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    needs: wait-ci
     runs-on: macos-15
     timeout-minutes: 60
     env:
@@ -68,7 +90,7 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.sha }}
 
       - uses: subosito/flutter-action@v2
         with:

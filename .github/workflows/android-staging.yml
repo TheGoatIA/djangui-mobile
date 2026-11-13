@@ -3,8 +3,8 @@ name: Android Staging — Firebase App Distribution
 # STAGING mobile = GitHub (ce workflow). PRODUCTION mobile = Codemagic (éditeur
 # visuel, branche main) — ne pas publier en production d'ici.
 #
-# Se déclenche UNIQUEMENT quand « Mobile CI » a réussi sur dev : un build qui
-# casse l'analyse ou les tests n'arrive jamais chez les testeurs.
+# Se déclenche sur push dev, puis attend que « Mobile CI » ait ENTIÈREMENT réussi sur ce
+# même commit (Sonar compris) : un build qui casse la CI n'arrive jamais chez les testeurs.
 # Relançable à la main (workflow_dispatch).
 #
 # Secrets GitHub requis (Settings → Secrets and variables → Actions) :
@@ -17,9 +17,7 @@ name: Android Staging — Firebase App Distribution
 # Variable optionnelle : FIREBASE_TESTER_GROUPS (défaut : testeurs)
 
 on:
-  workflow_run:
-    workflows: ['Mobile CI']
-    types: [completed]
+  push:
     branches: [dev]
   workflow_dispatch:
 
@@ -29,6 +27,7 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 env:
   FLUTTER_VERSION: '3.47.6'
@@ -37,9 +36,31 @@ env:
   FIREBASE_ANDROID_APP_ID: '1:323526784336:android:87676b4348b397a4ca6855'
 
 jobs:
+  wait-ci:
+    name: ⏳ Attente de « Mobile CI » sur ce commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: La CI complète doit réussir (format, tests, compilation, sécurité, Sonar)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          for i in $(seq 1 140); do
+            R=$(gh api "repos/$REPO/actions/workflows/main.yml/runs?head_sha=$SHA&event=push&per_page=1" \
+              --jq '.workflow_runs[0] | "\(.status) \(.conclusion)"' 2>/dev/null || echo "absent")
+            case "$R" in
+              "completed success") echo "Mobile CI réussie sur $SHA"; exit 0 ;;
+              completed*) echo "::error::Mobile CI en échec sur ce commit ($R) : rien n'est publié."; exit 1 ;;
+            esac
+            echo "Mobile CI : ${R:-en attente}…"; sleep 30
+          done
+          echo "::error::Mobile CI introuvable ou trop longue"; exit 1
+
   distribute:
     name: 📦 Build APK staging + distribution testeurs
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    needs: wait-ci
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -64,8 +85,8 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
-          # Sur workflow_run, construire EXACTEMENT le commit validé par la CI.
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          # Construire EXACTEMENT le commit validé par la CI (attendue par wait-ci).
+          ref: ${{ github.sha }}
 
       - name: Libérer de l'espace disque
         run: |
