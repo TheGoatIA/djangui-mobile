@@ -1,4 +1,5 @@
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
@@ -41,10 +42,6 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
-
     defaultConfig {
         applicationId = "cm.tbg.kauri"
         minSdk = flutter.minSdkVersion
@@ -65,6 +62,14 @@ android {
 
 flutter {
     source = "../.."
+}
+
+// Syntaxe compilerOptions : l'ancienne forme kotlinOptions { jvmTarget = "17" } est une
+// ERREUR avec les versions récentes de Kotlin (proposées par Dependabot).
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
 }
 
 dependencies {

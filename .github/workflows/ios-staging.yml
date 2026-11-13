@@ -191,9 +191,10 @@ jobs:
 
       - name: Envoi sur TestFlight
         run: |
+          # Pas de --testflight : il soumettrait le build à la revue Apple (testeurs EXTERNES).
+          # Le groupe interne « Kauri STAGING » reçoit le build sans revue.
           app-store-connect publish \
             --path "$(ls build/ios/ipa/*.ipa | head -1)" \
-            --testflight \
             --beta-group "Kauri STAGING" \
             --whats-new "STAGING — $(git log -1 --format='%h %s') — API staging.kauri-app.com"
 

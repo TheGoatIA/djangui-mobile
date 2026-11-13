@@ -311,9 +311,10 @@ jobs:
       - name: Envoi sur TestFlight (groupe Kauri PRODUCTION)
         run: |
           NOTES=$(node tool/release/whatsnew.mjs release_notes.json --print fr-FR)
+          # Pas de --testflight : il soumettrait le build à la revue Apple (testeurs EXTERNES).
+          # Le groupe interne « Kauri PRODUCTION » reçoit le build sans revue.
           app-store-connect publish \
             --path "$(ls build/ios/ipa/*.ipa | head -1)" \
-            --testflight \
             --beta-group "Kauri PRODUCTION" \
             --whats-new "$NOTES"
 
