@@ -192,3 +192,12 @@ jobs:
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
             -Dsonar.projectVersion=${{ github.sha }}
+
+      - name: Détail du Quality Gate en échec (critères non respectés)
+        if: failure() && steps.cfg.outputs.ready == 'true'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=kauri-mobile" \
+            | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{const s=JSON.parse(d).projectStatus||{};for(const c of s.conditions||[]){if(c.status!=='OK')console.log('::error::Quality Gate — '+c.metricKey+' = '+c.actualValue+' (seuil '+c.comparator+' '+c.errorThreshold+')')}})"
