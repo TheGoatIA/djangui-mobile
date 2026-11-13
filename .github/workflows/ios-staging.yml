@@ -23,7 +23,7 @@ name: iOS Staging — TestFlight
 #   APP_STORE_CONNECT_KEY_IDENTIFIER  Key ID de la clé API
 #   APP_STORE_CONNECT_PRIVATE_KEY     contenu du fichier AuthKey_XXXX.p8
 #   IOS_CERTIFICATE_PRIVATE_KEY       clé RSA privée (PEM) propre au certificat de distribution du CI
-# Optionnels : DART_DEFINES_STAGING_JSON, SLACK_WEBHOOK_URL
+# Optionnels : DART_DEFINES_STAGING_JSON, SLACK_DEPLOY_WEBHOOK_URL (#deployment)
 
 on:
   push:
@@ -173,7 +173,7 @@ jobs:
       - name: Notification Slack
         if: always()
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
           STATUS: ${{ job.status }}
         run: |
           [ -z "$SLACK_WEBHOOK_URL" ] && exit 0

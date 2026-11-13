@@ -113,3 +113,23 @@ jobs:
             git merge --abort || true
             echo "::warning::Synchronisation main → dev en conflit : fusionner main dans dev manuellement."
           fi
+
+      - name: Notification Slack (#deployment)
+        if: always() && steps.guard.outputs.skip == 'false'
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
+          STATUS: ${{ job.status }}
+          RELEASED: ${{ steps.rel.outputs.released }}
+          TITLE: ${{ steps.rel.outputs.title }}
+          BUILD: ${{ steps.rel.outputs.build }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK" ] || [ "$RELEASED" = "false" ]; then exit 0; fi
+          if [ "$STATUS" = "success" ]; then
+            HEAD="🏷️ *Kauri mobile* — nouvelle version *$TITLE* (build $BUILD) : Codemagic publie sur les stores"
+            NOTES=$(sed -n '/## 🇫🇷/,/## 🇬🇧/p' RELEASE_NOTES.md 2>/dev/null | sed '1d;$d' | head -12)
+          else
+            HEAD="❌ *Kauri mobile* — échec de la préparation de version"
+            NOTES=""
+          fi
+          MSG=$(printf '%s\n%s\n<%s|Voir le pipeline>' "$HEAD" "$NOTES" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID")
+          curl -s -X POST -H 'Content-type: application/json' --data "$(jq -n --arg t "$MSG" '{text:$t}')" "$SLACK_WEBHOOK" >/dev/null

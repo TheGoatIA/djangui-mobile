@@ -13,7 +13,7 @@ name: Android Staging — Firebase App Distribution
 #   FIREBASE_SERVICE_ACCOUNT  JSON du compte de service (rôle « Firebase App Distribution Admin »)
 # Optionnels :
 #   DART_DEFINES_STAGING_JSON contenu complet de dart_defines.staging.json (sinon valeurs par défaut ci-dessous)
-#   SLACK_WEBHOOK_URL         notification du lien de téléchargement
+#   SLACK_DEPLOY_WEBHOOK_URL         notification du lien de téléchargement
 # Variable optionnelle : FIREBASE_TESTER_GROUPS (défaut : testeurs)
 
 on:
@@ -178,7 +178,7 @@ jobs:
       - name: Notification Slack
         if: always()
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
           STATUS: ${{ job.status }}
         run: |
           [ -z "$SLACK_WEBHOOK_URL" ] && exit 0
