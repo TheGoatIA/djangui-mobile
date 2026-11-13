@@ -9,6 +9,7 @@ import 'package:kauri/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'core/services/telemetry_service.dart';
 import 'core/network/certificate_pinning.dart';
+import 'core/config/env_config.dart';
 import 'core/services/log_service.dart';
 import 'core/services/tutorial_service.dart';
 import 'core/widgets/environment_banner.dart';
@@ -153,6 +154,11 @@ void _initSecurity() {
         '3E+Ve5dRvcI0bBFPyES/rAWihY26wtv+GA+n1kde27g=',
         'N20fULlCwExrbzhjXOh7WoLcg6r748TTfm2PFCMKUBk=',
         'muX3GfLwAWSuz6plV7sgYwKlaB1kK3pGqavGKdc4/uM=',
+        // Clé de signature des builds STAGING (GitHub → Firebase App Distribution).
+        // Acceptée UNIQUEMENT dans les builds staging : sans elle, freeRASP voyait
+        // l'app de test comme reconditionnée et la fermait au démarrage (exit 0).
+        // En production, une app signée avec cette clé reste refusée.
+        if (EnvConfig.isStaging) 'daOA2YNsSJPdqk+jgUk+7AdQg92rs6PTmrjC1Sgnnjk=',
       ],
       supportedStores: [],
     ),
