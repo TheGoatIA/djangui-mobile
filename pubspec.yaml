@@ -130,6 +130,13 @@ dependencies:
 
 
 dev_dependencies:
+  flutter_driver:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  # Faux plugins (picker d'image, ouverture de liens) des tests d'intégration.
+  url_launcher_platform_interface: any
+  image_picker_platform_interface: any
   flutter_test:
     sdk: flutter
 
