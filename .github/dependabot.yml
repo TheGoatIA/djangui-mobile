@@ -1,7 +1,6 @@
-# Dependabot — djangui-mobile
-# Hebdomadaire (lundi), uniquement vers `dev`. Les montées majeures de plugins Flutter
-# restent des PRs séparées ; minor/patch sont groupées. Un `flutter pub get` + analyse +
-# tests tournent sur chaque PR (voir .github/workflows/ci.yml).
+# Mises à jour de dépendances REGROUPÉES (au plus 2 PR par type et par semaine) :
+# chaque PR lance toute la CI (et peut déclencher des builds mobiles coûteux).
+# Les alertes de sécurité restent traitées par Dependabot security updates.
 version: 2
 updates:
   - package-ecosystem: "pub"
@@ -12,28 +11,22 @@ updates:
       day: "monday"
       time: "06:00"
       timezone: "Africa/Douala"
-    open-pull-requests-limit: 20
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "chore(deps)"
     ignore:
-      # permission_handler 13.x -> permission_handler_android 14.x exige compileSdk 37 ("android-37"),
-      # que la toolchain actuelle (AGP 8.11 / Gradle 8.14) ne sait pas résoudre : le build de release
-      # Codemagic échoue. À réactiver après migration vers AGP >= 9 (voir DEPLOYMENT.md).
       - dependency-name: "permission_handler"
         update-types: ["version-update:semver-major"]
       - dependency-name: "permission_handler_android"
         update-types: ["version-update:semver-major"]
     groups:
-      # Les plugins FlutterFire DOIVENT évoluer ensemble (même version de firebase_core) : des versions
-      # décalées font échouer la résolution Swift Package Manager côté iOS
-      # ("firebase_core-X depends on flutterfire X… and firebase_performance-Y depends on flutterfire Y…").
-      # Dependabot propose donc UNE seule PR pour tout le groupe, majeures comprises.
-      firebase:
-        patterns: ["firebase_*", "_flutterfire_internals"]
       pub-minor-patch:
+        patterns: ["*"]
         update-types: ["minor", "patch"]
+      pub-major:
+        patterns: ["*"]
+        update-types: ["major"]
 
-  # Gradle (plugins Android / Firebase) — le répertoire est celui du projet Android
   - package-ecosystem: "gradle"
     directory: "/android"
     target-branch: "dev"
@@ -42,12 +35,16 @@ updates:
       day: "monday"
       time: "06:00"
       timezone: "Africa/Douala"
-    open-pull-requests-limit: 20
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "chore(android)"
     groups:
       gradle-minor-patch:
+        patterns: ["*"]
         update-types: ["minor", "patch"]
+      gradle-major:
+        patterns: ["*"]
+        update-types: ["major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -57,9 +54,13 @@ updates:
       day: "monday"
       time: "06:00"
       timezone: "Africa/Douala"
-    open-pull-requests-limit: 20
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "chore(ci)"
     groups:
-      github-actions:
+      actions-minor-patch:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
+      actions-major:
+        patterns: ["*"]
+        update-types: ["major"]
