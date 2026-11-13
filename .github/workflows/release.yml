@@ -1,0 +1,115 @@
+name: Release — version, changelog et notes de store
+
+# Chaîne de publication en PRODUCTION (mobile) :
+#   PR dev → main  →  « Mobile CI » réussie sur main  →  CE workflow :
+#     1. calcule la version (Conventional Commits) + l'édition (constellation) + le build ;
+#     2. met à jour pubspec.yaml, CHANGELOG.md (FR/EN), RELEASE_NOTES.md, release_notes.json,
+#        release/versions.json et lib/core/config/app_release.dart ;
+#     3. commit « chore(release): vX.Y.Z - <Edition> Edition » + tag vX.Y.Z sur main ;
+#     4. resynchronise dev avec main.
+#   Le tag vX.Y.Z déclenche Codemagic (éditeur visuel), qui construit et publie sur les stores
+#   avec les notes de release_notes.json.
+#
+# Secrets : GEMINI_API_KEY (rédaction FR/EN, optionnel — repli automatique sinon),
+#           APP_STORE_CONNECT_* (optionnels — pour garantir un build > dernier build TestFlight).
+
+on:
+  workflow_run:
+    workflows: ['Mobile CI']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: 🏷️ Nouvelle version
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Rien à faire si main a déjà avancé ou si c'est un commit de version
+        id: guard
+        env:
+          VALIDATED: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          HEAD_SHA=$(git rev-parse HEAD)
+          SUBJECT=$(git log -1 --format=%s)
+          if [ -n "$VALIDATED" ] && [ "$VALIDATED" != "$HEAD_SHA" ]; then
+            echo "main a avancé depuis le commit validé ($VALIDATED) : la CI du nouveau commit déclenchera la version."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif echo "$SUBJECT" | grep -q '^chore(release):'; then
+            echo "Commit de version : rien à publier."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v6
+        if: steps.guard.outputs.skip == 'false'
+        with:
+          node-version: '22'
+
+      - name: Dernier build connu sur App Store Connect (optionnel)
+        if: steps.guard.outputs.skip == 'false'
+        id: store
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+        run: |
+          if [ -z "$APP_STORE_CONNECT_PRIVATE_KEY" ]; then echo "latest=0" >> "$GITHUB_OUTPUT"; exit 0; fi
+          pip3 install -q codemagic-cli-tools
+          LATEST=$(app-store-connect get-latest-build-number 6757806640 2>/dev/null || echo 0)
+          echo "Dernier build App Store / TestFlight : $LATEST"
+          echo "latest=${LATEST:-0}" >> "$GITHUB_OUTPUT"
+
+      - name: Calcul de la version et génération des fichiers
+        if: steps.guard.outputs.skip == 'false'
+        id: rel
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          LATEST_STORE_BUILD: ${{ steps.store.outputs.latest }}
+        run: node tool/release/release.mjs
+
+      - name: Commit, tag et synchronisation de dev
+        if: steps.guard.outputs.skip == 'false' && steps.rel.outputs.released == 'true'
+        env:
+          TITLE: ${{ steps.rel.outputs.title }}
+          TAG: ${{ steps.rel.outputs.tag }}
+          BUILD: ${{ steps.rel.outputs.build }}
+        run: |
+          git config user.name "kauri-release-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pubspec.yaml CHANGELOG.md RELEASE_NOTES.md release_notes.json release/versions.json lib/core/config/app_release.dart
+          git commit -m "chore(release): $TITLE (build $BUILD)"
+          git tag -a "$TAG" -m "$TITLE (build $BUILD)"
+          git push origin HEAD:main
+          git push origin "$TAG"
+          {
+            echo "### 🏷️ $TITLE (build $BUILD)"
+            echo
+            echo "Tag \`$TAG\` poussé : Codemagic construit et publie sur les stores."
+            echo
+            cat RELEASE_NOTES.md
+          } >> "$GITHUB_STEP_SUMMARY"
+          # dev doit repartir de la version publiée (pubspec, changelog) ; un conflit
+          # éventuel n'annule pas la version déjà taguée : il est seulement signalé.
+          git fetch origin dev
+          git checkout -B dev origin/dev
+          if git merge --no-edit main; then
+            git push origin dev
+          else
+            git merge --abort || true
+            echo "::warning::Synchronisation main → dev en conflit : fusionner main dans dev manuellement."
+          fi

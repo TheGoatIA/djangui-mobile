@@ -1,0 +1,165 @@
+name: iOS Staging — TestFlight
+
+# STAGING mobile = GitHub (ce workflow + android-staging.yml).
+# PRODUCTION mobile = Codemagic (éditeur visuel, branche main).
+#
+# Se déclenche UNIQUEMENT quand « Mobile CI » a réussi sur dev ; relançable à la main.
+# Distribution par TestFlight (testeurs internes) : aucun UDID d'iPhone à enregistrer,
+# contrairement à un profil Ad Hoc.
+# Séparation stricte avec la PRODUCTION (même app App Store) :
+#  - numéros de build : dernier build App Store Connect + 1 (staging ET prod) → jamais de collision ;
+#  - version : version publiée + 1 correctif (la prod reçoit la sienne du tag vX.Y.Z) ;
+#  - testeurs : les builds staging vont UNIQUEMENT dans le groupe TestFlight « Kauri STAGING »
+#    (accès limité aux builds qui lui sont attribués), jamais dans les groupes de la prod ;
+#  - « Nouveautés » TestFlight préfixées STAGING.
+#
+# Signature 100 % automatique (codemagic-cli-tools) : le certificat de distribution
+# et le profil App Store sont récupérés — ou créés au premier passage — via l'API
+# App Store Connect. Rien à exporter à la main depuis un Mac.
+#
+# Secrets GitHub requis :
+#   APP_STORE_CONNECT_ISSUER_ID       Issuer ID (App Store Connect → Utilisateurs et accès → Intégrations)
+#   APP_STORE_CONNECT_KEY_IDENTIFIER  Key ID de la clé API
+#   APP_STORE_CONNECT_PRIVATE_KEY     contenu du fichier AuthKey_XXXX.p8
+#   IOS_CERTIFICATE_PRIVATE_KEY       clé RSA privée (PEM) propre au certificat de distribution du CI
+# Optionnels : DART_DEFINES_STAGING_JSON, SLACK_WEBHOOK_URL
+
+on:
+  workflow_run:
+    workflows: ['Mobile CI']
+    types: [completed]
+    branches: [dev]
+  workflow_dispatch:
+
+concurrency:
+  group: ios-staging
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.47.6'
+  BUNDLE_ID: cm.tbg.kauri
+
+jobs:
+  testflight:
+    name: 🍏 Build IPA staging + TestFlight
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+      APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+      CERTIFICATE_PRIVATE_KEY: ${{ secrets.IOS_CERTIFICATE_PRIVATE_KEY }}
+    steps:
+      - name: Vérifier les secrets requis
+        run: |
+          missing=""
+          [ -z "$APP_STORE_CONNECT_ISSUER_ID" ] && missing="$missing APP_STORE_CONNECT_ISSUER_ID"
+          [ -z "$APP_STORE_CONNECT_KEY_IDENTIFIER" ] && missing="$missing APP_STORE_CONNECT_KEY_IDENTIFIER"
+          [ -z "$APP_STORE_CONNECT_PRIVATE_KEY" ] && missing="$missing APP_STORE_CONNECT_PRIVATE_KEY"
+          [ -z "$CERTIFICATE_PRIVATE_KEY" ] && missing="$missing IOS_CERTIFICATE_PRIVATE_KEY"
+          if [ -n "$missing" ]; then
+            echo "::error::Secrets GitHub manquants :$missing"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Outils de signature (codemagic-cli-tools)
+        run: pip3 install --break-system-packages codemagic-cli-tools
+
+      - run: flutter pub get
+
+      - name: Pods
+        run: cd ios && pod install --repo-update
+
+      - name: Certificat + profil App Store (récupérés ou créés via l'API)
+        run: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
+
+      - name: Configuration staging (dart-defines)
+        env:
+          DEFINES: ${{ secrets.DART_DEFINES_STAGING_JSON }}
+        run: |
+          if [ -n "$DEFINES" ]; then
+            echo "$DEFINES" > dart_defines.staging.json
+          else
+            cat > dart_defines.staging.json <<'EOF'
+          {
+            "API_BASE_URL": "https://staging.kauri-app.com/api/v1",
+            "OTEL_SERVICE_NAME": "kauri-mobile-staging",
+            "ENV": "staging",
+            "ENABLE_REAL_MONEY": "false"
+          }
+          EOF
+          fi
+          node -e "
+            const d = require('./dart_defines.staging.json');
+            if (d.ENV !== 'staging') { console.error('ENV doit valoir staging'); process.exit(1); }
+            if (!/^https:\/\/staging\.kauri-app\.com\//.test(d.API_BASE_URL || '')) {
+              console.error('API_BASE_URL staging invalide : ' + d.API_BASE_URL); process.exit(1);
+            }
+            console.log('API staging : ' + d.API_BASE_URL);
+          "
+
+      - name: Numéro de build (dernier TestFlight + 1, partagé avec la prod Codemagic)
+        id: build
+        run: |
+          APP_ID=$(app-store-connect apps list --bundle-id-identifier "$BUNDLE_ID" --strict-match-identifier --json | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>console.log(JSON.parse(d)[0].id))")
+          LATEST=$(app-store-connect get-latest-build-number "$APP_ID" 2>/dev/null || echo 0)
+          echo "app_id=$APP_ID" >> "$GITHUB_OUTPUT"
+          # Version publiée + 1 correctif : l'App Store refuse tout nouveau build sur une version déjà publiée.
+          V=$(grep '^version:' pubspec.yaml | sed 's/^version: *//; s/+.*//' | tr -d '\r')
+          NEXT=$(echo "$V" | awk -F. '{print $1"."$2"."$3+1}')
+          echo "name=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "number=$((LATEST + 1))" >> "$GITHUB_OUTPUT"
+          echo "Build $((LATEST + 1)) (dernier : $LATEST)"
+
+      - name: Build IPA (staging)
+        run: |
+          flutter build ipa --release \
+            --dart-define-from-file=dart_defines.staging.json \
+            --build-name=${{ steps.build.outputs.name }} \
+            --build-number=${{ steps.build.outputs.number }} \
+            --export-options-plist="$HOME/export_options.plist"
+          ls -lh build/ios/ipa/*.ipa
+
+      - name: Envoi sur TestFlight
+        run: |
+          app-store-connect publish \
+            --path "$(ls build/ios/ipa/*.ipa | head -1)" \
+            --testflight \
+            --beta-group "Kauri STAGING" \
+            --whats-new "STAGING — $(git log -1 --format='%h %s') — API staging.kauri-app.com"
+
+      - name: Notification Slack
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          STATUS: ${{ job.status }}
+        run: |
+          [ -z "$SLACK_WEBHOOK_URL" ] && exit 0
+          if [ "$STATUS" = "success" ]; then MSG="✅ Kauri iOS staging envoyé sur TestFlight (build ${{ steps.build.outputs.number }})."; else MSG="❌ Échec du build iOS staging : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"; fi
+          curl -s -X POST -H 'Content-type: application/json' --data "{\"text\":\"$MSG\"}" "$SLACK_WEBHOOK_URL" >/dev/null
+
+      - name: Nettoyage
+        if: always()
+        run: |
+          keychain use-login || true
+          rm -f dart_defines.staging.json

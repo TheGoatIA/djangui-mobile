@@ -1,0 +1,13 @@
+{
+  "_comment": "Historique des versions publiées — GÉNÉRÉ par tool/release/release.mjs, ne pas modifier à la main. La première entrée est la référence : version 4.0.1+32 déjà publiée sur les stores (commit de main au 15/10/2026).",
+  "releases": [
+    {
+      "version": "4.0.1",
+      "build": 32,
+      "edition": "",
+      "tag": null,
+      "commit": "17dc65da5ae60157acb0f29f73eff00b4208187c",
+      "date": "2026-10-15"
+    }
+  ]
+}

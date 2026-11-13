@@ -61,7 +61,7 @@ Pour tester depuis un émulateur Android contre ce backend local, utiliser `http
 
 ### Mobile (Flutter) — Codemagic, éditeur visuel
 
-Le pipeline mobile réel est Codemagic, configuré via l'**éditeur visuel** de l'interface codemagic.io (pas de `codemagic.yaml` versionné dans ce dépôt — choix assumé : l'équipe connaît et maîtrise déjà cette configuration, pas de migration vers le mode YAML). Deux workflows attendus, déclenchés respectivement sur push `dev` (staging → build Android + iOS, artefacts publiés sur Slack) et push `main` (production → build + publication Play Store / App Store via Codemagic). **Le détail exact des étapes configurées dans l'éditeur visuel n'est pas dupliqué ici** — il vit dans Codemagic lui-même, seule source de vérité. Voir cependant les points de vigilance ci-dessous, à vérifier directement dans l'éditeur visuel (checklist de mise en place / mise à jour).
+**Répartition (décision 2026-11-12)** : **STAGING = GitHub Actions** (`.github/workflows/android-staging.yml` : après succès de « Mobile CI » sur `dev`, APK release signé, API `https://staging.kauri-app.com/api/v1`, distribué aux testeurs par Firebase App Distribution — secrets requis listés en tête du workflow). **PRODUCTION = Codemagic**, configuré via l'**éditeur visuel** de codemagic.io (pas de `codemagic.yaml` versionné — choix assumé), déclenché sur `main` (build + publication Play Store / App Store). Le workflow `dev` de Codemagic, s'il existe encore, doit être désactivé pour ne pas doubler le staging. **Le détail exact des étapes de l'éditeur visuel n'est pas dupliqué ici** — il vit dans Codemagic, seule source de vérité. Garde-fou côté code : un build de **release** sans `API_BASE_URL`/`ENV` vise désormais la production (`EnvConfig`), mais le workflow de production doit quand même les passer explicitement (voir checklist ci-dessous).
 
 **Points à vérifier/mettre à jour dans l'éditeur visuel Codemagic** (indépendants du mode YAML vs UI) :
 - **Obfuscation (K-19)** — le champ « Build arguments » / « Additional Flutter build arguments » de l'étape de build Android **et** iOS doit contenir `--obfuscate --split-debug-info=build/symbols/<plateforme>`. Ce n'est pas une case à cocher par défaut — sans ce texte explicite dans le champ, l'obfuscation ne s'applique pas.
@@ -110,3 +110,19 @@ Secrets GitHub requis : `SONAR_HOST_URL`, `SONAR_TOKEN` (jeton `ci-kauri-mobile`
 | `No space left on device` (GitHub Actions) | Build debug 3 ABI sur runner de 14 Go. | Étape de nettoyage + `--target-platform android-arm64`. |
 
 Montée de toolchain : Flutter signale que Gradle 8.14, AGP 8.11 et Kotlin 2.2 seront bientôt abandonnés. À planifier : Gradle ≥ 9.1, AGP ≥ 9.0.1, Kotlin ≥ 2.3.20 — c'est ce qui permettra de réactiver les majeures ignorées ci-dessus.
+
+### Versionnage automatique (production)
+
+Plus aucune version n'est saisie à la main. À chaque fusion `dev` → `main` :
+
+1. « Mobile CI » valide `main`, puis `.github/workflows/release.yml` exécute `tool/release/release.mjs` :
+   - version calculée depuis les Conventional Commits depuis le dernier tag : `feat` → mineure, `fix`/autres → correctif, `type!:` ou `BREAKING CHANGE` → majeure ;
+   - **édition** : nouvelle constellation (`tool/release/editions.json`) à chaque majeure/mineure, conservée pour un correctif → `v4.1.0 - Orion Edition` ;
+   - **build** (versionCode / CFBundleVersion) : max(pubspec, historique, dernier build App Store Connect) + 1 ;
+   - fichiers générés : `pubspec.yaml`, `CHANGELOG.md` (FR + EN), `RELEASE_NOTES.md`, `release_notes.json` (notes App Store / Play Store lues par Codemagic), `release/versions.json`, `lib/core/config/app_release.dart` (édition affichée dans « À propos ») ;
+   - rédaction FR/EN par Gemini (`GEMINI_API_KEY`), repli automatique sur les messages de commit.
+2. Commit `chore(release): …` + tag `vX.Y.Z` sur `main`, puis resynchronisation de `dev`.
+3. Le **tag** déclenche le workflow de production Codemagic (déclencheur « tag `v*` »).
+
+Les builds staging (GitHub) utilisent la version publiée + 1 correctif (`4.0.2-staging` sur Android) : l'App Store refuse un nouveau build sur une version déjà publiée.
+Essai local sans rien modifier : `node tool/release/release.mjs --dry-run`.

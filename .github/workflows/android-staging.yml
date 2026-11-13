@@ -1,0 +1,169 @@
+name: Android Staging — Firebase App Distribution
+
+# STAGING mobile = GitHub (ce workflow). PRODUCTION mobile = Codemagic (éditeur
+# visuel, branche main) — ne pas publier en production d'ici.
+#
+# Se déclenche UNIQUEMENT quand « Mobile CI » a réussi sur dev : un build qui
+# casse l'analyse ou les tests n'arrive jamais chez les testeurs.
+# Relançable à la main (workflow_dispatch).
+#
+# Secrets GitHub requis (Settings → Secrets and variables → Actions) :
+#   ANDROID_KEYSTORE_BASE64   keystore de signature encodé en base64
+#   ANDROID_KEYSTORE_PASSWORD / ANDROID_KEY_ALIAS / ANDROID_KEY_PASSWORD
+#   FIREBASE_SERVICE_ACCOUNT  JSON du compte de service (rôle « Firebase App Distribution Admin »)
+# Optionnels :
+#   DART_DEFINES_STAGING_JSON contenu complet de dart_defines.staging.json (sinon valeurs par défaut ci-dessous)
+#   SLACK_WEBHOOK_URL         notification du lien de téléchargement
+# Variable optionnelle : FIREBASE_TESTER_GROUPS (défaut : testeurs)
+
+on:
+  workflow_run:
+    workflows: ['Mobile CI']
+    types: [completed]
+    branches: [dev]
+  workflow_dispatch:
+
+concurrency:
+  group: android-staging
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.47.6'
+  # App Android Firebase (projet djangui-9872c, package cm.tbg.kauri) — identifiant public,
+  # le même que dans android/app/google-services.json.
+  FIREBASE_ANDROID_APP_ID: '1:323526784336:android:87676b4348b397a4ca6855'
+
+jobs:
+  distribute:
+    name: 📦 Build APK staging + distribution testeurs
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Vérifier les secrets requis
+        env:
+          KS: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KSP: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KA: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KP: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          FSA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          missing=""
+          [ -z "$KS" ] && missing="$missing ANDROID_KEYSTORE_BASE64"
+          [ -z "$KSP" ] && missing="$missing ANDROID_KEYSTORE_PASSWORD"
+          [ -z "$KA" ] && missing="$missing ANDROID_KEY_ALIAS"
+          [ -z "$KP" ] && missing="$missing ANDROID_KEY_PASSWORD"
+          [ -z "$FSA" ] && missing="$missing FIREBASE_SERVICE_ACCOUNT"
+          if [ -n "$missing" ]; then
+            echo "::error::Secrets GitHub manquants :$missing"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+        with:
+          # Sur workflow_run, construire EXACTEMENT le commit validé par la CI.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Libérer de l'espace disque
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost \
+                      /usr/local/graalvm /usr/local/share/powershell /opt/microsoft || true
+          df -h / | tail -1
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Signature (keystore depuis les secrets, jamais commité)
+        env:
+          KS: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KS" | base64 --decode > android/app/kauri-release.keystore
+          cat > android/key.properties <<EOF
+          storeFile=kauri-release.keystore
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          EOF
+
+      - name: Configuration staging (dart-defines)
+        env:
+          DEFINES: ${{ secrets.DART_DEFINES_STAGING_JSON }}
+        run: |
+          if [ -n "$DEFINES" ]; then
+            echo "$DEFINES" > dart_defines.staging.json
+          else
+            cat > dart_defines.staging.json <<'EOF'
+          {
+            "API_BASE_URL": "https://staging.kauri-app.com/api/v1",
+            "OTEL_SERVICE_NAME": "kauri-mobile-staging",
+            "ENV": "staging",
+            "ENABLE_REAL_MONEY": "false"
+          }
+          EOF
+          fi
+          # Garde-fou : un build staging ne doit JAMAIS viser l'API de production.
+          node -e "
+            const d = require('./dart_defines.staging.json');
+            if (d.ENV !== 'staging') { console.error('ENV doit valoir staging'); process.exit(1); }
+            if (!/^https:\/\/staging\.kauri-app\.com\//.test(d.API_BASE_URL || '')) {
+              console.error('API_BASE_URL staging invalide : ' + d.API_BASE_URL); process.exit(1);
+            }
+            console.log('API staging : ' + d.API_BASE_URL);
+          "
+
+      - name: Build APK release (staging)
+        run: |
+          BUILD_NUMBER=$((GITHUB_RUN_NUMBER + 10000))
+          V=$(grep '^version:' pubspec.yaml | sed 's/^version: *//; s/+.*//' | tr -d '\r')
+          NEXT=$(echo "$V" | awk -F. '{print $1"."$2"."$3+1}')
+          flutter build apk --release \
+            --dart-define-from-file=dart_defines.staging.json \
+            --build-name="$NEXT-staging" \
+            --build-number=$BUILD_NUMBER
+          ls -lh build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Notes de version
+        id: notes
+        run: |
+          {
+            echo "notes<<EOF"
+            echo "Staging — $(git log -1 --format='%h %s')"
+            echo "API : staging.kauri-app.com"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Distribution Firebase (testeurs)
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ env.FIREBASE_ANDROID_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          groups: ${{ vars.FIREBASE_TESTER_GROUPS || 'testeurs' }}
+          file: build/app/outputs/flutter-apk/app-release.apk
+          releaseNotes: ${{ steps.notes.outputs.notes }}
+
+      - name: Notification Slack
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          STATUS: ${{ job.status }}
+        run: |
+          [ -z "$SLACK_WEBHOOK_URL" ] && exit 0
+          if [ "$STATUS" = "success" ]; then MSG="✅ Kauri Android staging distribué aux testeurs (Firebase App Distribution)."; else MSG="❌ Échec du build Android staging : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"; fi
+          curl -s -X POST -H 'Content-type: application/json' --data "{\"text\":\"$MSG\"}" "$SLACK_WEBHOOK_URL" >/dev/null
+
+      - name: Nettoyage des fichiers sensibles
+        if: always()
+        run: rm -f android/app/kauri-release.keystore android/key.properties dart_defines.staging.json
