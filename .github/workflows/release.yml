@@ -32,6 +32,11 @@ jobs:
     name: 🏷️ Nouvelle version
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.guard.outputs.skip == 'false' && steps.rel.outputs.released == 'true' }}
+      tag: ${{ steps.rel.outputs.tag }}
+      title: ${{ steps.rel.outputs.title }}
+      build: ${{ steps.rel.outputs.build }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -82,6 +87,17 @@ jobs:
           LATEST_STORE_BUILD: ${{ steps.store.outputs.latest }}
         run: node tool/release/release.mjs
 
+      - name: Notes de version (français) pour Slack
+        id: notes
+        if: steps.guard.outputs.skip == 'false' && steps.rel.outputs.released == 'true'
+        run: |
+          {
+            echo "fr<<EOF_NOTES"
+            echo "*Notes de version*"
+            sed -n '/## 🇫🇷/,/## 🇬🇧/p' RELEASE_NOTES.md | sed '1d;$d' | sed '/^\s*$/d' | head -15
+            echo "EOF_NOTES"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Commit, tag et synchronisation de dev
         if: steps.guard.outputs.skip == 'false' && steps.rel.outputs.released == 'true'
         env:
@@ -115,21 +131,207 @@ jobs:
           fi
 
       - name: Notification Slack (#deployment)
-        if: always() && steps.guard.outputs.skip == 'false'
+        if: always() && steps.guard.outputs.skip == 'false' && steps.rel.outputs.released != 'false'
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
           STATUS: ${{ job.status }}
-          RELEASED: ${{ steps.rel.outputs.released }}
-          TITLE: ${{ steps.rel.outputs.title }}
-          BUILD: ${{ steps.rel.outputs.build }}
+          COMPONENT: Mobile
+          ACTION: Nouvelle version
+          ENVIRONMENT: PRODUCTION
+          VERSION: ${{ steps.rel.outputs.title }} (build ${{ steps.rel.outputs.build }})
+          LINK: Tag ${{ steps.rel.outputs.tag }} — publication Play Store (test interne) et TestFlight (Kauri PRODUCTION)
+          DETAILS: ${{ steps.notes.outputs.fr }}
+          COMMIT_MSG: ${{ github.event.head_commit.message || github.event.workflow_run.head_commit.message }}
+        run: bash .github/scripts/notify-slack.sh
+
+  # ---------------------------------------------------------------- PUBLICATION
+  # Publication dans les stores (remplace Codemagic). Lancée ici et non par le tag :
+  # un tag créé avec GITHUB_TOKEN ne déclenche aucun autre workflow.
+  # Jamais de mise en ligne publique automatique : Play Store en TEST INTERNE,
+  # iOS sur TestFlight (groupe Kauri PRODUCTION). La promotion en production
+  # (Play Console) et la soumission à la revue Apple restent des actions manuelles.
+
+  android-production:
+    name: 🤖 Android → Play Store (test interne)
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Vérifier les secrets requis
+        env:
+          KS: ${{ secrets.ANDROID_PROD_KEYSTORE_BASE64 }}
+          PLAY: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
         run: |
-          if [ -z "$SLACK_WEBHOOK" ] || [ "$RELEASED" = "false" ]; then exit 0; fi
-          if [ "$STATUS" = "success" ]; then
-            HEAD="🏷️ *Kauri mobile* — nouvelle version *$TITLE* (build $BUILD) : Codemagic publie sur les stores"
-            NOTES=$(sed -n '/## 🇫🇷/,/## 🇬🇧/p' RELEASE_NOTES.md 2>/dev/null | sed '1d;$d' | head -12)
-          else
-            HEAD="❌ *Kauri mobile* — échec de la préparation de version"
-            NOTES=""
+          if [ -z "$KS" ] || [ -z "$PLAY" ]; then
+            echo "::error::ANDROID_PROD_KEYSTORE_BASE64 ou GOOGLE_PLAY_SERVICE_ACCOUNT_JSON manquant"
+            exit 1
           fi
-          MSG=$(printf '%s\n%s\n<%s|Voir le pipeline>' "$HEAD" "$NOTES" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID")
-          curl -s -X POST -H 'Content-type: application/json' --data "$(jq -n --arg t "$MSG" '{text:$t}')" "$SLACK_WEBHOOK" >/dev/null
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+
+      - name: Libérer de l'espace disque
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /usr/local/graalvm /opt/microsoft || true
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Signature (clé d'importation de production)
+        env:
+          KS: ${{ secrets.ANDROID_PROD_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KS" | base64 --decode > android/app/kauri-upload.jks
+          cat > android/key.properties <<EOF
+          storeFile=kauri-upload.jks
+          storePassword=${{ secrets.ANDROID_PROD_KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_PROD_KEY_ALIAS }}
+          keyPassword=${{ secrets.ANDROID_PROD_KEY_PASSWORD }}
+          EOF
+
+      - name: Configuration production (dart-defines)
+        env:
+          DEFINES: ${{ secrets.DART_DEFINES_PRODUCTION_JSON }}
+        run: |
+          if [ -n "$DEFINES" ]; then
+            echo "$DEFINES" > dart_defines.prod.json
+          else
+            echo '{"API_BASE_URL":"https://api.kauri-app.com/api/v1","ENV":"production","ENABLE_REAL_MONEY":"false"}' > dart_defines.prod.json
+          fi
+          node tool/release/check-prod-defines.mjs dart_defines.prod.json
+
+      - name: Build App Bundle (version et build de pubspec.yaml)
+        run: flutter build appbundle --release --dart-define-from-file=dart_defines.prod.json
+
+      - name: Notes « Nouveautés » (FR / EN) depuis release_notes.json
+        run: node tool/release/whatsnew.mjs release_notes.json whatsnew
+
+      - name: Envoi sur Google Play (test interne)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: cm.tbg.kauri
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: internal
+          status: completed
+          whatsNewDirectory: whatsnew
+
+      - name: Notification Slack (#deployment)
+        if: always()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
+          STATUS: ${{ job.status }}
+          COMPONENT: Mobile Android
+          ACTION: Publication Play Store
+          ENVIRONMENT: PRODUCTION
+          VERSION: ${{ needs.release.outputs.title }} (build ${{ needs.release.outputs.build }})
+          LINK: Google Play — piste « Test interne » (à promouvoir en production dans la Play Console)
+          COMMIT_MSG: ${{ needs.release.outputs.title }}
+        run: bash .github/scripts/notify-slack.sh
+
+      - name: Nettoyage des fichiers sensibles
+        if: always()
+        run: rm -f android/app/kauri-upload.jks android/key.properties dart_defines.prod.json
+
+  ios-production:
+    name: 🍏 iOS → TestFlight (Kauri PRODUCTION)
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    runs-on: macos-15
+    timeout-minutes: 75
+    env:
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+      APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+      CERTIFICATE_PRIVATE_KEY: ${{ secrets.IOS_CERTIFICATE_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+
+      - name: Xcode 26 (SDK iOS 26 requis)
+        run: |
+          XC=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$XC" ]; then echo "::error::Aucun Xcode 26 sur ce runner"; exit 1; fi
+          sudo xcode-select -s "$XC/Contents/Developer"
+          xcodebuild -version
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+          cache: true
+
+      - name: Outils de signature (codemagic-cli-tools)
+        run: pip3 install --break-system-packages codemagic-cli-tools
+
+      - run: flutter pub get
+
+      - name: Pods
+        run: cd ios && pod install --repo-update
+
+      - name: Certificat + profil App Store
+        run: |
+          keychain initialize
+          app-store-connect fetch-signing-files cm.tbg.kauri --type IOS_APP_STORE --create
+          keychain add-certificates
+          xcode-project use-profiles
+
+      - name: Configuration production (dart-defines)
+        env:
+          DEFINES: ${{ secrets.DART_DEFINES_PRODUCTION_JSON }}
+        run: |
+          if [ -n "$DEFINES" ]; then
+            echo "$DEFINES" > dart_defines.prod.json
+          else
+            echo '{"API_BASE_URL":"https://api.kauri-app.com/api/v1","ENV":"production","ENABLE_REAL_MONEY":"false"}' > dart_defines.prod.json
+          fi
+          node tool/release/check-prod-defines.mjs dart_defines.prod.json
+
+      - name: Build IPA (version et build de pubspec.yaml)
+        run: |
+          if ! flutter build ipa --release -v --dart-define-from-file=dart_defines.prod.json \
+            --export-options-plist="$HOME/export_options.plist" > build-ios.log 2>&1; then
+            grep -nE "error:|: error" build-ios.log | head -40
+            tail -60 build-ios.log
+            exit 1
+          fi
+
+      - name: Envoi sur TestFlight (groupe Kauri PRODUCTION)
+        run: |
+          NOTES=$(node tool/release/whatsnew.mjs release_notes.json --print fr-FR)
+          app-store-connect publish \
+            --path "$(ls build/ios/ipa/*.ipa | head -1)" \
+            --testflight \
+            --beta-group "Kauri PRODUCTION" \
+            --whats-new "$NOTES"
+
+      - name: Notification Slack (#deployment)
+        if: always()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
+          STATUS: ${{ job.status }}
+          COMPONENT: Mobile iOS
+          ACTION: Envoi TestFlight
+          ENVIRONMENT: PRODUCTION
+          VERSION: ${{ needs.release.outputs.title }} (build ${{ needs.release.outputs.build }})
+          LINK: TestFlight — groupe « Kauri PRODUCTION » (soumettre à la revue Apple depuis App Store Connect)
+          COMMIT_MSG: ${{ needs.release.outputs.title }}
+        run: bash .github/scripts/notify-slack.sh
+
+      - name: Nettoyage
+        if: always()
+        run: |
+          keychain use-login || true
+          rm -f dart_defines.prod.json

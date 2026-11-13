@@ -126,3 +126,15 @@ Plus aucune version n'est saisie à la main. À chaque fusion `dev` → `main` :
 
 Les builds staging (GitHub) utilisent la version publiée + 1 correctif (`4.0.2-staging` sur Android) : l'App Store refuse un nouveau build sur une version déjà publiée.
 Essai local sans rien modifier : `node tool/release/release.mjs --dry-run`.
+
+### Publication dans les stores — GitHub Actions (remplace Codemagic, 2026-11-13)
+
+`release.yml` enchaîne, après la création du tag `vX.Y.Z` :
+
+- **🤖 Android → Play Store, piste « Test interne »** : App Bundle signé avec la clé d'importation (`ANDROID_PROD_*`), publié via le compte de service `github-play-publisher@djangui-9872c.iam.gserviceaccount.com` (`GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`), notes FR/EN depuis `release_notes.json`.
+- **🍏 iOS → TestFlight, groupe « Kauri PRODUCTION »** : Xcode 26, signature automatique via l'API App Store Connect (mêmes secrets que le staging).
+- Garde-fou `tool/release/check-prod-defines.mjs` : un build de production qui ne viserait pas `https://api.kauri-app.com/api/v1` est refusé.
+- **Aucune mise en ligne publique automatique** : la promotion en production (Play Console) et la soumission à la revue Apple restent manuelles.
+- Notifications : `#deployment` (script commun `.github/scripts/notify-slack.sh`, identique dans les 3 dépôts).
+
+Prérequis : clé d'importation Android réinitialisée chez Google (nouveau certificat `upload_certificate.pem`), et compte de service invité dans la Play Console (rôle « Publier » sur Kauri). Le workflow de production Codemagic peut ensuite être supprimé.

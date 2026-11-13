@@ -197,15 +197,18 @@ jobs:
             --beta-group "Kauri STAGING" \
             --whats-new "STAGING — $(git log -1 --format='%h %s') — API staging.kauri-app.com"
 
-      - name: Notification Slack
+      - name: Notification Slack (#deployment)
         if: always()
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
           STATUS: ${{ job.status }}
-        run: |
-          [ -z "$SLACK_WEBHOOK_URL" ] && exit 0
-          if [ "$STATUS" = "success" ]; then MSG="✅ Kauri iOS staging envoyé sur TestFlight (build ${{ steps.build.outputs.number }})."; else MSG="❌ Échec du build iOS staging : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"; fi
-          curl -s -X POST -H 'Content-type: application/json' --data "{\"text\":\"$MSG\"}" "$SLACK_WEBHOOK_URL" >/dev/null
+          COMPONENT: Mobile iOS
+          ACTION: Envoi TestFlight
+          ENVIRONMENT: STAGING
+          VERSION: ${{ steps.build.outputs.name }} (build ${{ steps.build.outputs.number }})
+          LINK: TestFlight — groupe « Kauri STAGING »
+          COMMIT_MSG: ${{ github.event.head_commit.message || github.event.workflow_run.head_commit.message }}
+        run: bash .github/scripts/notify-slack.sh
 
       - name: Nettoyage
         if: always()
