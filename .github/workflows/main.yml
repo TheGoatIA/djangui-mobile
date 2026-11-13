@@ -201,3 +201,6 @@ jobs:
         run: |
           curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=kauri-mobile" \
             | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{const s=JSON.parse(d).projectStatus||{};for(const c of s.conditions||[]){if(c.status!=='OK')console.log('::error::Quality Gate — '+c.metricKey+' = '+c.actualValue+' (seuil '+c.comparator+' '+c.errorThreshold+')')}})"
+          # Problèmes du « nouveau code » à corriger (fichier, ligne, règle, message).
+          curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/issues/search?componentKeys=kauri-mobile&inNewCodePeriod=true&resolved=false&ps=50" \
+            | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{for(const i of JSON.parse(d).issues||[])console.log('::warning file='+i.component.split(':').pop()+',line='+(i.line||1)+'::['+i.rule+' '+i.severity+'] '+i.message)})"
