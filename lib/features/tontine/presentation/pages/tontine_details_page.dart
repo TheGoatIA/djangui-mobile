@@ -1,4 +1,7 @@
+import 'package:kauri/core/constants/route_constants.dart';
+import 'package:kauri/core/navigation/safe_pop.dart';
 import 'dart:io';
+import 'package:kauri/core/utils/currency_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -10,6 +13,7 @@ import '../bloc/tontine_event.dart';
 import '../bloc/tontine_state.dart';
 import '../widgets/contribution_dialog.dart';
 import '../widgets/tontine_chat_tab.dart';
+import '../widgets/tontine_closure_vote_card.dart';
 import '../../domain/entities/tontine_entities.dart';
 import './create_tontine_page.dart';
 import 'package:kauri/core/config/env_config.dart';
@@ -47,6 +51,13 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
 
   late int _currentIndex;
   bool _isLoadingDialogShowing = false;
+  int _contributionsAcknowledged = 0;
+
+  /// Cotisation à valider par l'organisateur. L'API marque les cotisations par
+  /// reçu `manual_pending` (validation TOUJOURS manuelle) : l'ancien test
+  /// `== 'pending'` les cachait — l'organisateur ne voyait jamais rien à valider.
+  static bool _awaitsValidation(String status) =>
+      status == 'pending' || status == 'manual_pending';
   String _validationFilter = 'pending';
   final GlobalKey _contributeKey = GlobalKey();
 
@@ -121,226 +132,235 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return BlocBuilder<SystemBloc, SystemState>(
-      builder: (context, systemState) {
-        final featureStatus = context.read<SystemBloc>().getFeatureStatus(
-          systemState.featureFlags.featTontines,
-        );
-
-        if (featureStatus == FeatureStatus.disabled) {
-          return Scaffold(body: FeatureDisabledWidget(title: l10n.tontine));
-        }
-
-        if (featureStatus == FeatureStatus.updateRequired) {
-          return Scaffold(
-            body: FeatureDisabledWidget(
-              title: l10n.tontine,
-              isUpdateRequired: true,
-            ),
+    // Confirmation visible d'une cotisation envoyée (aucune avant : le membre
+    // ne savait pas si son reçu était parti).
+    return BlocListener<TontineBloc, TontineState>(
+      listenWhen: (p, c) => c.contributionsSent > p.contributionsSent,
+      listener: (context, _) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.contributionSentPendingValidation)),
+      ),
+      child: BlocBuilder<SystemBloc, SystemState>(
+        builder: (context, systemState) {
+          final featureStatus = context.read<SystemBloc>().getFeatureStatus(
+            systemState.featureFlags.featTontines,
           );
-        }
 
-        return BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, authState) {
-            final currentUserId = authState.authResponse?.user.id;
+          if (featureStatus == FeatureStatus.disabled) {
+            return Scaffold(
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              body: FeatureDisabledWidget(title: l10n.tontine),
+            );
+          }
 
-            return BlocConsumer<TontineBloc, TontineState>(
-              listener: (context, state) {
-                // `status` is only ever touched by explicit user actions
-                // (start/rotate/validate/pay/update/delete/...) — loading the
-                // tontine's details/members to display the page uses the
-                // separate `isLoadingDetails` flag instead (see
-                // TontineBloc._onTontineDetailsLoadRequested), so this
-                // dialog+toast (meant for "you just did something") can no
-                // longer misfire on a plain navigation into a tontine.
-                if (state.status == TontineStatus.loading &&
-                    state.selectedTontine != null) {
-                  if (!_isLoadingDialogShowing) {
-                    _isLoadingDialogShowing = true;
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) =>
-                          const Center(child: CircularProgressIndicator()),
-                    ).then((_) => _isLoadingDialogShowing = false);
-                  }
-                } else if (_isLoadingDialogShowing) {
-                  Navigator.of(context).pop();
-                  _isLoadingDialogShowing = false;
+          if (featureStatus == FeatureStatus.updateRequired) {
+            return Scaffold(
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              body: FeatureDisabledWidget(
+                title: l10n.tontine,
+                isUpdateRequired: true,
+              ),
+            );
+          }
 
-                  if (state.status == TontineStatus.success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.operationSuccess),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                    // Reload contributions to update UI
-                    if (state.selectedTontine != null) {
-                      context.read<TontineBloc>().add(
-                        TontineContributionsLoadRequested(
-                          state.selectedTontine!.id,
-                        ),
-                      );
+          return BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, authState) {
+              final currentUserId = authState.authResponse?.user.id;
+
+              return BlocConsumer<TontineBloc, TontineState>(
+                listener: (context, state) {
+                  // `status` is only ever touched by explicit user actions
+                  // (start/rotate/validate/pay/update/delete/...) — loading the
+                  // tontine's details/members to display the page uses the
+                  // separate `isLoadingDetails` flag instead (see
+                  // TontineBloc._onTontineDetailsLoadRequested), so this
+                  // dialog+toast (meant for "you just did something") can no
+                  // longer misfire on a plain navigation into a tontine.
+                  if (state.status == TontineStatus.loading &&
+                      state.selectedTontine != null) {
+                    if (!_isLoadingDialogShowing) {
+                      _isLoadingDialogShowing = true;
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) =>
+                            const Center(child: CircularProgressIndicator()),
+                      ).then((_) => _isLoadingDialogShowing = false);
+                    }
+                  } else if (_isLoadingDialogShowing) {
+                    Navigator.of(context).pop();
+                    _isLoadingDialogShowing = false;
+
+                    if (state.status == TontineStatus.success) {
+                      // Une cotisation a son propre message (listener en tête
+                      // de build) : pas de « Opération réalisée » qui l'écraserait.
+                      final isContribution =
+                          state.contributionsSent > _contributionsAcknowledged;
+                      _contributionsAcknowledged = state.contributionsSent;
+                      if (!isContribution) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(l10n.operationSuccess),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                      // Reload contributions to update UI
+                      if (state.selectedTontine != null) {
+                        context.read<TontineBloc>().add(
+                          TontineContributionsLoadRequested(
+                            state.selectedTontine!.id,
+                          ),
+                        );
+                      }
                     }
                   }
-                }
 
-                if (state.status == TontineStatus.error) {
-                  String message = state.errorMessage ?? l10n.genericError;
-                  if (message.contains('E11000') ||
-                      message.contains('duplicate key')) {
-                    message = l10n.alreadyContributed;
-                  }
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(message),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              builder: (context, state) {
-                if (state.isLoadingDetails && state.selectedTontine == null) {
-                  return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                final tontine = state.selectedTontine;
-                if (tontine == null) {
-                  return Scaffold(
-                    appBar: AppBar(),
-                    body: Center(child: Text(l10n.genericError)),
-                  );
-                }
-
-                WidgetsBinding.instance.addPostFrameCallback(
-                  (_) => _startTutorial(tontine.status),
-                );
-
-                final isCreator = tontine.creatorId == currentUserId;
-                final tabCount = isCreator ? 4 : 3;
-
-                if (_tabController.length != tabCount) {
-                  _tabController.removeListener(_handleTabSelection);
-                  _tabController.dispose();
-                  _tabController = TabController(
-                    length: tabCount,
-                    vsync: this,
-                    initialIndex: _currentIndex.clamp(0, tabCount - 1),
-                  );
-                  _tabController.addListener(_handleTabSelection);
-                }
-
-                return Scaffold(
-                  appBar: AppBar(
-                    title: Text(tontine.name),
-                    actions: [
-                      IconButton(
-                        icon: const Icon(Icons.share_outlined),
-                        onPressed: () => _shareInvite(tontine.inviteCode),
+                  if (state.status == TontineStatus.error) {
+                    String message = state.errorMessage ?? l10n.genericError;
+                    if (message.contains('E11000') ||
+                        message.contains('duplicate key')) {
+                      message = l10n.alreadyContributed;
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(message),
+                        backgroundColor: Colors.red,
                       ),
-                      if (isCreator &&
-                          tontine.status.toLowerCase() == 'pending')
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  if (state.isLoadingDetails && state.selectedTontine == null) {
+                    return Scaffold(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  final tontine = state.selectedTontine;
+                  if (tontine == null) {
+                    return Scaffold(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      appBar: AppBar(),
+                      body: Center(child: Text(l10n.genericError)),
+                    );
+                  }
+
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (_) => _startTutorial(tontine.status),
+                  );
+
+                  final isCreator = tontine.creatorId == currentUserId;
+                  final tabCount = isCreator ? 4 : 3;
+
+                  if (_tabController.length != tabCount) {
+                    _tabController.removeListener(_handleTabSelection);
+                    _tabController.dispose();
+                    _tabController = TabController(
+                      length: tabCount,
+                      vsync: this,
+                      initialIndex: _currentIndex.clamp(0, tabCount - 1),
+                    );
+                    _tabController.addListener(_handleTabSelection);
+                  }
+
+                  return Scaffold(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    appBar: AppBar(
+                      title: Text(tontine.name),
+                      actions: [
                         IconButton(
-                          icon: const Icon(Icons.edit_outlined),
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  CreateTontinePage(tontine: tontine),
+                          icon: const Icon(Icons.share_outlined),
+                          onPressed: () => _shareInvite(tontine.inviteCode),
+                        ),
+                        if (isCreator &&
+                            tontine.status.toLowerCase() == 'pending')
+                          IconButton(
+                            icon: const Icon(Icons.edit_outlined),
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    CreateTontinePage(tontine: tontine),
+                              ),
                             ),
                           ),
-                        ),
-                      if (isCreator &&
-                          tontine.status.toLowerCase() != 'completed')
-                        IconButton(
-                          icon: const Icon(
-                            Icons.delete_outline,
-                            color: Colors.red,
+                        // Suppression : uniquement AVANT le démarrage. Une tontine
+                        // active ne s'arrête que par vote des membres (carte
+                        // « Clôture de la tontine ») — l'API refuse le reste.
+                        if (isCreator &&
+                            tontine.status.toLowerCase() == 'pending')
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.red,
+                            ),
+                            onPressed: () =>
+                                _confirmDeleteTontine(context, tontine),
                           ),
-                          onPressed: () =>
-                              _confirmDeleteTontine(context, tontine),
-                        ),
-                    ],
-                    bottom: PreferredSize(
-                      preferredSize: const Size.fromHeight(60),
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: TabBar(
-                          controller: _tabController,
-                          isScrollable: true,
-                          tabAlignment: TabAlignment.center,
-                          indicator: BoxDecoration(
+                      ],
+                      bottom: PreferredSize(
+                        preferredSize: const Size.fromHeight(60),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(25),
-                            color: Theme.of(context).colorScheme.primary,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withValues(alpha: 0.3),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
+                          ),
+                          child: TabBar(
+                            controller: _tabController,
+                            isScrollable: true,
+                            tabAlignment: TabAlignment.center,
+                            indicator: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              color: Theme.of(context).colorScheme.primary,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            labelColor: Colors.white,
+                            unselectedLabelColor: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            dividerColor: Colors.transparent,
+                            labelPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                            ),
+                            overlayColor: WidgetStateProperty.all(
+                              Colors.transparent,
+                            ),
+                            tabs: [
+                              Tab(text: l10n.dashboard),
+                              Tab(text: l10n.members),
+                              Tab(text: l10n.chat),
+                              if (isCreator) Tab(text: l10n.validation),
                             ],
                           ),
-                          labelColor: Colors.white,
-                          unselectedLabelColor: Theme.of(
-                            context,
-                          ).colorScheme.onSurfaceVariant,
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          dividerColor: Colors.transparent,
-                          labelPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                          ),
-                          overlayColor: WidgetStateProperty.all(
-                            Colors.transparent,
-                          ),
-                          tabs: [
-                            Tab(text: l10n.dashboard),
-                            Tab(text: l10n.members),
-                            Tab(text: l10n.chat),
-                            if (isCreator) Tab(text: l10n.validation),
-                          ],
                         ),
                       ),
                     ),
-                  ),
-                  body: Column(
-                    children: [
-                      const CachedDataBanner(),
-                      Expanded(
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            _buildOverviewTab(
-                              context,
-                              tontine,
-                              state.selectedTontineContributions
-                                  .where((c) => c.tontineId == widget.tontineId)
-                                  .toList(),
-                              state.selectedTontineMembers,
-                            ),
-                            _buildMembersTab(
-                              context,
-                              state.selectedTontineMembers,
-                              isCreator,
-                              tontine,
-                            ),
-                            _buildChatTab(context, tontine.id),
-                            if (isCreator)
-                              _buildValidationTab(
+                    body: Column(
+                      children: [
+                        const CachedDataBanner(),
+                        Expanded(
+                          child: TabBarView(
+                            controller: _tabController,
+                            children: [
+                              _buildOverviewTab(
                                 context,
+                                tontine,
                                 state.selectedTontineContributions
                                     .where(
                                       (c) => c.tontineId == widget.tontineId,
@@ -348,31 +368,49 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                                     .toList(),
                                 state.selectedTontineMembers,
                               ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  floatingActionButton:
-                      _currentIndex == 2 ||
-                          tontine.status.toLowerCase() == 'completed' ||
-                          tontine.status.toLowerCase().contains('suspended')
-                      ? null
-                      : KeyedSubtree(
-                          key: _contributeKey,
-                          child: FloatingActionButton.extended(
-                            onPressed: () =>
-                                _showContributionDialog(context, tontine.id),
-                            label: Text(l10n.contribute),
-                            icon: const Icon(Icons.add_a_photo_outlined),
+                              _buildMembersTab(
+                                context,
+                                state.selectedTontineMembers,
+                                isCreator,
+                                tontine,
+                              ),
+                              _buildChatTab(context, tontine.id),
+                              if (isCreator)
+                                _buildValidationTab(
+                                  context,
+                                  state.selectedTontineContributions
+                                      .where(
+                                        (c) => c.tontineId == widget.tontineId,
+                                      )
+                                      .toList(),
+                                  state.selectedTontineMembers,
+                                ),
+                            ],
                           ),
                         ),
-                );
-              },
-            );
-          },
-        );
-      },
+                      ],
+                    ),
+                    floatingActionButton:
+                        _currentIndex == 2 ||
+                            tontine.status.toLowerCase() == 'completed' ||
+                            tontine.status.toLowerCase().contains('suspended')
+                        ? null
+                        : KeyedSubtree(
+                            key: _contributeKey,
+                            child: FloatingActionButton.extended(
+                              onPressed: () =>
+                                  _showContributionDialog(context, tontine.id),
+                              label: Text(l10n.contribute),
+                              icon: const Icon(Icons.add_a_photo_outlined),
+                            ),
+                          ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -436,6 +474,15 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
             tontine,
           ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0),
           const SizedBox(height: 24),
+          if (tontine.status.toLowerCase() == 'active' && myMember != null) ...[
+            TontineClosureVoteCard(
+              tontineId: tontine.id,
+              onTontineClosed: () => context.read<TontineBloc>().add(
+                TontineDetailsLoadRequested(tontine.id),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
           Text(l10n.recentActivity, style: AppTextStyles.h3)
               .animate()
               .fadeIn(duration: 400.ms, delay: 200.ms)
@@ -530,7 +577,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${l10n.socialFundPaymentDescription} ($amount ${tontine.currency})',
+                  '${l10n.socialFundPaymentDescription} (${CurrencyHelper.formatAmount((amount as num).toDouble(), currencyCode: tontine.currency)})',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: theme.colorScheme.onTertiaryContainer,
                   ),
@@ -606,7 +653,10 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '$collected ${tontine.currency}',
+                      CurrencyHelper.formatAmount(
+                        (collected).toDouble(),
+                        currencyCode: tontine.currency,
+                      ),
                       style: AppTextStyles.h1.copyWith(
                         color: colorScheme.onPrimary,
                         fontSize: 32,
@@ -727,7 +777,10 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                 _buildStatItem(
                   context,
                   Icons.attach_money,
-                  '$expected ${tontine.currency}',
+                  CurrencyHelper.formatAmount(
+                    (expected).toDouble(),
+                    currencyCode: tontine.currency,
+                  ),
                   l10n.expectedAmount,
                   colorScheme.onPrimary,
                 ),
@@ -1045,10 +1098,12 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     // Sort contributions: Pending first, then by date
     final sortedContributions = List.from(contributions);
     sortedContributions.sort((a, b) {
-      if (a.validationStatus == 'pending' && b.validationStatus != 'pending') {
+      if (_awaitsValidation(a.validationStatus) &&
+          !_awaitsValidation(b.validationStatus)) {
         return -1;
       }
-      if (a.validationStatus != 'pending' && b.validationStatus == 'pending') {
+      if (!_awaitsValidation(a.validationStatus) &&
+          _awaitsValidation(b.validationStatus)) {
         return 1;
       }
       return b.createdAt.compareTo(a.createdAt);
@@ -1056,7 +1111,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
 
     final filteredContributions = _validationFilter == 'pending'
         ? sortedContributions
-              .where((c) => c.validationStatus == 'pending')
+              .where((c) => _awaitsValidation(c.validationStatus))
               .toList()
         : sortedContributions;
 
@@ -1184,6 +1239,14 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                                       _getValidImageUrl(
                                         contribution.proofImage,
                                       ),
+                                      // Reçu indisponible : icône au lieu d'une erreur.
+                                      errorBuilder: (_, _, _) => const Padding(
+                                        padding: EdgeInsets.all(32),
+                                        child: Icon(
+                                          Icons.broken_image_outlined,
+                                          size: 48,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -1201,6 +1264,10 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                                     _getValidImageUrl(contribution.proofImage),
                                   ),
                                   fit: BoxFit.cover,
+                                  // Reçu introuvable / lien signé expiré / hors ligne :
+                                  // on garde la carte (fond neutre) au lieu d'une
+                                  // erreur non gérée remontée à Crashlytics.
+                                  onError: (error, stack) {},
                                 ),
                                 boxShadow: [
                                   BoxShadow(
@@ -1218,7 +1285,7 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                             context,
                             contribution.aiAnalysis,
                           ),
-                        if (contribution.validationStatus == 'pending' &&
+                        if (_awaitsValidation(contribution.validationStatus) &&
                             context
                                     .read<TontineBloc>()
                                     .state
@@ -1340,7 +1407,10 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
               '$detectedAmount',
             ),
           if (detectedRef != null && detectedRef.toString().isNotEmpty)
-            _buildAiAnalysisRow(l10n.tontineAiDetectedRef, '$detectedRef'),
+            _buildAiAnalysisRow(
+              l10n.tontineAiDetectedRef,
+              '$detectedRef'.startsWith('UNREAD_') ? '—' : '$detectedRef',
+            ),
           if (detectedDateText != null)
             _buildAiAnalysisRow(l10n.tontineAiDetectedDate, detectedDateText),
           if (confidence != null)
@@ -1360,10 +1430,18 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: AppTextStyles.bodySmall),
-          Text(
-            value,
-            style: AppTextStyles.bodySmall.copyWith(
-              fontWeight: FontWeight.bold,
+          const SizedBox(width: 12),
+          // Valeur longue (référence de transaction, nom…) : tronquée au lieu de
+          // déborder de l'écran (débordement de 246 px constaté en E2E).
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: AppTextStyles.bodySmall.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -1454,14 +1532,14 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(isPending ? l10n.delete : l10n.stopTontine),
         content: Text(
           isPending ? l10n.confirmDeleteTontine : l10n.confirmStopTontine,
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(l10n.cancel),
           ),
           TextButton(
@@ -1471,11 +1549,14 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
                 action: isPending ? 'delete_attempt' : 'stop_attempt',
                 details: {'tontine_id': tontine.id},
               );
-              Navigator.pop(context); // Close dialog
+              Navigator.pop(dialogContext); // Ferme le popup
               context.read<TontineBloc>().add(
                 DeleteTontineRequested(tontine.id),
               );
-              Navigator.pop(context); // Go back to list
+              // Retour à la liste avec le contexte de la PAGE (celui du popup
+              // n'est plus valide une fois fermé), sans vider la pile si la
+              // page avait été ouverte directement.
+              context.popOrGo(RouteConstants.tontines);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(isPending ? l10n.delete : l10n.stop),
@@ -1488,21 +1569,25 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
   Widget _buildStatusChip(BuildContext context, String status) {
     Color color;
     String label;
+    final l10n = AppLocalizations.of(context)!;
     switch (status) {
+      // `completed` = cotisation APPROUVÉE par l'organisateur (statut API) : elle
+      // s'affichait « En attente » pour toujours.
+      case 'completed':
       case 'validated':
       case 'creator_validated':
       case 'ai_validated':
         color = Colors.green;
-        label = 'Validé';
+        label = l10n.statusValidated;
         break;
       case 'rejected':
         color = Colors.red;
-        label = 'Rejeté';
+        label = l10n.statusRejected;
         break;
       case 'pending':
       default:
         color = Colors.orange;
-        label = 'En attente';
+        label = l10n.pending;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -1549,21 +1634,19 @@ class _TontineDetailsPageState extends State<TontineDetailsPage>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Lancer la Rotation'),
-        content: const Text(
-          'Êtes-vous sûr de vouloir lancer la rotation du tour ? Cela clôturera le tour actuel et passera au bénéficiaire suivant.',
-        ),
+        title: Text(AppLocalizations.of(context)!.rotateTurn),
+        content: Text(AppLocalizations.of(context)!.confirmRotateTurn),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               context.read<TontineBloc>().add(RotateTurnRequested(tontineId));
             },
-            child: const Text('Confirmer'),
+            child: Text(AppLocalizations.of(context)!.confirm),
           ),
         ],
       ),

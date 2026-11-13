@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/utils/currency_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -283,7 +284,12 @@ class _TontineListPageState extends State<TontineListPage>
                 ),
                 const SizedBox(width: 4),
                 // Montant de la cotisation
-                Text('${tontine.contributionAmount} ${tontine.currency}'),
+                Text(
+                  CurrencyHelper.formatAmount(
+                    (tontine.contributionAmount).toDouble(),
+                    currencyCode: tontine.currency,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 8),

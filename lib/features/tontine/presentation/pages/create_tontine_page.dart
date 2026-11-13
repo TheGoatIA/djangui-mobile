@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/route_constants.dart';
+import 'package:kauri/core/navigation/safe_pop.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../bloc/tontine_bloc.dart';
@@ -7,7 +9,6 @@ import '../bloc/tontine_state.dart';
 import '../../domain/entities/tontine_entities.dart';
 import '../../../../di/injection.dart';
 import 'package:kauri/features/analytics/presentation/manager/analytics_manager.dart';
-import 'package:go_router/go_router.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/widgets/feature_disabled_widget.dart';
@@ -28,6 +29,10 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
   final DateTime _enteredAt = DateTime.now();
   final _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
+
+  /// Vrai entre l'envoi du formulaire et la réponse : le TontineBloc est
+  /// partagé, un rafraîchissement de liste (success) ne doit pas fermer l'écran.
+  bool _awaitingSave = false;
 
   DateTime _startDate = DateTime.now().add(const Duration(days: 1));
   final _nameController = TextEditingController();
@@ -133,7 +138,9 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
 
         return BlocListener<TontineBloc, TontineState>(
           listener: (context, state) {
+            if (!_awaitingSave) return;
             if (state.status == TontineStatus.success && _currentStep == 2) {
+              _awaitingSave = false;
               getIt<AnalyticsManager>().trackEvent(
                 feature: 'Tontine',
                 action: 'create',
@@ -143,8 +150,15 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                   'frequency': _frequency,
                 },
               );
-              context.pop();
+              // Confirmation visible (il n'y en avait aucune : l'écran se fermait).
+              final messenger = ScaffoldMessenger.of(context);
+              final done = _isEditing
+                  ? l10n.tontineUpdatedSuccess
+                  : l10n.tontineCreatedSuccess;
+              context.popOrGo(RouteConstants.tontines);
+              messenger.showSnackBar(SnackBar(content: Text(done)));
             } else if (state.status == TontineStatus.error) {
+              _awaitingSave = false;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.errorMessage ?? l10n.genericError),
@@ -159,6 +173,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
 
               if (!isCameroon) {
                 return Scaffold(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
                   appBar: AppBar(
                     title: Text(_isEditing ? l10n.edit : l10n.createTontine),
                   ),
@@ -187,6 +202,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
               }
 
               return Scaffold(
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 appBar: AppBar(
                   title: Text(_isEditing ? l10n.edit : l10n.createTontine),
                 ),
@@ -209,7 +225,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                       if (_currentStep > 0) {
                         setState(() => _currentStep--);
                       } else {
-                        context.pop();
+                        context.popOrGo(RouteConstants.tontines);
                       }
                     },
                     steps: [
@@ -248,9 +264,9 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                               },
                             ),
                             const SizedBox(height: 16),
-                            Row(
+                            Column(
                               children: [
-                                Expanded(
+                                SizedBox(
                                   child: TextFormField(
                                     controller: _amountController,
                                     decoration: InputDecoration(
@@ -262,8 +278,8 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                                         v!.isEmpty ? l10n.requiredField : null,
                                   ),
                                 ),
-                                const SizedBox(width: 16),
-                                Expanded(
+                                const SizedBox(height: 16),
+                                SizedBox(
                                   child: DropdownButtonFormField<String>(
                                     initialValue: _frequency,
                                     decoration: InputDecoration(
@@ -301,6 +317,9 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                         isActive: _currentStep >= 1,
                         content: Column(
                           children: [
+                            // Marge haute : sans elle le libellé flottant du
+                            // premier champ était coupé par le Stepper.
+                            const SizedBox(height: 8),
                             TextFormField(
                               controller: _partsController,
                               decoration: InputDecoration(
@@ -373,6 +392,9 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            // Espace sous le titre : il chevauchait les libellés
+                            // « Frais de retard / d'absence » (constaté en capture).
+                            const SizedBox(height: 16),
                             Row(
                               children: [
                                 Expanded(
@@ -500,6 +522,7 @@ class _CreateTontinePageState extends State<CreateTontinePage> {
       'is_editing': _isEditing,
     });
 
+    _awaitingSave = true;
     if (_isEditing) {
       context.read<TontineBloc>().add(
         UpdateTontineRequested(widget.tontine!.id, params),

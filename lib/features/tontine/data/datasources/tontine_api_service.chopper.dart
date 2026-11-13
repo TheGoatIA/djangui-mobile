@@ -254,4 +254,40 @@ final class _$TontineApiService extends TontineApiService {
       $request,
     );
   }
+
+  @override
+  Future<Response<BaseListResponse<TontineVoteModel>>> getVotes(String id) {
+    final Uri $url = Uri.parse('/tontines/${id}/votes');
+    final Request $request = Request('GET', $url, client.baseUrl);
+    return client.send<BaseListResponse<TontineVoteModel>, TontineVoteModel>(
+      $request,
+    );
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineVoteModel>>> createVote(
+    String id,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/tontines/${id}/votes');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<TontineVoteModel>, TontineVoteModel>(
+      $request,
+    );
+  }
+
+  @override
+  Future<Response<BaseResponse<TontineVoteModel>>> castVote(
+    String id,
+    String voteId,
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/tontines/${id}/votes/${voteId}');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<BaseResponse<TontineVoteModel>, TontineVoteModel>(
+      $request,
+    );
+  }
 }

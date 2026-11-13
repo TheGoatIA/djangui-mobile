@@ -34,7 +34,7 @@ class _ContributionDialogState extends State<ContributionDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Veuillez uploader votre reçu de transfert pour valider votre cotisation.',
+            AppLocalizations.of(context)!.uploadTransferReceiptPrompt,
             style: AppTextStyles.bodyMedium,
           ),
           const SizedBox(height: 20),
