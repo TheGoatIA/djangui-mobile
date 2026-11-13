@@ -155,11 +155,18 @@ jobs:
 
       - name: Build IPA (staging)
         run: |
-          flutter build ipa --release \
+          # Journal détaillé : en cas d'échec, Flutter n'affiche pas les erreurs Xcode.
+          if ! flutter build ipa --release -v \
             --dart-define-from-file=dart_defines.staging.json \
             --build-name=${{ steps.build.outputs.name }} \
             --build-number=${{ steps.build.outputs.number }} \
-            --export-options-plist="$HOME/export_options.plist"
+            --export-options-plist="$HOME/export_options.plist" > build-ios.log 2>&1; then
+            echo "::group::Erreurs Xcode"
+            grep -nE "error:|: error|❌|requires a provisioning|Provisioning profile|code sign|Signing for" build-ios.log | head -60
+            echo "::endgroup::"
+            tail -80 build-ios.log
+            exit 1
+          fi
           ls -lh build/ios/ipa/*.ipa
 
       - name: Envoi sur TestFlight
