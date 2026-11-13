@@ -19,6 +19,15 @@ name: Android Staging — Firebase App Distribution
 on:
   push:
     branches: [dev]
+    # Uniquement si le code de l'app change (un build iOS coûte ~250 minutes de quota).
+    paths:
+      - 'lib/**'
+      - 'assets/**'
+      - 'android/**'
+      - 'ios/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - '.github/workflows/android-staging.yml'
   workflow_dispatch:
 
 concurrency:
