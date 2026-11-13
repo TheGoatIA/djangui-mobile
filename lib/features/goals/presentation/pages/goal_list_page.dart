@@ -11,6 +11,7 @@ import '../../data/models/goal_model.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../widgets/goal_share_sheet.dart';
+import '../widgets/goal_delete_message.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/utils/currency_helper.dart';
 
@@ -444,7 +445,7 @@ class _GoalItem extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.delete),
-        content: Text(AppLocalizations.of(context)!.deleteGoalConfirmation),
+        content: Text(goalDeleteMessage(AppLocalizations.of(context)!, goal)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
@@ -461,7 +462,7 @@ class _GoalItem extends StatelessWidget {
               Navigator.pop(dialogContext);
             },
             style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(dialogContext).colorScheme.error,
             ),
             child: Text(AppLocalizations.of(context)!.delete),
           ),

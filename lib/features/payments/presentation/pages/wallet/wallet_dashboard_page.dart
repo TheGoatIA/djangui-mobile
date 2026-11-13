@@ -108,7 +108,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
         _isAwaitingPaymentReturn = false;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Vérification de votre paiement en cours...'),
+            content: Text(
+              AppLocalizations.of(context)!.paymentVerificationInProgress,
+            ),
             duration: const Duration(seconds: 4),
           ),
         );
@@ -132,10 +134,8 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(
-      symbol: 'XAF',
-      decimalDigits: 0,
-    );
+    // Même format que le reste de l'app (« 25 000 FCFA »), et non « XAF25,000 ».
+    const currencyFormat = _AppAmountFormat();
 
     return MultiBlocListener(
       listeners: [
@@ -220,10 +220,8 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
             if (state.status == FintechStatus.withdrawalSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                    state.message ??
-                        AppLocalizations.of(context)!.withdrawSuccess,
-                  ),
+                  // Texte traduit de l'app (le message serveur n'existe qu'en français).
+                  content: Text(AppLocalizations.of(context)!.withdrawSuccess),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -260,8 +258,10 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                               .kycLevel ??
                           'none';
                       if (isKycError && kycLevel == 'pending') {
-                        return const Text(
-                          'Vérification KYC en cours',
+                        return Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.kycReviewInProgressTitle,
                           textAlign: TextAlign.center,
                         );
                       }
@@ -284,8 +284,10 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                               .kycLevel ??
                           'none';
                       if (isKycError && kycLevel == 'pending') {
-                        return const Text(
-                          'Vos documents d\'identité sont actuellement en cours d\'examen par notre équipe de conformité (24h à 48h). Les retraits seront automatiquement débloqués dès validation.',
+                        return Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.kycReviewInProgressMessage,
                           textAlign: TextAlign.center,
                         );
                       }
@@ -312,7 +314,7 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                           if (kycLevel == 'pending') {
                             return ElevatedButton(
                               onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('Compris'),
+                              child: Text(AppLocalizations.of(context)!.gotIt),
                             );
                           }
                           return Row(
@@ -320,7 +322,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                             children: [
                               TextButton(
                                 onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('Plus tard'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.later,
+                                ),
                               ),
                               const SizedBox(width: 8),
                               ElevatedButton(
@@ -328,7 +332,9 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                                   Navigator.of(context).pop();
                                   context.push(RouteConstants.kycSubmission);
                                 },
-                                child: const Text('Vérifier mon KYC'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.verifyMyKyc,
+                                ),
                               ),
                             ],
                           );
@@ -337,7 +343,7 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                     ] else ...[
                       ElevatedButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Compris'),
+                        child: Text(AppLocalizations.of(context)!.gotIt),
                       ),
                     ],
                   ],
@@ -362,7 +368,7 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
         ),
       ],
       child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.walletTitle),
           backgroundColor: Colors.transparent,
@@ -440,7 +446,7 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
   Widget _buildBalanceCard(
     double balance,
     List<FintechTransactionModel> transactions,
-    NumberFormat format,
+    _AppAmountFormat format,
   ) {
     // Dynamic calculation of incomes and outcomes (ignoring failed, cancelled transactions and technical refunds)
     final validTransactions = transactions.where((t) {
@@ -605,7 +611,7 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Mode Portefeuille Virtuel — dépôts et retraits réels désactivés',
+              AppLocalizations.of(context)!.virtualWalletBanner,
               style: AppTextStyles.bodySmall.copyWith(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w500,
@@ -686,7 +692,7 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
   Widget _buildTransactionList(
     FintechState state,
     List<FintechTransactionModel> realTransactions,
-    NumberFormat format,
+    _AppAmountFormat format,
   ) {
     if (state.status == FintechStatus.loading && realTransactions.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -722,7 +728,7 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                 });
               },
               child: Text(
-                'Voir plus',
+                AppLocalizations.of(context)!.seeMore,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -736,7 +742,7 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
 
   Widget _buildTransactionItem(
     FintechTransactionModel tx,
-    NumberFormat format,
+    _AppAmountFormat format,
     FintechState state,
   ) {
     final isCredit =
@@ -876,19 +882,19 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
           color: AppColors.primary,
           size: 48,
         ),
-        title: const Text(
-          'Mode Portefeuille Virtuel',
+        title: Text(
+          AppLocalizations.of(context)!.virtualWalletTitle,
           textAlign: TextAlign.center,
         ),
-        content: const Text(
-          'Kauri fonctionne actuellement en mode simulation : les dépôts et retraits en argent réel sont temporairement désactivés. Vous pouvez continuer à utiliser toutes les autres fonctionnalités (tontines, objectifs, défis, budgets...) normalement.',
+        content: Text(
+          AppLocalizations.of(context)!.virtualWalletMessage,
           textAlign: TextAlign.center,
         ),
         actionsAlignment: MainAxisAlignment.center,
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Compris'),
+            child: Text(AppLocalizations.of(context)!.gotIt),
           ),
         ],
       ),
@@ -1012,10 +1018,16 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
     final l10n = AppLocalizations.of(context)!;
     final authState = context.read<AuthBloc>().state;
     final user = authState.authResponse?.user;
-    final isPremium =
-        user?.isPremium ??
-        (user?.subscription?.plan == 'premium' &&
-            user?.subscription?.status == 'active');
+    // `isPremium` vient de l'API (virtuel User : plans premium ET business,
+    // abonnement actif) — même règle que le calcul serveur des frais. L'ancien
+    // repli `plan == 'premium'` ignorait le plan business (code mort : isPremium
+    // n'est jamais nul quand l'utilisateur existe).
+    final isPremium = user?.isPremium ?? false;
+    // Pré-remplissage du numéro Mobile Money depuis le profil (comme la
+    // recharge) : sans lui, « Confirmer » restait grisé sans explication.
+    if ((user?.phone ?? '').isNotEmpty) {
+      phoneController.text = user!.phone!;
+    }
     final double feePercent = isPremium ? 0.015 : 0.03;
     final double currentBalance = context.read<FintechBloc>().state.balance;
 
@@ -1094,6 +1106,10 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                     decoration: InputDecoration(
                       labelText: l10n.phoneNumberLabel,
                       hintText: l10n.phoneNumberHint,
+                      // Explique pourquoi « Confirmer » reste grisé.
+                      errorText: !hasPhone && rawAmount >= 500
+                          ? l10n.invalidPhone
+                          : null,
                       prefixIcon: const Icon(
                         Icons.phone_android_rounded,
                         size: 20,
@@ -1105,19 +1121,23 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
                     initialValue: selectedOperator,
                     decoration: InputDecoration(
                       labelText: l10n.withdrawOperator,
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.account_balance_wallet_outlined,
                         size: 20,
                       ),
                     ),
-                    items: const [
+                    items: [
                       DropdownMenuItem(
                         value: 'CM_OM',
-                        child: Text('Orange Money Cameroun'),
+                        child: Text(
+                          AppLocalizations.of(context)!.orangeMoneyCameroon,
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'CM_MOMO',
-                        child: Text('MTN MoMo Cameroun'),
+                        child: Text(
+                          AppLocalizations.of(context)!.mtnMomoCameroon,
+                        ),
                       ),
                     ],
                     onChanged: (val) => setState(() => selectedOperator = val!),
@@ -1321,4 +1341,11 @@ class _WalletDashboardPageState extends State<WalletDashboardPage>
       ),
     );
   }
+}
+
+/// Adaptateur : expose `format()` comme NumberFormat mais utilise le format
+/// monétaire commun de l'app ([CurrencyHelper.formatAmount]).
+class _AppAmountFormat {
+  const _AppAmountFormat();
+  String format(num value) => CurrencyHelper.formatAmount(value.toDouble());
 }

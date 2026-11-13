@@ -124,6 +124,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
     List<_DestinationInfo> destinations,
   ) {
     final realIndex = destinations[index].branchIndex;
+    // Le tutoriel de l'onglet quitté ne doit pas rester par-dessus le nouvel onglet.
+    getIt<TutorialService>().cancelActiveTutorial(context);
     navigationShell.goBranch(
       realIndex,
       initialLocation: realIndex == navigationShell.currentIndex,

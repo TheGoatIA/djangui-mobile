@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kauri/core/errors/failures.dart';
 import '../../domain/repositories/premium_repository.dart';
@@ -19,7 +20,7 @@ class PremiumRepositoryImpl implements PremiumRepository {
       if (response.isSuccessful && body != null && body.data != null) {
         return Right(body.data!);
       }
-      return Left(ServerFailure('Échec de la communication avec le coach'));
+      return Left(ServerFailure(appL10n().errCoachUnavailable));
     } catch (e) {
       return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
@@ -33,9 +34,7 @@ class PremiumRepositoryImpl implements PremiumRepository {
       if (response.isSuccessful && body != null && body.data != null) {
         return Right(body.data!);
       }
-      return Left(
-        ServerFailure('Échec de la récupération du budget automatique'),
-      );
+      return Left(ServerFailure(appL10n().errLoadData));
     } catch (e) {
       return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
@@ -49,7 +48,7 @@ class PremiumRepositoryImpl implements PremiumRepository {
       if (response.isSuccessful && body != null && body.data != null) {
         return Right(body.data!);
       }
-      return Left(ServerFailure('Échec de la récupération du rapport premium'));
+      return Left(ServerFailure(appL10n().errLoadData));
     } catch (e) {
       return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }

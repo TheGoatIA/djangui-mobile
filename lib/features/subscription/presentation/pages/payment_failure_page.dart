@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -42,7 +43,7 @@ class PaymentFailurePage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             Text(
-              'Paiement Échoué',
+              AppLocalizations.of(context)!.paymentFailedTitle,
               textAlign: TextAlign.center,
               style: AppTextStyles.h1,
             ),
@@ -57,11 +58,14 @@ class PaymentFailurePage extends StatelessWidget {
             ),
             if (ref != null) ...[
               const SizedBox(height: 24),
-              Text('Référence: $ref', style: AppTextStyles.bodySmall),
+              Text(
+                AppLocalizations.of(context)!.referenceValue(ref.toString()),
+                style: AppTextStyles.bodySmall,
+              ),
             ],
             const SizedBox(height: 48),
             AppButton(
-              text: 'Réessayer le paiement',
+              text: AppLocalizations.of(context)!.retryPayment,
               onPressed: () {
                 context.go(RouteConstants.subscription);
               },
@@ -72,7 +76,7 @@ class PaymentFailurePage extends StatelessWidget {
                 context.go(RouteConstants.dashboard);
               },
               child: Text(
-                'Retour au Tableau de Bord',
+                AppLocalizations.of(context)!.backToDashboard,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'core/widgets/replacing_scaffold_messenger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // For PlatformDispatcher
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,6 +54,14 @@ import 'core/analytics/analytics_bloc_observer.dart';
 /// - Injection de dépendances (GetIt)
 /// - Services de notifications, analytique et synchronisation offline
 void main() async {
+  await bootstrap();
+  runApp(const MyApp());
+}
+
+/// Initialisation complète de l'app (tout ce qui précède `runApp`). Séparée de
+/// `main` pour que les tests d'intégration puissent initialiser une seule fois
+/// puis monter `MyApp` à chaque parcours.
+Future<void> bootstrap() async {
   final startTime = DateTime.now();
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -132,8 +141,6 @@ void main() async {
 
   // 3. Initialize Security (RASP for Root/Jailbreak detection)
   _initSecurity();
-
-  runApp(const MyApp());
 }
 
 /// Initialise FreeRASP pour la protection contre le Root, Jailbreak, et reverse engineering.
@@ -443,8 +450,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                     themeMode: effectiveThemeType.toThemeMode,
                     locale: state.locale,
                     routerConfig: appRouter,
-                    builder: (context, child) =>
-                        EnvironmentBanner(child: child!),
+                    builder: (context, child) => ReplacingScaffoldMessenger(
+                      child: EnvironmentBanner(child: child!),
+                    ),
                     // Configuration de l'internationalisation
                     localizationsDelegates: [
                       AppLocalizations.delegate,

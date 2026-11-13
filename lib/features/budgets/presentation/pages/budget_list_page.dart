@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/category_labels.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
@@ -532,7 +533,10 @@ class _BudgetListViewState extends State<BudgetListView>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(entry.category, style: AppTextStyles.bodyMedium),
+                          Text(
+                            CategoryLabels.display(context, entry.category),
+                            style: AppTextStyles.bodyMedium,
+                          ),
                           const SizedBox(width: 8),
                           Flexible(
                             child: Text(

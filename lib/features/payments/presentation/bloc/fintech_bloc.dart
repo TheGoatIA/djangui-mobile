@@ -1,4 +1,5 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kauri/core/analytics/analytics_service.dart';
@@ -71,7 +72,7 @@ class FintechBloc extends Bloc<FintechEvent, FintechState> {
       emit(
         state.copyWith(
           status: FintechStatus.withdrawalError,
-          message: 'Le montant de retrait doit être strictement supérieur à 0.',
+          message: appL10n().withdrawAmountMustBePositive,
         ),
       );
       return;

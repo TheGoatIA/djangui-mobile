@@ -1,5 +1,11 @@
 {
     "@@locale": "fr",
+    "kycFrontRequired": "Veuillez fournir la pièce d'identité (recto).",
+    "premiumFallbackTontines": "Jusqu'à 2 tontines créées (participation illimitée)",
+    "requiredAmountLabel": "Requis",
+    "perMonthSuffix": "/ mois",
+    "errKycRequired": "Votre profil KYC n'a pas encore été validé. Veuillez soumettre ou finaliser vos documents pour débloquer les retraits.",
+    "errInvalidPhoneOrProvider": "Le numéro de téléphone ou l'opérateur sélectionné est invalide. Veuillez vérifier votre saisie.",
     "appTitle": "Kauri",
     "dashboard": "Accueil",
     "welcome": "Bienvenue",
@@ -53,12 +59,20 @@
     "leaveGoalConfirm": "Voulez-vous vraiment quitter cet objectif partagé ?",
     "contributionByLabel": "Par {name}",
     "@contributionByLabel": {
-      "placeholders": { "name": { "type": "String" } }
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
     },
     "contributionByYou": "Par vous",
     "sharedByLabel": "Partagé par {name}",
     "@sharedByLabel": {
-      "placeholders": { "name": { "type": "String" } }
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
     },
     "sharedBadge": "Partagé",
     "spendingHistory": "Historique des dépenses",
@@ -255,31 +269,41 @@
     "autoBudgetSavings": "Épargne (20%)",
     "autoBudgetActualSpent": "Dépensé ce mois-ci : {spent} sur un revenu de {income}",
     "@autoBudgetActualSpent": {
-      "placeholders": {
-        "spent": {"type": "String"},
-        "income": {"type": "String"}
-      }
+        "placeholders": {
+            "spent": {
+                "type": "String"
+            },
+            "income": {
+                "type": "String"
+            }
+        }
     },
     "premiumReportReady": "Votre Rapport de {month} est prêt !",
     "@premiumReportReady": {
-      "placeholders": {
-        "month": {"type": "String"}
-      }
+        "placeholders": {
+            "month": {
+                "type": "String"
+            }
+        }
     },
     "premiumReportPreparing": "Votre Rapport de {month} arrive bientôt...",
     "@premiumReportPreparing": {
-      "placeholders": {
-        "month": {"type": "String"}
-      }
+        "placeholders": {
+            "month": {
+                "type": "String"
+            }
+        }
     },
     "premiumReportShareAction": "Partager mon rapport",
     "reportPdfKeyInsights": "Points clés",
     "reportPdfRecommendations": "Recommandations de Kauri",
     "reportPdfGeneratedOn": "Généré par Kauri le {date}",
     "@reportPdfGeneratedOn": {
-      "placeholders": {
-        "date": {"type": "String"}
-      }
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
     },
     "reportPdfGenerating": "Préparation du PDF...",
     "reportPdfError": "Impossible de générer le PDF du rapport.",
@@ -403,10 +427,11 @@
         }
     },
     "aboutDescription": "Kauri est une solution moderne pour gérer vos épargnes et tontines de manière autonome. Notre mission est de démocratiser la gestion financière grâce à la technologie.",
-    "developedBy": "Développé avec â¤ï¸ par l'équipe Kauri",
+    "developedBy": "Développé avec ❤️ par l'équipe Kauri",
     "contact": "Contact",
     "website": "Site Web",
-    "copyrightInfo": "© 2024 Kauri. Tous droits réservés.",
+    "copyrightInfo": "© {year} Kauri. Tous droits réservés.",
+    "@copyrightInfo": { "placeholders": { "year": { "type": "String" } } },
     "takePhoto": "Prendre une photo",
     "chooseFromGallery": "Choisir depuis la galerie",
     "avatarOptionsTitle": "Photo de profil",
@@ -663,7 +688,7 @@
     "tutorialCoachInputTitle": "Posez une question à votre Coach IA",
     "tutorialCoachInputDesc": "Écrivez n'importe quelle question sur votre argent — \"Puis-je me permettre cet achat ?\", \"Comment épargner plus vite ?\" — et obtenez une réponse personnalisée basée sur vos données réelles.",
     "tutorialAddTransactionTitle": "Ajouter une Transaction",
-    "tutorialAddTransactionDesc": "Saisissez les détails pour garder un Å“il sur votre budget.",
+    "tutorialAddTransactionDesc": "Saisissez les détails pour garder un œil sur votre budget.",
     "tutorialAddGoalTitle": "Nouvel Objectif",
     "tutorialAddGoalDesc": "Donnez un nom à votre projet et fixez un montant cible.",
     "tutorialAddBudgetTitle": "Nouveau Budget",
@@ -778,7 +803,7 @@
     "tontineGuideTitle": "Guide Complet Kauri",
     "tontineGuideDesc": "Découvrez comment optimiser votre épargne communautaire.",
     "whatIsTontineTitle": "Le Concept Kauri (Argent Réel)",
-    "whatIsTontineDesc": "La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun ðŸ‡¨ðŸ‡² et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.",
+    "whatIsTontineDesc": "La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun 🇨🇲 et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.",
     "tontineLifecycleTitle": "Comprendre les Statuts",
     "guidePendingTitle": "1. Recrutement (Pending)",
     "guidePendingDesc": "La tontine est créée mais pas encore lancée. Invitez vos amis via le code. Le créateur peut encore modifier les règles (montant, fréquence, etc.).",
@@ -787,7 +812,7 @@
     "guideCompletedTitle": "3. Archive (Completed)",
     "guideCompletedDesc": "Tous les tours sont finis. La tontine reste consultable pour l'historique des paiements.",
     "guideRotationTitle": "Modes de Rotation",
-    "guideRotationDesc": "â€¢ Fixe : L'ordre est prédéfini.\nâ€¢ Aléatoire : La chance décide du gagnant.",
+    "guideRotationDesc": "• Fixe : L'ordre est prédéfini.\n• Aléatoire : La chance décide du gagnant.",
     "guideValidationTitle": "Vérification assistée par IA",
     "guideValidationDesc": "Envoyez une capture de votre reçu NotchPay/Mobile Money dans le chat. Notre IA lit le montant et la référence pour aider le créateur de la tontine à confirmer votre cotisation.",
     "guideSocialFundTitle": "Solidarité : Fonds Social",
@@ -801,7 +826,7 @@
     "biWeekly": "Bimensuelle",
     "payoutDetails": "Détails de versement",
     "payoutDetailsHint": "Numéro Mobile Money ou RIB",
-    "tontineRestrictionCM": "La création et l'adhésion aux tontines sont réservées aux utilisateurs au Cameroun ðŸ‡¨ðŸ‡².",
+    "tontineRestrictionCM": "La création et l'adhésion aux tontines sont réservées aux utilisateurs au Cameroun 🇨🇲.",
     "tontineStarted": "Tontine démarrée avec succès",
     "invalidAmountError": "Montant invalide",
     "startDate": "Date de début",
@@ -954,7 +979,7 @@
     "featureDisabledTitle": "Fonctionnalité Indisponible",
     "featureDisabledMessage": "Cette fonctionnalité est actuellement désactivée. Veuillez contacter le support ou réessayer plus tard.",
     "featureUpdateRequiredMessage": "Cette fonctionnalité nécessite une version plus récente de Kauri. Veuillez mettre à jour votre application pour en profiter.",
-    "fintechOnlyCameroon": "Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun ðŸ‡¨ðŸ‡².",
+    "fintechOnlyCameroon": "Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun 🇨🇲.",
     "featureRestrictedCountry": "Cette fonctionnalité n'est pas disponible dans votre pays.",
     "back": "Retour",
     "search": "Rechercher",
@@ -1168,5 +1193,317 @@
     "businessFeature5": "Coffre-fort d'Identifiants Sécurisé (AES-256)",
     "businessFeature6": "Exports Comptables & Fiscaux (CSV / Excel)",
     "businessFeature7": "Tableau de Bord & MRR en Temps Réel",
-    "businessFeature8": "Support VIP Dédié 24/7"
+    "businessFeature8": "Support VIP Dédié 24/7",
+    "closureVoteTitle": "Clôture de la tontine",
+    "closureVoteExplainer": "Une tontine en cours ne peut être clôturée que si la majorité des membres vote pour. Chaque membre a une voix.",
+    "proposeClosure": "Proposer la clôture",
+    "confirmProposeClosure": "Tous les membres pourront voter pendant 72 heures. Si la majorité vote « Oui », la tontine sera clôturée : les tours déjà versés restent acquis et il n'y aura plus de prélèvements.",
+    "closureVoteOpen": "Vote de clôture en cours",
+    "voteYesClose": "Oui, clôturer",
+    "voteNoContinue": "Non, continuer",
+    "closureVoteProgress": "{votes} vote(s) · {majority} voix nécessaires",
+    "@closureVoteProgress": {
+        "placeholders": {
+            "votes": {
+                "type": "int"
+            },
+            "majority": {
+                "type": "int"
+            }
+        }
+    },
+    "closureVoteEndsAt": "Fin du vote : {date}",
+    "@closureVoteEndsAt": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "youHaveVoted": "Vous avez voté. Votre choix reste secret.",
+    "closureVoteApproved": "Clôture approuvée : la tontine est terminée.",
+    "closureVoteRejected": "Clôture rejetée : la tontine continue.",
+    "closureVoteExpired": "Vote expiré sans majorité : la tontine continue.",
+    "voteRecorded": "Vote enregistré",
+    "confirmVote": "Confirmer votre vote : « {choice} » ? Vous ne pourrez pas le modifier.",
+    "@confirmVote": {
+        "placeholders": {
+            "choice": {
+                "type": "String"
+            }
+        }
+    },
+    "deleteGoalWithPenalty": "Cet objectif contient {amount} XAF. Le supprimer avant l'échéance ({date}) vous rembourse avec une pénalité de 0,5 % : {penalty} XAF seront retenus. Continuer ?",
+    "@deleteGoalWithPenalty": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            },
+            "penalty": {
+                "type": "String"
+            },
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "goalSavingsAdded": "Épargne ajoutée à votre objectif",
+    "shareTontineInviteText": "Rejoins ma tontine sur Kauri avec le code : {code}",
+    "@shareTontineInviteText": {
+        "placeholders": {
+            "code": {
+                "type": "String"
+            }
+        }
+    },
+    "shareTontineInviteSubject": "Invitation Tontine Kauri",
+    "offlineCachedDataBanner": "Hors ligne — données en cache, peut-être pas à jour",
+    "accountSuspendedTitle": "Compte suspendu",
+    "accountSuspendedMessage": "Votre compte a été temporairement suspendu pour des raisons de sécurité suite à des activités inhabituelles détectées par notre IA.",
+    "accountSuspendedThreeStrikes": "Politique des \"3 Frappes\" : Si vous avez téléchargé des reçus invalides ou frauduleux plus de 3 fois, votre compte est verrouillé.",
+    "contactSupport": "Contacter le support",
+    "signOut": "Se déconnecter",
+    "biometricLogin": "Connexion par biométrie",
+    "biometricEnrollFirst": "Enregistrez d'abord une empreinte ou un visage dans les réglages de votre téléphone.",
+    "biometricEnabledSuccess": "Connexion biométrique activée",
+    "confirmYourPassword": "Confirmez votre mot de passe",
+    "biometricPasswordPrompt": "Saisissez votre mot de passe pour activer la connexion biométrique.",
+    "weekNumberLabel": "Semaine {number}",
+    "@weekNumberLabel": {
+        "placeholders": {
+            "number": {
+                "type": "int"
+            }
+        }
+    },
+    "challengeAutoDebitNotice": "Le montant sera automatiquement prélevé de votre portefeuille Kauri.",
+    "featureDisabledVersionRequired": "{message} (version requise)",
+    "@featureDisabledVersionRequired": {
+        "placeholders": {
+            "message": {
+                "type": "String"
+            }
+        }
+    },
+    "congratulations": "Félicitations !",
+    "levelUpReached": "Vous avez atteint le",
+    "levelNumber": "Niveau {level}",
+    "@levelNumber": {
+        "placeholders": {
+            "level": {
+                "type": "int"
+            }
+        }
+    },
+    "levelUpKeepGoing": "Continuez comme ça pour débloquer de nouveaux badges et fonctionnalités !",
+    "continueAction": "Continuer",
+    "goalNotFound": "Objectif introuvable",
+    "withdrawAmountMustBePositive": "Le montant de retrait doit être supérieur à 0.",
+    "paymentVerificationInProgress": "Vérification de votre paiement en cours…",
+    "kycReviewInProgressTitle": "Vérification KYC en cours",
+    "kycReviewInProgressMessage": "Vos documents d'identité sont actuellement en cours d'examen par notre équipe de conformité (24h à 48h). Les retraits seront automatiquement débloqués dès validation.",
+    "gotIt": "Compris",
+    "later": "Plus tard",
+    "verifyMyKyc": "Vérifier mon KYC",
+    "virtualWalletBanner": "Mode portefeuille virtuel — dépôts et retraits réels désactivés",
+    "seeMore": "Voir plus",
+    "virtualWalletTitle": "Mode portefeuille virtuel",
+    "virtualWalletMessage": "Kauri fonctionne actuellement en mode simulation : les dépôts et retraits en argent réel sont temporairement désactivés. Vous pouvez continuer à utiliser toutes les autres fonctionnalités (tontines, objectifs, défis, budgets...) normalement.",
+    "orangeMoneyCameroon": "Orange Money Cameroun",
+    "mtnMomoCameroon": "MTN MoMo Cameroun",
+    "plansAndResellerTitle": "Forfaits Kauri & Espace Revendeur",
+    "plansAndResellerDesc": "Passez à Premium (2 000 FCFA) ou lancez votre activité Revendeur (5 000 FCFA) avec outils et marges dédiés.",
+    "discoverPlansAndPricing": "Découvrir les forfaits et tarifs",
+    "chooseAppIcon": "Choisir l'icône",
+    "appIconDefaultGreen": "Par défaut (vert)",
+    "appIconChanged": "Icône changée : {name}. Un redémarrage peut être nécessaire.",
+    "@appIconChanged": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "resellerNewMasterAccount": "Nouveau compte maître",
+    "resellerServiceInfo": "Informations du service",
+    "resellerServiceNameLabel": "Nom du service (ex : Netflix 4K, Spotify…)",
+    "resellerCostPaidByYou": "Coût payé par vous",
+    "currencyLabel": "Devise",
+    "resellerMaxSlots": "Nombre d'écrans / slots maximum",
+    "resellerNextProviderPayment": "Date de votre prochain paiement fournisseur",
+    "resellerSecureVault": "Coffre-fort sécurisé (chiffré AES-256)",
+    "resellerVaultPrivacy": "Vos accès sont stockés de manière chiffrée et restent privés.",
+    "resellerAccountLogin": "E-mail / identifiant du compte",
+    "resellerMasterPassword": "Mot de passe maître",
+    "resellerMainPin": "Code PIN principal (optionnel)",
+    "resellerSaveAccount": "Enregistrer le compte",
+    "resellerNewSlot": "Nouveau slot ({service})",
+    "@resellerNewSlot": {
+        "placeholders": {
+            "service": {
+                "type": "String"
+            }
+        }
+    },
+    "resellerProfileAssignment": "Attribution du profil",
+    "resellerProfileNameLabel": "Nom du profil / écran (ex : Profil 2 - Marie)",
+    "resellerClientFullName": "Nom complet du client",
+    "resellerClientPhone": "Numéro de téléphone / WhatsApp (+237…)",
+    "resellerSalePrice": "Prix de vente (ex : 3 000 FCFA)",
+    "quarterly": "Trimestriel",
+    "resellerFirstPaymentDate": "Date du premier paiement / début d'accès",
+    "resellerReminderChannel": "Canal de rappel automatique",
+    "whatsappRecommended": "WhatsApp (recommandé)",
+    "resellerAssignAndSave": "Attribuer le profil et enregistrer",
+    "copiedAutoClear": "{label} copié (effacement automatique dans 30 s)",
+    "@copiedAutoClear": {
+        "placeholders": {
+            "label": {
+                "type": "String"
+            }
+        }
+    },
+    "resellerVaultOf": "Coffre-fort ({service})",
+    "@resellerVaultOf": {
+        "placeholders": {
+            "service": {
+                "type": "String"
+            }
+        }
+    },
+    "emailOrLogin": "E-mail / identifiant",
+    "resellerProfilePin": "Code PIN du profil",
+    "resellerPricePerMonth": "Prix : {price} {currency} / mois",
+    "@resellerPricePerMonth": {
+        "placeholders": {
+            "price": {
+                "type": "String"
+            },
+            "currency": {
+                "type": "String"
+            }
+        }
+    },
+    "remindOnWhatsapp": "Relancer sur WhatsApp",
+    "resellerMarkPaid": "Marquer comme payé (renouveler)",
+    "resellerExtendOneMonth": "Prolonge l'accès d'un mois",
+    "resellerFreeProfile": "Libérer le profil (retirer le client)",
+    "resellerFreeProfileDesc": "Rend ce profil à nouveau disponible",
+    "resellerRemoveClientTitle": "Retirer le client ?",
+    "resellerRemoveAndFree": "Retirer et libérer",
+    "deleteNamedQuestion": "Supprimer {name} ?",
+    "@deleteNamedQuestion": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "deletePermanently": "Supprimer définitivement",
+    "resellerSpace": "Espace Revendeur",
+    "guideAndQuotas": "Guide et quotas",
+    "resellerMonthlyRevenue": "Chiffre d'affaires mensuel (MRR)",
+    "resellerActiveAccounts": "Comptes et slots actifs",
+    "newAccount": "Nouveau compte",
+    "resellerNoMasterAccount": "Aucun compte maître enregistré",
+    "resellerNoMasterAccountDesc": "Ajoutez vos comptes d'abonnements partagés pour commencer à gérer vos profils clients.",
+    "resellerDeleteMasterAccount": "Supprimer le compte maître",
+    "resellerSlotsOccupied": "SLOTS ({occupied}/{max} occupés)",
+    "@resellerSlotsOccupied": {
+        "placeholders": {
+            "occupied": {
+                "type": "int"
+            },
+            "max": {
+                "type": "int"
+            }
+        }
+    },
+    "assign": "Attribuer",
+    "costLabelValue": "Coût : {amount} {currency}",
+    "@costLabelValue": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            },
+            "currency": {
+                "type": "String"
+            }
+        }
+    },
+    "accessAndPin": "Accès et PIN",
+    "paymentFailedTitle": "Paiement échoué",
+    "referenceValue": "Référence : {ref}",
+    "@referenceValue": {
+        "placeholders": {
+            "ref": {
+                "type": "String"
+            }
+        }
+    },
+    "retryPayment": "Réessayer le paiement",
+    "backToDashboard": "Retour au tableau de bord",
+    "seeAllDetailsAndFeatures": "Voir tous les détails et fonctionnalités",
+    "instant": "Instantané",
+    "topUpWallet": "Recharger le portefeuille",
+    "mobileMoneyNumber": "Numéro Mobile Money",
+    "mobileMoneyNumberPrompt": "Veuillez renseigner votre numéro de téléphone (Orange Money ou MTN MoMo) pour valider le paiement.",
+    "voiceNoteMessagePlaceholder": "🎤 Note vocale",
+    "inviteCodeExample": "ex : ABC-123",
+    "uploadTransferReceiptPrompt": "Ajoutez le reçu de votre transfert pour valider votre cotisation.",
+    "voiceExtractionConfidence": "Extraction précise à {percent} %",
+    "@voiceExtractionConfidence": {
+        "placeholders": {
+            "percent": {
+                "type": "String"
+            }
+        }
+    },
+    "targetGoalValue": "Objectif cible : {goal}",
+    "@targetGoalValue": {
+        "placeholders": {
+            "goal": {
+                "type": "String"
+            }
+        }
+    },
+    "errInvalidInput": "Les informations fournies sont invalides ou incomplètes.",
+    "errSessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+    "errAccessDenied": "Accès refusé. Vous devez valider votre compte ou votre KYC pour effectuer cette action.",
+    "errNotFound": "La ressource demandée est introuvable.",
+    "errConflict": "Un conflit est survenu avec cette opération.",
+    "errUnprocessable": "Données non traitables. Veuillez vérifier votre saisie.",
+    "errTooManyRequests": "Trop de tentatives. Veuillez patienter quelques instants.",
+    "errServerUnavailable": "Le serveur rencontre une indisponibilité temporaire. Veuillez réessayer plus tard.",
+    "errKycPending": "Votre dossier KYC est en cours de validation. Les retraits seront disponibles dès son approbation.",
+    "errInsufficientBalance": "Votre solde est insuffisant pour effectuer cette opération.",
+    "errAmountLimits": "Le montant saisi ne respecte pas les limites ou plafonds autorisés.",
+    "errTechnical": "Une erreur technique temporaire est survenue sur nos serveurs. Veuillez réessayer dans un instant.",
+    "resellerShort": "Revendeur",
+    "accountsLabel": "Comptes",
+    "resellerManagedSlots": "Slots gérés",
+    "resellerFreeSlots": "Slots libres",
+    "pinCode": "Code PIN",
+    "resellerMasterCreated": "Compte maître créé avec succès",
+    "resellerSlotAssigned": "Slot attribué avec succès",
+    "paymentRecordedSuccess": "Paiement enregistré avec succès",
+    "resellerProfileFreed": "Profil libéré avec succès",
+    "accountDeletedSuccess": "Compte supprimé avec succès",
+    "errSignInTokenMissing": "La connexion n'a pas pu aboutir (jeton manquant). Réessayez.",
+    "errLoadData": "Impossible de charger les données. Réessayez.",
+    "memberNotFound": "Membre introuvable",
+    "errCoachUnavailable": "L'assistant ne répond pas pour le moment. Réessayez.",
+    "errRedeemNeedsConnection": "Une connexion internet est requise pour récupérer des fonds.",
+    "premiumFallbackBudgetsGoals": "5 budgets et 5 objectifs simultanés",
+    "premiumFallbackOcr": "15 scans de reçus (OCR) / mois",
+    "premiumFallbackCoach": "Coach IA Anne (50 requêtes / mois, 30 jours d’historique)",
+    "premiumFallbackReseller": "Espace Revendeur : 3 comptes maîtres et 10 slots clients",
+    "tontineCreatedSuccess": "Tontine créée avec succès",
+    "tontineUpdatedSuccess": "Tontine mise à jour",
+    "contributionSentPendingValidation": "Cotisation envoyée : en attente de validation par l'organisateur",
+    "statusValidated": "Validé",
+    "statusRejected": "Rejeté",
+    "accountSuspendedContactSupport": "Votre compte a été suspendu par notre système de sécurité. Veuillez contacter le support.",
+    "kycSelfieRequired": "Veuillez fournir le selfie de vérification.",
+    "unknownDevice": "Appareil inconnu"
 }

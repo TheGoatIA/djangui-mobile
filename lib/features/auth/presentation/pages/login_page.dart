@@ -242,7 +242,9 @@ class _LoginPageState extends State<LoginPage> {
                                           ),
                                           const SizedBox(width: 12),
                                           Text(
-                                            'Connexion par biométrie',
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.biometricLogin,
                                             style: AppTextStyles.bodyLarge
                                                 .copyWith(
                                                   color: Theme.of(

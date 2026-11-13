@@ -8,11 +8,25 @@
 class EnvConfig {
   EnvConfig._();
 
-  /// URL de base de l'API Kauri.
-  static const String apiBaseUrl = String.fromEnvironment(
+  /// Build de release (Codemagic / Play Store / App Store).
+  static const bool _isRelease = bool.fromEnvironment('dart.vm.product');
+
+  static const String _apiBaseUrlDefine = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:5000/api/v1',
   );
+
+  /// URL de l'API de production : valeur par défaut d'un build de RELEASE.
+  static const String productionApiBaseUrl = 'https://api.kauri-app.com/api/v1';
+
+  /// URL de base de l'API Kauri.
+  /// Garde-fou : un build de release sans API_BASE_URL (variable oubliée
+  /// dans Codemagic) partait sur l'adresse de l'émulateur (10.0.2.2) et l'app
+  /// publiée ne fonctionnait pour personne. Release → production par défaut ;
+  /// debug/profile → API locale de l'émulateur. Le staging passe toujours
+  /// explicitement son URL.
+  static String get apiBaseUrl => _apiBaseUrlDefine.isNotEmpty
+      ? _apiBaseUrlDefine
+      : (_isRelease ? productionApiBaseUrl : 'http://10.0.2.2:5000/api/v1');
 
   /// Endpoint OTEL pour la telemetrie.
   static const String otelEndpoint = String.fromEnvironment(
@@ -52,10 +66,13 @@ class EnvConfig {
     defaultValue: false,
   );
 
-  static const String env = String.fromEnvironment(
-    'ENV',
-    defaultValue: 'development',
-  );
+  static const String _envDefine = String.fromEnvironment('ENV');
+
+  /// Même garde-fou : un build de release sans ENV est la production
+  /// (sinon le bandeau « DEV » s'affichait dans l'app publiée).
+  static String get env => _envDefine.isNotEmpty
+      ? _envDefine
+      : (_isRelease ? 'production' : 'development');
 
   static bool get isProduction => env == 'production';
   static bool get isDevelopment => env == 'development';

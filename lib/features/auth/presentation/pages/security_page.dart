@@ -227,9 +227,11 @@ class _SecurityPageState extends State<SecurityPage>
                             }
                           : (value) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                SnackBar(
                                   content: Text(
-                                    'Please enroll biometrics in your device settings first.',
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.biometricEnrollFirst,
                                   ),
                                 ),
                               );
@@ -331,29 +333,31 @@ class _SecurityPageState extends State<SecurityPage>
             Navigator.pop(dialogContext);
             context.read<SettingsBloc>().add(const ToggleBiometrics(true));
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Biometrics enabled successfully')),
+              SnackBar(
+                content: Text(
+                  AppLocalizations.of(context)!.biometricEnabledSuccess,
+                ),
+              ),
             );
           }
         },
         builder: (context, state) {
           return AlertDialog(
-            title: const Text('Confirm Password'),
+            title: Text(AppLocalizations.of(context)!.confirmYourPassword),
             content: Form(
               key: formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'Please enter your password to enable biometric login.',
-                  ),
+                  Text(AppLocalizations.of(context)!.biometricPasswordPrompt),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: passwordController,
                     obscureText: true,
                     autocorrect: false,
                     enableSuggestions: false,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.password,
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
@@ -381,7 +385,7 @@ class _SecurityPageState extends State<SecurityPage>
                 onPressed: state.status == AuthStatus.loading
                     ? null
                     : () => Navigator.pop(dialogContext),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton(
                 onPressed: state.status == AuthStatus.loading
@@ -403,7 +407,7 @@ class _SecurityPageState extends State<SecurityPage>
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Confirm'),
+                    : Text(AppLocalizations.of(context)!.confirm),
               ),
             ],
           );

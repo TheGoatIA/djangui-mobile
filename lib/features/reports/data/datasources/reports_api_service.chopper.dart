@@ -97,6 +97,8 @@ final class _$ReportsApiService extends ReportsApiService {
   }
 }
 
+// coverage:ignore-file
+// ignore_for_file: type=lint
 final class _$ForecastApiService extends ForecastApiService {
   _$ForecastApiService([ChopperClient? client]) {
     if (client == null) return;

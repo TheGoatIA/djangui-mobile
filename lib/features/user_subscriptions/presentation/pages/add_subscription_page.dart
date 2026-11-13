@@ -120,6 +120,7 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
         }
 
         return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
             title: Text(
               widget.subscription == null

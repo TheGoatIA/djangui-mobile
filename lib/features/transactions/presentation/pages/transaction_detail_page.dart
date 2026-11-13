@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/utils/currency_helper.dart';
+import 'package:kauri/core/constants/category_labels.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:collection/collection.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -156,7 +158,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage>
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              '${isExpense ? '-' : '+'} ${transaction.amount.toStringAsFixed(0)} ${transaction.currency}',
+                              '${isExpense ? '-' : '+'} ${CurrencyHelper.formatAmount(transaction.amount, currencyCode: transaction.currency)}',
                               style: AppTextStyles.h1.copyWith(
                                 color: isExpense
                                     ? AppColors.error
@@ -177,7 +179,9 @@ class _TransactionDetailPageState extends State<TransactionDetailPage>
                           ],
                         ),
                       ),
-                      if (transaction.source == 'manual') ...[
+                      // Saisie manuelle (aucun mouvement d'argent réel) — l'API n'envoie pas
+                      // `source: manual`, l'ancien test ne s'affichait donc jamais.
+                      if (transaction.isMutable) ...[
                         const SizedBox(height: 16),
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -225,7 +229,10 @@ class _TransactionDetailPageState extends State<TransactionDetailPage>
 
                       _InfoTile(
                         label: l10n.categoryLabel,
-                        value: transaction.category,
+                        value: CategoryLabels.display(
+                          context,
+                          transaction.category,
+                        ),
                         icon: Icons.category_outlined,
                       ),
                       if (transaction.subcategory != null)

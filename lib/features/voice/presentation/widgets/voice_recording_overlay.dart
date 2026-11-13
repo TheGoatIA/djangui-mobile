@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -50,12 +51,12 @@ class VoiceRecordingOverlay extends StatelessWidget {
                 ),
             const SizedBox(height: 32),
             Text(
-              "Enregistrement en cours...",
+              AppLocalizations.of(context)!.recordingInProgress,
               style: AppTextStyles.h3.copyWith(color: Colors.white),
             ),
             const SizedBox(height: 16),
             Text(
-              "Relâchez pour terminer",
+              AppLocalizations.of(context)!.releaseToFinish,
               style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70),
             ),
           ],

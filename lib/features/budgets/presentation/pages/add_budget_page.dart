@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/route_constants.dart';
+import 'package:kauri/core/navigation/safe_pop.dart';
+import 'package:kauri/core/constants/category_labels.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -279,7 +282,7 @@ class _AddBudgetPageState extends State<AddBudgetPage>
             ...allCategories.map((String category) {
               return DropdownMenuItem<String>(
                 value: category,
-                child: Text(category),
+                child: Text(CategoryLabels.display(context, category)),
               );
             }),
             DropdownMenuItem<String>(
@@ -412,7 +415,7 @@ class _AddBudgetPageState extends State<AddBudgetPage>
                 },
               );
               if (context.canPop()) {
-                context.pop(true);
+                context.popOrGo(RouteConstants.budgets, true);
               }
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

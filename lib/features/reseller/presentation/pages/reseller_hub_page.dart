@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/utils/currency_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -83,7 +84,11 @@ class _ResellerHubViewState extends State<_ResellerHubView>
   void _copySensitiveData(BuildContext context, String text, String label) {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$label copié (effacement automatique dans 30s)')),
+      SnackBar(
+        content: Text(
+          AppLocalizations.of(context)!.copiedAutoClear(label.toString()),
+        ),
+      ),
     );
     // 30s plutôt que 45 : réduit la fenêtre pendant laquelle une autre
     // application peut lire cette donnée sensible depuis le presse-papiers
@@ -159,7 +164,9 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Coffre-fort (${account.serviceName})',
+                            AppLocalizations.of(
+                              context,
+                            )!.resellerVaultOf(account.serviceName.toString()),
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -176,17 +183,20 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                     const SizedBox(height: 16),
                     ListTile(
                       leading: const Icon(Icons.email_outlined),
-                      title: const Text('Email / Identifiant'),
+                      title: Text(AppLocalizations.of(context)!.emailOrLogin),
                       subtitle: Text(email),
                       trailing: IconButton(
                         icon: const Icon(Icons.copy_rounded),
-                        onPressed: () =>
-                            _copySensitiveData(context, email, 'Email'),
+                        onPressed: () => _copySensitiveData(
+                          context,
+                          email,
+                          AppLocalizations.of(context)!.email,
+                        ),
                       ),
                     ),
                     ListTile(
                       leading: const Icon(Icons.key_rounded),
-                      title: const Text('Mot de passe'),
+                      title: Text(AppLocalizations.of(context)!.password),
                       subtitle: Text(obscure ? '••••••••••••' : password),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -205,7 +215,7 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                             onPressed: () => _copySensitiveData(
                               context,
                               password,
-                              'Mot de passe',
+                              AppLocalizations.of(context)!.password,
                             ),
                           ),
                         ],
@@ -213,7 +223,9 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                     ),
                     ListTile(
                       leading: const Icon(Icons.pin_rounded),
-                      title: const Text('Code PIN Profil'),
+                      title: Text(
+                        AppLocalizations.of(context)!.resellerProfilePin,
+                      ),
                       subtitle: Text(obscurePin ? '••••' : pin),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -229,8 +241,11 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                           ),
                           IconButton(
                             icon: const Icon(Icons.copy_rounded),
-                            onPressed: () =>
-                                _copySensitiveData(context, pin, 'Code PIN'),
+                            onPressed: () => _copySensitiveData(
+                              context,
+                              pin,
+                              AppLocalizations.of(context)!.pinCode,
+                            ),
                           ),
                         ],
                       ),
@@ -274,7 +289,10 @@ class _ResellerHubViewState extends State<_ResellerHubView>
               ),
               const SizedBox(height: 4),
               Text(
-                'Prix: ${slot.price.toStringAsFixed(0)} ${slot.currency} / mois',
+                AppLocalizations.of(context)!.resellerPricePerMonth(
+                  (slot.price.toStringAsFixed(0)).toString(),
+                  slot.currency.toString(),
+                ),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -312,7 +330,7 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                   Icons.chat_bubble_outline,
                   color: Colors.green,
                 ),
-                title: const Text('Relancer sur WhatsApp'),
+                title: Text(AppLocalizations.of(context)!.remindOnWhatsapp),
                 subtitle: Text(slot.clientPhone),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -328,8 +346,10 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                   Icons.check_circle_outline,
                   color: AppColors.primary,
                 ),
-                title: const Text('Marquer comme payé (Renouveler)'),
-                subtitle: const Text('Prolonge l\'accès d\'un mois'),
+                title: Text(AppLocalizations.of(context)!.resellerMarkPaid),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.resellerExtendOneMonth,
+                ),
                 onTap: () {
                   Navigator.pop(ctx);
                   context.read<ResellerBloc>().add(
@@ -345,11 +365,13 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                   Icons.person_remove_outlined,
                   color: Colors.red,
                 ),
-                title: const Text(
-                  'Libérer le profil (Retirer le client)',
+                title: Text(
+                  AppLocalizations.of(context)!.resellerFreeProfile,
                   style: TextStyle(color: Colors.red),
                 ),
-                subtitle: const Text('Rend ce profil à nouveau disponible'),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.resellerFreeProfileDesc,
+                ),
                 onTap: () {
                   Navigator.pop(ctx);
                   _confirmRemoveSlot(context, account, slot);
@@ -370,7 +392,7 @@ class _ResellerHubViewState extends State<_ResellerHubView>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Retirer le client ?'),
+        title: Text(AppLocalizations.of(context)!.resellerRemoveClientTitle),
         content: Text(
           'Voulez-vous retirer ${slot.clientName} du profil "${slot.profileName}" sur ${account.serviceName} ?\n\n'
           'Pensez à modifier le code PIN du profil sur le service pour révoquer son accès.',
@@ -378,7 +400,7 @@ class _ResellerHubViewState extends State<_ResellerHubView>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
@@ -386,7 +408,7 @@ class _ResellerHubViewState extends State<_ResellerHubView>
               Navigator.pop(ctx);
               context.read<ResellerBloc>().add(DeleteSlotRequested(slot.id));
             },
-            child: const Text('Retirer & Libérer'),
+            child: Text(AppLocalizations.of(context)!.resellerRemoveAndFree),
           ),
         ],
       ),
@@ -400,7 +422,11 @@ class _ResellerHubViewState extends State<_ResellerHubView>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Supprimer ${account.serviceName} ?'),
+        title: Text(
+          AppLocalizations.of(
+            context,
+          )!.deleteNamedQuestion(account.serviceName.toString()),
+        ),
         content: Text(
           'Êtes-vous sûr de vouloir supprimer ce compte maître "${account.serviceName}" ?\n\n'
           '⚠️ Tous les profils/slots associés (${account.slots.length} profil(s)) et les accès du coffre-fort seront définitivement supprimés.',
@@ -408,7 +434,7 @@ class _ResellerHubViewState extends State<_ResellerHubView>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
@@ -418,7 +444,7 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                 DeleteMasterAccountRequested(account.id),
               );
             },
-            child: const Text('Supprimer définitivement'),
+            child: Text(AppLocalizations.of(context)!.deletePermanently),
           ),
         ],
       ),
@@ -573,7 +599,7 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                     ),
                   ),
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Compris !'),
+                  child: Text(AppLocalizations.of(context)!.tutorialFinish),
                 ),
               ),
               const SizedBox(height: 8),
@@ -639,9 +665,10 @@ class _ResellerHubViewState extends State<_ResellerHubView>
       builder: (context, state) {
         if (state is ResellerLoading && state is! ResellerLoaded) {
           return Scaffold(
+            backgroundColor: Theme.of(context).colorScheme.surface,
             appBar: AppBar(
-              title: const Text(
-                'Espace Revendeur',
+              title: Text(
+                AppLocalizations.of(context)!.resellerSpace,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               elevation: 0,
@@ -665,16 +692,17 @@ class _ResellerHubViewState extends State<_ResellerHubView>
         }
 
         return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
-            title: const Text(
-              'Espace Revendeur',
+            title: Text(
+              AppLocalizations.of(context)!.resellerSpace,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             elevation: 0,
             actions: [
               IconButton(
                 icon: const Icon(Icons.info_outline_rounded),
-                tooltip: 'Guide & Quotas',
+                tooltip: AppLocalizations.of(context)!.guideAndQuotas,
                 onPressed: () => _showGuideDialog(context),
               ),
               IconButton(
@@ -715,8 +743,10 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Chiffre d\'Affaires Mensuel (MRR)',
+                                Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.resellerMonthlyRevenue,
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey,
@@ -724,7 +754,9 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '${totalMRR.toStringAsFixed(0)} XAF',
+                                  CurrencyHelper.formatAmount(
+                                    totalMRR.toDouble(),
+                                  ),
                                   style: const TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
@@ -759,9 +791,20 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildMiniStat('Comptes', '${accounts.length}'),
-                            _buildMiniStat('Slots Gérés', '$occupiedSlots'),
-                            _buildMiniStat('Slots Libres', '$vacantSlots'),
+                            _buildMiniStat(
+                              AppLocalizations.of(context)!.accountsLabel,
+                              '${accounts.length}',
+                            ),
+                            _buildMiniStat(
+                              AppLocalizations.of(
+                                context,
+                              )!.resellerManagedSlots,
+                              '$occupiedSlots',
+                            ),
+                            _buildMiniStat(
+                              AppLocalizations.of(context)!.resellerFreeSlots,
+                              '$vacantSlots',
+                            ),
                           ],
                         ),
                       ],
@@ -773,8 +816,8 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Comptes & Slots Actifs',
+                      Text(
+                        AppLocalizations.of(context)!.resellerActiveAccounts,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -799,7 +842,7 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                             }
                           },
                           icon: const Icon(Icons.add, size: 16),
-                          label: const Text('Nouveau Compte'),
+                          label: Text(AppLocalizations.of(context)!.newAccount),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
@@ -826,16 +869,20 @@ class _ResellerHubViewState extends State<_ResellerHubView>
                               color: Colors.grey.shade400,
                             ),
                             const SizedBox(height: 12),
-                            const Text(
-                              'Aucun compte maître enregistré',
+                            Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.resellerNoMasterAccount,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
                             ),
                             const SizedBox(height: 6),
-                            const Text(
-                              'Ajoutez vos comptes d\'abonnements partagés pour commencer à gérer vos profils clients.',
+                            Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.resellerNoMasterAccountDesc,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 13,
@@ -892,14 +939,22 @@ class _ResellerHubViewState extends State<_ResellerHubView>
       children: [
         Text(
           value,
-          style: const TextStyle(
+          // Couleur du thème : `Colors.black87` rendait le chiffre invisible
+          // en mode sombre (noir sur fond sombre, constaté en capture E2E).
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 2),
-        Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
       ],
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -147,7 +148,9 @@ class AuthRepositoryImpl implements AuthRepository {
           .signInWithCredential(credential);
       final String? idToken = await userCredential.user?.getIdToken();
 
-      if (idToken == null) return Left(AuthFailure('Jeton ID introuvable'));
+      if (idToken == null) {
+        return Left(AuthFailure(appL10n().errSignInTokenMissing));
+      }
 
       // Puis échange le jeton Firebase contre une session sur le backend Kauri.
       final response = await _remoteDataSource.firebaseLogin(
@@ -246,7 +249,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final String? idToken = googleAuth.idToken;
 
       if (idToken == null) {
-        return Left(AuthFailure('Jeton Google ID introuvable'));
+        return Left(AuthFailure(appL10n().errSignInTokenMissing));
       }
 
       // 1. Échange du jeton Google contre des identifiants Firebase.
@@ -262,7 +265,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final String? firebaseIdToken = await userCredential.user?.getIdToken();
 
       if (firebaseIdToken == null) {
-        return Left(AuthFailure('Échec de la récupération du jeton Firebase'));
+        return Left(AuthFailure(appL10n().errSignInTokenMissing));
       }
 
       // 4. Envoi du jeton Firebase au backend principal.
@@ -313,7 +316,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final identityToken = appleCredential.identityToken;
       if (identityToken == null) {
-        return Left(AuthFailure('No Identity Token found'));
+        return Left(AuthFailure(appL10n().errSignInTokenMissing));
       }
 
       // 1. Sign in to Firebase with Apple credentials
@@ -330,7 +333,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final String? firebaseIdToken = await userCredential.user?.getIdToken();
 
       if (firebaseIdToken == null) {
-        return Left(AuthFailure('Failed to get Firebase ID Token'));
+        return Left(AuthFailure(appL10n().errSignInTokenMissing));
       }
 
       // 3. Send Firebase ID Token to backend
@@ -573,7 +576,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> refreshToken([String? token]) async {
     final tokenToUse = token ?? await _localDataSource.getRefreshToken();
     if (tokenToUse == null) {
-      return Left(AuthFailure('No refresh token found'));
+      return Left(AuthFailure(appL10n().errSessionExpired));
     }
 
     if (await _networkInfo.isConnected) {

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import '../../../../core/config/app_release.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/services/log_service.dart';
@@ -39,10 +41,20 @@ class AboutPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              AppLocalizations.of(context)!.versionInfo('1.0.0', '1'),
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+            // Version réelle de l'app installée (était codée en dur « 1.0.0 (1) »),
+            // avec son édition : « Version v4.1.0 - Orion Edition (33) ».
+            FutureBuilder<PackageInfo>(
+              future: PackageInfo.fromPlatform(),
+              builder: (context, snap) => Text(
+                snap.hasData
+                    ? AppLocalizations.of(context)!.versionInfo(
+                        AppRelease.label(snap.data!.version),
+                        snap.data!.buildNumber,
+                      )
+                    : '',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
             const SizedBox(height: 32),
@@ -60,16 +72,18 @@ class AboutPage extends StatelessWidget {
             _buildInfoTile(
               context,
               AppLocalizations.of(context)!.contact,
-              'support@Kauri.com',
+              'support@kauri-app.com',
             ),
             _buildInfoTile(
               context,
               AppLocalizations.of(context)!.website,
-              'www.Kauri.com',
+              'kauri-app.com',
             ),
             const SizedBox(height: 48),
             Text(
-              AppLocalizations.of(context)!.copyrightInfo,
+              AppLocalizations.of(
+                context,
+              )!.copyrightInfo(DateTime.now().year.toString()),
               style: AppTextStyles.bodySmall.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),

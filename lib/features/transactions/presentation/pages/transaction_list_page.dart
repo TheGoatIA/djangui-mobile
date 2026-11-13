@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/category_labels.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -360,7 +361,7 @@ class _TransactionItem extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        transaction.category,
+                        CategoryLabels.display(context, transaction.category),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),

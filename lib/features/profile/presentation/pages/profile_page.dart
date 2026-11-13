@@ -1734,8 +1734,8 @@ class _ProfilePageState extends State<ProfilePage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Forfaits Kauri & Revendeur Hub',
+                    Text(
+                      AppLocalizations.of(context)!.plansAndResellerTitle,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -1744,7 +1744,7 @@ class _ProfilePageState extends State<ProfilePage>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Passez à Premium (2 000 FCFA) ou lancez votre activité Revendeur (5 000 FCFA) avec outils et marges dédiés.',
+                      AppLocalizations.of(context)!.plansAndResellerDesc,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13,
@@ -1767,8 +1767,8 @@ class _ProfilePageState extends State<ProfilePage>
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                'Découvrir les Forfaits & Tarifs',
+              child: Text(
+                AppLocalizations.of(context)!.discoverPlansAndPricing,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -2134,7 +2134,7 @@ class _ProfilePageState extends State<ProfilePage>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Choisir l'icône"),
+        title: Text(AppLocalizations.of(context)!.chooseAppIcon),
         content: BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
             final currentIcon = state.appIcon;
@@ -2144,7 +2144,7 @@ class _ProfilePageState extends State<ProfilePage>
               children: [
                 _buildIconTile(
                   context,
-                  title: "Par défaut (Vert)",
+                  title: AppLocalizations.of(context)!.appIconDefaultGreen,
                   assetPath: "assets/images/logo.png",
                   value: null,
                   groupValue: currentIcon,
@@ -2196,7 +2196,7 @@ class _ProfilePageState extends State<ProfilePage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              "Icône changée en $title. Redémarrage possible requis.",
+              AppLocalizations.of(context)!.appIconChanged(title.toString()),
             ),
             duration: const Duration(seconds: 2),
           ),

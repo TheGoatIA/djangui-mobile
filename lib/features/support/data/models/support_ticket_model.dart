@@ -54,8 +54,20 @@ class SupportTicketReplyModel extends Equatable {
     required this.createdAt,
   });
 
-  factory SupportTicketReplyModel.fromJson(Map<String, dynamic> json) =>
-      _$SupportTicketReplyModelFromJson(json);
+  /// Lecture tolérante : l'API enregistre la date d'une réponse dans `date`
+  /// (modèle SupportTicket.responses), pas `createdAt`. L'ancien
+  /// `DateTime.parse(json['createdAt'])` plantait dès la PREMIÈRE réponse :
+  /// l'utilisateur ne voyait jamais les réponses du support (constaté en E2E).
+  factory SupportTicketReplyModel.fromJson(Map<String, dynamic> json) {
+    final rawDate = json['createdAt'] ?? json['date'];
+    return SupportTicketReplyModel(
+      message: (json['message'] ?? '').toString(),
+      sender: (json['sender'] ?? 'user').toString(),
+      createdAt:
+          DateTime.tryParse(rawDate?.toString() ?? '')?.toLocal() ??
+          DateTime.now(),
+    );
+  }
 
   Map<String, dynamic> toJson() => _$SupportTicketReplyModelToJson(this);
 

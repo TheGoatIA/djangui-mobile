@@ -1,3 +1,4 @@
+import 'package:kauri/core/navigation/tutorial_route_observer.dart';
 import 'deep_link_parser.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
@@ -24,6 +25,7 @@ import '../features/auth/presentation/pages/complete_profile_page.dart';
 import '../features/goals/presentation/pages/join_goal_page.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/transactions/presentation/pages/transaction_list_page.dart';
+import '../features/transactions/presentation/bloc/transactions_bloc.dart';
 import '../features/transactions/presentation/pages/add_transaction_page.dart';
 import '../features/transactions/presentation/pages/transaction_detail_page.dart';
 import '../features/transactions/data/models/transaction_model.dart';
@@ -107,7 +109,7 @@ final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: RouteConstants.splash,
   debugLogDiagnostics: kDebugMode,
-  observers: [TelemetryRouteObserver()],
+  observers: [TelemetryRouteObserver(), TutorialRouteObserver()],
   refreshListenable: GoRouterRefreshStream(getIt<AuthBloc>().stream),
   redirect: (context, state) {
     // Verified HTTPS link (Android App Links / iOS Universal Links), see deep_link_parser.dart
@@ -172,6 +174,23 @@ final appRouter = GoRouter(
       }
     }
 
+    // Compte connecté mais NON vérifié (ni e-mail, ni téléphone) : il reste sur
+    // l'écran de vérification. Seul le Splash faisait ce contrôle — un simple
+    // « Retour à la connexion » (ou un lien profond) menait au tableau de bord
+    // sans vérification (constaté en E2E). Même règle que SplashPage.
+    final isVerified =
+        user != null &&
+        (user.isEmailVerified ||
+            user.isPhoneVerified ||
+            (user.phone != null && user.phone!.isNotEmpty));
+    if (isAuthenticated &&
+        user != null &&
+        !isVerified &&
+        !_publicRoutePaths.contains(state.uri.path) &&
+        state.uri.path != RouteConstants.emailVerificationPending) {
+      return RouteConstants.emailVerificationPending;
+    }
+
     // Un utilisateur authentifié qui atterrit sur login/register/onboarding
     // (bouton "retour", lien profond obsolète) est renvoyé au tableau de bord
     // plutôt que de revoir l'écran de connexion.
@@ -179,7 +198,9 @@ final appRouter = GoRouter(
         (state.uri.path == RouteConstants.login ||
             state.uri.path == RouteConstants.register ||
             state.uri.path == RouteConstants.onBoarding)) {
-      return RouteConstants.dashboard;
+      return isVerified
+          ? RouteConstants.dashboard
+          : RouteConstants.emailVerificationPending;
     }
 
     return null;
@@ -361,11 +382,32 @@ final appRouter = GoRouter(
           path: ':id',
           name: RouteConstants.transactionDetails,
           pageBuilder: (context, state) {
-            final transaction = state.extra as TransactionModel;
+            // `extra` n'est un TransactionModel qu'au premier affichage : quand
+            // GoRouter restaure la pile d'un onglet (changement d'onglet,
+            // restauration d'état) il le rend sous forme de Map — l'ancien
+            // `as TransactionModel` faisait planter l'écran (constaté en E2E).
+            // Sans extra (lien direct), on retrouve la transaction par son id.
+            final extra = state.extra;
+            TransactionModel? transaction;
+            if (extra is TransactionModel) {
+              transaction = extra;
+            } else if (extra is Map) {
+              try {
+                transaction = TransactionModel.fromJson(
+                  Map<String, dynamic>.from(extra),
+                );
+              } catch (_) {}
+            }
+            final id = state.pathParameters['id'];
+            transaction ??= getIt<TransactionsBloc>().state.transactions
+                .where((t) => t.id == id)
+                .firstOrNull;
             return buildPageWithDefaultTransition(
               context: context,
               state: state,
-              child: TransactionDetailPage(transaction: transaction),
+              child: transaction != null
+                  ? TransactionDetailPage(transaction: transaction)
+                  : const TransactionListPage(),
             );
           },
         ),
@@ -609,7 +651,19 @@ final appRouter = GoRouter(
         GoRoute(
           path: ':id',
           pageBuilder: (context, state) {
-            final subscription = state.extra as SubscriptionModel?;
+            // Même robustesse que le détail de transaction : `extra` peut
+            // revenir sous forme de Map après restauration de la pile.
+            final extra = state.extra;
+            SubscriptionModel? subscription;
+            if (extra is SubscriptionModel) {
+              subscription = extra;
+            } else if (extra is Map) {
+              try {
+                subscription = SubscriptionModel.fromJson(
+                  Map<String, dynamic>.from(extra),
+                );
+              } catch (_) {}
+            }
             return buildPageWithDefaultTransition(
               context: context,
               state: state,

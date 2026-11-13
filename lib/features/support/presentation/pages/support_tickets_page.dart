@@ -234,7 +234,14 @@ class _TicketCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 // Catégorie de la demande
                 Text(
-                  ticket.category,
+                  // Code brut de l'API (payment, bug…) → libellé traduit.
+                  switch (ticket.category) {
+                    'payment' => AppLocalizations.of(context)!.categoryPayment,
+                    'bug' => AppLocalizations.of(context)!.categoryBug,
+                    'account' => AppLocalizations.of(context)!.categoryAccount,
+                    'other' => AppLocalizations.of(context)!.categoryOther,
+                    _ => ticket.category,
+                  },
                   style: AppTextStyles.bodySmall.copyWith(
                     color: theme.colorScheme.primary,
                     fontWeight: FontWeight.bold,

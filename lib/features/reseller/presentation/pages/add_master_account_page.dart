@@ -113,7 +113,10 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Nouveau Compte Maître')),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.resellerNewMasterAccount),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -121,14 +124,14 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Informations du Service',
+              Text(
+                AppLocalizations.of(context)!.resellerServiceInfo,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               AppTextField(
                 controller: _serviceNameController,
-                label: 'Nom du Service (ex: Netflix 4K, Spotify...)',
+                label: AppLocalizations.of(context)!.resellerServiceNameLabel,
                 validator: (v) =>
                     v?.isEmpty ?? true ? 'Ce champ est requis' : null,
               ),
@@ -139,7 +142,9 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
                     flex: 2,
                     child: AppTextField(
                       controller: _billingCostController,
-                      label: 'Coût payé par vous',
+                      label: AppLocalizations.of(
+                        context,
+                      )!.resellerCostPaidByYou,
                       keyboardType: TextInputType.number,
                       validator: (v) => v?.isEmpty ?? true ? 'Requis' : null,
                     ),
@@ -149,8 +154,8 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
                     flex: 1,
                     child: DropdownButtonFormField<String>(
                       initialValue: _selectedCurrency,
-                      decoration: const InputDecoration(
-                        labelText: 'Devise',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.currencyLabel,
                         border: OutlineInputBorder(),
                       ),
                       items: const [
@@ -167,7 +172,7 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
               const SizedBox(height: 12),
               AppTextField(
                 controller: _maxSlotsController,
-                label: 'Nombre d\'écrans / slots maximum',
+                label: AppLocalizations.of(context)!.resellerMaxSlots,
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 12),
@@ -201,8 +206,10 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Date de votre prochain paiement fournisseur',
+                          Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.resellerNextProviderPayment,
                             style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                           const SizedBox(height: 4),
@@ -231,32 +238,34 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Coffre-fort Sécurisé (Chiffré AES-256)',
+                    Text(
+                      AppLocalizations.of(context)!.resellerSecureVault,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Text(
-                      'Vos accès sont stockés de manière chiffrée et restent privés.',
+                    Text(
+                      AppLocalizations.of(context)!.resellerVaultPrivacy,
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     const SizedBox(height: 12),
                     AppTextField(
                       controller: _emailController,
-                      label: 'Email / Identifiant du compte',
+                      label: AppLocalizations.of(context)!.resellerAccountLogin,
                     ),
                     const SizedBox(height: 12),
                     AppTextField(
                       controller: _passwordController,
-                      label: 'Mot de passe maître',
+                      label: AppLocalizations.of(
+                        context,
+                      )!.resellerMasterPassword,
                       isPassword: true,
                     ),
                     const SizedBox(height: 12),
                     AppTextField(
                       controller: _pinController,
-                      label: 'Code PIN principal (optionnel)',
+                      label: AppLocalizations.of(context)!.resellerMainPin,
                       isPassword: true,
                       keyboardType: TextInputType.number,
                     ),
@@ -265,7 +274,10 @@ class _AddMasterAccountPageState extends State<AddMasterAccountPage>
               ),
               const SizedBox(height: 32),
 
-              AppButton(text: 'Enregistrer le compte', onPressed: _submit),
+              AppButton(
+                text: AppLocalizations.of(context)!.resellerSaveAccount,
+                onPressed: _submit,
+              ),
             ],
           ),
         ),

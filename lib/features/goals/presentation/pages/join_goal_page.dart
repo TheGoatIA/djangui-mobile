@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/route_constants.dart';
+import 'package:kauri/core/navigation/safe_pop.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -56,7 +58,7 @@ class _JoinGoalPageState extends State<JoinGoalPage> {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(l10n.successJoinGoal)));
-          context.pop(true);
+          context.popOrGo(RouteConstants.goals, true);
         } else if (state.status == GoalsStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.errorMessage ?? l10n.genericError)),
@@ -64,6 +66,7 @@ class _JoinGoalPageState extends State<JoinGoalPage> {
         }
       },
       child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(title: Text(l10n.joinGoal)),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),

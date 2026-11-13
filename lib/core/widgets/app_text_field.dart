@@ -99,8 +99,17 @@ class AppTextField extends StatelessWidget {
             fillColor: Theme.of(context).inputDecorationTheme.fillColor,
             contentPadding: const EdgeInsets.all(16),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            // Couleur de bordure du thème (sinon BorderSide() = noir, illisible
+            // en mode sombre et incohérent avec les autres champs).
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  Theme.of(
+                    context,
+                  ).inputDecorationTheme.enabledBorder?.borderSide ??
+                  BorderSide(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

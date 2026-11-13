@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
@@ -95,13 +96,17 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: _isLoading
-            ? const Center(
+            ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CircularProgressIndicator(),
                     SizedBox(height: 16),
-                    Text('Vérification du paiement en cours...'),
+                    Text(
+                      AppLocalizations.of(
+                        context,
+                      )!.paymentVerificationInProgress,
+                    ),
                   ],
                 ),
               )
@@ -163,7 +168,9 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
                   if (widget.ref != null) ...[
                     const SizedBox(height: 24),
                     Text(
-                      'Référence: ${widget.ref}',
+                      AppLocalizations.of(
+                        context,
+                      )!.referenceValue(widget.ref.toString()),
                       style: AppTextStyles.bodySmall,
                     ),
                   ],

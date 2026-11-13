@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/route_constants.dart';
+import 'package:kauri/core/navigation/safe_pop.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -57,7 +59,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 backgroundColor: AppColors.success,
               ),
             );
-            Navigator.pop(context);
+            context.popOrGo(RouteConstants.security);
           } else if (state.status == AuthStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

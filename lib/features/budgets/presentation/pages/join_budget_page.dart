@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/route_constants.dart';
+import 'package:kauri/core/navigation/safe_pop.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -21,6 +23,11 @@ class JoinBudgetPage extends StatefulWidget {
 }
 
 class _JoinBudgetPageState extends State<JoinBudgetPage> {
+  /// Vrai entre l'envoi et la réponse : le bloc est partagé par toute l'app,
+  /// un simple rafraîchissement (status success) faisait afficher un FAUX
+  /// succès et fermer l'écran avant même que l'utilisateur n'ait rien envoyé.
+  bool _awaitingSubmit = false;
+
   final _codeController = TextEditingController();
 
   @override
@@ -48,6 +55,8 @@ class _JoinBudgetPageState extends State<JoinBudgetPage> {
 
     return BlocListener<BudgetsBloc, BudgetsState>(
       listener: (context, state) {
+        if (!_awaitingSubmit) return;
+        if (state.status != BudgetsStatus.loading) _awaitingSubmit = false;
         if (state.status == BudgetsStatus.success) {
           getIt<AnalyticsManager>().trackEvent(
             feature: 'Budgets',
@@ -56,7 +65,7 @@ class _JoinBudgetPageState extends State<JoinBudgetPage> {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(l10n.successJoinBudget)));
-          context.pop(true);
+          context.popOrGo(RouteConstants.budgets, true);
         } else if (state.status == BudgetsStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.errorMessage ?? l10n.genericError)),
@@ -64,6 +73,7 @@ class _JoinBudgetPageState extends State<JoinBudgetPage> {
         }
       },
       child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(title: Text(l10n.joinBudget)),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -105,6 +115,7 @@ class _JoinBudgetPageState extends State<JoinBudgetPage> {
                               'Action: Tentative de rejoindre budget $code',
                               component: 'JoinBudgetPage',
                             );
+                            _awaitingSubmit = true;
                             context.read<BudgetsBloc>().add(
                               JoinBudgetRequested(code),
                             );

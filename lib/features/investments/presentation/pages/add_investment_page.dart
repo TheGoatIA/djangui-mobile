@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/route_constants.dart';
+import 'package:kauri/core/navigation/safe_pop.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -77,7 +79,7 @@ class _AddInvestmentPageState extends State<AddInvestmentPage> {
       );
       getIt<InvestmentsBloc>().add(AddInvestment(investment));
       if (context.canPop()) {
-        context.pop();
+        context.popOrGo(RouteConstants.investments);
       }
     }
   }

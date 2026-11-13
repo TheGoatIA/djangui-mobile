@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import 'package:lottie/lottie.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -38,7 +39,7 @@ class LevelUpDialog extends StatelessWidget {
               children: [
                 const SizedBox(height: 40), // Space for animation
                 Text(
-                  'Félicitations !',
+                  AppLocalizations.of(context)!.congratulations,
                   style: AppTextStyles.h2.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),
@@ -46,12 +47,12 @@ class LevelUpDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Vous avez atteint le',
+                  AppLocalizations.of(context)!.levelUpReached,
                   style: AppTextStyles.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
                 Text(
-                  'Niveau $newLevel',
+                  AppLocalizations.of(context)!.levelNumber(newLevel),
                   style: AppTextStyles.h1.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
                     fontSize: 48,
@@ -60,7 +61,7 @@ class LevelUpDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Continuez comme ça pour débloquer de nouveaux badges et fonctionnalités !',
+                  AppLocalizations.of(context)!.levelUpKeepGoing,
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -71,8 +72,8 @@ class LevelUpDialog extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: onContinue,
-                    child: const Text(
-                      'Continuer',
+                    child: Text(
+                      AppLocalizations.of(context)!.continueAction,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

@@ -30,6 +30,9 @@ class AppTheme {
         surfaceContainerHighest: AppColors.background,
         onSurfaceVariant: AppColors.textSecondary,
         outline: AppColors.outline,
+        // Séparateurs (Divider) et bordures secondaires : sans cette valeur,
+        // Material 3 les dessine en noir en mode clair.
+        outlineVariant: AppColors.outline,
         error: AppColors.error,
         onError: Colors.white,
       ),
@@ -223,6 +226,7 @@ class AppTheme {
         surface: AppColors.obsidianSurface,
         onSurface: Colors.white,
         outline: AppColors.goldAccent.withValues(alpha: 0.3),
+        outlineVariant: AppColors.goldAccent.withValues(alpha: 0.3),
       ),
       scaffoldBackgroundColor: AppColors.obsidianBlack,
       cardTheme: base.cardTheme.copyWith(
@@ -253,6 +257,7 @@ class AppTheme {
         surface: AppColors.polarSurface,
         onSurface: Colors.white,
         outline: AppColors.polarIce.withValues(alpha: 0.2),
+        outlineVariant: AppColors.polarIce.withValues(alpha: 0.2),
       ),
       scaffoldBackgroundColor: AppColors.polarDeepBlue,
       cardTheme: base.cardTheme.copyWith(
@@ -283,6 +288,7 @@ class AppTheme {
         surface: AppColors.sunsetSurface,
         onSurface: Colors.white,
         outline: AppColors.sunsetOrange.withValues(alpha: 0.2),
+        outlineVariant: AppColors.sunsetOrange.withValues(alpha: 0.2),
       ),
       scaffoldBackgroundColor: AppColors.sunsetPurple,
       cardTheme: base.cardTheme.copyWith(
@@ -313,6 +319,7 @@ class AppTheme {
         surface: AppColors.emeraldSurface,
         onSurface: Colors.white,
         outline: AppColors.emeraldLime.withValues(alpha: 0.2),
+        outlineVariant: AppColors.emeraldLime.withValues(alpha: 0.2),
       ),
       scaffoldBackgroundColor: AppColors.emeraldDeep,
       cardTheme: base.cardTheme.copyWith(
@@ -343,6 +350,7 @@ class AppTheme {
         surface: AppColors.royalSurface,
         onSurface: Colors.white,
         outline: AppColors.royalAccent.withValues(alpha: 0.3),
+        outlineVariant: AppColors.royalAccent.withValues(alpha: 0.3),
       ),
       scaffoldBackgroundColor: AppColors.royalBlue,
       cardTheme: base.cardTheme.copyWith(
@@ -373,6 +381,7 @@ class AppTheme {
         surface: AppColors.roseVelvetSurface,
         onSurface: Colors.white,
         outline: AppColors.roseVelvetAccent.withValues(alpha: 0.25),
+        outlineVariant: AppColors.roseVelvetAccent.withValues(alpha: 0.25),
       ),
       scaffoldBackgroundColor: AppColors.roseVelvetDeep,
       cardTheme: base.cardTheme.copyWith(
@@ -403,6 +412,7 @@ class AppTheme {
         surface: AppColors.rubySurface,
         onSurface: Colors.white,
         outline: AppColors.rubyAccent.withValues(alpha: 0.25),
+        outlineVariant: AppColors.rubyAccent.withValues(alpha: 0.25),
       ),
       scaffoldBackgroundColor: AppColors.rubyBlack,
       cardTheme: base.cardTheme.copyWith(
@@ -433,6 +443,7 @@ class AppTheme {
         surface: AppColors.abyssSurface,
         onSurface: Colors.white,
         outline: AppColors.abyssAccent.withValues(alpha: 0.25),
+        outlineVariant: AppColors.abyssAccent.withValues(alpha: 0.25),
       ),
       scaffoldBackgroundColor: AppColors.abyssDeep,
       cardTheme: base.cardTheme.copyWith(
@@ -463,6 +474,7 @@ class AppTheme {
         surface: AppColors.cyberSurface,
         onSurface: Colors.white,
         outline: AppColors.cyberCyan.withValues(alpha: 0.3),
+        outlineVariant: AppColors.cyberCyan.withValues(alpha: 0.3),
       ),
       scaffoldBackgroundColor: AppColors.cyberVoid,
       cardTheme: base.cardTheme.copyWith(
@@ -495,6 +507,7 @@ class AppTheme {
         surface: AppColors.pearlSurface,
         onSurface: AppColors.pearlSecondary,
         outline: AppColors.pearlAccent.withValues(alpha: 0.3),
+        outlineVariant: AppColors.pearlAccent.withValues(alpha: 0.3),
       ),
       scaffoldBackgroundColor: AppColors.pearlBackground,
       cardTheme: base.cardTheme.copyWith(

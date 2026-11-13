@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/utils/currency_helper.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../data/models/reseller_models.dart';
@@ -78,8 +80,11 @@ class ServiceAccountCard extends StatelessWidget {
                     ),
                     child: Text(
                       isProfitable
-                          ? '+${account.netMargin.toStringAsFixed(0)} ${account.billingCurrency}'
-                          : '${account.netMargin.toStringAsFixed(0)} ${account.billingCurrency}',
+                          ? '+${CurrencyHelper.formatAmount(account.netMargin.toDouble(), currencyCode: account.billingCurrency)}'
+                          : CurrencyHelper.formatAmount(
+                              account.netMargin.toDouble(),
+                              currencyCode: account.billingCurrency,
+                            ),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -95,7 +100,9 @@ class ServiceAccountCard extends StatelessWidget {
                         size: 18,
                         color: Colors.redAccent,
                       ),
-                      tooltip: 'Supprimer le compte maître',
+                      tooltip: AppLocalizations.of(
+                        context,
+                      )!.resellerDeleteMasterAccount,
                       visualDensity: VisualDensity.compact,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
@@ -113,7 +120,9 @@ class ServiceAccountCard extends StatelessWidget {
 
           // Slots Visual Grid
           Text(
-            'SLOTS (${account.occupiedSlots}/${account.maxSlots} Occupés)',
+            AppLocalizations.of(
+              context,
+            )!.resellerSlotsOccupied(account.occupiedSlots, account.maxSlots),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -194,7 +203,7 @@ class ServiceAccountCard extends StatelessWidget {
                         Icon(Icons.add, size: 12, color: Colors.grey.shade600),
                         const SizedBox(width: 4),
                         Text(
-                          'Attribuer',
+                          AppLocalizations.of(context)!.assign,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -215,14 +224,17 @@ class ServiceAccountCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Coût : ${account.billingCost.toStringAsFixed(0)} ${account.billingCurrency}',
+                AppLocalizations.of(context)!.costLabelValue(
+                  (account.billingCost.toStringAsFixed(0)).toString(),
+                  account.billingCurrency.toString(),
+                ),
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
               TextButton.icon(
                 onPressed: onUnlockVault,
                 icon: const Icon(Icons.lock_open_rounded, size: 14),
-                label: const Text(
-                  'Accès & PIN',
+                label: Text(
+                  AppLocalizations.of(context)!.accessAndPin,
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 style: TextButton.styleFrom(

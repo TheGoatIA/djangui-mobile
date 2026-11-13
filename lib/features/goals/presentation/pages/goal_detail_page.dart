@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/route_constants.dart';
+import 'package:kauri/core/navigation/safe_pop.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:collection/collection.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -6,6 +8,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../di/injection.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../widgets/goal_share_sheet.dart';
+import '../widgets/goal_delete_message.dart';
 import '../bloc/goals_bloc.dart';
 import '../bloc/goals_event.dart';
 import '../bloc/goals_state.dart';
@@ -112,7 +115,9 @@ class _GoalDetailPageState extends State<GoalDetailPage>
             if (goal.id.isEmpty) {
               return Scaffold(
                 appBar: AppBar(),
-                body: const Center(child: Text('Goal not found')),
+                body: Center(
+                  child: Text(AppLocalizations.of(context)!.goalNotFound),
+                ),
               );
             }
 
@@ -187,6 +192,13 @@ class _GoalDetailPageState extends State<GoalDetailPage>
                       previous.status != current.status &&
                       current.status == GoalsStatus.contributionSuccess,
                   listener: (context, state) {
+                    // Confirmation visible : sans elle, le popup se fermait sans aucun retour.
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.goalSavingsAdded),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
                     // Refresh balance on contribution success
                     context.read<AuthBloc>().add(AuthRefreshUserRequested());
                     context.read<FintechBloc>().add(FetchWalletBalance());
@@ -198,7 +210,7 @@ class _GoalDetailPageState extends State<GoalDetailPage>
                       current.status == GoalsStatus.deleteSuccess &&
                       !current.goals.any((g) => g.id == goalId),
                   listener: (context, state) {
-                    Navigator.pop(context);
+                    context.popOrGo(RouteConstants.goals);
                   },
                 ),
                 BlocListener<GoalsBloc, GoalsState>(
@@ -207,7 +219,7 @@ class _GoalDetailPageState extends State<GoalDetailPage>
                       current.status == GoalsStatus.leaveSuccess &&
                       !current.goals.any((g) => g.id == goalId),
                   listener: (context, state) {
-                    Navigator.pop(context);
+                    context.popOrGo(RouteConstants.goals);
                   },
                 ),
                 BlocListener<GoalsBloc, GoalsState>(
@@ -955,7 +967,7 @@ class _GoalDetailPageState extends State<GoalDetailPage>
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(l10n.delete),
-        content: Text(l10n.deleteGoalConfirmation),
+        content: Text(goalDeleteMessage(l10n, goal)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
@@ -975,7 +987,7 @@ class _GoalDetailPageState extends State<GoalDetailPage>
               // en cas d'échec réseau.
             },
             style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(dialogContext).colorScheme.error,
             ),
             child: Text(l10n.delete),
           ),
@@ -1020,7 +1032,8 @@ class _ContributionDialogState extends State<_ContributionDialog> {
 
     return AlertDialog(
       title: Text(
-        goal.type == 'debt' ? l10n.repaymentDialogTitle : l10n.addGoalTitle,
+        // « Ajouter Épargne » (affichait « Nouvel Objectif », le titre de la création)
+        goal.type == 'debt' ? l10n.repaymentDialogTitle : l10n.addSavingsAction,
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,

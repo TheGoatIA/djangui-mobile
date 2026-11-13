@@ -56,7 +56,11 @@ class VoiceConfirmationSheet extends StatelessWidget {
                   children: [
                     Text(l10n.confirmTransaction, style: AppTextStyles.h3),
                     Text(
-                      "Extraction précise à ${(response.confidence * 100).toStringAsFixed(0)}%",
+                      AppLocalizations.of(context)!.voiceExtractionConfidence(
+                        ((response.confidence * 100).toStringAsFixed(
+                          0,
+                        )).toString(),
+                      ),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -109,7 +113,7 @@ class VoiceConfirmationSheet extends StatelessWidget {
             const SizedBox(height: 16),
             _buildInfoRow(
               context,
-              label: "Date",
+              label: AppLocalizations.of(context)!.date,
               value: DateFormat('dd MMM yyyy, HH:mm').format(response.date!),
             ),
           ],
@@ -138,7 +142,9 @@ class VoiceConfirmationSheet extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      "Objectif cible : ${response.targetGoal}",
+                      AppLocalizations.of(context)!.targetGoalValue(
+                        (response.targetGoal ?? "").toString(),
+                      ),
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.primary,
                       ),

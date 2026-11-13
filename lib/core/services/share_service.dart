@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:kauri/core/services/log_service.dart';
 import 'package:share_plus/share_plus.dart';
@@ -15,8 +16,8 @@ class ShareService {
     );
     await SharePlus.instance.share(
       ShareParams(
-        text: 'Rejoins ma tontine sur Kauri avec le code: $code',
-        subject: 'Invitation Tontine Kauri',
+        text: appL10n().shareTontineInviteText(code.toString()),
+        subject: appL10n().shareTontineInviteSubject,
       ),
     );
   }

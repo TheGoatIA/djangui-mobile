@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:kauri/core/analytics/events.dart';
 import 'package:kauri/features/subscription/data/datasources/payment_api_service.dart';
 import 'package:kauri/features/subscription/data/models/payment_model.dart';
@@ -82,17 +83,25 @@ class PaymentService {
       case 'DE':
       case 'IT':
       case 'ES':
-        return (amount: 5.0, currency: 'EUR', formattedPrice: '5 € / mois');
+        return (
+          amount: 5.0,
+          currency: 'EUR',
+          formattedPrice: '5 € ${appL10n().perMonthSuffix}',
+        );
       case 'US':
       case 'CA':
       case 'GB':
-        return (amount: 6.0, currency: 'USD', formattedPrice: '6 \$ / month');
+        return (
+          amount: 6.0,
+          currency: 'USD',
+          formattedPrice: '6 \$ ${appL10n().perMonthSuffix}',
+        );
       case 'CM':
       default:
         return (
           amount: 2000.0,
           currency: 'XAF',
-          formattedPrice: '2000 FCFA / mois',
+          formattedPrice: '2000 FCFA ${appL10n().perMonthSuffix}',
         );
     }
   }
@@ -106,17 +115,25 @@ class PaymentService {
       case 'DE':
       case 'IT':
       case 'ES':
-        return (amount: 12.0, currency: 'EUR', formattedPrice: '12 € / mois');
+        return (
+          amount: 12.0,
+          currency: 'EUR',
+          formattedPrice: '12 € ${appL10n().perMonthSuffix}',
+        );
       case 'US':
       case 'CA':
       case 'GB':
-        return (amount: 15.0, currency: 'USD', formattedPrice: '15 \$ / month');
+        return (
+          amount: 15.0,
+          currency: 'USD',
+          formattedPrice: '15 \$ ${appL10n().perMonthSuffix}',
+        );
       case 'CM':
       default:
         return (
           amount: 5000.0,
           currency: 'XAF',
-          formattedPrice: '5000 FCFA / mois',
+          formattedPrice: '5000 FCFA ${appL10n().perMonthSuffix}',
         );
     }
   }

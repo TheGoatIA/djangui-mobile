@@ -310,7 +310,7 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                           ),
                         const SizedBox(height: 24),
                         Text(
-                          "Historique des contributions",
+                          AppLocalizations.of(context)!.historyLabel,
                           style: AppTextStyles.bodyLarge.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -350,7 +350,11 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
                                               ),
                                               const SizedBox(width: 12),
                                               Text(
-                                                "Semaine ${w.weekNumber}",
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.weekNumberLabel(
+                                                  w.weekNumber,
+                                                ),
                                                 style: AppTextStyles.bodyMedium,
                                               ),
                                               const Spacer(),
@@ -773,7 +777,7 @@ class _ChallengeDetailSheetState extends State<ChallengeDetailSheet> {
             ),
             const SizedBox(height: 8),
             Text(
-              "Le montant sera automatiquement prélevé de votre portefeuille Kauri.",
+              AppLocalizations.of(context)!.challengeAutoDebitNotice,
               style: AppTextStyles.bodySmall.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontStyle: FontStyle.italic,
