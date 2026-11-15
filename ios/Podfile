@@ -35,6 +35,11 @@ target 'Runner' do
   # Vendor it locally so pod install doesn't try to clone from cfr/SwiftTryCatch.git.
   pod 'SwiftTryCatch', :path => './SwiftTryCatch'
 
+  # Connexion par numéro de téléphone : le projet Firebase applique reCAPTCHA Enterprise
+  # (protection anti-fraude SMS, clé iOS). Sans ce SDK, Firebase Auth iOS refuse l'envoi
+  # du SMS : « The reCAPTCHA SDK is not linked to your app ».
+  pod 'RecaptchaEnterprise', '>= 18.7.0'
+
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
   target 'RunnerTests' do
