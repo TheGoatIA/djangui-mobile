@@ -10,6 +10,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:kauri/core/database/telemetry_executor.dart';
+import 'package:kauri/core/database/database_repair.dart';
 
 part 'database.g.dart';
 
@@ -496,7 +497,12 @@ class AppDatabase extends _$AppDatabase {
       // Base existante illisible avec la clé (« file is not a database ») :
       // la session ne pouvait plus être enregistrée et TOUTE connexion
       // échouait (vu sur iPhone en test). On répare au lieu de bloquer.
-      await _repairUnreadableDatabase(file, dbKey);
+      await repairUnreadableDatabase(
+        file,
+        dbKey,
+        log: (final String msg) =>
+            getIt<LogService>().warning(msg, component: "Database"),
+      );
 
       final executor = NativeDatabase(
         file,
@@ -513,70 +519,6 @@ class AppDatabase extends _$AppDatabase {
       return TelemetryQueryExecutor(executor);
     });
   }
-}
-
-/// Vrai si la base s'ouvre et se lit (avec [key], ou sans chiffrement si null).
-bool _canRead(File file, String? key) {
-  Database? db;
-  try {
-    db = sqlite3.open(file.path);
-    if (key != null) db.execute("PRAGMA key = '$key';");
-    db.select('SELECT count(*) FROM sqlite_master;');
-    return true;
-  } catch (_) {
-    return false;
-  } finally {
-    db?.close();
-  }
-}
-
-/// Supprime la base locale et ses fichiers annexes (-wal, -shm, -journal).
-Future<void> _deleteDatabaseFiles(File file) async {
-  for (final path in [
-    file.path,
-    '${file.path}-wal',
-    '${file.path}-shm',
-    '${file.path}-journal',
-  ]) {
-    final f = File(path);
-    if (f.existsSync()) await f.delete();
-  }
-}
-
-/// Répare une base locale illisible avec la clé actuelle :
-/// 1. base NON chiffrée (ancienne version) → chiffrée sur place avec
-///    `PRAGMA rekey`, sans perte de données ;
-/// 2. sinon (autre clé, autre format) → reconstruite vide : ce n'est qu'un
-///    cache resynchronisé depuis le serveur, et les jetons de session sont
-///    dans le stockage sécurisé, pas dans cette base.
-Future<void> _repairUnreadableDatabase(File file, String key) async {
-  if (!file.existsSync() || _canRead(file, key)) return;
-  final log = getIt<LogService>();
-
-  if (_canRead(file, null)) {
-    Database? db;
-    try {
-      db = sqlite3.open(file.path);
-      db.execute("PRAGMA rekey = '$key';");
-    } catch (e) {
-      log.error('Chiffrement de la base locale impossible', error: e);
-    } finally {
-      db?.close();
-    }
-    if (_canRead(file, key)) {
-      log.warning(
-        'Base locale non chiffrée : chiffrée sur place.',
-        component: 'Database',
-      );
-      return;
-    }
-  }
-
-  await _deleteDatabaseFiles(file);
-  log.warning(
-    'Base locale illisible (clé ou format différent) : reconstruite.',
-    component: 'Database',
-  );
 }
 
 /// Verifies the native SQLite build actually understands `PRAGMA cipher`
