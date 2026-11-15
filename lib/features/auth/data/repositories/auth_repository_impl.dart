@@ -117,6 +117,13 @@ class AuthRepositoryImpl implements AuthRepository {
           // La validation automatique n'est pas gérée ici pour laisser le contrôle au bloc.
         },
         verificationFailed: (FirebaseAuthException e) {
+          // Code Firebase exact (too-many-requests, invalid-phone-number…)
+          // pour comprendre pourquoi un numéro est refusé.
+          _logger.error(
+            'Échec de la vérification du numéro : ${e.code}',
+            error: e,
+            component: 'AuthRepository',
+          );
           onVerificationFailed(e.message ?? 'Échec de la vérification');
         },
         codeSent: (String verificationId, int? resendToken) {

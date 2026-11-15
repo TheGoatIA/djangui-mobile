@@ -8,6 +8,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/payment_service.dart';
+import '../../../../core/services/payment_init_error.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/subscription/data/models/payment_model.dart';
@@ -926,6 +928,14 @@ class _SubscriptionViewState extends State<SubscriptionView>
       builder: (sheetContext) => BlocBuilder<FintechBloc, FintechState>(
         builder: (ctx, fintechState) {
           final walletBalance = fintechState.balance;
+          // Mode simulation : NotchPay / Stripe sont refusés par le serveur.
+          // On ne propose alors que le paiement par portefeuille.
+          final realMoney = context
+              .read<SystemBloc>()
+              .state
+              .featureFlags
+              .featRealMoney
+              .isEnabled;
           final formattedWalletBalance = CurrencyHelper.formatAmount(
             walletBalance,
             currencyCode: priceInfo.currency,
@@ -969,32 +979,36 @@ class _SubscriptionViewState extends State<SubscriptionView>
                   ),
                   onTap: () => _payWithWallet(context, priceInfo, plan: plan),
                 ),
-                const SizedBox(height: 16),
-                _buildPaymentMethod(
-                  context,
-                  icon: Icons.phone_android,
-                  title: 'NotchPay (${l10n.mobileMoney})',
-                  subtitle: l10n.mobileMoneyPlatforms(priceInfo.formattedPrice),
-                  onTap: () => _initiatePayment(
+                if (realMoney) ...[
+                  const SizedBox(height: 16),
+                  _buildPaymentMethod(
                     context,
-                    'notchpay',
-                    priceInfo,
-                    plan: plan,
+                    icon: Icons.phone_android,
+                    title: 'NotchPay (${l10n.mobileMoney})',
+                    subtitle: l10n.mobileMoneyPlatforms(
+                      priceInfo.formattedPrice,
+                    ),
+                    onTap: () => _initiatePayment(
+                      context,
+                      'notchpay',
+                      priceInfo,
+                      plan: plan,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                _buildPaymentMethod(
-                  context,
-                  icon: Icons.credit_card,
-                  title: 'Stripe (${l10n.bankCard})',
-                  subtitle: l10n.bankCardPlatforms(priceInfo.formattedPrice),
-                  onTap: () => _initiatePayment(
+                  const SizedBox(height: 16),
+                  _buildPaymentMethod(
                     context,
-                    'stripe',
-                    priceInfo,
-                    plan: plan,
+                    icon: Icons.credit_card,
+                    title: 'Stripe (${l10n.bankCard})',
+                    subtitle: l10n.bankCardPlatforms(priceInfo.formattedPrice),
+                    onTap: () => _initiatePayment(
+                      context,
+                      'stripe',
+                      priceInfo,
+                      plan: plan,
+                    ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 24),
               ],
             ),
@@ -1307,6 +1321,9 @@ class _SubscriptionViewState extends State<SubscriptionView>
           ),
         );
       }
+    } on PaymentInitException catch (e) {
+      if (!context.mounted) return;
+      ToastUtils.showError(context, e.message);
     } catch (e) {
       if (!context.mounted) return;
       getIt<LogService>().error(

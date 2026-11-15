@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:kauri/core/services/payment_init_error.dart';
 import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:kauri/core/analytics/events.dart';
 import 'package:kauri/features/subscription/data/datasources/payment_api_service.dart';
@@ -186,6 +187,8 @@ class PaymentService {
         'response': response.body,
       },
     );
+    final notchMessage = serverErrorMessage(response.error);
+    if (notchMessage != null) throw PaymentInitException(notchMessage);
     return null;
   }
 
@@ -229,6 +232,8 @@ class PaymentService {
       component: 'PaymentService',
       metadata: {'amount': amount, 'response': response.body},
     );
+    final stripeMessage = serverErrorMessage(response.error);
+    if (stripeMessage != null) throw PaymentInitException(stripeMessage);
     return null;
   }
 
