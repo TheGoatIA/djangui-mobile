@@ -42,6 +42,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource _localDataSource;
   final NetworkInfo _networkInfo;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  static bool _googleSignInInitialized = false;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   AuthRepositoryImpl(
@@ -241,8 +242,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
     try {
       // Nettoyage de l'état précédent pour éviter les erreurs persistantes sur Android.
+      // google_sign_in 7 : initialize() ne doit être appelé qu'UNE fois par lancement de l'app
+      // (un second appel échoue, ce qui cassait toute nouvelle tentative de connexion Google).
+      if (!_googleSignInInitialized) {
+        await _googleSignIn.initialize();
+        _googleSignInInitialized = true;
+      }
       await _googleSignIn.signOut();
-      await _googleSignIn.initialize();
       final googleUser = await _googleSignIn.authenticate();
 
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;

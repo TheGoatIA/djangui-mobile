@@ -57,6 +57,10 @@
 	<true/>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<string>YES</string>
+	<!-- Obligatoire sur iOS depuis google_sign_in 7 : identifiant client iOS (CLIENT_ID de
+	     GoogleService-Info.plist). Sans lui, la connexion Google échoue avant même le choix du compte. -->
+	<key>GIDClientID</key>
+	<string>323526784336-3pu1q350psuapeh5ed1ckmhaqd6f1nni.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
