@@ -119,11 +119,7 @@ class AuthRepositoryImpl implements AuthRepository {
         verificationFailed: (FirebaseAuthException e) {
           // Code Firebase exact (too-many-requests, invalid-phone-number…)
           // pour comprendre pourquoi un numéro est refusé.
-          _logger.error(
-            'Échec de la vérification du numéro : ${e.code}',
-            error: e,
-            component: 'AuthRepository',
-          );
+          _logger.error('Vérification du numéro : ${e.code}', error: e);
           onVerificationFailed(e.message ?? 'Échec de la vérification');
         },
         codeSent: (String verificationId, int? resendToken) {
