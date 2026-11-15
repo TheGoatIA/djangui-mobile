@@ -409,6 +409,12 @@ class TontineBloc extends Bloc<TontineEvent, TontineState> {
             'Contribution envoyée avec succès.',
             component: 'TontineBloc',
           );
+          emit(
+            state.copyWith(
+              status: TontineStatus.success,
+              contributionsSent: state.contributionsSent + 1,
+            ),
+          );
           add(TontineDetailsLoadRequested(event.tontineId));
         },
       );

@@ -2,6 +2,7 @@ import 'package:chopper/chopper.dart';
 import 'package:http/http.dart' show MultipartFile;
 import '../../../../core/network/models/base_response.dart';
 import '../models/tontine_model.dart';
+import '../models/tontine_vote_model.dart';
 
 part 'tontine_api_service.chopper.dart';
 
@@ -109,5 +110,25 @@ abstract class TontineApiService extends ChopperService {
   @POST(path: '/{id}/social-fund/pay')
   Future<Response<BaseResponse<TontineMemberModel>>> paySocialFund(
     @Path('id') String id,
+  );
+
+  // --- Votes (gouvernance ; un vote de clôture est le seul moyen d'arrêter une
+  // tontine en cours : le créateur ne peut plus la clôturer seul) ---
+  @GET(path: '/{id}/votes')
+  Future<Response<BaseListResponse<TontineVoteModel>>> getVotes(
+    @Path('id') String id,
+  );
+
+  @POST(path: '/{id}/votes')
+  Future<Response<BaseResponse<TontineVoteModel>>> createVote(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST(path: '/{id}/votes/{voteId}')
+  Future<Response<BaseResponse<TontineVoteModel>>> castVote(
+    @Path('id') String id,
+    @Path('voteId') String voteId,
+    @Body() Map<String, dynamic> body,
   );
 }

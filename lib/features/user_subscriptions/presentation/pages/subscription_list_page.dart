@@ -178,7 +178,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
-                                    Icons.subscript_rounded,
+                                    Icons.subscriptions_outlined,
                                     size: 80,
                                     color: Theme.of(context)
                                         .colorScheme

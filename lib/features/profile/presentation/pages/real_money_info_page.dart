@@ -87,8 +87,8 @@ class RealMoneyInfoPage extends StatelessWidget {
               ),
               content: _text(
                 context,
-                'Votre argent n\'est plus un simple chiffre à l\'écran. \n\n• **Comptabilité Immuable (Ledger)** : Chaque mouvement d\'argent est retracé au centime près par notre système en partie double.\n• **Réconciliation Bancaire** : Les comptes physiques de Kauri correspondent mathématiquement, et de façon certifiée, au solde virtuel de votre portefeuille quotidiennement.',
-                'Your money is no longer just a number on a screen.\n\n• **Immutable Ledger** : Every money movement is tracked down to the cent by our double-entry system.\n• **Bank Reconciliation** : Kauri\'s physical accounts perfectly match your virtual wallet balance daily, certified mathematically.',
+                'Votre argent n\'est plus un simple chiffre à l\'écran. \n\n• Comptabilité Immuable (Ledger) : Chaque mouvement d\'argent est retracé au centime près par notre système en partie double.\n• Réconciliation Bancaire : Les comptes physiques de Kauri correspondent mathématiquement, et de façon certifiée, au solde virtuel de votre portefeuille quotidiennement.',
+                'Your money is no longer just a number on a screen.\n\n• Immutable Ledger : Every money movement is tracked down to the cent by our double-entry system.\n• Bank Reconciliation : Kauri\'s physical accounts perfectly match your virtual wallet balance daily, certified mathematically.',
               ),
             ),
 

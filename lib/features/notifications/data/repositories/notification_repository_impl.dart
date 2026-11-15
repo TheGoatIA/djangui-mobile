@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/network/network_info.dart';
@@ -52,7 +53,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         'Impossible de récupérer les notifications hors-ligne.',
         component: 'NotificationRepository',
       );
-      return const Left(NetworkFailure('No internet connection'));
+      return Left(NetworkFailure(appL10n().networkErrorGeneric));
     }
   }
 
@@ -83,7 +84,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         'Impossible de marquer comme lue hors-ligne.',
         component: 'NotificationRepository',
       );
-      return const Left(NetworkFailure('No internet connection'));
+      return Left(NetworkFailure(appL10n().networkErrorGeneric));
     }
   }
 
@@ -114,7 +115,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         'Impossible de marquer tout comme lu hors-ligne.',
         component: 'NotificationRepository',
       );
-      return const Left(NetworkFailure('No internet connection'));
+      return Left(NetworkFailure(appL10n().networkErrorGeneric));
     }
   }
 
@@ -128,7 +129,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
-      return const Left(NetworkFailure('No internet connection'));
+      return Left(NetworkFailure(appL10n().networkErrorGeneric));
     }
   }
 
@@ -155,7 +156,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
     } else {
-      return const Left(NetworkFailure('No internet connection'));
+      return Left(NetworkFailure(appL10n().networkErrorGeneric));
     }
   }
 }

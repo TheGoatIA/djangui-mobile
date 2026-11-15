@@ -8,6 +8,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../di/injection.dart';
 import '../../../../core/services/payment_service.dart';
+import '../../../../core/services/payment_init_error.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/subscription/data/models/payment_model.dart';
@@ -310,12 +311,20 @@ class _SubscriptionViewState extends State<SubscriptionView>
                             title: AppLocalizations.of(context)!.premiumPlan,
                             price: fallbackPriceInfo.formattedPrice,
                             features: [
-                              '5 Budgets & 5 Objectifs simultanés',
-                              '15 Scans OCR de reçus / mois',
-                              'Jusqu\'à 2 tontines créées (Participation libre)',
-                              'Coach IA Anne (50 requêtes / mois & 30j historique)',
+                              AppLocalizations.of(
+                                context,
+                              )!.premiumFallbackBudgetsGoals,
+                              AppLocalizations.of(context)!.premiumFallbackOcr,
+                              AppLocalizations.of(
+                                context,
+                              )!.premiumFallbackTontines,
+                              AppLocalizations.of(
+                                context,
+                              )!.premiumFallbackCoach,
                               AppLocalizations.of(context)!.premiumFeatureFees,
-                              'Hub Revendeur : 3 comptes maîtres & 10 slots clients',
+                              AppLocalizations.of(
+                                context,
+                              )!.premiumFallbackReseller,
                             ],
                             isPremium: true,
                             isCurrentPlan: isPremiumOnly,
@@ -537,7 +546,10 @@ class _SubscriptionViewState extends State<SubscriptionView>
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '${payment.amount} ${payment.currency}',
+                            CurrencyHelper.formatAmount(
+                              (payment.amount as num).toDouble(),
+                              currencyCode: payment.currency,
+                            ),
                             style: AppTextStyles.bodyLarge.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -699,8 +711,8 @@ class _SubscriptionViewState extends State<SubscriptionView>
                   categories: categories,
                 ),
                 icon: const Icon(Icons.list_alt_rounded, size: 18),
-                label: const Text(
-                  'Voir tous les détails & fonctionnalités',
+                label: Text(
+                  AppLocalizations.of(context)!.seeAllDetailsAndFeatures,
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -949,7 +961,7 @@ class _SubscriptionViewState extends State<SubscriptionView>
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      'Instantané',
+                      AppLocalizations.of(context)!.instant,
                       style: AppTextStyles.labelSmall.copyWith(
                         color: AppColors.success,
                         fontWeight: FontWeight.bold,
@@ -1081,8 +1093,8 @@ class _SubscriptionViewState extends State<SubscriptionView>
           title: Text(l10n.walletPaymentMethod),
           content: Text(
             '${l10n.walletInsufficientBalance}.\n\n'
-            'Solde disponible : ${CurrencyHelper.formatAmount(currentBalance, currencyCode: priceInfo.currency)}\n'
-            'Requis : ${priceInfo.formattedPrice}',
+            '${l10n.availableBalance} : ${CurrencyHelper.formatAmount(currentBalance, currencyCode: priceInfo.currency)}\n'
+            '${l10n.requiredAmountLabel} : ${priceInfo.formattedPrice}',
           ),
           actions: [
             TextButton(
@@ -1094,7 +1106,7 @@ class _SubscriptionViewState extends State<SubscriptionView>
                 Navigator.pop(ctx);
                 ctx.push(RouteConstants.wallet);
               },
-              child: const Text('Recharger le portefeuille'),
+              child: Text(AppLocalizations.of(context)!.topUpWallet),
             ),
           ],
         ),
@@ -1197,15 +1209,15 @@ class _SubscriptionViewState extends State<SubscriptionView>
           final enteredPhone = await showDialog<String>(
             context: context,
             builder: (dialogCtx) => AlertDialog(
-              title: const Text('Numéro Mobile Money'),
+              title: Text(AppLocalizations.of(context)!.mobileMoneyNumber),
               content: Form(
                 key: formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Veuillez renseigner votre numéro de téléphone (Orange Money ou MTN MoMo) pour valider le paiement.',
+                    Text(
+                      AppLocalizations.of(context)!.mobileMoneyNumberPrompt,
                       style: TextStyle(fontSize: 13),
                     ),
                     const SizedBox(height: 16),
@@ -1213,8 +1225,10 @@ class _SubscriptionViewState extends State<SubscriptionView>
                       controller: phoneController,
                       keyboardType: TextInputType.phone,
                       autofocus: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Numéro de téléphone',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(
+                          context,
+                        )!.phoneNumberLabel,
                         hintText: '+237 6XX XX XX XX',
                         prefixIcon: Icon(Icons.phone_android_rounded),
                         border: OutlineInputBorder(),
@@ -1232,7 +1246,7 @@ class _SubscriptionViewState extends State<SubscriptionView>
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogCtx),
-                  child: const Text('Annuler'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 FilledButton(
                   onPressed: () {
@@ -1240,7 +1254,7 @@ class _SubscriptionViewState extends State<SubscriptionView>
                       Navigator.pop(dialogCtx, phoneController.text.trim());
                     }
                   },
-                  child: const Text('Continuer'),
+                  child: Text(AppLocalizations.of(context)!.continueAction),
                 ),
               ],
             ),
@@ -1294,6 +1308,8 @@ class _SubscriptionViewState extends State<SubscriptionView>
           ),
         );
       }
+    } on PaymentInitException catch (e) {
+      if (context.mounted) ToastUtils.showError(context, e.message);
     } catch (e) {
       if (!context.mounted) return;
       getIt<LogService>().error(

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:kauri/core/constants/category_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -915,9 +916,14 @@ class _DashboardViewState extends State<DashboardView>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppLocalizations.of(context)!.quickActions,
-          style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Text(
+            AppLocalizations.of(context)!.quickActions,
+            style: AppTextStyles.bodyLarge.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         const SizedBox(height: 16),
         LayoutBuilder(
@@ -952,7 +958,7 @@ class _DashboardViewState extends State<DashboardView>
                         ),
                       _buildActionItem(
                         Icons.storefront_rounded,
-                        'Revendeur',
+                        AppLocalizations.of(context)!.resellerShort,
                         AppColors.primary,
                         onTap: () => context.push(RouteConstants.resellerHub),
                       ),
@@ -1192,7 +1198,11 @@ class _DashboardViewState extends State<DashboardView>
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.featureDisabledTitle),
-        content: Text("${l10n.featureDisabledMessage} (Version requise)"),
+        content: Text(
+          l10n.featureDisabledVersionRequired(
+            l10n.featureDisabledMessage.toString(),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -1203,7 +1213,7 @@ class _DashboardViewState extends State<DashboardView>
               Navigator.pop(context);
               _launchStore();
             },
-            child: Text("Mettre à jour"),
+            child: Text(AppLocalizations.of(context)!.updateNow),
           ),
         ],
       ),
@@ -1305,7 +1315,7 @@ class _DashboardViewState extends State<DashboardView>
                         Row(
                           children: [
                             Text(
-                              t.category,
+                              CategoryLabels.display(context, t.category),
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: Theme.of(
                                   context,

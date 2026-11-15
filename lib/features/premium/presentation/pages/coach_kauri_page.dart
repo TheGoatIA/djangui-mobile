@@ -37,6 +37,7 @@ class _CoachKauriPageState extends State<CoachKauriPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.coachTitle),
         centerTitle: true,

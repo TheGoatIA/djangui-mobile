@@ -9,6 +9,28 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get kycFrontRequired =>
+      'Veuillez fournir la pièce d\'identité (recto).';
+
+  @override
+  String get premiumFallbackTontines =>
+      'Jusqu\'à 2 tontines créées (participation illimitée)';
+
+  @override
+  String get requiredAmountLabel => 'Requis';
+
+  @override
+  String get perMonthSuffix => '/ mois';
+
+  @override
+  String get errKycRequired =>
+      'Votre profil KYC n\'a pas encore été validé. Veuillez soumettre ou finaliser vos documents pour débloquer les retraits.';
+
+  @override
+  String get errInvalidPhoneOrProvider =>
+      'Le numéro de téléphone ou l\'opérateur sélectionné est invalide. Veuillez vérifier votre saisie.';
+
+  @override
   String get appTitle => 'Kauri';
 
   @override
@@ -1027,7 +1049,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Kauri est une solution moderne pour gérer vos épargnes et tontines de manière autonome. Notre mission est de démocratiser la gestion financière grâce à la technologie.';
 
   @override
-  String get developedBy => 'Développé avec â¤ï¸ par l\'équipe Kauri';
+  String get developedBy => 'Développé avec ❤️ par l\'équipe Kauri';
 
   @override
   String get contact => 'Contact';
@@ -1036,7 +1058,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get website => 'Site Web';
 
   @override
-  String get copyrightInfo => '© 2024 Kauri. Tous droits réservés.';
+  String copyrightInfo(String year) {
+    return '© $year Kauri. Tous droits réservés.';
+  }
 
   @override
   String get takePhoto => 'Prendre une photo';
@@ -1805,7 +1829,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tutorialAddTransactionDesc =>
-      'Saisissez les détails pour garder un Å“il sur votre budget.';
+      'Saisissez les détails pour garder un œil sur votre budget.';
 
   @override
   String get tutorialAddGoalTitle => 'Nouvel Objectif';
@@ -2182,7 +2206,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get whatIsTontineDesc =>
-      'La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun ðŸ‡¨ðŸ‡² et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.';
+      'La tontine Kauri est une épargne collective sécurisée. Pour participer, vous devez être au Cameroun 🇨🇲 et avoir un profil KYC vérifié. Tout passe par votre Wallet Kauri.';
 
   @override
   String get tontineLifecycleTitle => 'Comprendre les Statuts';
@@ -2213,7 +2237,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get guideRotationDesc =>
-      'â€¢ Fixe : L\'ordre est prédéfini.\nâ€¢ Aléatoire : La chance décide du gagnant.';
+      '• Fixe : L\'ordre est prédéfini.\n• Aléatoire : La chance décide du gagnant.';
 
   @override
   String get guideValidationTitle => 'Vérification assistée par IA';
@@ -2261,7 +2285,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tontineRestrictionCM =>
-      'La création et l\'adhésion aux tontines sont réservées aux utilisateurs au Cameroun ðŸ‡¨ðŸ‡².';
+      'La création et l\'adhésion aux tontines sont réservées aux utilisateurs au Cameroun 🇨🇲.';
 
   @override
   String get tontineStarted => 'Tontine démarrée avec succès';
@@ -2703,7 +2727,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get fintechOnlyCameroon =>
-      'Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun ðŸ‡¨ðŸ‡².';
+      'Les services financiers (Wallet, Recharges, Retraits) sont actuellement réservés aux utilisateurs résidant au Cameroun 🇨🇲.';
 
   @override
   String get featureRestrictedCountry =>
@@ -3365,4 +3389,569 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get businessFeature8 => 'Support VIP Dédié 24/7';
+
+  @override
+  String get closureVoteTitle => 'Clôture de la tontine';
+
+  @override
+  String get closureVoteExplainer =>
+      'Une tontine en cours ne peut être clôturée que si la majorité des membres vote pour. Chaque membre a une voix.';
+
+  @override
+  String get proposeClosure => 'Proposer la clôture';
+
+  @override
+  String get confirmProposeClosure =>
+      'Tous les membres pourront voter pendant 72 heures. Si la majorité vote « Oui », la tontine sera clôturée : les tours déjà versés restent acquis et il n\'y aura plus de prélèvements.';
+
+  @override
+  String get closureVoteOpen => 'Vote de clôture en cours';
+
+  @override
+  String get voteYesClose => 'Oui, clôturer';
+
+  @override
+  String get voteNoContinue => 'Non, continuer';
+
+  @override
+  String closureVoteProgress(int votes, int majority) {
+    return '$votes vote(s) · $majority voix nécessaires';
+  }
+
+  @override
+  String closureVoteEndsAt(String date) {
+    return 'Fin du vote : $date';
+  }
+
+  @override
+  String get youHaveVoted => 'Vous avez voté. Votre choix reste secret.';
+
+  @override
+  String get closureVoteApproved =>
+      'Clôture approuvée : la tontine est terminée.';
+
+  @override
+  String get closureVoteRejected => 'Clôture rejetée : la tontine continue.';
+
+  @override
+  String get closureVoteExpired =>
+      'Vote expiré sans majorité : la tontine continue.';
+
+  @override
+  String get voteRecorded => 'Vote enregistré';
+
+  @override
+  String confirmVote(String choice) {
+    return 'Confirmer votre vote : « $choice » ? Vous ne pourrez pas le modifier.';
+  }
+
+  @override
+  String deleteGoalWithPenalty(String amount, String penalty, String date) {
+    return 'Cet objectif contient $amount XAF. Le supprimer avant l\'échéance ($date) vous rembourse avec une pénalité de 0,5 % : $penalty XAF seront retenus. Continuer ?';
+  }
+
+  @override
+  String get goalSavingsAdded => 'Épargne ajoutée à votre objectif';
+
+  @override
+  String shareTontineInviteText(String code) {
+    return 'Rejoins ma tontine sur Kauri avec le code : $code';
+  }
+
+  @override
+  String get shareTontineInviteSubject => 'Invitation Tontine Kauri';
+
+  @override
+  String get offlineCachedDataBanner =>
+      'Hors ligne — données en cache, peut-être pas à jour';
+
+  @override
+  String get accountSuspendedTitle => 'Compte suspendu';
+
+  @override
+  String get accountSuspendedMessage =>
+      'Votre compte a été temporairement suspendu pour des raisons de sécurité suite à des activités inhabituelles détectées par notre IA.';
+
+  @override
+  String get accountSuspendedThreeStrikes =>
+      'Politique des \"3 Frappes\" : Si vous avez téléchargé des reçus invalides ou frauduleux plus de 3 fois, votre compte est verrouillé.';
+
+  @override
+  String get contactSupport => 'Contacter le support';
+
+  @override
+  String get signOut => 'Se déconnecter';
+
+  @override
+  String get biometricLogin => 'Connexion par biométrie';
+
+  @override
+  String get biometricEnrollFirst =>
+      'Enregistrez d\'abord une empreinte ou un visage dans les réglages de votre téléphone.';
+
+  @override
+  String get biometricEnabledSuccess => 'Connexion biométrique activée';
+
+  @override
+  String get confirmYourPassword => 'Confirmez votre mot de passe';
+
+  @override
+  String get biometricPasswordPrompt =>
+      'Saisissez votre mot de passe pour activer la connexion biométrique.';
+
+  @override
+  String weekNumberLabel(int number) {
+    return 'Semaine $number';
+  }
+
+  @override
+  String get challengeAutoDebitNotice =>
+      'Le montant sera automatiquement prélevé de votre portefeuille Kauri.';
+
+  @override
+  String featureDisabledVersionRequired(String message) {
+    return '$message (version requise)';
+  }
+
+  @override
+  String get congratulations => 'Félicitations !';
+
+  @override
+  String get levelUpReached => 'Vous avez atteint le';
+
+  @override
+  String levelNumber(int level) {
+    return 'Niveau $level';
+  }
+
+  @override
+  String get levelUpKeepGoing =>
+      'Continuez comme ça pour débloquer de nouveaux badges et fonctionnalités !';
+
+  @override
+  String get continueAction => 'Continuer';
+
+  @override
+  String get goalNotFound => 'Objectif introuvable';
+
+  @override
+  String get withdrawAmountMustBePositive =>
+      'Le montant de retrait doit être supérieur à 0.';
+
+  @override
+  String get paymentVerificationInProgress =>
+      'Vérification de votre paiement en cours…';
+
+  @override
+  String get kycReviewInProgressTitle => 'Vérification KYC en cours';
+
+  @override
+  String get kycReviewInProgressMessage =>
+      'Vos documents d\'identité sont actuellement en cours d\'examen par notre équipe de conformité (24h à 48h). Les retraits seront automatiquement débloqués dès validation.';
+
+  @override
+  String get gotIt => 'Compris';
+
+  @override
+  String get later => 'Plus tard';
+
+  @override
+  String get verifyMyKyc => 'Vérifier mon KYC';
+
+  @override
+  String get virtualWalletBanner =>
+      'Mode portefeuille virtuel — dépôts et retraits réels désactivés';
+
+  @override
+  String get seeMore => 'Voir plus';
+
+  @override
+  String get virtualWalletTitle => 'Mode portefeuille virtuel';
+
+  @override
+  String get virtualWalletMessage =>
+      'Kauri fonctionne actuellement en mode simulation : les dépôts et retraits en argent réel sont temporairement désactivés. Vous pouvez continuer à utiliser toutes les autres fonctionnalités (tontines, objectifs, défis, budgets...) normalement.';
+
+  @override
+  String get orangeMoneyCameroon => 'Orange Money Cameroun';
+
+  @override
+  String get mtnMomoCameroon => 'MTN MoMo Cameroun';
+
+  @override
+  String get plansAndResellerTitle => 'Forfaits Kauri & Espace Revendeur';
+
+  @override
+  String get plansAndResellerDesc =>
+      'Passez à Premium (2 000 FCFA) ou lancez votre activité Revendeur (5 000 FCFA) avec outils et marges dédiés.';
+
+  @override
+  String get discoverPlansAndPricing => 'Découvrir les forfaits et tarifs';
+
+  @override
+  String get chooseAppIcon => 'Choisir l\'icône';
+
+  @override
+  String get appIconDefaultGreen => 'Par défaut (vert)';
+
+  @override
+  String appIconChanged(String name) {
+    return 'Icône changée : $name. Un redémarrage peut être nécessaire.';
+  }
+
+  @override
+  String get resellerNewMasterAccount => 'Nouveau compte maître';
+
+  @override
+  String get resellerServiceInfo => 'Informations du service';
+
+  @override
+  String get resellerServiceNameLabel =>
+      'Nom du service (ex : Netflix 4K, Spotify…)';
+
+  @override
+  String get resellerCostPaidByYou => 'Coût payé par vous';
+
+  @override
+  String get currencyLabel => 'Devise';
+
+  @override
+  String get resellerMaxSlots => 'Nombre d\'écrans / slots maximum';
+
+  @override
+  String get resellerNextProviderPayment =>
+      'Date de votre prochain paiement fournisseur';
+
+  @override
+  String get resellerSecureVault => 'Coffre-fort sécurisé (chiffré AES-256)';
+
+  @override
+  String get resellerVaultPrivacy =>
+      'Vos accès sont stockés de manière chiffrée et restent privés.';
+
+  @override
+  String get resellerAccountLogin => 'E-mail / identifiant du compte';
+
+  @override
+  String get resellerMasterPassword => 'Mot de passe maître';
+
+  @override
+  String get resellerMainPin => 'Code PIN principal (optionnel)';
+
+  @override
+  String get resellerSaveAccount => 'Enregistrer le compte';
+
+  @override
+  String resellerNewSlot(String service) {
+    return 'Nouveau slot ($service)';
+  }
+
+  @override
+  String get resellerProfileAssignment => 'Attribution du profil';
+
+  @override
+  String get resellerProfileNameLabel =>
+      'Nom du profil / écran (ex : Profil 2 - Marie)';
+
+  @override
+  String get resellerClientFullName => 'Nom complet du client';
+
+  @override
+  String get resellerClientPhone => 'Numéro de téléphone / WhatsApp (+237…)';
+
+  @override
+  String get resellerSalePrice => 'Prix de vente (ex : 3 000 FCFA)';
+
+  @override
+  String get quarterly => 'Trimestriel';
+
+  @override
+  String get resellerFirstPaymentDate =>
+      'Date du premier paiement / début d\'accès';
+
+  @override
+  String get resellerReminderChannel => 'Canal de rappel automatique';
+
+  @override
+  String get whatsappRecommended => 'WhatsApp (recommandé)';
+
+  @override
+  String get resellerAssignAndSave => 'Attribuer le profil et enregistrer';
+
+  @override
+  String copiedAutoClear(String label) {
+    return '$label copié (effacement automatique dans 30 s)';
+  }
+
+  @override
+  String resellerVaultOf(String service) {
+    return 'Coffre-fort ($service)';
+  }
+
+  @override
+  String get emailOrLogin => 'E-mail / identifiant';
+
+  @override
+  String get resellerProfilePin => 'Code PIN du profil';
+
+  @override
+  String resellerPricePerMonth(String price, String currency) {
+    return 'Prix : $price $currency / mois';
+  }
+
+  @override
+  String get remindOnWhatsapp => 'Relancer sur WhatsApp';
+
+  @override
+  String get resellerMarkPaid => 'Marquer comme payé (renouveler)';
+
+  @override
+  String get resellerExtendOneMonth => 'Prolonge l\'accès d\'un mois';
+
+  @override
+  String get resellerFreeProfile => 'Libérer le profil (retirer le client)';
+
+  @override
+  String get resellerFreeProfileDesc => 'Rend ce profil à nouveau disponible';
+
+  @override
+  String get resellerRemoveClientTitle => 'Retirer le client ?';
+
+  @override
+  String get resellerRemoveAndFree => 'Retirer et libérer';
+
+  @override
+  String deleteNamedQuestion(String name) {
+    return 'Supprimer $name ?';
+  }
+
+  @override
+  String get deletePermanently => 'Supprimer définitivement';
+
+  @override
+  String get resellerSpace => 'Espace Revendeur';
+
+  @override
+  String get guideAndQuotas => 'Guide et quotas';
+
+  @override
+  String get resellerMonthlyRevenue => 'Chiffre d\'affaires mensuel (MRR)';
+
+  @override
+  String get resellerActiveAccounts => 'Comptes et slots actifs';
+
+  @override
+  String get newAccount => 'Nouveau compte';
+
+  @override
+  String get resellerNoMasterAccount => 'Aucun compte maître enregistré';
+
+  @override
+  String get resellerNoMasterAccountDesc =>
+      'Ajoutez vos comptes d\'abonnements partagés pour commencer à gérer vos profils clients.';
+
+  @override
+  String get resellerDeleteMasterAccount => 'Supprimer le compte maître';
+
+  @override
+  String resellerSlotsOccupied(int occupied, int max) {
+    return 'SLOTS ($occupied/$max occupés)';
+  }
+
+  @override
+  String get assign => 'Attribuer';
+
+  @override
+  String costLabelValue(String amount, String currency) {
+    return 'Coût : $amount $currency';
+  }
+
+  @override
+  String get accessAndPin => 'Accès et PIN';
+
+  @override
+  String get paymentFailedTitle => 'Paiement échoué';
+
+  @override
+  String referenceValue(String ref) {
+    return 'Référence : $ref';
+  }
+
+  @override
+  String get retryPayment => 'Réessayer le paiement';
+
+  @override
+  String get backToDashboard => 'Retour au tableau de bord';
+
+  @override
+  String get seeAllDetailsAndFeatures =>
+      'Voir tous les détails et fonctionnalités';
+
+  @override
+  String get instant => 'Instantané';
+
+  @override
+  String get topUpWallet => 'Recharger le portefeuille';
+
+  @override
+  String get mobileMoneyNumber => 'Numéro Mobile Money';
+
+  @override
+  String get mobileMoneyNumberPrompt =>
+      'Veuillez renseigner votre numéro de téléphone (Orange Money ou MTN MoMo) pour valider le paiement.';
+
+  @override
+  String get voiceNoteMessagePlaceholder => '🎤 Note vocale';
+
+  @override
+  String get inviteCodeExample => 'ex : ABC-123';
+
+  @override
+  String get uploadTransferReceiptPrompt =>
+      'Ajoutez le reçu de votre transfert pour valider votre cotisation.';
+
+  @override
+  String voiceExtractionConfidence(String percent) {
+    return 'Extraction précise à $percent %';
+  }
+
+  @override
+  String targetGoalValue(String goal) {
+    return 'Objectif cible : $goal';
+  }
+
+  @override
+  String get errInvalidInput =>
+      'Les informations fournies sont invalides ou incomplètes.';
+
+  @override
+  String get errSessionExpired =>
+      'Votre session a expiré. Veuillez vous reconnecter.';
+
+  @override
+  String get errAccessDenied =>
+      'Accès refusé. Vous devez valider votre compte ou votre KYC pour effectuer cette action.';
+
+  @override
+  String get errNotFound => 'La ressource demandée est introuvable.';
+
+  @override
+  String get errConflict => 'Un conflit est survenu avec cette opération.';
+
+  @override
+  String get errUnprocessable =>
+      'Données non traitables. Veuillez vérifier votre saisie.';
+
+  @override
+  String get errTooManyRequests =>
+      'Trop de tentatives. Veuillez patienter quelques instants.';
+
+  @override
+  String get errServerUnavailable =>
+      'Le serveur rencontre une indisponibilité temporaire. Veuillez réessayer plus tard.';
+
+  @override
+  String get errKycPending =>
+      'Votre dossier KYC est en cours de validation. Les retraits seront disponibles dès son approbation.';
+
+  @override
+  String get errInsufficientBalance =>
+      'Votre solde est insuffisant pour effectuer cette opération.';
+
+  @override
+  String get errAmountLimits =>
+      'Le montant saisi ne respecte pas les limites ou plafonds autorisés.';
+
+  @override
+  String get errTechnical =>
+      'Une erreur technique temporaire est survenue sur nos serveurs. Veuillez réessayer dans un instant.';
+
+  @override
+  String get resellerShort => 'Revendeur';
+
+  @override
+  String get accountsLabel => 'Comptes';
+
+  @override
+  String get resellerManagedSlots => 'Slots gérés';
+
+  @override
+  String get resellerFreeSlots => 'Slots libres';
+
+  @override
+  String get pinCode => 'Code PIN';
+
+  @override
+  String get resellerMasterCreated => 'Compte maître créé avec succès';
+
+  @override
+  String get resellerSlotAssigned => 'Slot attribué avec succès';
+
+  @override
+  String get paymentRecordedSuccess => 'Paiement enregistré avec succès';
+
+  @override
+  String get resellerProfileFreed => 'Profil libéré avec succès';
+
+  @override
+  String get accountDeletedSuccess => 'Compte supprimé avec succès';
+
+  @override
+  String get errSignInTokenMissing =>
+      'La connexion n\'a pas pu aboutir (jeton manquant). Réessayez.';
+
+  @override
+  String get errLoadData => 'Impossible de charger les données. Réessayez.';
+
+  @override
+  String get memberNotFound => 'Membre introuvable';
+
+  @override
+  String get errCoachUnavailable =>
+      'L\'assistant ne répond pas pour le moment. Réessayez.';
+
+  @override
+  String get errRedeemNeedsConnection =>
+      'Une connexion internet est requise pour récupérer des fonds.';
+
+  @override
+  String get premiumFallbackBudgetsGoals =>
+      '5 budgets et 5 objectifs simultanés';
+
+  @override
+  String get premiumFallbackOcr => '15 scans de reçus (OCR) / mois';
+
+  @override
+  String get premiumFallbackCoach =>
+      'Coach IA Anne (50 requêtes / mois, 30 jours d’historique)';
+
+  @override
+  String get premiumFallbackReseller =>
+      'Espace Revendeur : 3 comptes maîtres et 10 slots clients';
+
+  @override
+  String get tontineCreatedSuccess => 'Tontine créée avec succès';
+
+  @override
+  String get tontineUpdatedSuccess => 'Tontine mise à jour';
+
+  @override
+  String get contributionSentPendingValidation =>
+      'Cotisation envoyée : en attente de validation par l\'organisateur';
+
+  @override
+  String get statusValidated => 'Validé';
+
+  @override
+  String get statusRejected => 'Rejeté';
+
+  @override
+  String get accountSuspendedContactSupport =>
+      'Votre compte a été suspendu par notre système de sécurité. Veuillez contacter le support.';
+
+  @override
+  String get kycSelfieRequired => 'Veuillez fournir le selfie de vérification.';
+
+  @override
+  String get unknownDevice => 'Appareil inconnu';
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/route_constants.dart';
+import 'package:kauri/core/navigation/safe_pop.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -216,7 +217,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                   'type': state.goals.last.type,
                 },
               );
-              context.pop(true);
+              context.popOrGo(RouteConstants.goals, true);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(AppLocalizations.of(context)!.successGoal),

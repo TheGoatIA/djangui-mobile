@@ -22,6 +22,10 @@ class TontineState extends Equatable {
   // without it being confused for an action's loading dialog.
   final bool isLoadingMessages;
 
+  /// Incrémenté à chaque cotisation ENVOYÉE avec succès (signal ponctuel pour
+  /// afficher la confirmation — il n'y en avait aucune).
+  final int contributionsSent;
+
   const TontineState({
     this.status = TontineStatus.initial,
     this.tontines = const [],
@@ -32,6 +36,7 @@ class TontineState extends Equatable {
     this.errorMessage,
     this.isLoadingDetails = false,
     this.isLoadingMessages = false,
+    this.contributionsSent = 0,
   });
 
   TontineState copyWith({
@@ -44,6 +49,7 @@ class TontineState extends Equatable {
     String? errorMessage,
     bool? isLoadingDetails,
     bool? isLoadingMessages,
+    int? contributionsSent,
   }) {
     return TontineState(
       status: status ?? this.status,
@@ -64,6 +70,7 @@ class TontineState extends Equatable {
       errorMessage: errorMessage,
       isLoadingDetails: isLoadingDetails ?? this.isLoadingDetails,
       isLoadingMessages: isLoadingMessages ?? this.isLoadingMessages,
+      contributionsSent: contributionsSent ?? this.contributionsSent,
     );
   }
 
@@ -78,5 +85,6 @@ class TontineState extends Equatable {
     errorMessage,
     isLoadingDetails,
     isLoadingMessages,
+    contributionsSent,
   ];
 }

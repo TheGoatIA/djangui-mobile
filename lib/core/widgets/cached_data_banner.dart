@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import '../../di/injection.dart';
 import '../network/network_info.dart';
 
@@ -24,11 +25,11 @@ class CachedDataBanner extends StatelessWidget {
           color: Colors.amber.shade700,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.cloud_off, size: 16, color: Colors.white),
               SizedBox(width: 8),
               Text(
-                'Hors ligne — données en cache, peut-être pas à jour',
+                AppLocalizations.of(context)!.offlineCachedDataBanner,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,

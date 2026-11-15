@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/network_info.dart';
@@ -22,7 +23,7 @@ class InsightRepositoryImpl implements InsightRepository {
         if (response.isSuccessful && response.body != null) {
           return Right(response.body!);
         }
-        return Left(ServerFailure('Failed to fetch dashboard summary'));
+        return Left(ServerFailure(appL10n().errLoadData));
       } catch (e) {
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
@@ -44,7 +45,7 @@ class InsightRepositoryImpl implements InsightRepository {
         if (response.isSuccessful && response.body != null) {
           return Right(response.body!);
         }
-        return Left(ServerFailure('Failed to fetch spending analysis'));
+        return Left(ServerFailure(appL10n().errLoadData));
       } catch (e) {
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }
@@ -63,7 +64,7 @@ class InsightRepositoryImpl implements InsightRepository {
         if (response.isSuccessful && response.body != null) {
           return Right(response.body!);
         }
-        return Left(ServerFailure('Failed to fetch narrative'));
+        return Left(ServerFailure(appL10n().errLoadData));
       } catch (e) {
         return Left(ServerFailure(ErrorMapper.safeMessage(e)));
       }

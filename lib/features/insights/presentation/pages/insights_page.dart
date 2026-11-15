@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/category_labels.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
@@ -357,7 +358,7 @@ class _InsightsViewState extends State<InsightsView> {
                     color: _parseColor(context, item.color),
                     value: item.percentage,
                     title:
-                        '${item.category}\n${item.percentage.toStringAsFixed(0)}%',
+                        '${CategoryLabels.display(context, item.category)}\n${item.percentage.toStringAsFixed(0)}%',
                     radius: 70,
                     titleStyle: const TextStyle(
                       fontSize: 10,
@@ -751,7 +752,10 @@ class _InsightsViewState extends State<InsightsView> {
             ),
           ),
           const SizedBox(width: 12),
-          Text(item.category, style: AppTextStyles.bodyMedium),
+          Text(
+            CategoryLabels.display(context, item.category),
+            style: AppTextStyles.bodyMedium,
+          ),
           const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -909,7 +913,7 @@ class _InsightsViewState extends State<InsightsView> {
             if (narrative.topInsights.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
-                "Points clés",
+                AppLocalizations.of(context)!.reportPdfKeyInsights,
                 style: AppTextStyles.bodySmall.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.primary,
@@ -940,7 +944,7 @@ class _InsightsViewState extends State<InsightsView> {
             if (narrative.recommendations.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
-                "Recommandations de Kauri",
+                AppLocalizations.of(context)!.reportPdfRecommendations,
                 style: AppTextStyles.bodySmall.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.secondary,

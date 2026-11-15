@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:kauri/core/error/error_mapper.dart';
 import '../../domain/repositories/reseller_repository.dart';
 import 'reseller_event.dart';
@@ -23,7 +24,7 @@ class ResellerBloc extends Bloc<ResellerEvent, ResellerState> {
       emit(ResellerLoading());
       try {
         await _repository.createAccount(event.accountData);
-        emit(const ResellerActionSuccess('Compte maître créé avec succès'));
+        emit(ResellerActionSuccess(appL10n().resellerMasterCreated));
         add(FetchResellerDashboardRequested());
       } catch (e) {
         emit(ResellerError(ErrorMapper.safeMessage(e)));
@@ -34,7 +35,7 @@ class ResellerBloc extends Bloc<ResellerEvent, ResellerState> {
       emit(ResellerLoading());
       try {
         await _repository.addSlot(event.accountId, event.slotData);
-        emit(const ResellerActionSuccess('Slot attribué avec succès'));
+        emit(ResellerActionSuccess(appL10n().resellerSlotAssigned));
         add(FetchResellerDashboardRequested());
       } catch (e) {
         emit(ResellerError(ErrorMapper.safeMessage(e)));
@@ -45,7 +46,7 @@ class ResellerBloc extends Bloc<ResellerEvent, ResellerState> {
       emit(ResellerLoading());
       try {
         await _repository.recordPayment(event.slotId, event.paymentData);
-        emit(const ResellerActionSuccess('Paiement enregistré avec succès'));
+        emit(ResellerActionSuccess(appL10n().paymentRecordedSuccess));
         add(FetchResellerDashboardRequested());
       } catch (e) {
         emit(ResellerError(ErrorMapper.safeMessage(e)));
@@ -56,7 +57,7 @@ class ResellerBloc extends Bloc<ResellerEvent, ResellerState> {
       emit(ResellerLoading());
       try {
         await _repository.deleteSlot(event.slotId);
-        emit(const ResellerActionSuccess('Profil libéré avec succès'));
+        emit(ResellerActionSuccess(appL10n().resellerProfileFreed));
         add(FetchResellerDashboardRequested());
       } catch (e) {
         emit(ResellerError(ErrorMapper.safeMessage(e)));
@@ -67,7 +68,7 @@ class ResellerBloc extends Bloc<ResellerEvent, ResellerState> {
       emit(ResellerLoading());
       try {
         await _repository.deleteAccount(event.accountId);
-        emit(const ResellerActionSuccess('Compte supprimé avec succès'));
+        emit(ResellerActionSuccess(appL10n().accountDeletedSuccess));
         add(FetchResellerDashboardRequested());
       } catch (e) {
         emit(ResellerError(ErrorMapper.safeMessage(e)));

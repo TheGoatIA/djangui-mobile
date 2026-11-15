@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/route_constants.dart';
+import 'package:kauri/core/navigation/safe_pop.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -19,6 +20,11 @@ class CreateTicketPage extends StatefulWidget {
 }
 
 class _CreateTicketPageState extends State<CreateTicketPage> {
+  /// Vrai entre l'envoi et la réponse : le bloc est partagé par toute l'app,
+  /// un simple rafraîchissement (status success) faisait afficher un FAUX
+  /// succès et fermer l'écran avant même que l'utilisateur n'ait rien envoyé.
+  bool _awaitingSubmit = false;
+
   final _formKey = GlobalKey<FormState>();
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
@@ -65,6 +71,8 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.createTicket)),
       body: BlocConsumer<SupportBloc, SupportState>(
         listener: (context, state) {
+          if (!_awaitingSubmit) return;
+          if (state.status != SupportStatus.loading) _awaitingSubmit = false;
           if (state.status == SupportStatus.success) {
             getIt<AnalyticsManager>().trackEvent(
               feature: 'Support',
@@ -83,7 +91,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                 ),
               ),
             );
-            context.pop();
+            context.popOrGo(RouteConstants.supportTickets);
           } else if (state.status == SupportStatus.failure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -164,6 +172,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                               component: 'CreateTicketPage',
                               metadata: {'category': _selectedCategory},
                             );
+                            _awaitingSubmit = true;
                             context.read<SupportBloc>().add(
                               CreateTicketRequested(
                                 subject: _subjectController.text,
@@ -188,7 +197,7 @@ class _CreateTicketPageState extends State<CreateTicketPage> {
                       : Text(
                           AppLocalizations.of(context)!.sendTicket,
                           style: AppTextStyles.bodyLarge.copyWith(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

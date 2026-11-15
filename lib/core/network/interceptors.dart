@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:chopper/chopper.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kauri/core/services/log_service.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../di/injection.dart';
 
 /// Endpoints whose request/response bodies must never be logged (locally or
@@ -251,5 +253,26 @@ class RemoteLoggingInterceptor implements Interceptor {
       );
     }
     return response;
+  }
+}
+
+/// Envoie la langue de l'app (`Accept-Language`) pour que l'API réponde — en
+/// particulier ses messages d'erreur — dans la langue que l'utilisateur lit :
+/// choix fait dans les réglages, sinon le français — exactement comme l'interface
+/// (SettingsBloc : français par défaut), pour que l'UI et l'API parlent la même langue. Sans cet en-tête,
+/// l'app en français affichait des erreurs serveur en anglais.
+class AcceptLanguageInterceptor implements Interceptor {
+  @override
+  FutureOr<Response<BodyType>> intercept<BodyType>(Chain<BodyType> chain) {
+    String code;
+    try {
+      code = getIt<SharedPreferences>().getString('language_code') ?? 'fr';
+    } catch (_) {
+      code = 'fr';
+    }
+    code = code == 'en' ? 'en' : 'fr';
+    final headers = Map<String, String>.from(chain.request.headers)
+      ..['Accept-Language'] = code;
+    return chain.proceed(chain.request.copyWith(headers: headers));
   }
 }

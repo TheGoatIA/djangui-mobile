@@ -171,6 +171,18 @@ class GoalModel extends Equatable {
 
   Map<String, dynamic> toJson() => _$GoalModelToJson(this);
 
+  /// Pénalité de sortie anticipée (0,5 %) que l'API retient quand on SUPPRIME
+  /// ou RETIRE un objectif avant son échéance sans l'avoir atteint
+  /// (GoalService.deleteGoal / redeemGoal). 0 sinon. Sert à prévenir
+  /// l'utilisateur AVANT qu'il ne confirme : la boîte de suppression n'en
+  /// parlait pas et l'argent était retenu sans avertissement.
+  double earlyExitPenalty([DateTime? now]) {
+    final at = now ?? DateTime.now();
+    final reached = status == 'completed' || currentAmount >= targetAmount;
+    if (currentAmount <= 0 || reached || !at.isBefore(deadline)) return 0;
+    return (currentAmount * 0.005 * 100).round() / 100;
+  }
+
   GoalModel copyWith({
     String? id,
     String? name,

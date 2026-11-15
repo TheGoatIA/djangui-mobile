@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -41,6 +42,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource _localDataSource;
   final NetworkInfo _networkInfo;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  static bool _googleSignInInitialized = false;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   AuthRepositoryImpl(
@@ -115,6 +117,9 @@ class AuthRepositoryImpl implements AuthRepository {
           // La validation automatique n'est pas gérée ici pour laisser le contrôle au bloc.
         },
         verificationFailed: (FirebaseAuthException e) {
+          // Code Firebase exact (too-many-requests, invalid-phone-number…)
+          // pour comprendre pourquoi un numéro est refusé.
+          _logger.error('Vérification du numéro : ${e.code}', error: e);
           onVerificationFailed(e.message ?? 'Échec de la vérification');
         },
         codeSent: (String verificationId, int? resendToken) {
@@ -147,7 +152,9 @@ class AuthRepositoryImpl implements AuthRepository {
           .signInWithCredential(credential);
       final String? idToken = await userCredential.user?.getIdToken();
 
-      if (idToken == null) return Left(AuthFailure('Jeton ID introuvable'));
+      if (idToken == null) {
+        return Left(AuthFailure(appL10n().errSignInTokenMissing));
+      }
 
       // Puis échange le jeton Firebase contre une session sur le backend Kauri.
       final response = await _remoteDataSource.firebaseLogin(
@@ -238,15 +245,21 @@ class AuthRepositoryImpl implements AuthRepository {
 
     try {
       // Nettoyage de l'état précédent pour éviter les erreurs persistantes sur Android.
+      // google_sign_in 7 : initialize() ne doit être appelé qu'UNE fois
+      // par lancement de l'app (un second appel échoue, ce qui cassait
+      // toute nouvelle tentative de connexion Google).
+      if (!_googleSignInInitialized) {
+        await _googleSignIn.initialize();
+        _googleSignInInitialized = true;
+      }
       await _googleSignIn.signOut();
-      await _googleSignIn.initialize();
       final googleUser = await _googleSignIn.authenticate();
 
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
       if (idToken == null) {
-        return Left(AuthFailure('Jeton Google ID introuvable'));
+        return Left(AuthFailure(appL10n().errSignInTokenMissing));
       }
 
       // 1. Échange du jeton Google contre des identifiants Firebase.
@@ -262,7 +275,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final String? firebaseIdToken = await userCredential.user?.getIdToken();
 
       if (firebaseIdToken == null) {
-        return Left(AuthFailure('Échec de la récupération du jeton Firebase'));
+        return Left(AuthFailure(appL10n().errSignInTokenMissing));
       }
 
       // 4. Envoi du jeton Firebase au backend principal.
@@ -313,7 +326,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final identityToken = appleCredential.identityToken;
       if (identityToken == null) {
-        return Left(AuthFailure('No Identity Token found'));
+        return Left(AuthFailure(appL10n().errSignInTokenMissing));
       }
 
       // 1. Sign in to Firebase with Apple credentials
@@ -330,7 +343,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final String? firebaseIdToken = await userCredential.user?.getIdToken();
 
       if (firebaseIdToken == null) {
-        return Left(AuthFailure('Failed to get Firebase ID Token'));
+        return Left(AuthFailure(appL10n().errSignInTokenMissing));
       }
 
       // 3. Send Firebase ID Token to backend
@@ -573,7 +586,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> refreshToken([String? token]) async {
     final tokenToUse = token ?? await _localDataSource.getRefreshToken();
     if (tokenToUse == null) {
-      return Left(AuthFailure('No refresh token found'));
+      return Left(AuthFailure(appL10n().errSessionExpired));
     }
 
     if (await _networkInfo.isConnected) {

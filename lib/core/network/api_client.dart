@@ -29,6 +29,7 @@ import 'package:kauri/features/system/data/models/country_model.dart';
 import 'package:kauri/features/auth/data/models/country_change_request.dart';
 import 'package:kauri/features/voice/data/models/voice_response_model.dart';
 import 'package:kauri/features/tontine/data/models/tontine_model.dart';
+import '../../features/tontine/data/models/tontine_vote_model.dart';
 import 'package:kauri/features/user_subscriptions/data/models/subscription_model.dart';
 import 'package:kauri/features/system/data/models/feature_flag_model.dart';
 import 'package:kauri/features/analytics/data/models/analytics_models.dart';
@@ -50,6 +51,7 @@ class KauriApiClient {
       client: TracingHttpClient(),
       interceptors: [
         AuthInterceptor(),
+        AcceptLanguageInterceptor(),
         IdempotencyKeyInterceptor(),
         HttpLoggingInterceptor(),
         RemoteLoggingInterceptor(),
@@ -99,6 +101,7 @@ class KauriApiClient {
         TontineContributionModel: (json) =>
             TontineContributionModel.fromJson(json),
         TontineMessageModel: (json) => TontineMessageModel.fromJson(json),
+        TontineVoteModel: (json) => TontineVoteModel.fromJson(json),
         SubscriptionModel: (json) => SubscriptionModel.fromJson(json),
         SubscriptionSuggestion: (json) => SubscriptionSuggestion.fromJson(json),
         SessionStartResponse: (json) => SessionStartResponse.fromJson(json),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/category_labels.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -59,6 +60,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
   /// État du processus de scan par OCR.
   bool _isScanning = false;
+
+  /// Vrai uniquement entre l'appui sur « Enregistrer » et la réponse : le bloc
+  /// des transactions est partagé par toute l'app, un simple rafraîchissement
+  /// de la liste (loading → success) fermait sinon ce formulaire en cours de
+  /// saisie avec un faux « Transaction ajoutée » (constaté en E2E).
+  bool _awaitingSave = false;
 
   // Clés utilisées pour le tutoriel interactif.
   final GlobalKey _scanKey = GlobalKey();
@@ -327,6 +334,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             _amountController.text.isNotEmpty, // simplified check
       });
 
+      _awaitingSave = true;
       context.read<TransactionsBloc>().add(
         AddTransactionRequested(transaction),
       );
@@ -374,10 +382,16 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         }
 
         return BlocListener<TransactionsBloc, TransactionsState>(
+          // Succès ET échec de l'envoi : l'ancien filtre ne laissait passer que
+          // le succès, la branche d'erreur ci-dessous ne s'exécutait jamais et un
+          // refus serveur laissait l'utilisateur sans aucun retour.
           listenWhen: (previous, current) =>
+              _awaitingSave &&
               previous.status == TransactionsStatus.loading &&
-              current.status == TransactionsStatus.success,
+              (current.status == TransactionsStatus.success ||
+                  current.status == TransactionsStatus.error),
           listener: (context, state) {
+            _awaitingSave = false;
             if (state.status == TransactionsStatus.success) {
               getIt<AnalyticsManager>().trackEvent(
                 feature: 'Transactions',
@@ -388,14 +402,16 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   'type': state.transactions.first.type,
                 },
               );
-              context.pop(true);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.of(context)!.successTransaction,
-                  ),
-                ),
-              );
+              final messenger = ScaffoldMessenger.of(context);
+              final successText = AppLocalizations.of(
+                context,
+              )!.successTransaction;
+              if (context.canPop()) {
+                context.pop(true);
+              } else {
+                context.go(RouteConstants.transactions);
+              }
+              messenger.showSnackBar(SnackBar(content: Text(successText)));
             } else if (state.status == TransactionsStatus.error) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -546,7 +562,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           items: allCategories.map((String category) {
                             return DropdownMenuItem<String>(
                               value: category,
-                              child: Text(category),
+                              child: Text(
+                                CategoryLabels.display(context, category),
+                              ),
                             );
                           }).toList(),
                           onChanged: (String? newValue) {

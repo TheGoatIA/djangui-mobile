@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -44,8 +45,22 @@ class NotificationService {
     // Configuration de Firebase Messaging
     final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-    // Demande des permissions utilisateur (obligatoire sur iOS et Android 13+)
-    await messaging.requestPermission(alert: true, badge: true, sound: true);
+    // Demande des permissions utilisateur (obligatoire sur iOS et Android 13+).
+    // NON bloquante : `initialize()` s'exécute avant `runApp()` ; attendre la
+    // réponse gelait le démarrage (écran vide derrière la fenêtre système)
+    // tant que l'utilisateur n'avait pas répondu — constaté en E2E (≈ 11 min
+    // de blocage sur émulateur). L'interface s'affiche, la réponse arrive après.
+    unawaited(
+      messaging
+          .requestPermission(alert: true, badge: true, sound: true)
+          .then<void>((_) {})
+          .catchError((Object e) {
+            getIt<LogService>().warning(
+              'Demande de permission notifications échouée: $e',
+              component: 'NotificationService',
+            );
+          }),
+    );
 
     // Écoute des messages reçus pendant que l'application est ouverte (Foreground)
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {

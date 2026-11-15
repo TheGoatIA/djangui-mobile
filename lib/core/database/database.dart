@@ -10,6 +10,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kauri/core/services/log_service.dart';
 import 'package:kauri/di/injection.dart';
 import 'package:kauri/core/database/telemetry_executor.dart';
+import 'package:kauri/core/database/database_repair.dart';
 
 part 'database.g.dart';
 
@@ -492,6 +493,16 @@ class AppDatabase extends _$AppDatabase {
         dbKey = base64UrlEncode(bytes);
         await storage.write(key: 'db_encryption_key', value: dbKey);
       }
+
+      // Base existante illisible avec la clé (« file is not a database ») :
+      // la session ne pouvait plus être enregistrée et TOUTE connexion
+      // échouait (vu sur iPhone en test). On répare au lieu de bloquer.
+      await repairUnreadableDatabase(
+        file,
+        dbKey,
+        log: (final String msg) =>
+            getIt<LogService>().warning(msg, component: "Database"),
+      );
 
       final executor = NativeDatabase(
         file,

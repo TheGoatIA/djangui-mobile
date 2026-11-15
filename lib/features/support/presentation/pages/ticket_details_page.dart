@@ -23,6 +23,11 @@ class TicketDetailsPage extends StatefulWidget {
 class _TicketDetailsPageState extends State<TicketDetailsPage> {
   final _replyController = TextEditingController();
 
+  /// Vrai entre l'envoi d'une réponse et la confirmation : sinon n'importe quel
+  /// succès du SupportBloc (rechargement de la liste…) EFFAÇAIT le texte que
+  /// l'utilisateur était en train de taper (constaté en E2E).
+  bool _awaitingReply = false;
+
   @override
   void initState() {
     super.initState();
@@ -45,8 +50,12 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
     return BlocConsumer<SupportBloc, SupportState>(
       listener: (context, state) {
         if (state.status == SupportStatus.success) {
-          _replyController.clear();
+          if (_awaitingReply) {
+            _awaitingReply = false;
+            _replyController.clear();
+          }
         } else if (state.status == SupportStatus.failure) {
+          _awaitingReply = false;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -74,7 +83,7 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
 
         if (ticket.subject == '...') {
           return Scaffold(
-            appBar: AppBar(title: const Text('Loading...')),
+            appBar: AppBar(title: Text(AppLocalizations.of(context)!.loading)),
             body: const Center(child: CircularProgressIndicator()),
           );
         }
@@ -107,7 +116,8 @@ class _TicketDetailsPageState extends State<TicketDetailsPage> {
                 controller: _replyController,
                 isLoading: state.status == SupportStatus.loading,
                 onSend: () {
-                  if (_replyController.text.isNotEmpty) {
+                  if (_replyController.text.trim().isNotEmpty) {
+                    _awaitingReply = true;
                     getIt<LogService>().info(
                       'Action: Envoi d\'une réponse au ticket ${widget.ticketId}',
                       component: 'TicketDetailsPage',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 
@@ -75,7 +76,14 @@ class _AddSlotPageState extends State<AddSlotPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Nouveau Slot (${widget.serviceName})')),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: Text(
+          AppLocalizations.of(
+            context,
+          )!.resellerNewSlot(widget.serviceName.toString()),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -83,27 +91,27 @@ class _AddSlotPageState extends State<AddSlotPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Attribution du Profil',
+              Text(
+                AppLocalizations.of(context)!.resellerProfileAssignment,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               AppTextField(
                 controller: _profileNameController,
-                label: 'Nom du Profil / Écran (ex: Profil 2 - Marie)',
+                label: AppLocalizations.of(context)!.resellerProfileNameLabel,
                 validator: (v) =>
                     v?.isEmpty ?? true ? 'Ce champ est requis' : null,
               ),
               const SizedBox(height: 12),
               AppTextField(
                 controller: _clientNameController,
-                label: 'Nom complet du client',
+                label: AppLocalizations.of(context)!.resellerClientFullName,
                 validator: (v) => v?.isEmpty ?? true ? 'Requis' : null,
               ),
               const SizedBox(height: 12),
               AppTextField(
                 controller: _clientPhoneController,
-                label: 'Numéro de téléphone / WhatsApp (+237...)',
+                label: AppLocalizations.of(context)!.resellerClientPhone,
                 keyboardType: TextInputType.phone,
                 validator: (v) =>
                     v?.isEmpty ?? true ? 'Requis pour les rappels' : null,
@@ -114,31 +122,31 @@ class _AddSlotPageState extends State<AddSlotPage> {
                   Expanded(
                     child: AppTextField(
                       controller: _priceController,
-                      label: 'Prix de vente (ex: 3 000 FCFA)',
+                      label: AppLocalizations.of(context)!.resellerSalePrice,
                       keyboardType: TextInputType.number,
                       validator: (v) => v?.isEmpty ?? true ? 'Requis' : null,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: _selectedCycle,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Cycle',
                         border: OutlineInputBorder(),
                       ),
-                      items: const [
+                      items: [
                         DropdownMenuItem(
                           value: 'monthly',
-                          child: Text('Mensuel'),
+                          child: Text(AppLocalizations.of(context)!.monthly),
                         ),
                         DropdownMenuItem(
                           value: 'quarterly',
-                          child: Text('Trimestriel'),
+                          child: Text(AppLocalizations.of(context)!.quarterly),
                         ),
                         DropdownMenuItem(
                           value: 'yearly',
-                          child: Text('Annuel'),
+                          child: Text(AppLocalizations.of(context)!.yearly),
                         ),
                       ],
                       onChanged: (v) =>
@@ -178,8 +186,10 @@ class _AddSlotPageState extends State<AddSlotPage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Date du premier paiement / début d\'accès',
+                          Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.resellerFirstPaymentDate,
                             style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                           const SizedBox(height: 4),
@@ -203,15 +213,17 @@ class _AddSlotPageState extends State<AddSlotPage> {
               ),
               const SizedBox(height: 16),
 
-              const Text(
-                'Canal de Rappel Automatique',
+              Text(
+                AppLocalizations.of(context)!.resellerReminderChannel,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   ChoiceChip(
-                    label: const Text('WhatsApp (Recommandé)'),
+                    label: Text(
+                      AppLocalizations.of(context)!.whatsappRecommended,
+                    ),
                     selected: _selectedChannel == 'whatsapp',
                     onSelected: (val) =>
                         setState(() => _selectedChannel = 'whatsapp'),
@@ -228,7 +240,7 @@ class _AddSlotPageState extends State<AddSlotPage> {
               const SizedBox(height: 32),
 
               AppButton(
-                text: 'Attribuer le profil & Enregistrer',
+                text: AppLocalizations.of(context)!.resellerAssignAndSave,
                 onPressed: _submit,
               ),
             ],

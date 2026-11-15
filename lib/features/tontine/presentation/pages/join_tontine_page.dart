@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/route_constants.dart';
+import 'package:kauri/core/navigation/safe_pop.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -21,6 +23,11 @@ class JoinTontinePage extends StatefulWidget {
 }
 
 class _JoinTontinePageState extends State<JoinTontinePage> {
+  /// Vrai entre l'envoi et la réponse : le bloc est partagé par toute l'app,
+  /// un simple rafraîchissement (status success) faisait afficher un FAUX
+  /// succès et fermer l'écran avant même que l'utilisateur n'ait rien envoyé.
+  bool _awaitingSubmit = false;
+
   final _codeController = TextEditingController();
   final _nameController = TextEditingController();
   final _partsController = TextEditingController(text: '1');
@@ -75,6 +82,8 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
 
         return BlocListener<TontineBloc, TontineState>(
           listener: (context, state) {
+            if (!_awaitingSubmit) return;
+            if (state.status != TontineStatus.loading) _awaitingSubmit = false;
             if (state.status == TontineStatus.success) {
               getIt<AnalyticsManager>().trackEvent(
                 feature: 'Tontine',
@@ -83,7 +92,7 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text(l10n.successJoinTontine)));
-              context.pop();
+              context.popOrGo(RouteConstants.tontines);
             } else if (state.status == TontineStatus.error) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -99,6 +108,7 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
 
               if (!isCameroon) {
                 return Scaffold(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
                   appBar: AppBar(title: Text(l10n.joinTontine)),
                   body: Center(
                     child: Padding(
@@ -125,6 +135,7 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
               }
 
               return Scaffold(
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 appBar: AppBar(title: Text(l10n.joinTontine)),
                 body: SingleChildScrollView(
                   padding: const EdgeInsets.all(24.0),
@@ -144,7 +155,9 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
                         controller: _codeController,
                         decoration: InputDecoration(
                           labelText: l10n.inviteCode,
-                          hintText: 'e.g. ABC-123',
+                          hintText: AppLocalizations.of(
+                            context,
+                          )!.inviteCodeExample,
                           prefixIcon: const Icon(Icons.qr_code),
                         ),
                         textCapitalization: TextCapitalization.characters,
@@ -188,6 +201,7 @@ class _JoinTontinePageState extends State<JoinTontinePage> {
                                         'Action: Tentative de rejoindre tontine $code',
                                         component: 'JoinTontinePage',
                                       );
+                                      _awaitingSubmit = true;
                                       context.read<TontineBloc>().add(
                                         JoinTontineRequested(
                                           inviteCode: code,

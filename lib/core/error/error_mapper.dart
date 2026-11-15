@@ -51,24 +51,24 @@ class ErrorMapper {
     if (statusCode != null) {
       switch (statusCode) {
         case 400:
-          return 'Les informations fournies sont invalides ou incomplètes.';
+          return _l10n().errInvalidInput;
         case 401:
-          return 'Votre session a expiré. Veuillez vous reconnecter.';
+          return _l10n().errSessionExpired;
         case 403:
-          return 'Accès refusé. Vous devez valider votre compte ou votre KYC pour effectuer cette action.';
+          return _l10n().errAccessDenied;
         case 404:
-          return 'La ressource demandée est introuvable.';
+          return _l10n().errNotFound;
         case 409:
-          return 'Un conflit est survenu avec cette opération.';
+          return _l10n().errConflict;
         case 422:
-          return 'Données non traitables. Veuillez vérifier votre saisie.';
+          return _l10n().errUnprocessable;
         case 429:
-          return 'Trop de tentatives. Veuillez patienter quelques instants.';
+          return _l10n().errTooManyRequests;
         case 500:
         case 502:
         case 503:
         case 504:
-          return 'Le serveur rencontre une indisponibilité temporaire. Veuillez réessayer plus tard.';
+          return _l10n().errServerUnavailable;
       }
     }
 
@@ -160,9 +160,9 @@ class ErrorMapper {
       if (lower.contains('pending') ||
           lower.contains('en attente') ||
           lower.contains('en cours')) {
-        return 'Votre dossier KYC est en cours de validation. Les retraits seront disponibles dès son approbation.';
+        return _l10n().errKycPending;
       }
-      return 'Votre profil KYC n\'a pas encore été validé. Veuillez soumettre ou finaliser vos documents pour débloquer les retraits.';
+      return _l10n().errKycRequired;
     }
 
     // --- Soldes et fonds ---
@@ -171,7 +171,7 @@ class ErrorMapper {
         lower.contains('solde insuffisant') ||
         lower.contains('fonds insuffisants') ||
         lower.contains('montant superieur au solde')) {
-      return 'Votre solde est insuffisant pour effectuer cette opération.';
+      return _l10n().errInsufficientBalance;
     }
 
     // --- Montants et plafonds ---
@@ -180,7 +180,7 @@ class ErrorMapper {
         lower.contains('seuil minimum') ||
         lower.contains('exceeds daily limit') ||
         lower.contains('plafond')) {
-      return 'Le montant saisi ne respecte pas les limites ou plafonds autorisés.';
+      return _l10n().errAmountLimits;
     }
 
     // --- Téléphone et opérateur de paiement ---
@@ -188,7 +188,7 @@ class ErrorMapper {
         lower.contains('invalid provider') ||
         lower.contains('numéro de téléphone invalide') ||
         lower.contains('operateur non supporte')) {
-      return 'Le numéro de téléphone ou l\'opérateur sélectionné est invalide. Veuillez vérifier votre saisie.';
+      return _l10n().errInvalidPhoneOrProvider;
     }
 
     // --- Authentification / Sessions ---
@@ -197,7 +197,7 @@ class ErrorMapper {
         lower.contains('session expired') ||
         lower.contains('unauthorized') ||
         lower.contains('jeton invalide')) {
-      return 'Votre session a expiré. Veuillez vous reconnecter.';
+      return _l10n().errSessionExpired;
     }
 
     // --- Erreurs de base de données / crash serveur Node.js ---
@@ -217,7 +217,7 @@ class ErrorMapper {
         lower.contains('null check operator') ||
         lower.contains('type \'null\'') ||
         lower.contains('internal server error')) {
-      return 'Une erreur technique temporaire est survenue sur nos serveurs. Veuillez réessayer dans un instant.';
+      return _l10n().errTechnical;
     }
 
     // 5. Si après nettoyage le message ressemble à une phrase claire et lisible

@@ -1,3 +1,5 @@
+import 'package:kauri/core/utils/app_l10n.dart';
+
 class PlanFeatureCategory {
   final String category;
   final List<PlanFeatureItem> items;
@@ -191,11 +193,11 @@ class PlanConfigModel {
     if (amt == 0) {
       formatted = '0 FCFA';
     } else if (curr == 'EUR') {
-      formatted = '${amt.toStringAsFixed(0)} € / mois';
+      formatted = '${amt.toStringAsFixed(0)} € ${appL10n().perMonthSuffix}';
     } else if (curr == 'USD') {
-      formatted = '${amt.toStringAsFixed(0)} \$ / month';
+      formatted = '${amt.toStringAsFixed(0)} \$ ${appL10n().perMonthSuffix}';
     } else {
-      formatted = '${amt.toStringAsFixed(0)} FCFA / mois';
+      formatted = '${amt.toStringAsFixed(0)} FCFA ${appL10n().perMonthSuffix}';
     }
 
     return (amount: amt, currency: curr, formattedPrice: formatted);

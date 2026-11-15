@@ -42,9 +42,20 @@ class EmailVerificationPendingPage extends StatelessWidget {
               const SizedBox(height: 48),
               AppButton(
                 text: l10n.backToLogin,
-                onPressed: () {
-                  context.read<AuthBloc>().add(AuthLogoutRequested());
-                  context.go(RouteConstants.login);
+                onPressed: () async {
+                  // Attendre la déconnexion EFFECTIVE avant d'aller au login :
+                  // sinon le routeur voyait encore une session ouverte et
+                  // redirigeait vers l'accueil (vérification contournée).
+                  final auth = context.read<AuthBloc>();
+                  final router = GoRouter.of(context);
+                  auth.add(AuthLogoutRequested());
+                  await auth.stream
+                      .firstWhere((s) => s.status == AuthStatus.unauthenticated)
+                      .timeout(
+                        const Duration(seconds: 10),
+                        onTimeout: () => auth.state,
+                      );
+                  router.go(RouteConstants.login);
                 },
               ),
             ],

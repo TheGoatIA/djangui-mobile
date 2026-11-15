@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:kauri/core/constants/category_labels.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -337,7 +338,7 @@ class _BudgetDetailSheetState extends State<BudgetDetailSheet> {
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(dialogContext).colorScheme.error,
             ),
             child: Text(l10n.leaveBudget),
           ),
@@ -725,7 +726,7 @@ class _CategoryItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              category.name,
+              CategoryLabels.display(context, category.name),
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.bold,
               ),

@@ -21,7 +21,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     InitNotchPayPayment event,
     Emitter<PaymentState> emit,
   ) async {
-    final startMs = DateTime.now().millisecondsSinceEpoch;
     _analytics.logDepositInitiated(
       paymentMethod: 'notchpay',
       currency: 'XAF',
@@ -43,13 +42,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         emit(PaymentError(failure.message));
       },
       (response) {
-        _analytics.logDepositCompleted(
-          paymentMethod: 'notchpay',
-          currency: 'XAF',
-          amount: event.amount,
-          provider: 'notchpay',
-          durationMs: DateTime.now().millisecondsSinceEpoch - startMs,
-        );
+        // Pas de « dépôt réalisé » ici : la page de paiement vient seulement
+        // d'être ouverte (l'utilisateur peut abandonner). Le dépôt n'est réel
+        // qu'à la confirmation (webhook côté serveur / VerifyPayment) — l'ancien
+        // événement gonflait les statistiques de dépôts.
         emit(PaymentSuccess(response));
       },
     );
@@ -59,7 +55,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     InitStripeCheckout event,
     Emitter<PaymentState> emit,
   ) async {
-    final startMs = DateTime.now().millisecondsSinceEpoch;
     _analytics.logDepositInitiated(
       paymentMethod: 'stripe',
       currency: event.currency,
@@ -81,13 +76,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         emit(PaymentError(failure.message));
       },
       (response) {
-        _analytics.logDepositCompleted(
-          paymentMethod: 'stripe',
-          currency: event.currency,
-          amount: event.amount,
-          provider: 'stripe',
-          durationMs: DateTime.now().millisecondsSinceEpoch - startMs,
-        );
+        // Pas de « dépôt réalisé » ici : la page de paiement vient seulement
+        // d'être ouverte (l'utilisateur peut abandonner). Le dépôt n'est réel
+        // qu'à la confirmation (webhook côté serveur / VerifyPayment) — l'ancien
+        // événement gonflait les statistiques de dépôts.
         emit(PaymentSuccess(response));
       },
     );
@@ -99,9 +91,18 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   ) async {
     emit(PaymentLoading());
     final result = await _repository.verifyPayment(event.reference);
-    result.fold(
-      (failure) => emit(PaymentError(failure.message)),
-      (data) => emit(PaymentVerified(data)),
-    );
+    result.fold((failure) => emit(PaymentError(failure.message)), (data) {
+      final status = (data['status'] ?? data['payment']?['status'])?.toString();
+      if (status == 'completed') {
+        final amount =
+            (data['amount'] ?? data['payment']?['amount']) as num? ?? 0;
+        _analytics.logDepositCompleted(
+          paymentMethod: (data['provider'] ?? 'unknown').toString(),
+          currency: (data['currency'] ?? 'XAF').toString(),
+          amount: amount,
+        );
+      }
+      emit(PaymentVerified(data));
+    });
   }
 }

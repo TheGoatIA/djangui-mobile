@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/core/constants/category_labels.dart';
 import '../../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -189,7 +190,7 @@ class _CategoryPickerModalState extends State<_CategoryPickerModal> {
                 if (index < _filteredCategories.length) {
                   final category = _filteredCategories[index];
                   return ListTile(
-                    title: Text(category),
+                    title: Text(CategoryLabels.display(context, category)),
                     onTap: () => widget.onSelected(category),
                   );
                 } else if (_searchController.text.isNotEmpty) {

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:fpdart/fpdart.dart';
 import 'package:kauri/core/errors/failures.dart';
 import '../entities/tontine_entities.dart';
+import '../../data/models/tontine_vote_model.dart';
 
 abstract class TontineRepository {
   Future<Either<Failure, Tontine>> createTontine(Map<String, dynamic> params);
@@ -65,4 +66,16 @@ abstract class TontineRepository {
   });
   Future<Either<Failure, List<int>>> exportTontine(String id);
   Future<Either<Failure, Unit>> removeMember(String id, String memberId);
+
+  // Votes de gouvernance (clôture d'une tontine en cours = vote à la majorité).
+  Future<Either<Failure, List<TontineVoteModel>>> getVotes(String tontineId);
+  Future<Either<Failure, TontineVoteModel>> proposeClosure(
+    String tontineId, {
+    int durationHours = 72,
+  });
+  Future<Either<Failure, TontineVoteModel>> castVote(
+    String tontineId,
+    String voteId,
+    int optionIndex,
+  );
 }

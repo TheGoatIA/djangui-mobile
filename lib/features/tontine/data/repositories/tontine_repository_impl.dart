@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'dart:io';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
@@ -11,6 +12,7 @@ import '../datasources/tontine_api_service.dart';
 import '../datasources/tontine_local_datasource.dart';
 import '../../domain/entities/tontine_entities.dart';
 import '../models/tontine_model.dart';
+import '../models/tontine_vote_model.dart';
 import '../../domain/repositories/tontine_repository.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../di/injection.dart';
@@ -362,7 +364,7 @@ class TontineRepositoryImpl implements TontineRepository {
           if (memberModel != null) {
             return Right(_mapMemberModelToEntity(memberModel));
           }
-          return Left(ServerFailure('Membre non trouvé'));
+          return Left(ServerFailure(appL10n().memberNotFound));
         }
         return Left(ServerFailure(_getErrorMessage(response.error)));
       } catch (e) {
@@ -563,7 +565,7 @@ class TontineRepositoryImpl implements TontineRepository {
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
       tontineId: tontineId,
       senderId: 'me',
-      content: '🎤 Note vocale',
+      content: appL10n().voiceNoteMessagePlaceholder,
       type: 'audio',
       audioUrl: null,
       audioDuration: durationSeconds,
@@ -704,6 +706,58 @@ class TontineRepositoryImpl implements TontineRepository {
       }
     } else {
       return Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<TontineVoteModel>>> getVotes(String tontineId) =>
+      _online(() async {
+        final response = await _apiService.getVotes(tontineId);
+        if (response.isSuccessful) {
+          return Right(response.body?.data ?? const []);
+        }
+        return Left(ServerFailure(_getErrorMessage(response.error)));
+      });
+
+  @override
+  Future<Either<Failure, TontineVoteModel>> proposeClosure(
+    String tontineId, {
+    int durationHours = 72,
+  }) => _online(() async {
+    final response = await _apiService.createVote(tontineId, {
+      'kind': 'closure',
+      'durationHours': durationHours,
+    });
+    if (response.isSuccessful && response.body?.data != null) {
+      return Right(response.body!.data!);
+    }
+    return Left(ServerFailure(_getErrorMessage(response.error)));
+  });
+
+  @override
+  Future<Either<Failure, TontineVoteModel>> castVote(
+    String tontineId,
+    String voteId,
+    int optionIndex,
+  ) => _online(() async {
+    final response = await _apiService.castVote(tontineId, voteId, {
+      'optionIndex': optionIndex,
+    });
+    if (response.isSuccessful && response.body?.data != null) {
+      return Right(response.body!.data!);
+    }
+    return Left(ServerFailure(_getErrorMessage(response.error)));
+  });
+
+  /// Action réseau uniquement (pas de cache hors-ligne pour un vote).
+  Future<Either<Failure, T>> _online<T>(
+    Future<Either<Failure, T>> Function() run,
+  ) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      return await run();
+    } catch (e) {
+      return Left(ServerFailure(ErrorMapper.safeMessage(e)));
     }
   }
 

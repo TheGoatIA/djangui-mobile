@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kauri/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/route_constants.dart';
@@ -21,24 +22,24 @@ class AccountSuspendedPage extends StatelessWidget {
               const Icon(Icons.gpp_bad_outlined, size: 80, color: Colors.red),
               const SizedBox(height: 24),
               Text(
-                'Compte Suspendu',
+                AppLocalizations.of(context)!.accountSuspendedTitle,
                 style: AppTextStyles.h2.copyWith(color: Colors.red),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Votre compte a été temporairement suspendu pour des raisons de sécurité suite à des activités inhabituelles détectées par notre IA.',
+              Text(
+                AppLocalizations.of(context)!.accountSuspendedMessage,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodyLarge,
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Politique des "3 Frappes" : Si vous avez téléchargé des reçus invalides ou frauduleux plus de 3 fois, votre compte est verrouillé.',
+              Text(
+                AppLocalizations.of(context)!.accountSuspendedThreeStrikes,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodyMedium,
               ),
               const SizedBox(height: 32),
               AppButton(
-                text: 'Contacter le Support',
+                text: AppLocalizations.of(context)!.contactSupport,
                 onPressed: () {
                   context.push(RouteConstants.createTicket);
                 },
@@ -48,7 +49,7 @@ class AccountSuspendedPage extends StatelessWidget {
                 onPressed: () {
                   context.read<AuthBloc>().add(AuthLogoutRequested());
                 },
-                child: const Text('Se déconnecter'),
+                child: Text(AppLocalizations.of(context)!.signOut),
               ),
             ],
           ),

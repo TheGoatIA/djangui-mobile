@@ -222,7 +222,7 @@ class _SessionsPageState extends State<SessionsPage> {
                         ),
                       ),
                       Text(
-                        '${session.os ?? 'Unknown OS'} • ${session.browser ?? session.ipAddress ?? ''}',
+                        '${session.os ?? AppLocalizations.of(context)!.unknownDevice} • ${session.browser ?? session.ipAddress ?? ''}',
                         style: AppTextStyles.bodySmall.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),

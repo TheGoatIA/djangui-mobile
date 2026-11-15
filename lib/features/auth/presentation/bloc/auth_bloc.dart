@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import '../../data/models/auth_response.dart';
@@ -834,8 +835,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(
       state.copyWith(
         status: AuthStatus.accountSuspended,
-        errorMessage:
-            'Votre compte a été suspendu par notre système de sécurité. Veuillez contacter le support.',
+        errorMessage: appL10n().accountSuspendedContactSupport,
       ),
     );
   }
@@ -863,7 +863,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
 
       if (docUrl == null || docUrl.isEmpty) {
-        throw Exception('Veuillez fournir la pièce d\'identité (Recto).');
+        throw Exception(appL10n().kycFrontRequired);
       }
 
       // 1b. Upload optionnel du document verso
@@ -893,7 +893,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
 
       if (selfieUrl == null || selfieUrl.isEmpty) {
-        throw Exception('Veuillez fournir le selfie de vérification.');
+        throw Exception(appL10n().kycSelfieRequired);
       }
 
       // 3. Soumission finale au backend Auth/Fintech

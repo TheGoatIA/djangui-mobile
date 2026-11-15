@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:kauri/core/utils/app_l10n.dart';
 import 'package:collection/collection.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
@@ -314,7 +315,7 @@ class GoalRepositoryImpl implements GoalRepository {
     } else {
       // Offline redemption is tricky because it affects balance immediately.
       // For now, let's treat it as a server-only action or queue it.
-      return Left(ServerFailure('Connexion requise pour le rachat de fonds.'));
+      return Left(ServerFailure(appL10n().errRedeemNeedsConnection));
     }
   }
 
