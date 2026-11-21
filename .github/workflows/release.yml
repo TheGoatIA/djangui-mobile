@@ -249,7 +249,7 @@ jobs:
     needs: release
     if: needs.release.outputs.released == 'true'
     runs-on: macos-15
-    timeout-minutes: 75
+    timeout-minutes: 95
     env:
       APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
