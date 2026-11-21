@@ -870,7 +870,7 @@ packages:
     source: hosted
     version: "6.0.0"
   flutter_web_auth_2_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: flutter_web_auth_2_platform_interface
       sha256: bb8ddc6344bc9f3b61e6ea9ef6830dd97cd4cc8aeda78281972ccf07e659127d
