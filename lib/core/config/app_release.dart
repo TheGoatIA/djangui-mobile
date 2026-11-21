@@ -7,7 +7,7 @@ class AppRelease {
   AppRelease._();
 
   /// Nom de l'édition (constellation), ex. « Orion » → « v4.1.0 - Orion Edition ».
-  static const String edition = 'Orion';
+  static const String edition = 'Andromeda';
 
   /// Libellé complet d'une version : « v4.1.0 - Orion Edition ».
   static String label(String version) =>

@@ -3,6 +3,34 @@
 Généré automatiquement à chaque version publiée (`tool/release/release.mjs`). Ne pas modifier à la main.
 Automatically generated for each released version. Do not edit by hand.
 
+## v4.2.0 - Andromeda Edition — 2026-11-21
+
+> Build 41 · 4 commit(s) · version mineure
+
+### 🇫🇷 Français
+
+#### Nouveautés
+- lier / délier GPChat dans Sécurité › Comptes connectés
+- « Continuer avec GPChat »
+
+#### Améliorations
+- dart format (connexion GPChat)
+
+#### Technique
+- « Continuer avec GPChat » — données, dépôt, bloc et liaison
+
+### 🇬🇧 English
+
+#### New features
+- lier / délier GPChat dans Sécurité › Comptes connectés
+- « Continuer avec GPChat »
+
+#### Improvements
+- dart format (connexion GPChat)
+
+#### Technical
+- « Continuer avec GPChat » — données, dépôt, bloc et liaison
+
 ## v4.1.0 - Orion Edition — 2026-11-15
 
 > Build 39 · 26 commit(s) · version mineure
