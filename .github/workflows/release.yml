@@ -316,7 +316,10 @@ jobs:
           app-store-connect publish \
             --path "$(ls build/ios/ipa/*.ipa | head -1)" \
             --beta-group "Kauri PRODUCTION" \
+            --max-find-build-wait 30 \
             --whats-new "$NOTES"
+          # 30 min : le traitement Apple dépasse parfois les 10 min par défaut
+          # (build envoyé mais groupe et notes non appliqués → job en échec).
 
       - name: Notification Slack (#deployment)
         if: always()

@@ -196,6 +196,7 @@ jobs:
           app-store-connect publish \
             --path "$(ls build/ios/ipa/*.ipa | head -1)" \
             --beta-group "Kauri STAGING" \
+            --max-find-build-wait 30 \
             --whats-new "STAGING — $(git log -1 --format='%h %s') — API staging.kauri-app.com"
 
       - name: Notification Slack (#deployment)
