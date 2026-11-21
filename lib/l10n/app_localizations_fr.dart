@@ -3897,6 +3897,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get accountDeletedSuccess => 'Compte supprimé avec succès';
 
   @override
+  String get errGpchatCancelled => 'Connexion avec GPChat annulée.';
+
+  @override
+  String get errGpchatFailed => 'La connexion avec GPChat a échoué. Réessayez.';
+
+  @override
+  String get continueWithGpchat => 'Continuer avec GPChat';
+
+  @override
   String get errSignInTokenMissing =>
       'La connexion n\'a pas pu aboutir (jeton manquant). Réessayez.';
 

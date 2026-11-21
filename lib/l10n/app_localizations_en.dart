@@ -3871,6 +3871,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountDeletedSuccess => 'Account deleted';
 
   @override
+  String get errGpchatCancelled => 'GPChat sign-in cancelled.';
+
+  @override
+  String get errGpchatFailed => 'GPChat sign-in failed. Please try again.';
+
+  @override
+  String get continueWithGpchat => 'Continue with GPChat';
+
+  @override
   String get errSignInTokenMissing =>
       'Sign-in could not complete (missing token). Please try again.';
 

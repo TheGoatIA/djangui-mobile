@@ -330,6 +330,49 @@ class _LoginPageState extends State<LoginPage> {
                             const SizedBox(height: 16),
                           ],
 
+                          if (flags.authGpchat.isEnabled) ...[
+                            // Connexion GPChat (validation dans l'app GPChat)
+                            OutlinedButton(
+                              onPressed: () {
+                                getIt<AnalyticsManager>().trackEvent(
+                                  feature: 'Auth',
+                                  action: 'social_login_attempt',
+                                  details: {'provider': 'gpchat'},
+                                );
+                                context.read<AuthBloc>().add(
+                                  const AuthGpchatSignInRequested(),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 56),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                side: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/gpchat_logo.png',
+                                    width: 24,
+                                    height: 24,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    AppLocalizations.of(context)!.continueWithGpchat,
+                                    style: AppTextStyles.bodyLarge.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+
                           // Connexion Apple (iOS uniquement)
                           if (Platform.isIOS && flags.authApple.isEnabled) ...[
                             OutlinedButton(

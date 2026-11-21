@@ -48,6 +48,14 @@ final class _$AuthApiService extends AuthApiService {
   }
 
   @override
+  Future<Response<AuthResponse>> gpchatExchange(Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/auth/gpchat/exchange');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<AuthResponse, AuthResponse>($request);
+  }
+
+  @override
   Future<Response<AuthResponse>> appleLogin(Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/auth/apple');
     final $body = body;

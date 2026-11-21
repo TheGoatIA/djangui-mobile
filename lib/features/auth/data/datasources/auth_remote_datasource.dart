@@ -17,6 +17,7 @@ abstract class AuthRemoteDataSource {
   Future<AuthResponse> login(LoginRequest request);
   Future<AuthResponse> firebaseLogin(String idToken, {String? country});
   Future<AuthResponse> appleLogin(String idToken, {String? countryCode});
+  Future<AuthResponse> gpchatExchange(String code, String verifier);
   Future<void> linkPhone(String idToken);
   Future<AuthResponse> register(RegisterRequest request);
   Future<UserModel> updateProfile({
@@ -75,6 +76,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final response = await _apiService.firebaseLogin({
       'idToken': idToken,
       if (country != null) 'country': country,
+    });
+    if (response.isSuccessful && response.body != null) {
+      return response.body!;
+    } else {
+      throw Exception(response.errorMessage);
+    }
+  }
+
+  @override
+  Future<AuthResponse> gpchatExchange(String code, String verifier) async {
+    final response = await _apiService.gpchatExchange({
+      'code': code,
+      'verifier': verifier,
     });
     if (response.isSuccessful && response.body != null) {
       return response.body!;

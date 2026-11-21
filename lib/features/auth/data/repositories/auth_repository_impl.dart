@@ -30,6 +30,10 @@ import '../../../../di/injection.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:flutter/services.dart' show PlatformException;
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
+import 'package:kauri/core/config/env_config.dart';
+import 'package:kauri/core/constants/api_constants.dart';
 import 'package:kauri/core/error/error_mapper.dart';
 
 /// Implémentation concrète de [AuthRepository].
@@ -302,6 +306,73 @@ class AuthRepositoryImpl implements AuthRepository {
         error: e,
         component: 'AuthRepository',
       );
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  /// « Continuer avec GPChat » : la page GPChat s'ouvre dans un onglet de
+  /// connexion ; l'utilisateur valide dans l'app GPChat puis revient ici.
+  /// L'API renvoie vers kauri-auth://gpchat?code=… ; le code n'est échangeable
+  /// qu'avec le secret [verifier] resté dans l'app (type PKCE), donc inutile
+  /// s'il est intercepté.
+  @override
+  Future<Either<Failure, AuthResponse>> signInWithGpchat({
+    String? countryCode,
+  }) async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+
+    try {
+      final String verifier = _generateNonce(64);
+      final String challenge = _sha256ofString(verifier);
+      final Uri start = Uri.parse(
+        '${EnvConfig.apiBaseUrl}${ApiConstants.gpchatStart}',
+      ).replace(
+        queryParameters: {
+          'challenge': challenge,
+          if (countryCode != null) 'country': countryCode,
+          'platform': Platform.isIOS ? 'ios' : 'android',
+        },
+      );
+
+      final String result = await FlutterWebAuth2.authenticate(
+        url: start.toString(),
+        callbackUrlScheme: 'kauri-auth',
+      );
+      final Uri back = Uri.parse(result);
+      final String? error = back.queryParameters['error'];
+      final String? code = back.queryParameters['code'];
+      if (error != null || code == null) {
+        return Left(
+          AuthFailure(
+            error == 'cancelled'
+                ? appL10n().errGpchatCancelled
+                : appL10n().errGpchatFailed,
+          ),
+        );
+      }
+
+      final response = await _remoteDataSource.gpchatExchange(code, verifier);
+      await _localDataSource.saveTokens(
+        accessToken: response.tokens.accessToken,
+        refreshToken: response.tokens.refreshToken,
+      );
+      await _localDataSource.saveUser(response.user);
+      await _localDataSource.saveLoginProvider('gpchat');
+      _logger.info(
+        'Authentification réussie par GPChat',
+        component: 'AuthRepository',
+        metadata: {'userId': response.user.id},
+      );
+      return Right(response);
+    } on PlatformException catch (e) {
+      // Onglet fermé par l'utilisateur.
+      if (e.code == 'CANCELED') {
+        return Left(AuthFailure(appL10n().errGpchatCancelled));
+      }
+      _logger.error('Échec de la connexion par GPChat', error: e, component: 'AuthRepository');
+      return Left(AuthFailure(appL10n().errGpchatFailed));
+    } catch (e) {
+      _logger.error('Échec de la connexion par GPChat', error: e, component: 'AuthRepository');
       return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }

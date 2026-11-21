@@ -106,6 +106,13 @@ class AuthAppleSignInRequested extends AuthEvent {
   List<Object?> get props => [countryCode];
 }
 
+class AuthGpchatSignInRequested extends AuthEvent {
+  final String? countryCode;
+  const AuthGpchatSignInRequested({this.countryCode});
+  @override
+  List<Object?> get props => [countryCode];
+}
+
 class _AuthInternalCodeSent extends AuthEvent {
   const _AuthInternalCodeSent();
 }

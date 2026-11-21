@@ -25,6 +25,11 @@ abstract class AuthApiService extends ChopperService {
     @Body() Map<String, dynamic> body,
   );
 
+  @POST(path: ApiConstants.gpchatExchange)
+  Future<Response<AuthResponse>> gpchatExchange(
+    @Body() Map<String, dynamic> body,
+  );
+
   @POST(path: ApiConstants.appleAuth)
   Future<Response<AuthResponse>> appleLogin(@Body() Map<String, dynamic> body);
 

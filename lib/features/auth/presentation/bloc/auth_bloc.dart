@@ -53,6 +53,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthResetPasswordRequested>(_onAuthResetPasswordRequested);
     on<AuthGoogleSignInRequested>(_onAuthGoogleSignInRequested);
     on<AuthAppleSignInRequested>(_onAuthAppleSignInRequested);
+    on<AuthGpchatSignInRequested>(_onAuthGpchatSignInRequested);
     on<AuthPhoneVerificationRequested>(_onAuthPhoneVerificationRequested);
     on<AuthPhoneSignInRequested>(_onAuthPhoneSignInRequested);
     on<AuthLinkPhoneRequested>(_onAuthLinkPhoneRequested);
@@ -247,6 +248,59 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       span.recordException(e, stackTrace: s);
       rethrow;
+    } finally {
+      span.end();
+    }
+  }
+
+  Future<void> _onAuthGpchatSignInRequested(
+    AuthGpchatSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    _logger.info('Tentative de connexion GPChat...', component: 'AuthBloc');
+    final span = _telemetry.tracer.startSpan('Auth: GpchatSignIn');
+    try {
+      emit(state.copyWith(status: AuthStatus.loading));
+      final result = await _authRepository.signInWithGpchat(
+        countryCode: event.countryCode,
+      );
+      result.fold(
+        (failure) {
+          span.setStatus(StatusCode.error, failure.message);
+          _telemetry.recordEvent('auth.gpchat.failure', {
+            'reason': failure.message,
+          });
+          emit(
+            state.copyWith(
+              status: AuthStatus.error,
+              errorMessage: failure.message,
+            ),
+          );
+        },
+        (response) {
+          span.setAttribute(Attribute.fromString('user.id', response.user.id));
+          _telemetry.recordEvent('auth.gpchat.success', {
+            'user.id': response.user.id,
+          });
+          _authRepository.updateDeviceInfo();
+          _authRepository.logConnection();
+          _notifyAuthSuccess(response, method: 'gpchat');
+          emit(
+            state.copyWith(
+              status: AuthStatus.authenticated,
+              authResponse: response,
+            ),
+          );
+        },
+      );
+    } catch (e, s) {
+      _logger.error(
+        'Erreur technique lors de la connexion GPChat',
+        error: e,
+        component: 'AuthBloc',
+      );
+      span.recordException(e, stackTrace: s);
+      emit(state.copyWith(status: AuthStatus.error, errorMessage: e.toString()));
     } finally {
       span.end();
     }

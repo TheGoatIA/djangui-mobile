@@ -7202,6 +7202,24 @@ abstract class AppLocalizations {
   /// **'Compte supprimé avec succès'**
   String get accountDeletedSuccess;
 
+  /// No description provided for @errGpchatCancelled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion avec GPChat annulée.'**
+  String get errGpchatCancelled;
+
+  /// No description provided for @errGpchatFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion avec GPChat a échoué. Réessayez.'**
+  String get errGpchatFailed;
+
+  /// No description provided for @continueWithGpchat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec GPChat'**
+  String get continueWithGpchat;
+
   /// No description provided for @errSignInTokenMissing.
   ///
   /// In fr, this message translates to:
