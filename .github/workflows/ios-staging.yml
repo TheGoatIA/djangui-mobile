@@ -78,7 +78,7 @@ jobs:
     name: 🍏 Build IPA staging + TestFlight
     needs: wait-ci
     runs-on: macos-15
-    timeout-minutes: 60
+    timeout-minutes: 85
     env:
       APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
