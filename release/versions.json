@@ -8,6 +8,13 @@
       "tag": null,
       "commit": "17dc65da5ae60157acb0f29f73eff00b4208187c",
       "date": "2026-10-15"
+    },
+    {
+      "version": "4.1.0",
+      "build": 39,
+      "edition": "Orion",
+      "tag": "v4.1.0",
+      "date": "2026-11-15"
     }
   ]
 }
