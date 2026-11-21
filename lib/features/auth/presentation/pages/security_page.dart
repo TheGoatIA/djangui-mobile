@@ -244,7 +244,12 @@ class _SecurityPageState extends State<SecurityPage>
                 },
               ),
               // Comptes connectés : GPChat (si la connexion GPChat est activée).
-              if (context.watch<SystemBloc>().state.featureFlags.authGpchat.isEnabled) ...[
+              if (context
+                  .watch<SystemBloc>()
+                  .state
+                  .featureFlags
+                  .authGpchat
+                  .isEnabled) ...[
                 const SizedBox(height: 32),
                 _buildSectionTitle(l10n.connectedAccounts),
                 const SizedBox(height: 12),

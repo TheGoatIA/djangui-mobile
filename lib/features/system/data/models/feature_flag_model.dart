@@ -26,6 +26,7 @@ class FeatureFlagModel extends Equatable {
   final FeatureConfig authGoogle;
   @JsonKey(name: 'auth_apple')
   final FeatureConfig authApple;
+
   /// « Continuer avec GPChat » (désactivé tant que l'admin ne l'active pas).
   @JsonKey(name: 'auth_gpchat')
   final FeatureConfig authGpchat;

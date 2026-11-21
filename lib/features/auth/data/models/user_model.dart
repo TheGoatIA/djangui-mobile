@@ -15,6 +15,7 @@ class UserModel {
   final String? phone;
   final bool isEmailVerified;
   final bool isPhoneVerified;
+
   /// Compte GPChat lié (« Continuer avec GPChat »), null sinon.
   final String? gpchatId;
   final bool isActive;

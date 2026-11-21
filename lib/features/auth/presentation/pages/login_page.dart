@@ -363,7 +363,9 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
-                                    AppLocalizations.of(context)!.continueWithGpchat,
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.continueWithGpchat,
                                     style: AppTextStyles.bodyLarge.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),

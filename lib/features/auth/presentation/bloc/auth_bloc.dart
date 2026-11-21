@@ -300,7 +300,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         component: 'AuthBloc',
       );
       span.recordException(e, stackTrace: s);
-      emit(state.copyWith(status: AuthStatus.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
+      );
     } finally {
       span.end();
     }

@@ -324,15 +324,16 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final String verifier = _generateNonce(64);
       final String challenge = _sha256ofString(verifier);
-      final Uri start = Uri.parse(
-        '${EnvConfig.apiBaseUrl}${ApiConstants.gpchatStart}',
-      ).replace(
-        queryParameters: {
-          'challenge': challenge,
-          if (countryCode != null) 'country': countryCode,
-          'platform': Platform.isIOS ? 'ios' : 'android',
-        },
-      );
+      final Uri start =
+          Uri.parse(
+            '${EnvConfig.apiBaseUrl}${ApiConstants.gpchatStart}',
+          ).replace(
+            queryParameters: {
+              'challenge': challenge,
+              if (countryCode != null) 'country': countryCode,
+              'platform': Platform.isIOS ? 'ios' : 'android',
+            },
+          );
 
       final String result = await FlutterWebAuth2.authenticate(
         url: start.toString(),
@@ -369,10 +370,18 @@ class AuthRepositoryImpl implements AuthRepository {
       if (e.code == 'CANCELED') {
         return Left(AuthFailure(appL10n().errGpchatCancelled));
       }
-      _logger.error('Échec de la connexion par GPChat', error: e, component: 'AuthRepository');
+      _logger.error(
+        'Échec de la connexion par GPChat',
+        error: e,
+        component: 'AuthRepository',
+      );
       return Left(AuthFailure(appL10n().errGpchatFailed));
     } catch (e) {
-      _logger.error('Échec de la connexion par GPChat', error: e, component: 'AuthRepository');
+      _logger.error(
+        'Échec de la connexion par GPChat',
+        error: e,
+        component: 'AuthRepository',
+      );
       return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
@@ -414,7 +423,11 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return Left(AuthFailure(appL10n().errGpchatFailed));
     } catch (e) {
-      _logger.error('Échec de la liaison GPChat', error: e, component: 'AuthRepository');
+      _logger.error(
+        'Échec de la liaison GPChat',
+        error: e,
+        component: 'AuthRepository',
+      );
       return Left(AuthFailure(ErrorMapper.safeMessage(e)));
     }
   }
