@@ -1,4 +1,6 @@
 import '../widgets/delete_account_dialog.dart';
+import '../widgets/gpchat_link_tile.dart';
+import '../../../system/presentation/bloc/system_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -241,6 +243,18 @@ class _SecurityPageState extends State<SecurityPage>
                   );
                 },
               ),
+              // Comptes connectés : GPChat (si la connexion GPChat est activée).
+              if (context
+                  .watch<SystemBloc>()
+                  .state
+                  .featureFlags
+                  .authGpchat
+                  .isEnabled) ...[
+                const SizedBox(height: 32),
+                _buildSectionTitle(l10n.connectedAccounts),
+                const SizedBox(height: 12),
+                const GpchatLinkTile(),
+              ],
               const SizedBox(height: 48),
               _buildDangerZone(l10n),
             ],

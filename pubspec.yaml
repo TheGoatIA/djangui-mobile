@@ -126,9 +126,11 @@ dependencies:
   flutter_dynamic_icon_plus: ^1.6.0
   opentelemetry: ^0.18.11+1
   freerasp: ^8.3.0
+  flutter_web_auth_2: ^6.0.0
 
 
 dev_dependencies:
+  flutter_web_auth_2_platform_interface: ^6.0.0
   flutter_driver:
     sdk: flutter
   integration_test:

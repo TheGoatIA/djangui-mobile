@@ -48,6 +48,41 @@ final class _$AuthApiService extends AuthApiService {
   }
 
   @override
+  Future<Response<AuthResponse>> gpchatExchange(Map<String, dynamic> body) {
+    final Uri $url = Uri.parse('/auth/gpchat/exchange');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<AuthResponse, AuthResponse>($request);
+  }
+
+  @override
+  Future<Response<Map<String, dynamic>>> gpchatLinkStart(
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/auth/gpchat/link/start');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
+  }
+
+  @override
+  Future<Response<Map<String, dynamic>>> gpchatLinkConfirm(
+    Map<String, dynamic> body,
+  ) {
+    final Uri $url = Uri.parse('/auth/gpchat/link/confirm');
+    final $body = body;
+    final Request $request = Request('POST', $url, client.baseUrl, body: $body);
+    return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
+  }
+
+  @override
+  Future<Response<Map<String, dynamic>>> gpchatUnlink() {
+    final Uri $url = Uri.parse('/auth/gpchat/link');
+    final Request $request = Request('DELETE', $url, client.baseUrl);
+    return client.send<Map<String, dynamic>, Map<String, dynamic>>($request);
+  }
+
+  @override
   Future<Response<AuthResponse>> appleLogin(Map<String, dynamic> body) {
     final Uri $url = Uri.parse('/auth/apple');
     final $body = body;

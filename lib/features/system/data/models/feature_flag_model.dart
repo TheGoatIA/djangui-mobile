@@ -26,6 +26,10 @@ class FeatureFlagModel extends Equatable {
   final FeatureConfig authGoogle;
   @JsonKey(name: 'auth_apple')
   final FeatureConfig authApple;
+
+  /// « Continuer avec GPChat » (désactivé tant que l'admin ne l'active pas).
+  @JsonKey(name: 'auth_gpchat')
+  final FeatureConfig authGpchat;
   @JsonKey(name: 'auth_phone')
   final FeatureConfig authPhone;
   @JsonKey(name: 'auth_biometric')
@@ -77,6 +81,7 @@ class FeatureFlagModel extends Equatable {
 
   const FeatureFlagModel({
     this.authGoogle = const FeatureConfig(),
+    this.authGpchat = const FeatureConfig(isEnabled: false),
     this.authApple = const FeatureConfig(),
     this.authPhone = const FeatureConfig(),
     this.authBiometric = const FeatureConfig(),
@@ -116,6 +121,7 @@ class FeatureFlagModel extends Equatable {
   List<Object?> get props => [
     authGoogle,
     authApple,
+    authGpchat,
     authPhone,
     authBiometric,
     aiCoachChat,

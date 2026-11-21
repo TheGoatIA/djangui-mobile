@@ -20,6 +20,15 @@ abstract class AuthRepository {
   /// Authentifie l'utilisateur via Apple. Optionnellement, définit son pays par défaut.
   Future<Either<Failure, AuthResponse>> signInWithApple({String? countryCode});
 
+  /// Authentifie l'utilisateur via GPChat (validation dans l'app GPChat).
+  Future<Either<Failure, AuthResponse>> signInWithGpchat({String? countryCode});
+
+  /// Lie le compte GPChat au compte Kauri connecté (validation dans GPChat).
+  Future<Either<Failure, UserModel>> linkGpchat();
+
+  /// Délie le compte GPChat (refusé s'il est le seul moyen de connexion).
+  Future<Either<Failure, UserModel>> unlinkGpchat();
+
   /// Démarre le processus de vérification de numéro de téléphone (Envoi de SMS).
   Future<Either<Failure, void>> verifyPhoneNumber(
     String phoneNumber, {

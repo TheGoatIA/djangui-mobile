@@ -15,6 +15,9 @@ class UserModel {
   final String? phone;
   final bool isEmailVerified;
   final bool isPhoneVerified;
+
+  /// Compte GPChat lié (« Continuer avec GPChat »), null sinon.
+  final String? gpchatId;
   final bool isActive;
   final bool isPremium;
   final String role; // user, admin
@@ -48,6 +51,7 @@ class UserModel {
     this.phone,
     this.isEmailVerified = false,
     this.isPhoneVerified = false,
+    this.gpchatId,
     this.isActive = true,
     this.isPremium = false,
     this.role = 'user',

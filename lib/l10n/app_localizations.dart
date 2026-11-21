@@ -7202,6 +7202,78 @@ abstract class AppLocalizations {
   /// **'Compte supprimé avec succès'**
   String get accountDeletedSuccess;
 
+  /// No description provided for @connectedAccounts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comptes connectés'**
+  String get connectedAccounts;
+
+  /// No description provided for @gpchatLinkedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lié : connecte-toi en validant dans l’app GPChat.'**
+  String get gpchatLinkedDesc;
+
+  /// No description provided for @gpchatNotLinkedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte-toi à Kauri avec ton compte GPChat.'**
+  String get gpchatNotLinkedDesc;
+
+  /// No description provided for @gpchatLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lier'**
+  String get gpchatLink;
+
+  /// No description provided for @gpchatUnlink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Délier'**
+  String get gpchatUnlink;
+
+  /// No description provided for @gpchatLinked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte GPChat lié.'**
+  String get gpchatLinked;
+
+  /// No description provided for @gpchatUnlinked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte GPChat délié.'**
+  String get gpchatUnlinked;
+
+  /// No description provided for @gpchatUnlinkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Délier GPChat ?'**
+  String get gpchatUnlinkTitle;
+
+  /// No description provided for @gpchatUnlinkBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu ne pourras plus te connecter à Kauri avec GPChat, jusqu’à une nouvelle liaison.'**
+  String get gpchatUnlinkBody;
+
+  /// No description provided for @errGpchatCancelled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion avec GPChat annulée.'**
+  String get errGpchatCancelled;
+
+  /// No description provided for @errGpchatFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion avec GPChat a échoué. Réessayez.'**
+  String get errGpchatFailed;
+
+  /// No description provided for @continueWithGpchat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec GPChat'**
+  String get continueWithGpchat;
+
   /// No description provided for @errSignInTokenMissing.
   ///
   /// In fr, this message translates to:

@@ -21,6 +21,12 @@ class ApiConstants {
 
   /// Authentification via le service Sign in with Apple.
   static const String appleAuth = '/auth/apple';
+  // « Continuer avec GPChat » (voir AuthRepository.signInWithGpchat).
+  static const String gpchatStart = '/auth/gpchat/start';
+  static const String gpchatExchange = '/auth/gpchat/exchange';
+  static const String gpchatLinkStart = '/auth/gpchat/link/start';
+  static const String gpchatLinkConfirm = '/auth/gpchat/link/confirm';
+  static const String gpchatLink = '/auth/gpchat/link';
 
   /// Lier un numéro de téléphone à un compte existant.
   static const String linkPhone = '/auth/link-phone';

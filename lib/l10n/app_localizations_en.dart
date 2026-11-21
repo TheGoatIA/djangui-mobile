@@ -3871,6 +3871,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountDeletedSuccess => 'Account deleted';
 
   @override
+  String get connectedAccounts => 'Connected accounts';
+
+  @override
+  String get gpchatLinkedDesc =>
+      'Linked: sign in by confirming in the GPChat app.';
+
+  @override
+  String get gpchatNotLinkedDesc =>
+      'Sign in to Kauri with your GPChat account.';
+
+  @override
+  String get gpchatLink => 'Link';
+
+  @override
+  String get gpchatUnlink => 'Unlink';
+
+  @override
+  String get gpchatLinked => 'GPChat account linked.';
+
+  @override
+  String get gpchatUnlinked => 'GPChat account unlinked.';
+
+  @override
+  String get gpchatUnlinkTitle => 'Unlink GPChat?';
+
+  @override
+  String get gpchatUnlinkBody =>
+      'You will no longer be able to sign in to Kauri with GPChat until you link it again.';
+
+  @override
+  String get errGpchatCancelled => 'GPChat sign-in cancelled.';
+
+  @override
+  String get errGpchatFailed => 'GPChat sign-in failed. Please try again.';
+
+  @override
+  String get continueWithGpchat => 'Continue with GPChat';
+
+  @override
   String get errSignInTokenMissing =>
       'Sign-in could not complete (missing token). Please try again.';
 

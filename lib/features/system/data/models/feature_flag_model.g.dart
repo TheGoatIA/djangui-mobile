@@ -24,6 +24,9 @@ FeatureFlagModel _$FeatureFlagModelFromJson(
   authGoogle: json['auth_google'] == null
       ? const FeatureConfig()
       : FeatureConfig.fromJson(json['auth_google'] as Map<String, dynamic>),
+  authGpchat: json['auth_gpchat'] == null
+      ? const FeatureConfig(isEnabled: false)
+      : FeatureConfig.fromJson(json['auth_gpchat'] as Map<String, dynamic>),
   authApple: json['auth_apple'] == null
       ? const FeatureConfig()
       : FeatureConfig.fromJson(json['auth_apple'] as Map<String, dynamic>),
@@ -108,6 +111,7 @@ Map<String, dynamic> _$FeatureFlagModelToJson(FeatureFlagModel instance) =>
     <String, dynamic>{
       'auth_google': instance.authGoogle,
       'auth_apple': instance.authApple,
+      'auth_gpchat': instance.authGpchat,
       'auth_phone': instance.authPhone,
       'auth_biometric': instance.authBiometric,
       'ai_coach_chat': instance.aiCoachChat,
