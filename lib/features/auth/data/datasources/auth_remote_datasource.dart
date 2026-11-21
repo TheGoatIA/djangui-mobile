@@ -18,6 +18,9 @@ abstract class AuthRemoteDataSource {
   Future<AuthResponse> firebaseLogin(String idToken, {String? country});
   Future<AuthResponse> appleLogin(String idToken, {String? countryCode});
   Future<AuthResponse> gpchatExchange(String code, String verifier);
+  Future<String> gpchatLinkStart(String challenge, String platform);
+  Future<UserModel> gpchatLinkConfirm(String code, String verifier);
+  Future<UserModel> gpchatUnlink();
   Future<void> linkPhone(String idToken);
   Future<AuthResponse> register(RegisterRequest request);
   Future<UserModel> updateProfile({
@@ -95,6 +98,40 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } else {
       throw Exception(response.errorMessage);
     }
+  }
+
+  @override
+  Future<String> gpchatLinkStart(String challenge, String platform) async {
+    final response = await _apiService.gpchatLinkStart({
+      'challenge': challenge,
+      'platform': platform,
+    });
+    final String? url = response.body?['url'] as String?;
+    if (response.isSuccessful && url != null) return url;
+    throw Exception(response.errorMessage);
+  }
+
+  @override
+  Future<UserModel> gpchatLinkConfirm(String code, String verifier) async {
+    final response = await _apiService.gpchatLinkConfirm({
+      'code': code,
+      'verifier': verifier,
+    });
+    final dynamic user = response.body?['user'];
+    if (response.isSuccessful && user is Map<String, dynamic>) {
+      return UserModel.fromJson(user);
+    }
+    throw Exception(response.errorMessage);
+  }
+
+  @override
+  Future<UserModel> gpchatUnlink() async {
+    final response = await _apiService.gpchatUnlink();
+    final dynamic user = response.body?['user'];
+    if (response.isSuccessful && user is Map<String, dynamic>) {
+      return UserModel.fromJson(user);
+    }
+    throw Exception(response.errorMessage);
   }
 
   @override

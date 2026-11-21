@@ -3897,6 +3897,36 @@ class AppLocalizationsFr extends AppLocalizations {
   String get accountDeletedSuccess => 'Compte supprimé avec succès';
 
   @override
+  String get connectedAccounts => 'Comptes connectés';
+
+  @override
+  String get gpchatLinkedDesc =>
+      'Lié : connecte-toi en validant dans l’app GPChat.';
+
+  @override
+  String get gpchatNotLinkedDesc =>
+      'Connecte-toi à Kauri avec ton compte GPChat.';
+
+  @override
+  String get gpchatLink => 'Lier';
+
+  @override
+  String get gpchatUnlink => 'Délier';
+
+  @override
+  String get gpchatLinked => 'Compte GPChat lié.';
+
+  @override
+  String get gpchatUnlinked => 'Compte GPChat délié.';
+
+  @override
+  String get gpchatUnlinkTitle => 'Délier GPChat ?';
+
+  @override
+  String get gpchatUnlinkBody =>
+      'Tu ne pourras plus te connecter à Kauri avec GPChat, jusqu’à une nouvelle liaison.';
+
+  @override
   String get errGpchatCancelled => 'Connexion avec GPChat annulée.';
 
   @override

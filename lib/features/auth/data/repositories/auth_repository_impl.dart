@@ -378,6 +378,60 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, UserModel>> linkGpchat() async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      final String verifier = _generateNonce(64);
+      final String url = await _remoteDataSource.gpchatLinkStart(
+        _sha256ofString(verifier),
+        Platform.isIOS ? 'ios' : 'android',
+      );
+      final Uri back = Uri.parse(
+        await FlutterWebAuth2.authenticate(
+          url: url,
+          callbackUrlScheme: 'kauri-auth',
+        ),
+      );
+      final String? code = back.queryParameters['link_code'];
+      if (code == null) {
+        return Left(
+          AuthFailure(
+            back.queryParameters['error'] == 'cancelled'
+                ? appL10n().errGpchatCancelled
+                : appL10n().errGpchatFailed,
+          ),
+        );
+      }
+      final UserModel user = await _remoteDataSource.gpchatLinkConfirm(
+        code,
+        verifier,
+      );
+      await _localDataSource.saveUser(user);
+      return Right(user);
+    } on PlatformException catch (e) {
+      if (e.code == 'CANCELED') {
+        return Left(AuthFailure(appL10n().errGpchatCancelled));
+      }
+      return Left(AuthFailure(appL10n().errGpchatFailed));
+    } catch (e) {
+      _logger.error('Échec de la liaison GPChat', error: e, component: 'AuthRepository');
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserModel>> unlinkGpchat() async {
+    if (!await _networkInfo.isConnected) return Left(NetworkFailure());
+    try {
+      final UserModel user = await _remoteDataSource.gpchatUnlink();
+      await _localDataSource.saveUser(user);
+      return Right(user);
+    } catch (e) {
+      return Left(AuthFailure(ErrorMapper.safeMessage(e)));
+    }
+  }
+
+  @override
   Future<Either<Failure, AuthResponse>> signInWithApple({
     String? countryCode,
   }) async {

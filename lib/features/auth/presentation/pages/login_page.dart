@@ -63,7 +63,8 @@ class _LoginPageState extends State<LoginPage> {
           final isVerified =
               (user?.isEmailVerified ?? false) ||
               (user?.isPhoneVerified ?? false) ||
-              (user?.phone != null && user!.phone!.isNotEmpty);
+              (user?.phone != null && user!.phone!.isNotEmpty) ||
+              user?.gpchatId != null;
 
           if (user != null && !isVerified) {
             context.go(RouteConstants.emailVerificationPending);

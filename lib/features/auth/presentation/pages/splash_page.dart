@@ -93,7 +93,8 @@ class _SplashPageState extends State<SplashPage> {
         final isVerified =
             (user?.isEmailVerified ?? false) ||
             (user?.isPhoneVerified ?? false) ||
-            (user?.phone != null && user!.phone!.isNotEmpty);
+            (user?.phone != null && user!.phone!.isNotEmpty) ||
+            user?.gpchatId != null;
 
         if (user != null && !isVerified) {
           context.go(RouteConstants.emailVerificationPending);

@@ -30,6 +30,19 @@ abstract class AuthApiService extends ChopperService {
     @Body() Map<String, dynamic> body,
   );
 
+  @POST(path: ApiConstants.gpchatLinkStart)
+  Future<Response<Map<String, dynamic>>> gpchatLinkStart(
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST(path: ApiConstants.gpchatLinkConfirm)
+  Future<Response<Map<String, dynamic>>> gpchatLinkConfirm(
+    @Body() Map<String, dynamic> body,
+  );
+
+  @DELETE(path: ApiConstants.gpchatLink)
+  Future<Response<Map<String, dynamic>>> gpchatUnlink();
+
   @POST(path: ApiConstants.appleAuth)
   Future<Response<AuthResponse>> appleLogin(@Body() Map<String, dynamic> body);
 

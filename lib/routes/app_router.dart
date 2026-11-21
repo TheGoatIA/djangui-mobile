@@ -182,7 +182,9 @@ final appRouter = GoRouter(
         user != null &&
         (user.isEmailVerified ||
             user.isPhoneVerified ||
-            (user.phone != null && user.phone!.isNotEmpty));
+            (user.phone != null && user.phone!.isNotEmpty) ||
+            // Compte GPChat : identité déjà vérifiée par GPChat (téléphone).
+            user.gpchatId != null);
     if (isAuthenticated &&
         user != null &&
         !isVerified &&
